@@ -1,0 +1,805 @@
+{
+  "updatedAt": "2025-10-31T19:18:26.000Z",
+  "createdAt": "2025-10-29T05:41:52.037Z",
+  "id": "FiIFYo7xVkvl73Yo",
+  "name": "request_database",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1952,
+        112
+      ],
+      "id": "9e2f71fb-a311-4c0d-9456-2660c573fae5",
+      "name": "Teste Manual"
+    },
+    {
+      "parameters": {
+        "content": "## Resposta JSQL\n\n```json\n{\n  \"code\": 200,\n  \"data\": [...],\n  \"message\": \"Erro...\",\n  \"field\": \"campo_invalido\",\n  \"warnings\": [\n    {\n      \"code\": 200,\n      \"message\": \"Aviso\"\n    }\n  ]\n}\n```",
+        "height": 320,
+        "width": 480
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -112,
+        -112
+      ],
+      "typeVersion": 1,
+      "id": "9d5d3d7e-97c0-4864-9ec0-5c6287ecd8d0",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Requisição JSQL\n\nUma requisição JSQL é um padrão de JSON que contém:\n1. O esquema afetado\n2. A ordem de obter o modificar um objeto\n3. O objeto afetado\n4. Opcionalmente uma ação personalizada executada sobre o objeto\n5. O filtro de seleção dos dados afetados na base\n6. Os valores para alteração de objeto, no caso de uma ordem de alteração\n7. Opções adicionais, como limite, salto e parâmetros de ordenação de resultados\n8. A lista de campos desejados como resposta\n\n### Procedure\n\nO JSQL é validado e repassado para a procedure quem tem o nome baseado nos parâmetros do JSQL:\n\n- `{esquema}.jsql__{operacao}__{entidade}`\n- `{esquema}.jsql__{operacao}__{entidade}__{action}`\n\n### Exemplos\n\n**SELECT:**\n\n`sac.jsql__select__atendente`\n```json\n{\n  \"schema\": \"sac\",\n  \"select\": \"atendente\",\n  \"where\": {\"status\": {\"eq\": \"ativo\"}},\n  \"options\": {\"limit\": 10},\n  \"output\": [\"id\", \"nome\"]\n}\n```\n\n**MUTATE:**\n\n`sac.jsql__mutate__atendente__create_new`\n```json\n{\n  \"mutate\": \"atendente\",\n  \"action\": \"create_new\",\n  \"values\": {\"nome\": \"João\"},\n  \"output\": [\"id\", \"nome\"]\n}\n```",
+        "height": 1088,
+        "width": 512,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2560,
+        -80
+      ],
+      "typeVersion": 1,
+      "id": "ea687ba4-7bf9-4db0-9eda-5d6811cf2c62",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Autorização\n\nPara a execução da requisição é necessário prover um Token JWT que é usado na validação de autorização do usuário.\n\nIsso garante que o usuário foi autenticado pelo workflow `coletivos-autenticar`.\n\nAlém disso, este workflow checa com base na procedure `sac.n8n_get_permissao_efetiva` se o usuário tem permissão específica para executar esta ação.\n\n### Como informar o Token JWT?\n\n**Via Cookie** — método preferido\n\n```\nCookie: access_token={Hash do Token}\n```\n\n**Via propriedade** — no JSON enviado com a requisição\n\n```json\n{\n  \"access_token\": \"{Hash do Token}\",\n  \"schema\": \"sac\",\n  \"select\": \"atendente\",\n  \"where\": {\"status\": {\"eq\": \"ativo\"}},\n  \"options\": {\"limit\": 10},\n  \"output\": [\"id\", \"nome\"]\n}\n```\n",
+        "height": 672,
+        "width": 672
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2032,
+        336
+      ],
+      "typeVersion": 1,
+      "id": "f9430a3f-d1cb-4d9e-b4ab-fdf99e638bcf",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Teste Manual\n\nO teste é preparado em duas partes:\n\n1. Geramos um token via workflow de autenticação\n2. Geramosum payload de consulta básica para testes",
+        "height": 400,
+        "width": 672,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2032,
+        -80
+      ],
+      "typeVersion": 1,
+      "id": "f5e871b8-63af-499c-bdc8-c39c8e5e3e74",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -1744,
+        112
+      ],
+      "id": "f53e5593-4e6c-4542-bf25-d98f87634dff",
+      "name": "Call 'coletivos-autenticar'",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "jsCode": "const { access_token } = $input.first().json.data;\nconst { payload } = $('Teste Manual').first().json;\nreturn { access_token, ...payload };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1536,
+        112
+      ],
+      "id": "8be7deb4-bcb9-46cb-a824-1f58677b19ad",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { access_token } = $input.first().json;\nconst { schema, operation, entity, action } = $input.first().json.payload;\n\nconst permission = action\n    ? `${operation}__${entity}__${action}`\n    : `${operation}__${entity}`;\n\nreturn { schema, permission, access_token };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1040,
+        208
+      ],
+      "id": "2139ff91-85a4-4faa-a010-5700b5a77154",
+      "name": "Parâmetros de Autorização",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "aaf67c8c-a60f-432d-a5d9-b9ca21bdde65",
+              "leftValue": "={{ $('Parâmetros de Requisição').first().json.payload.operation }}",
+              "rightValue": "mutate",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -624,
+        640
+      ],
+      "id": "f55e9b70-2231-49b4-a016-08b87223bd55",
+      "name": "É Mutação de Dados?"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseCode": "={{ $json.code }}"
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        112,
+        336
+      ],
+      "id": "3a735c0b-b7db-4e82-b7be-e4ba4fbc9d10",
+      "name": "Resposta Web"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "coletivos/api/1/requisicao",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1248,
+        -64
+      ],
+      "id": "a8b7bef9-ab9d-4b9d-bf0c-e2b762e77998",
+      "name": "Requisição",
+      "webhookId": "85b45c68-668c-4e67-8890-78b86d707233",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "retryOnFail": false,
+      "notesInFlow": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a24157b4-0726-4030-9e66-6dd9518dc8c0",
+              "leftValue": "={{ !!$json.code }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -624,
+        -32
+      ],
+      "id": "9b5ed1b8-8855-4db6-9a94-7768220b8b58",
+      "name": "Tem Parametros?"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "C3tGJeRr7C6jQhKg",
+          "mode": "list",
+          "cachedResultName": "coletivos-auth-verify"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -832,
+        208
+      ],
+      "id": "f5b55d4f-94df-418e-87b4-9841cce5330c",
+      "name": "Autorização",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "081da538-ab9d-43ec-8e65-daf48980471f",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -624,
+        208
+      ],
+      "id": "760f8022-7a54-4dd3-addf-10d8216dd864",
+      "name": "Autorizado?"
+    },
+    {
+      "parameters": {
+        "jsCode": "const user = $('Autorização').first().json.data.payload;\nconst { payload } = $('Parâmetros de Requisição').first().json\nconst { schema, operation, entity, action = null } = payload;\n\nconst procedureName = action\n  ? `${schema}.jsql__${operation}__${entity}__${action}`\n  : `${schema}.jsql__${operation}__${entity}`;\n\nreturn { procedureName, user, payload };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1248,
+        448
+      ],
+      "id": "a81290ee-5cef-4f3d-a8c2-f4e2059b42fe",
+      "name": "Parâmetros de Execução",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.body ?? $input.first().json;\nconst { headers } = $input.first().json;\n\nlet { access_token } = input;\nconst {\n  schema, select, mutate, action,\n  values, where, options, output, except\n} = input;\n\nif (output && except) {\n  return {\n    code: 400,\n    message: 'Não use \"output\" e \"except\" juntos'\n  };\n}\n\n// DETECTANDO CHAVE DE ACESSO\n//\nfunction getAccessTokenFromCookie(cookieHeader) {\n  if (!cookieHeader) return null;\n\n  const cookies = cookieHeader.split(\";\").reduce((acc, cookie) => {\n    const [name, value] = cookie.trim().split(\"=\");\n    acc[name] = value;\n    return acc;\n  }, {});\n\n  return cookies[\"authorization\"] || cookies[\"access_token\"] || null;\n}\n// 1. Checa no payload diretamente\nif (input.authorization || input.access_token) {\n  access_token = input.authorization ?? input.access_token;\n}\n// 2. Tenta pegar do header Authorization\nelse if (headers?.authorization) {\n  access_token = headers.authorization;\n}\n// 3. Tenta pegar dos cookies\nelse if (headers?.cookie) {\n  access_token = getAccessTokenFromCookie(headers.cookie);\n}\n\nif (!access_token) {\n  return {\n    code: 401,\n    message: 'Usuário não autenticado'\n  };\n}\n\n\n// DETECTANDO PARAMETROS DE AUTORIZACAO\n//\nconst operation = select ? 'select' : mutate ? 'mutate' : null;\nconst entity = select ?? mutate;\n\nif (!operation) {\n  return {\n    code: 400,\n    message: 'Requisição deve conter \"select\" ou \"mutate\"'\n  }\n}\n\nreturn {\n  access_token,\n  payload: {\n    schema, operation, entity, action,\n    values, where, options, output, except\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -832,
+        -32
+      ],
+      "id": "41a1e7a4-b219-4d57-8045-0804be98c48f",
+      "name": "Parâmetros de Requisição",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "IF OBJECT_ID('{{ $json.procedureName }}') IS NULL BEGIN\n  \n  SELECT code=404, message='Procedure \"{{ $json.procedureName }}\" não encontrada'\n    FOR JSON PATH, WITHOUT_ARRAY_WRAPPER\n  RETURN\n  \nEND ELSE BEGIN\n  \n  EXEC {{ $json.procedureName }}\n      @user='{{ JSON.stringify($json.user) }}'\n    , @jsql='{{ JSON.stringify($json.payload) }}'\n  \nEND"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        -1040,
+        448
+      ],
+      "id": "f09f17bb-37b4-455d-bf0f-adc8bd1eb05d",
+      "name": "Procedure",
+      "alwaysOutputData": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const json = $input.first().json;\n\nif (json.error) {\n  return { code: 500, message: json.error };\n}\nif (json.message) {\n  return { code: 200, message: json.message, data: [] };\n}\n\nconst jsonResult = json[Object.keys(json)[0]];\n\nlet status;\n\nif (jsonResult.trim().startsWith('{')) {\n  try {\n    status = JSON.parse(jsonResult);\n    if (status.code) {\n      return status;\n    }\n  } catch { } // podemos ignorar. não veio o json.\n}\n\nreturn {\n  code: 500,\n  message: 'A consulta não produziu o resultado esperado',\n  data: [ status ]\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -832,
+        448
+      ],
+      "id": "b581e238-0ff3-4545-9bab-99201a039f5e",
+      "name": "Parse JSON",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const parametros = $('Parâmetros de Requisição').first().json;\nconst payload = $input.first().json;\n\nconst data = payload?.data;\nlet output = parametros.payload?.output;\nlet except = parametros.payload?.except;\n\nfunction filterByProjection(dataArray, inclusions, exclusions) {\n  return dataArray.map(obj => filterObject(obj, inclusions, exclusions));\n}\n\nfunction filterObject(obj, inclusions, exclusions) {\n  const result = JSON.parse(JSON.stringify(obj)); // deep clone\n  \n  // Se tem output (whitelist): remove tudo que NÃO está na lista\n  if (inclusions && inclusions.length > 0) {\n    removePropertiesNotIn(result, inclusions);\n    return result;\n  }\n  \n  // Se tem except (blacklist): remove tudo que ESTÁ na lista\n  if (exclusions && exclusions.length > 0) {\n    removePropertiesIn(result, exclusions);\n    return result;\n  }\n  \n  return result;\n}\n\nfunction removePropertiesNotIn(obj, inclusions) {\n  // Agrupa por nível: { \"\": [\"id\", \"nome\"], \"papeis\": [\"nome\", \"codigo\"] }\n  const pathsByLevel = {};\n  \n  inclusions.forEach(path => {\n    const keys = path.split('.');\n    if (keys.length === 1) {\n      if (!pathsByLevel[\"\"]) pathsByLevel[\"\"] = [];\n      pathsByLevel[\"\"].push(keys[0]);\n    } else {\n      const parent = keys[0];\n      const child = keys.slice(1).join('.');\n      if (!pathsByLevel[parent]) pathsByLevel[parent] = [];\n      pathsByLevel[parent].push(child);\n    }\n  });\n  \n  // Remove propriedades do nível raiz\n  if (pathsByLevel[\"\"]) {\n    const allowedKeys = pathsByLevel[\"\"];\n    Object.keys(obj).forEach(key => {\n      if (!allowedKeys.includes(key) && !pathsByLevel[key]) {\n        delete obj[key];\n      }\n    });\n  } else {\n    // Se não tem propriedades raiz permitidas, remove tudo exceto os pais com filhos\n    Object.keys(obj).forEach(key => {\n      if (!pathsByLevel[key]) {\n        delete obj[key];\n      }\n    });\n  }\n  \n  // Processa propriedades aninhadas\n  Object.keys(pathsByLevel).forEach(parentKey => {\n    if (parentKey === \"\") return;\n    \n    const childPaths = pathsByLevel[parentKey];\n    const parentValue = obj[parentKey];\n    \n    if (Array.isArray(parentValue)) {\n      parentValue.forEach(item => {\n        if (item && typeof item === 'object') {\n          removePropertiesNotIn(item, childPaths);\n        }\n      });\n    } else if (parentValue && typeof parentValue === 'object') {\n      removePropertiesNotIn(parentValue, childPaths);\n    }\n  });\n}\n\nfunction removePropertiesIn(obj, exclusions) {\n  exclusions.forEach(path => {\n    const keys = path.split('.');\n    deleteNestedProperty(obj, keys);\n  });\n}\n\nfunction deleteNestedProperty(obj, keys) {\n  if (keys.length === 1) {\n    delete obj[keys[0]];\n    return;\n  }\n  \n  const [firstKey, ...restKeys] = keys;\n  const current = obj[firstKey];\n  \n  if (current === null || current === undefined) return;\n  \n  if (Array.isArray(current)) {\n    current.forEach(item => {\n      if (item && typeof item === 'object') {\n        deleteNestedProperty(item, restKeys);\n      }\n    });\n  } else if (typeof current === 'object') {\n    deleteNestedProperty(current, restKeys);\n  }\n}\n\ntry {\n  const projection = filterByProjection(data, output, except);\n  payload.data = projection;\n} catch (error) {\n  console.log(error);\n}\n\nreturn payload;  \n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        448
+      ],
+      "id": "818cf097-7b6e-48e4-89ee-0d9f08922903",
+      "name": "Projeção"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "EXEC sac.n8n_registrar_auditoria\n    @user='{{ JSON.stringify($json.user) }}'\n  , @payload='{{ JSON.stringify($json.payload) }}'\n  , @status='{{ JSON.stringify($json.status) }}'"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        -832,
+        832
+      ],
+      "id": "96261058-1ed4-4c65-b2dc-0b7f6bb313d3",
+      "name": "Auditoria",
+      "alwaysOutputData": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "let json = $input.first().json;\nif (json.error) {\n  return { warnings: [ { code: 500, message: json.error } ] };\n}\nreturn {};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -624,
+        832
+      ],
+      "id": "41eca9ff-36fd-4853-8443-3e3ad8358bff",
+      "name": "Formatação de Warnings"
+    },
+    {
+      "parameters": {
+        "jsCode": "const status = $input.first().json || {};\n\nlet user, payload;\n\ntry {\n  user = $('Autorizacao?').first().json.user;\n} catch {\n  user = {};\n}\n\ntry {\n  payload = $('Parâmetros de Requisição').first().json.payload;\n} catch {\n  payload = {};\n}\n\nreturn { user, payload, status };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1040,
+        832
+      ],
+      "id": "28c5aa9b-5da1-4a07-b900-92460dd15f35",
+      "name": "Parâmetros de Auditoria"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { warnings } = $input.first().json;\nconst payload = $('Parse JSON').first().json;\nif (warnings) {\n  payload.warnings = warnings;\n}\nreturn payload;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -272,
+        448
+      ],
+      "id": "3cd0e52a-e9ec-41f4-a87e-bc5a091450ff",
+      "name": "Reportar Sucesso"
+    },
+    {
+      "parameters": {
+        "jsCode": "const json = $input.first().json;\nreturn (json.code)\n  ? json\n  : { code: 500, message: 'Erro interno ao processar requisição' };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -272,
+        208
+      ],
+      "id": "b9583027-b949-42b0-89c6-94f8362b1dee",
+      "name": "Reportar Falha"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "41cefb91-0bac-4501-8590-e8a6d8996df7",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            },
+            {
+              "id": "081da538-ab9d-43ec-8e65-daf48980471f",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 300,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -624,
+        448
+      ],
+      "id": "be76d669-891f-4cf2-a5b2-e534a7cc021d",
+      "name": "Bem Sucedido?"
+    }
+  ],
+  "connections": {
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Parâmetros de Requisição",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parâmetros de Autorização": {
+      "main": [
+        [
+          {
+            "node": "Autorização",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "É Mutação de Dados?": {
+      "main": [
+        [
+          {
+            "node": "Parâmetros de Auditoria",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reportar Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Requisição": {
+      "main": [
+        [
+          {
+            "node": "Parâmetros de Requisição",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tem Parametros?": {
+      "main": [
+        [
+          {
+            "node": "Parâmetros de Autorização",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reportar Falha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Autorização": {
+      "main": [
+        [
+          {
+            "node": "Autorizado?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Autorizado?": {
+      "main": [
+        [
+          {
+            "node": "Parâmetros de Execução",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reportar Falha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parâmetros de Execução": {
+      "main": [
+        [
+          {
+            "node": "Procedure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parâmetros de Requisição": {
+      "main": [
+        [
+          {
+            "node": "Tem Parametros?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Procedure": {
+      "main": [
+        [
+          {
+            "node": "Parse JSON",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse JSON": {
+      "main": [
+        [
+          {
+            "node": "Bem Sucedido?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Bem Sucedido?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Projeção": {
+      "main": [
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auditoria": {
+      "main": [
+        [
+          {
+            "node": "Formatação de Warnings",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formatação de Warnings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatação de Warnings": {
+      "main": [
+        [
+          {
+            "node": "Reportar Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parâmetros de Auditoria": {
+      "main": [
+        [
+          {
+            "node": "Auditoria",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reportar Sucesso": {
+      "main": [
+        [
+          {
+            "node": "Projeção",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reportar Falha": {
+      "main": [
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bem Sucedido?": {
+      "main": [
+        [
+          {
+            "node": "É Mutação de Dados?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reportar Falha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {
+    "Teste Manual": [
+      {
+        "json": {
+          "username": "guga.coder@gmail.com",
+          "password": "123456",
+          "payload": {
+            "schema": "cia",
+            "mutate": "users",
+            "options": {
+              "limit": 20
+            }
+          }
+        }
+      }
+    ]
+  },
+  "versionId": "e42feec1-b9e4-4812-8a1f-a0449e56cc3f",
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2025-10-29T05:41:52.045Z",
+      "createdAt": "2025-10-29T05:41:52.045Z",
+      "role": "workflow:owner",
+      "workflowId": "FiIFYo7xVkvl73Yo",
+      "projectId": "IA9oo7szBC1GndRN",
+      "project": {
+        "updatedAt": "2025-10-05T13:15:53.136Z",
+        "createdAt": "2025-10-05T13:15:26.895Z",
+        "id": "IA9oo7szBC1GndRN",
+        "name": "Guga Coder <guga.coder@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2025-10-05T13:15:26.896Z",
+            "createdAt": "2025-10-05T13:15:26.896Z",
+            "userId": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+            "projectId": "IA9oo7szBC1GndRN",
+            "user": {
+              "updatedAt": "2025-11-02T04:56:15.000Z",
+              "createdAt": "2025-10-05T13:15:26.419Z",
+              "id": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+              "email": "guga.coder@gmail.com",
+              "firstName": "Guga",
+              "lastName": "Coder",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-10-05T13:16:06.256Z",
+                "personalization_survey_n8n_version": "1.107.3",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "other",
+                "reportedSourceOther": "KeepNomad"
+              },
+              "settings": {
+                "userActivated": true,
+                "firstSuccessfulWorkflowId": "vW3Gx7OZdi98Dfao",
+                "userActivatedAt": 1759671855172,
+                "easyAIWorkflowOnboarded": true,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1761574956378
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2025-11-02",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

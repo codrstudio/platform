@@ -1,0 +1,547 @@
+{
+  "createdAt": "2025-10-28T21:14:56.443Z",
+  "updatedAt": "2025-10-29T03:46:23.000Z",
+  "id": "BykJxfJtRw3lEJYr",
+  "name": "auth-logout",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "api/1/auth/logout",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        448,
+        272
+      ],
+      "id": "e109dc1e-e325-40ab-8d5f-f9386e8e30b2",
+      "name": "Webhook Logout",
+      "webhookId": "logout-webhook-id",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.body || $input.first().json;\nconst headers = $input.first().json.headers || {};\n\nfunction getRefreshTokenFromCookie(cookieHeader) {\n  if (!cookieHeader) return null;\n  const cookies = cookieHeader.split(\";\").reduce((acc, cookie) => {\n    const [name, value] = cookie.trim().split(\"=\");\n    acc[name] = value;\n    return acc;\n  }, {});\n  return cookies[\"refresh_token\"] || null;\n}\n\nlet refresh_token = input.refresh_token || getRefreshTokenFromCookie(headers?.cookie);\n\nif (!refresh_token) {\n  return {\n    code: 400,\n    message: 'Refresh token não fornecido'\n  };\n}\n\nconst crypto = require('crypto');\nconst token_hash = crypto.createHash('sha256').update(refresh_token).digest('hex');\n\nreturn {\n  code: 200,\n  data: {\n    refresh_token,\n    token_hash\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        192
+      ],
+      "id": "3407a219-a21a-472c-ad58-38eae1ff296b",
+      "name": "Extrai Token",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-1",
+              "leftValue": "={{ $json.data.token_hash }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        848,
+        192
+      ],
+      "id": "78b3da07-9adb-4bc5-9af4-1b7d937e8e3c",
+      "name": "Token Válido?"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  code: 200,\n  message: 'Logout realizado com sucesso'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1616,
+        112
+      ],
+      "id": "6aeed599-f877-4da5-820d-dc1d66ef7212",
+      "name": "Formata Sucesso"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { error } = $input.first().json;\nreturn {\n  code: 500,\n  message: error || 'Erro ao realizar logout'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        352
+      ],
+      "id": "61e2077e-4134-4733-82a9-9b4998dc6494",
+      "name": "Formata Erro"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1840,
+        192
+      ],
+      "id": "f1ecff8a-3fa5-4e9c-90d4-823eb0b537bf",
+      "name": "Resposta Web"
+    },
+    {
+      "parameters": {
+        "content": "## Logout\n\nRevoga o refresh token atual, encerrando a sessão.\n\n**Input:**\n```json\n{\n  \"refresh_token\": \"token...\"\n}\n```\n\nOu via cookie `refresh_token`.\n\n**Output (sucesso):**\n```json\n{\n  \"code\": 200,\n  \"message\": \"Logout realizado com sucesso\"\n}\n```",
+        "height": 400,
+        "width": 400
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        48
+      ],
+      "typeVersion": 1,
+      "id": "abc5b204-81a7-4399-9d25-66bee456e3ed",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        448,
+        112
+      ],
+      "id": "3250bfc6-a0e0-45ab-bf89-28245d122a58",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "gpUfj6fYIY4KmLpB",
+          "mode": "list",
+          "cachedResultName": "user_session",
+          "cachedResultUrl": "/projects/IA9oo7szBC1GndRN/datatables/gpUfj6fYIY4KmLpB"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "token_hash",
+              "keyValue": "={{ $json.token_hash }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "expires_at": "={{ $json.expires_at }}",
+            "token_hash": "={{ $json.token_hash }}",
+            "family_id": "={{ $json.family_id }}",
+            "user_id": "={{ $json.user_id }}",
+            "revoked": true,
+            "consumed_at": "={{ $json.consumed_at }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "token_hash",
+              "displayName": "token_hash",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "family_id",
+              "displayName": "family_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "user_id",
+              "displayName": "user_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "consumed_at",
+              "displayName": "consumed_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "expires_at",
+              "displayName": "expires_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "revoked",
+              "displayName": "revoked",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        0
+      ],
+      "id": "9b4c3608-4b3a-4bab-8703-b4ab73c0b922",
+      "name": "Revogação do Token"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "gpUfj6fYIY4KmLpB",
+          "mode": "list",
+          "cachedResultName": "user_session",
+          "cachedResultUrl": "/projects/IA9oo7szBC1GndRN/datatables/gpUfj6fYIY4KmLpB"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "token_hash",
+              "keyValue": "={{ $json.data.token_hash }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        112
+      ],
+      "id": "4de0c286-9624-4bee-9160-15abbf72b272",
+      "name": "Captura do Cache",
+      "alwaysOutputData": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ac47c144-dcd1-4c40-a9e5-046655fafbab",
+              "leftValue": "={{ $json.user_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        112
+      ],
+      "id": "979db9ce-b1d8-42bf-8fff-0eec4093a7aa",
+      "name": "If"
+    }
+  ],
+  "connections": {
+    "Webhook Logout": {
+      "main": [
+        [
+          {
+            "node": "Extrai Token",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrai Token": {
+      "main": [
+        [
+          {
+            "node": "Token Válido?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Token Válido?": {
+      "main": [
+        [
+          {
+            "node": "Captura do Cache",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formata Sucesso": {
+      "main": [
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formata Erro": {
+      "main": [
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Extrai Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revogação do Token": {
+      "main": [
+        [
+          {
+            "node": "Formata Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Captura do Cache": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Revogação do Token",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "When clicking ‘Execute workflow’": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.cia.codr.studio",
+            "user-agent": "PostmanRuntime/7.49.0",
+            "content-length": "64",
+            "accept": "*/*",
+            "accept-encoding": "gzip, deflate, br",
+            "content-type": "application/json",
+            "cookie": "refresh_token=9875d77ec93c0fc240aef704674ed94d8c09dad3e9d4a6001e7e7ae8870d97ce",
+            "postman-token": "4ecef250-cbf5-41ed-8c61-2d45a0f7608f",
+            "x-forwarded-for": "185.203.218.239",
+            "x-forwarded-host": "n8n.cia.codr.studio",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "f03fd09cc87d",
+            "x-real-ip": "185.203.218.239"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "username": "admin@ciacuidadores.com.br",
+            "password": "admin"
+          },
+          "webhookUrl": "https://n8n.codrstudio.dev/webhook/api/1/auth/logout",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "versionId": "91cd1b57-9d3b-49af-afea-1f2ea40b89e6",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "createdAt": "2025-10-28T21:14:56.451Z",
+      "updatedAt": "2025-10-28T21:14:56.451Z",
+      "role": "workflow:owner",
+      "workflowId": "BykJxfJtRw3lEJYr",
+      "projectId": "IA9oo7szBC1GndRN",
+      "project": {
+        "createdAt": "2025-10-05T13:15:26.895Z",
+        "updatedAt": "2025-10-05T13:15:53.136Z",
+        "id": "IA9oo7szBC1GndRN",
+        "name": "Guga Coder <guga.coder@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "createdAt": "2025-10-05T13:15:26.896Z",
+            "updatedAt": "2025-10-05T13:15:26.896Z",
+            "userId": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+            "projectId": "IA9oo7szBC1GndRN",
+            "user": {
+              "createdAt": "2025-10-05T13:15:26.419Z",
+              "updatedAt": "2025-10-29T03:00:01.000Z",
+              "id": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+              "email": "guga.coder@gmail.com",
+              "firstName": "Guga",
+              "lastName": "Coder",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-10-05T13:16:06.256Z",
+                "personalization_survey_n8n_version": "1.107.3",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "other",
+                "reportedSourceOther": "KeepNomad"
+              },
+              "settings": {
+                "userActivated": true,
+                "firstSuccessfulWorkflowId": "vW3Gx7OZdi98Dfao",
+                "userActivatedAt": 1759671855172,
+                "easyAIWorkflowOnboarded": true,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1761574956378
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2025-10-29",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

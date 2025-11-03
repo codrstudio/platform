@@ -1,0 +1,982 @@
+{
+  "createdAt": "2025-10-28T21:15:12.310Z",
+  "updatedAt": "2025-10-29T03:43:45.000Z",
+  "id": "VWi1AIpgkrkBJ8ob",
+  "name": "auth-refresh",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "api/1/auth/refresh",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1824,
+        448
+      ],
+      "id": "aa82b88b-bbe6-4241-8773-b1e3441e6665",
+      "name": "Webhook Refresh",
+      "webhookId": "refresh-webhook-id"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.body\n    || $input.first().json;\nconst headers = $input.first().json.headers || {};\n\nfunction getRefreshTokenFromCookie(cookieHeader) {\n  if (!cookieHeader) return null;\n  const cookies = cookieHeader.split(\";\").reduce((acc, cookie) => {\n    const [name, value] = cookie.trim().split(\"=\");\n    acc[name] = value;\n    return acc;\n  }, {});\n  return cookies[\"refresh_token\"] || null;\n}\n\nlet refresh_token = input.refresh_token || getRefreshTokenFromCookie(headers?.cookie);\n\nif (!refresh_token) {\n  return {\n    code: 401,\n    message: 'Refresh token não fornecido'\n  };\n}\n\nconst crypto = require('crypto');\nconst token_hash = crypto.createHash('sha256').update(refresh_token).digest('hex');\n\nreturn {\n  code: 200,\n  data: {\n    refresh_token,\n    token_hash\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1504,
+        352
+      ],
+      "id": "c525f81f-1b26-4b78-8db1-8ad08df28df4",
+      "name": "Extrai Refresh Token",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-1",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1264,
+        272
+      ],
+      "id": "23ccbff9-6552-4e1f-bce7-8fff8b2c5fd9",
+      "name": "Token Extraído?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-reuse",
+              "leftValue": "={{ $json.consumed_at }}",
+              "rightValue": 403,
+              "operator": {
+                "type": "dateTime",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "40438b60-420a-4f54-89b1-3ca845bbd2bb",
+              "leftValue": "={{ $json.revoked }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -800,
+        128
+      ],
+      "id": "cfb108aa-b2af-4184-a044-75a70d9e3ccb",
+      "name": "Reuso Detectado?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1824,
+        240
+      ],
+      "id": "e8f12a18-65e6-4c64-ab03-a866586b018f",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "gpUfj6fYIY4KmLpB",
+          "mode": "list",
+          "cachedResultName": "user_session",
+          "cachedResultUrl": "/projects/IA9oo7szBC1GndRN/datatables/gpUfj6fYIY4KmLpB"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "token_hash",
+              "keyValue": "={{ $json.data.token_hash }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -1056,
+        208
+      ],
+      "id": "643338cb-aca0-4d29-9077-946bc0bdcabf",
+      "name": "Ler Cache",
+      "alwaysOutputData": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "gpUfj6fYIY4KmLpB",
+          "mode": "list",
+          "cachedResultName": "user_session",
+          "cachedResultUrl": "/projects/IA9oo7szBC1GndRN/datatables/gpUfj6fYIY4KmLpB"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "family_id",
+              "keyValue": "={{ $('Ler Cache').item.json.family_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "revoked": true,
+            "expires_at": "={{ $('Ler Cache').item.json.expires_at }}",
+            "token_hash": "={{ $('Ler Cache').item.json.token_hash }}",
+            "family_id": "={{ $('Ler Cache').item.json.family_id }}",
+            "user_id": "={{ $('Ler Cache').item.json.user_id }}",
+            "consumed_at": "={{ $('Ler Cache').item.json.consumed_at }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "token_hash",
+              "displayName": "token_hash",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "family_id",
+              "displayName": "family_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "user_id",
+              "displayName": "user_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "consumed_at",
+              "displayName": "consumed_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "expires_at",
+              "displayName": "expires_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "revoked",
+              "displayName": "revoked",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        16
+      ],
+      "id": "31a7d9a4-4e2d-4260-86e7-b476f6b22914",
+      "name": "Revogar Família de Tokens",
+      "alwaysOutputData": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "gpUfj6fYIY4KmLpB",
+          "mode": "list",
+          "cachedResultName": "user_session",
+          "cachedResultUrl": "/projects/IA9oo7szBC1GndRN/datatables/gpUfj6fYIY4KmLpB"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "={{ $('Ler Cache').item.json.id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "revoked": false,
+            "expires_at": "={{ $('Ler Cache').item.json.expires_at }}",
+            "token_hash": "={{ $('Ler Cache').item.json.token_hash }}",
+            "family_id": "={{ $('Ler Cache').item.json.family_id }}",
+            "user_id": "={{ $('Ler Cache').item.json.user_id }}",
+            "consumed_at": "={{ new Date() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "token_hash",
+              "displayName": "token_hash",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "family_id",
+              "displayName": "family_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "user_id",
+              "displayName": "user_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "consumed_at",
+              "displayName": "consumed_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "expires_at",
+              "displayName": "expires_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "revoked",
+              "displayName": "revoked",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        528,
+        0
+      ],
+      "id": "6c661cce-64b7-4c86-a675-a8c51e901412",
+      "name": "Marca Token Usado",
+      "alwaysOutputData": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "pBahnvlT1MXPqxjE",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/pBahnvlT1MXPqxjE",
+          "cachedResultName": "find-user"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -336,
+        240
+      ],
+      "id": "bf2c2ff5-0ba7-44b1-9773-c826d9b50439",
+      "name": "find-user",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "6qequ6xLeaaSwaAu",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/6qequ6xLeaaSwaAu",
+          "cachedResultName": "emit-jwt"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        144,
+        128
+      ],
+      "id": "f92e71b8-4569-40e1-bcde-f9cd13df62d3",
+      "name": "emit-jwt",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "value": "gpUfj6fYIY4KmLpB",
+          "mode": "list",
+          "cachedResultName": "user_session",
+          "cachedResultUrl": "/projects/IA9oo7szBC1GndRN/datatables/gpUfj6fYIY4KmLpB"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "token_hash",
+              "keyValue": "={{ $json.data.tokens_control.refresh_token_hash }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "revoked": false,
+            "expires_at": "={{ $json.data.tokens_control.expires_at }}",
+            "token_hash": "={{ $json.data.tokens_control.refresh_token_hash }}",
+            "family_id": "={{ $json.data.tokens_control.familia_id }}",
+            "user_id": "={{ $json.data.payload.sub }}",
+            "consumed_at": "={{ null }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "token_hash",
+              "displayName": "token_hash",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "family_id",
+              "displayName": "family_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "user_id",
+              "displayName": "user_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "consumed_at",
+              "displayName": "consumed_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "expires_at",
+              "displayName": "expires_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "revoked",
+              "displayName": "revoked",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        528,
+        192
+      ],
+      "id": "f56dc693-62f2-4c28-a43f-95b55dbbd06e",
+      "name": "Upsert Token",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  code: 401,\n  message: 'Sessão comprometida. Todas as sessões foram revogadas.'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -288,
+        -96
+      ],
+      "id": "8a6795b6-ec15-4f86-adbd-cbd794510c9f",
+      "name": "Notificar Reuso"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fd9d53bc-a3f2-42de-befd-6d6c125538f4",
+              "name": "id",
+              "value": "={{ $json.user_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -544,
+        240
+      ],
+      "id": "1797f741-a3ef-4536-ad00-c732d1c44dea",
+      "name": "Destacar ID"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { error } = $input.first().json;\nreturn {\n  code: 500,\n  message: 'Erro interno ao processar refresh',\n  data: error\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        464
+      ],
+      "id": "1ec038d1-6ace-44f7-a4f5-0fe859a82b69",
+      "name": "Erro  6"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { tokens, payload } = $('emit-jwt').first().json.data;\nreturn {\n  code: 200,\n  data: { ...tokens, payload }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        96
+      ],
+      "id": "f3638738-3543-4873-8268-d929df699972",
+      "name": "Notificar Token"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1008,
+        -224
+      ],
+      "id": "3da035d0-6499-4b5f-88ac-0f1973bdcac3",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b8a521b5-bfbf-4a84-84e7-fe6cdbf582a4",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -128,
+        240
+      ],
+      "id": "60b1587d-4554-499e-90d1-4fb4b850f217",
+      "name": "Usuário Encontrado?"
+    }
+  ],
+  "connections": {
+    "Webhook Refresh": {
+      "main": [
+        [
+          {
+            "node": "Extrai Refresh Token",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Extrai Refresh Token": {
+      "main": [
+        [
+          {
+            "node": "Token Extraído?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Erro  6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Token Extraído?": {
+      "main": [
+        [
+          {
+            "node": "Ler Cache",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reuso Detectado?": {
+      "main": [
+        [
+          {
+            "node": "Revogar Família de Tokens",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Destacar ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Extrai Refresh Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler Cache": {
+      "main": [
+        [
+          {
+            "node": "Reuso Detectado?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Revogar Família de Tokens": {
+      "main": [
+        [
+          {
+            "node": "Notificar Reuso",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Erro  6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marca Token Usado": {
+      "main": [
+        [
+          {
+            "node": "Notificar Token",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "find-user": {
+      "main": [
+        [
+          {
+            "node": "Usuário Encontrado?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Erro  6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "emit-jwt": {
+      "main": [
+        [
+          {
+            "node": "Marca Token Usado",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upsert Token",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Erro  6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Token": {
+      "main": [
+        [
+          {
+            "node": "Notificar Token",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Erro  6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notificar Reuso": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Destacar ID": {
+      "main": [
+        [
+          {
+            "node": "find-user",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notificar Token": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Erro  6": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Usuário Encontrado?": {
+      "main": [
+        [
+          {
+            "node": "emit-jwt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "When clicking ‘Execute workflow’": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.cia.codr.studio",
+            "user-agent": "PostmanRuntime/7.49.0",
+            "content-length": "64",
+            "accept": "*/*",
+            "accept-encoding": "gzip, deflate, br",
+            "content-type": "application/json",
+            "cookie": "refresh_token=041d0177538a3d77f90e57d463bad560e3ba7af9f07e42e65805309f30fe7b81;",
+            "postman-token": "a9005b11-c0a2-46c9-aa1e-6ecaa8dedf1a",
+            "x-forwarded-for": "185.203.218.239",
+            "x-forwarded-host": "n8n.cia.codr.studio",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "f03fd09cc87d",
+            "x-real-ip": "185.203.218.239"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "username": "admin@ciacuidadores.com.br",
+            "password": "admin"
+          },
+          "webhookUrl": "https://n8n.codrstudio.dev/webhook/api/1/auth/refresh",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "versionId": "3e6fac54-2f54-4d7f-8377-b1280d056e8e",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "createdAt": "2025-10-28T21:15:12.315Z",
+      "updatedAt": "2025-10-28T21:15:12.315Z",
+      "role": "workflow:owner",
+      "workflowId": "VWi1AIpgkrkBJ8ob",
+      "projectId": "IA9oo7szBC1GndRN",
+      "project": {
+        "createdAt": "2025-10-05T13:15:26.895Z",
+        "updatedAt": "2025-10-05T13:15:53.136Z",
+        "id": "IA9oo7szBC1GndRN",
+        "name": "Guga Coder <guga.coder@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "createdAt": "2025-10-05T13:15:26.896Z",
+            "updatedAt": "2025-10-05T13:15:26.896Z",
+            "userId": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+            "projectId": "IA9oo7szBC1GndRN",
+            "user": {
+              "createdAt": "2025-10-05T13:15:26.419Z",
+              "updatedAt": "2025-10-29T03:00:01.000Z",
+              "id": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+              "email": "guga.coder@gmail.com",
+              "firstName": "Guga",
+              "lastName": "Coder",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-10-05T13:16:06.256Z",
+                "personalization_survey_n8n_version": "1.107.3",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "other",
+                "reportedSourceOther": "KeepNomad"
+              },
+              "settings": {
+                "userActivated": true,
+                "firstSuccessfulWorkflowId": "vW3Gx7OZdi98Dfao",
+                "userActivatedAt": 1759671855172,
+                "easyAIWorkflowOnboarded": true,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1761574956378
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2025-10-29",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

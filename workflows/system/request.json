@@ -1,0 +1,808 @@
+{
+  "updatedAt": "2025-11-01T02:10:01.000Z",
+  "createdAt": "2025-10-31T19:18:33.669Z",
+  "id": "ZgP84jIkJI1kNpRI",
+  "name": "request",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "api/1/request",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -560,
+        464
+      ],
+      "id": "c63d2e57-c838-495d-84bc-267e90a6199f",
+      "name": "Webhook",
+      "webhookId": "fe5b7da7-4d55-4709-bac7-73baeea8f81e"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "BEmGygpOwcqEpO98",
+          "mode": "list",
+          "cachedResultName": "permissions",
+          "cachedResultUrl": "/projects/IA9oo7szBC1GndRN/datatables/BEmGygpOwcqEpO98"
+        },
+        "limit": "={{ $json.options.limit }}"
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        112,
+        464
+      ],
+      "id": "233943cd-8c50-45fc-a451-8cdcbb220e35",
+      "name": "permission"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "42130672-193f-46ab-a03c-a370f7b1310b",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "number"
+            },
+            {
+              "id": "ae719ff8-a33a-4312-8ce5-6a7ba68ea3a6",
+              "name": "role",
+              "value": "={{ $json.role }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        336,
+        272
+      ],
+      "id": "66f72df1-36fe-4e06-93ac-ff927284d2e3",
+      "name": "role projection"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "42130672-193f-46ab-a03c-a370f7b1310b",
+              "name": "role_id",
+              "value": "={{ $json.role_id }}",
+              "type": "number"
+            },
+            {
+              "id": "ae719ff8-a33a-4312-8ce5-6a7ba68ea3a6",
+              "name": "permission",
+              "value": "={{ $json.permission }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        336,
+        464
+      ],
+      "id": "a6819c22-fa1f-41b3-be82-2cd8613faf08",
+      "name": "permission projection"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  code: 200,\n  data: $input.all().map(item => item.json)\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        272
+      ],
+      "id": "2808bf5b-e853-4a07-88b0-abf85273a21f",
+      "name": "role result"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  code: 200,\n  data: $input.all().map(item => item.json)\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        464
+      ],
+      "id": "7a59c77f-abd2-4532-9af2-6bca1a14015c",
+      "name": "permission result"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  \"code\": 200,\n  \"data\": [\n    {\n      \"name\": \"select.entity\",\n      \"schema\": \"platform\",\n      \"operation\": \"select\",\n      \"entity\": \"entity\",\n      \"returns\": {\n        \"type\": \"array\",\n        \"items\": {\n          \"ref\": \"entity\"\n        }\n      }\n    },\n    {\n      \"name\": \"select.action\",\n      \"schema\": \"platform\",\n      \"operation\": \"select\",\n      \"entity\": \"action\",\n      \"returns\": {\n        \"type\": \"array\",\n        \"items\": {\n          \"ref\": \"action\"\n        }\n      }\n    },\n    {\n      \"name\": \"select.role\",\n      \"schema\": \"cia\",\n      \"operation\": \"select\",\n      \"entity\": \"role\",\n      \"supports\": {\n        \"limit\": true\n      },\n      \"returns\": {\n        \"type\": \"array\",\n        \"items\": {\n          \"ref\": \"role\"\n        }\n      }\n    },\n    {\n      \"name\": \"select.permission\",\n      \"schema\": \"cia\",\n      \"operation\": \"select\",\n      \"entity\": \"permission\",\n      \"supports\": {\n        \"limit\": true\n      },\n      \"returns\": {\n        \"type\": \"array\",\n        \"items\": {\n          \"ref\": \"permission\"\n        }\n      }\n    }\n  ]\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        112,
+        -112
+      ],
+      "id": "1ede1f38-4218-4d1b-a3c2-7bf248d77eee",
+      "name": "action"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "cs8DRr4dNcnG0x00",
+          "mode": "list",
+          "cachedResultName": "roles",
+          "cachedResultUrl": "/projects/IA9oo7szBC1GndRN/datatables/cs8DRr4dNcnG0x00"
+        },
+        "limit": "={{ $json.options.limit }}"
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        112,
+        272
+      ],
+      "id": "6b0d8142-8449-4047-9a1e-f5e5dc020406",
+      "name": "role"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ac57971d-ec98-446c-9b9d-1bd161eaecd9",
+                    "leftValue": "={{ $json.body.schema }}",
+                    "rightValue": "platform",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "platform"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "6658478b-ba24-4ac4-a261-e5ff09b13169",
+                    "leftValue": "={{ $json.body.schema }}",
+                    "rightValue": "=cia",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "cia"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -336,
+        448
+      ],
+      "id": "57283257-a13e-4f67-a04b-aaf2c9bcc240",
+      "name": "switch schema"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4ed427c2-af6c-43d9-af36-129a3d1a5e01",
+                    "leftValue": "={{ $json.body.select }}",
+                    "rightValue": "schema",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "schema"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "6658478b-ba24-4ac4-a261-e5ff09b13169",
+                    "leftValue": "={{ $json.body.select }}",
+                    "rightValue": "=entity",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "entity"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ac57971d-ec98-446c-9b9d-1bd161eaecd9",
+                    "leftValue": "={{ $json.body.select }}",
+                    "rightValue": "action",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "action"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -112,
+        -336
+      ],
+      "id": "ade55aff-f2c5-400a-a314-00b50ac12625",
+      "name": "switch platform entity"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.select }}",
+                    "rightValue": "role",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "90ab4ec3-1251-4420-9cb4-0b5a796c1398"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "role"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5bef7504-ad4b-483d-ba87-b3ccbd964527",
+                    "leftValue": "={{ $json.body.select }}",
+                    "rightValue": "permission",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "permission"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -112,
+        448
+      ],
+      "id": "0d1bcc5f-ab32-4912-a5e6-0326cee2dbdd",
+      "name": "switch cia entity"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4fddacfd-29c9-4f10-a7b4-2eb9140392f8",
+              "name": "code",
+              "value": 400,
+              "type": "number"
+            },
+            {
+              "id": "f2ad36bb-8cdd-46d4-9011-654a57670e88",
+              "name": "message",
+              "value": "Operação não suportada",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -112,
+        672
+      ],
+      "id": "756e7d90-324a-488e-88e1-55a749f7034c",
+      "name": "bad schema request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4fddacfd-29c9-4f10-a7b4-2eb9140392f8",
+              "name": "code",
+              "value": 400,
+              "type": "number"
+            },
+            {
+              "id": "f2ad36bb-8cdd-46d4-9011-654a57670e88",
+              "name": "message",
+              "value": "Operação não suportada",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        112,
+        80
+      ],
+      "id": "39fc8676-2831-4dbe-be21-af222408a5b2",
+      "name": "bad platform request"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    TABLE_NAME as name,\n    'cia' as `schema`,\n    (\n        SELECT JSON_OBJECTAGG(\n            COLUMN_NAME,\n            JSON_OBJECT(\n                'type', \n                CASE \n                    WHEN DATA_TYPE IN ('int', 'bigint', 'tinyint', 'smallint', 'mediumint') THEN 'integer'\n                    WHEN DATA_TYPE IN ('varchar', 'text', 'char', 'mediumtext', 'longtext') THEN 'string'\n                    WHEN DATA_TYPE IN ('decimal', 'float', 'double') THEN 'number'\n                    WHEN DATA_TYPE IN ('datetime', 'timestamp', 'date', 'time') THEN 'string'\n                    ELSE 'string'\n                END\n            )\n        )\n        FROM INFORMATION_SCHEMA.COLUMNS c\n        WHERE c.TABLE_SCHEMA = t.TABLE_SCHEMA\n        AND c.TABLE_NAME = t.TABLE_NAME\n    ) as properties,\n    (\n        SELECT JSON_ARRAYAGG(COLUMN_NAME)\n        FROM INFORMATION_SCHEMA.COLUMNS c\n        WHERE c.TABLE_SCHEMA = t.TABLE_SCHEMA\n        AND c.TABLE_NAME = t.TABLE_NAME\n        AND c.IS_NULLABLE = 'NO'\n        AND c.COLUMN_KEY != 'PRI'\n        AND c.EXTRA NOT LIKE '%auto_increment%'\n    ) as `required`\nFROM \n    INFORMATION_SCHEMA.TABLES t\nWHERE \n    t.TABLE_SCHEMA = DATABASE()\n    AND t.TABLE_TYPE = 'BASE TABLE'\nORDER BY \n    t.TABLE_NAME;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        112,
+        -496
+      ],
+      "id": "75b0983b-2953-49a2-ac5d-2a7b27584adb",
+      "name": "database entity",
+      "credentials": {
+        "mySql": {
+          "id": "RPrzQQHhCIwyA9UK",
+          "name": "mysql-homologacao"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  \"code\": 200,\n  \"data\": [\n    { \"name\": \"cia\" },\n    { \"name\": \"platform\" }\n  ]\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        112,
+        -688
+      ],
+      "id": "5961d5b7-bcb6-4006-b5c0-94a57e096f1c",
+      "name": "schema"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    \"name\": \"entity\",\n    \"schema\": \"platform\",\n    \"properties\": {\n      \"name\": {\n        \"type\": \"string\",\n        \"description\": \"Nome único da entidade no schema\"\n      },\n      \"schema\": {\n        \"type\": \"string\",\n        \"description\": \"Schema ao qual a entidade pertence\"\n      },\n      \"properties\": {\n        \"type\": \"object\",\n        \"description\": \"Definição dos campos da entidade (JSON Schema standard)\"\n      },\n      \"required\": {\n        \"type\": \"array\",\n        \"items\": {\n          \"type\": \"string\"\n        },\n        \"description\": \"Lista de campos obrigatórios\"\n      }\n    },\n    \"required\": [\"name\", \"schema\", \"properties\"]\n  },\n  {\n    \"name\": \"action\",\n    \"schema\": \"platform\",\n    \"properties\": {\n      \"name\": {\n        \"type\": \"string\",\n        \"description\": \"Nome único da action (formato: operation.entity[.action])\"\n      },\n      \"schema\": {\n        \"type\": \"string\",\n        \"description\": \"Schema ao qual a action pertence\"\n      },\n      \"operation\": {\n        \"type\": \"string\",\n        \"enum\": [\"select\", \"mutate\"],\n        \"description\": \"Tipo de operação\"\n      },\n      \"entity\": {\n        \"type\": \"string\",\n        \"description\": \"Nome da entidade alvo\"\n      },\n      \"action\": {\n        \"type\": \"string\",\n        \"description\": \"Ação específica para mutate (ex: insert, update, delete)\"\n      },\n      \"supports\": {\n        \"type\": \"object\",\n        \"description\": \"Capacidades JQEL suportadas\",\n        \"properties\": {\n          \"limit\": {\n            \"type\": \"boolean\",\n            \"description\": \"Suporte a limitação de registros\"\n          },\n          \"orderBy\": {\n            \"oneOf\": [\n              { \"type\": \"boolean\" },\n              { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n            ],\n            \"description\": \"Suporte a ordenação (true = todos os campos, array = campos específicos)\"\n          },\n          \"output\": {\n            \"oneOf\": [\n              { \"type\": \"boolean\" },\n              { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n            ],\n            \"description\": \"Suporte a projeção de inclusão\"\n          },\n          \"except\": {\n            \"oneOf\": [\n              { \"type\": \"boolean\" },\n              { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n            ],\n            \"description\": \"Suporte a projeção de exclusão\"\n          },\n          \"values\": {\n            \"oneOf\": [\n              { \"type\": \"boolean\" },\n              { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n            ],\n            \"description\": \"Campos que podem ser modificados (mutate)\"\n          }\n        }\n      },\n      \"returns\": {\n        \"type\": \"object\",\n        \"description\": \"Tipo de retorno da action\",\n        \"properties\": {\n          \"type\": {\n            \"type\": \"string\",\n            \"enum\": [\"array\", \"object\"],\n            \"description\": \"Tipo base do retorno\"\n          },\n          \"items\": {\n            \"type\": \"object\",\n            \"description\": \"Definição dos itens do array\",\n            \"properties\": {\n              \"ref\": {\n                \"type\": \"string\",\n                \"description\": \"Referência à entidade (formato: entity ou schema:entity)\"\n              }\n            }\n          },\n          \"properties\": {\n            \"type\": \"object\",\n            \"description\": \"Propriedades do objeto retornado (quando não é referência)\"\n          }\n        }\n      }\n    },\n    \"required\": [\"name\", \"schema\", \"operation\", \"entity\", \"returns\"]\n  },\n  {\n    \"name\": \"role\",\n    \"schema\": \"cia\",\n    \"properties\": {\n      \"id\": {\n        \"type\": \"integer\",\n        \"description\": \"Identificador único da função\"\n      },\n      \"role\": {\n        \"type\": \"string\",\n        \"description\": \"Nome legível da função\"\n      }\n    },\n    \"required\": [\"id\", \"role\"]\n  },\n  {\n    \"name\": \"permission\",\n    \"schema\": \"cia\",\n    \"properties\": {\n      \"role_id\": {\n        \"type\": \"integer\",\n        \"description\": \"Identificador que referencia o id da função\"\n      },\n      \"permission\": {\n        \"type\": \"string\",\n        \"description\": \"Permissão concedida; pode ser '*' para acesso total\"\n      }\n    },\n    \"required\": [\"role_id\", \"permission\"]\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        112,
+        -304
+      ],
+      "id": "11f0c839-8bcb-474a-9545-2f81130177ad",
+      "name": "datatable entity"
+    },
+    {
+      "parameters": {
+        "jsCode": "const arr1 = $(\"datatable entity\").all();\nconst arr2 = $(\"database entity\").all();\nreturn [...arr1, ...arr2];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        -496
+      ],
+      "id": "e3d2006a-70ba-4066-a015-4bd421a096e1",
+      "name": "combined entity"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4fddacfd-29c9-4f10-a7b4-2eb9140392f8",
+              "name": "code",
+              "value": 400,
+              "type": "number"
+            },
+            {
+              "id": "f2ad36bb-8cdd-46d4-9011-654a57670e88",
+              "name": "message",
+              "value": "Operação não suportada",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        112,
+        672
+      ],
+      "id": "31a3e90e-be44-4eb9-8755-1608073f3740",
+      "name": "bad cia request"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "switch schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "permission": {
+      "main": [
+        [
+          {
+            "node": "permission projection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "role projection": {
+      "main": [
+        [
+          {
+            "node": "role result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "permission projection": {
+      "main": [
+        [
+          {
+            "node": "permission result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "role": {
+      "main": [
+        [
+          {
+            "node": "role projection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "switch schema": {
+      "main": [
+        [
+          {
+            "node": "switch platform entity",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "switch cia entity",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "bad schema request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "switch cia entity": {
+      "main": [
+        [
+          {
+            "node": "role",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "permission",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "bad cia request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "switch platform entity": {
+      "main": [
+        [
+          {
+            "node": "schema",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "datatable entity",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "database entity",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "action",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "bad platform request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "database entity": {
+      "main": [
+        [
+          {
+            "node": "combined entity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "datatable entity": {
+      "main": [
+        [
+          {
+            "node": "combined entity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.cia.codr.studio",
+            "user-agent": "curl/8.16.0",
+            "content-length": "37",
+            "accept": "*/*",
+            "content-type": "application/json",
+            "x-forwarded-for": "216.234.208.114",
+            "x-forwarded-host": "n8n.cia.codr.studio",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "f03fd09cc87d",
+            "x-real-ip": "216.234.208.114",
+            "accept-encoding": "gzip"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "schema": "platform",
+            "select": "entity"
+          },
+          "webhookUrl": "https://n8n.cia.codr.studio/webhook/api/1/request",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "versionId": "458664d3-e646-48bb-8cc5-fb3bb83a99c3",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2025-10-31T19:18:33.677Z",
+      "createdAt": "2025-10-31T19:18:33.677Z",
+      "role": "workflow:owner",
+      "workflowId": "ZgP84jIkJI1kNpRI",
+      "projectId": "IA9oo7szBC1GndRN",
+      "project": {
+        "updatedAt": "2025-10-05T13:15:53.136Z",
+        "createdAt": "2025-10-05T13:15:26.895Z",
+        "id": "IA9oo7szBC1GndRN",
+        "name": "Guga Coder <guga.coder@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2025-10-05T13:15:26.896Z",
+            "createdAt": "2025-10-05T13:15:26.896Z",
+            "userId": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+            "projectId": "IA9oo7szBC1GndRN",
+            "user": {
+              "updatedAt": "2025-11-02T04:56:15.000Z",
+              "createdAt": "2025-10-05T13:15:26.419Z",
+              "id": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+              "email": "guga.coder@gmail.com",
+              "firstName": "Guga",
+              "lastName": "Coder",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-10-05T13:16:06.256Z",
+                "personalization_survey_n8n_version": "1.107.3",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "other",
+                "reportedSourceOther": "KeepNomad"
+              },
+              "settings": {
+                "userActivated": true,
+                "firstSuccessfulWorkflowId": "vW3Gx7OZdi98Dfao",
+                "userActivatedAt": 1759671855172,
+                "easyAIWorkflowOnboarded": true,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1761574956378
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2025-11-02",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

@@ -1,0 +1,89 @@
+{
+  "updatedAt": "2025-10-31T19:18:58.000Z",
+  "createdAt": "2025-10-31T19:18:47.636Z",
+  "id": "Uz72ftILU3uh7PxA",
+  "name": "request_datatable",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c2d51bd2-102c-4715-bec0-d6d2375d1496",
+      "name": "When Executed by Another Workflow"
+    }
+  ],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "1e2b63ea-971e-4028-a834-35aca4bc2567",
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2025-10-31T19:18:47.644Z",
+      "createdAt": "2025-10-31T19:18:47.644Z",
+      "role": "workflow:owner",
+      "workflowId": "Uz72ftILU3uh7PxA",
+      "projectId": "IA9oo7szBC1GndRN",
+      "project": {
+        "updatedAt": "2025-10-05T13:15:53.136Z",
+        "createdAt": "2025-10-05T13:15:26.895Z",
+        "id": "IA9oo7szBC1GndRN",
+        "name": "Guga Coder <guga.coder@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2025-10-05T13:15:26.896Z",
+            "createdAt": "2025-10-05T13:15:26.896Z",
+            "userId": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+            "projectId": "IA9oo7szBC1GndRN",
+            "user": {
+              "updatedAt": "2025-11-02T04:56:15.000Z",
+              "createdAt": "2025-10-05T13:15:26.419Z",
+              "id": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+              "email": "guga.coder@gmail.com",
+              "firstName": "Guga",
+              "lastName": "Coder",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-10-05T13:16:06.256Z",
+                "personalization_survey_n8n_version": "1.107.3",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "other",
+                "reportedSourceOther": "KeepNomad"
+              },
+              "settings": {
+                "userActivated": true,
+                "firstSuccessfulWorkflowId": "vW3Gx7OZdi98Dfao",
+                "userActivatedAt": 1759671855172,
+                "easyAIWorkflowOnboarded": true,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1761574956378
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2025-11-02",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

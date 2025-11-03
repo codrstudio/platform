@@ -1,0 +1,218 @@
+{
+  "createdAt": "2025-10-29T05:59:59.806Z",
+  "updatedAt": "2025-10-29T13:49:23.000Z",
+  "id": "tSDIVIHXw6c5vpUp",
+  "name": "fn-jwt-validation",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const crypto = require('crypto');\nconst SECRET_KEY = $env[\"SECRET_KEY\"] || '73kZtS56JFkRuRpfuUj08cmOMtDzH8ZGMaKsfcZewQMqMvRIojf70toDGajiDJPm';\nconst { access_token } = $json;\n\nfunction base64urlUnescape(str) {\n  str += new Array(5 - str.length % 4).join('=');\n  return str.replace(/\\-/g, '+').replace(/_/g, '/');\n}\n\nfunction verifyJWT(access_token, secret) {\n  try {\n    const parts = access_token.split('.')\n    \n    if (parts.length !== 3) {\n      return { isValid: false, error: 'Token malformado' };\n    }\n    \n    const [encodedHeader, encodedPayload, signature] = parts;\n    \n    const expectedSignature = crypto\n      .createHmac('sha256', secret)\n      .update(encodedHeader + '.' + encodedPayload)\n      .digest('base64')\n      .replace(/\\+/g, '-')\n      .replace(/\\//g, '_')\n      .replace(/=/g, '');\n    \n    if (signature !== expectedSignature) {\n      return { isValid: false, error: 'Assinatura inválida' };\n    }\n    \n    const payload = JSON.parse(\n      Buffer.from(base64urlUnescape(encodedPayload), 'base64').toString()\n    );\n    \n    const now = Math.floor(Date.now() / 1000);\n    if (payload.exp && payload.exp < now) {\n      return { isValid: false, error: 'Token expirado' };\n    }\n    \n    return { isValid: true, payload };\n  } catch (error) {\n    return { isValid: false, error: 'Erro ao processar access_token' };\n  }\n}\n\ntry {\n  return verifyJWT(access_token, SECRET_KEY);\n} catch (error) {\n  return {\n    isValid: false,\n    access_token,\n    error\n  }\n}\n//const { access_token } = item.json;\n//const result = verifyJWT(access_token, SECRET_KEY);\n//return result;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        -208
+      ],
+      "id": "008b21e0-7498-4ae9-9237-612c24fab7c6",
+      "name": "Valida JWT e Extrai ID",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  let access_token = \n        item.json.access_token\n     || item.json.payload?.access_token\n     || item.json.data?.access_token\n     || item.json.data?.payload?.access_token;\n  item.json = { access_token };\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        -208
+      ],
+      "id": "33761bb2-3eea-4d00-a8ab-64b6a0311164",
+      "name": "Extrai Token"
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"access_token\": \"\",\n  \"payload\": { \"access_token\": \"\" },\n  \"data\": { \"access_token\": \"\" },\n  \"data\": { \"payload\":{ \"access_token\": \"\" }}\n}"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -64,
+        -112
+      ],
+      "id": "fc328674-d899-4c45-b746-09977a68a6cb",
+      "name": "Invocação Externa"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -304
+      ],
+      "id": "08ddcc6f-e7ac-4977-9fb6-70d26ace2b5c",
+      "name": "Invocação Manual"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8a95e59e-e69f-42b8-9791-f2e8ca96a8f4",
+              "name": "isValid",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "cb464818-6615-4830-8869-d80e2a07c7ab",
+              "name": "error",
+              "value": "={{ $json.error || \"Erro validando autenticação do usuário\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        608,
+        -112
+      ],
+      "id": "72ab8cb7-a899-461f-ad49-736c806906e1",
+      "name": "Edit Fields"
+    }
+  ],
+  "connections": {
+    "Valida JWT e Extrai ID": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrai Token": {
+      "main": [
+        [
+          {
+            "node": "Valida JWT e Extrai ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invocação Externa": {
+      "main": [
+        [
+          {
+            "node": "Extrai Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invocação Manual": {
+      "main": [
+        [
+          {
+            "node": "Extrai Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {
+    "Invocação Manual": [
+      {
+        "json": {
+          "data": {
+            "payload": {
+              "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1YmJhMjQ5ZS01NmEwLTQ3Y2EtOTk4Zi01NWY0MzAxYTI0ZTEiLCJpc3MiOiJjaWFjdWlkYWRvcmVzIiwiYXVkIjoicHJpbWVjYXJlIiwiZXhwIjoxNzYxODA1Nzg2LCJpYXQiOjE3NjE3MTkzODYsImp0aSI6ImJkMTBjMTJiLTI5NDEtNDM3ZC05YTRjLTgzZmY3NzcwYjlhZSIsInRlbmFudCI6WzEsMTgsMTksMTIsOCwxM10sInJvbGVzIjpbbnVsbF0sIm5hbWUiOiJHVUdBIENPREVSIiwiZW1haWwiOiJndWdhLmNvZGVyQGdtYWlsLmNvbSJ9.ssLTWLiyrVXN7nF2EqG4PTk_bbPzW7YWHZ2WHVt1yu0"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "versionId": "9ccc224c-0efd-4b7b-b9ce-c42ff239e180",
+  "triggerCount": 0,
+  "shared": [
+    {
+      "createdAt": "2025-10-29T05:59:59.813Z",
+      "updatedAt": "2025-10-29T05:59:59.813Z",
+      "role": "workflow:owner",
+      "workflowId": "tSDIVIHXw6c5vpUp",
+      "projectId": "IA9oo7szBC1GndRN",
+      "project": {
+        "createdAt": "2025-10-05T13:15:26.895Z",
+        "updatedAt": "2025-10-05T13:15:53.136Z",
+        "id": "IA9oo7szBC1GndRN",
+        "name": "Guga Coder <guga.coder@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "createdAt": "2025-10-05T13:15:26.896Z",
+            "updatedAt": "2025-10-05T13:15:26.896Z",
+            "userId": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+            "projectId": "IA9oo7szBC1GndRN",
+            "user": {
+              "createdAt": "2025-10-05T13:15:26.419Z",
+              "updatedAt": "2025-10-29T03:00:01.000Z",
+              "id": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+              "email": "guga.coder@gmail.com",
+              "firstName": "Guga",
+              "lastName": "Coder",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-10-05T13:16:06.256Z",
+                "personalization_survey_n8n_version": "1.107.3",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "other",
+                "reportedSourceOther": "KeepNomad"
+              },
+              "settings": {
+                "userActivated": true,
+                "firstSuccessfulWorkflowId": "vW3Gx7OZdi98Dfao",
+                "userActivatedAt": 1759671855172,
+                "easyAIWorkflowOnboarded": true,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1761574956378
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2025-10-29",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

@@ -1,0 +1,545 @@
+{
+  "createdAt": "2025-10-28T21:15:05.636Z",
+  "updatedAt": "2025-10-29T12:09:36.000Z",
+  "id": "tK5uOCq2sbz0HHdb",
+  "name": "auth-logout-all",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "api/1/auth/logout-all",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        688,
+        208
+      ],
+      "id": "a0735abc-1c6e-4359-8f40-7f061d7301fc",
+      "name": "Webhook Logout All",
+      "webhookId": "logout-all-webhook-id",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.body || $input.first().json;\nconst headers = $input.first().json.headers || {};\n\nfunction getAccessTokenFromCookie(cookieHeader) {\n  if (!cookieHeader) return null;\n  const cookies = cookieHeader.split(\";\").reduce((acc, cookie) => {\n    const [name, value] = cookie.trim().split(\"=\");\n    acc[name] = value;\n    return acc;\n  }, {});\n  return cookies[\"authorization\"] || cookies[\"access_token\"] || null;\n}\n\nlet access_token = input.authorization || input.access_token || headers?.authorization || getAccessTokenFromCookie(headers?.cookie);\n\nif (!access_token) {\n  return {\n    code: 401,\n    message: 'Access token não fornecido'\n  };\n}\n\nreturn {\n  code: 200,\n  data: {\n    access_token\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        112
+      ],
+      "id": "a56dd9f3-4801-48d6-9557-31ee66ed1040",
+      "name": "Extrai Access Token",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-1",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1072,
+        112
+      ],
+      "id": "574f3b54-7e02-414b-942b-db9a94bef9df",
+      "name": "Token Extraído?"
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\n\nconst SECRET_KEY = $env[\"SECRET_KEY\"] || '73kZtS56JFkRuRpfuUj08cmOMtDzH8ZGMaKsfcZewQMqMvRIojf70toDGajiDJPm';\n\nconst { access_token } = $input.first().json.data;\n\nfunction base64urlUnescape(str) {\n  str += new Array(5 - str.length % 4).join('=');\n  return str.replace(/\\-/g, '+').replace(/_/g, '/');\n}\n\nfunction verifyJWT(access_token, secret) {\n  try {\n    const parts = access_token.split('.');\n    \n    if (parts.length !== 3) {\n      return { isValid: false, error: 'Token malformado' };\n    }\n    \n    const [encodedHeader, encodedPayload, signature] = parts;\n    \n    const expectedSignature = crypto\n      .createHmac('sha256', secret)\n      .update(encodedHeader + '.' + encodedPayload)\n      .digest('base64')\n      .replace(/\\+/g, '-')\n      .replace(/\\//g, '_')\n      .replace(/=/g, '');\n    \n    if (signature !== expectedSignature) {\n      return { isValid: false, error: 'Assinatura inválida' };\n    }\n    \n    const payload = JSON.parse(\n      Buffer.from(base64urlUnescape(encodedPayload), 'base64').toString()\n    );\n    \n    const now = Math.floor(Date.now() / 1000);\n    if (payload.exp && payload.exp < now) {\n      return { isValid: false, error: 'Token expirado' };\n    }\n    \n    return { isValid: true, payload };\n  } catch (error) {\n    return { isValid: false, error: 'Erro ao processar access_token' };\n  }\n}\n\nconst result = verifyJWT(access_token, SECRET_KEY);\n\nif (!result.valid) {\n  return {\n    code: 401,\n    message: result.error\n  };\n}\n\n// sub signfica subject e contém o id do usuario\nreturn {\n  code: 200,\n  data: {\n    id_usuario: result.payload.sub\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1312,
+        16
+      ],
+      "id": "3b223efd-ea52-4c67-96bc-48141ff42a6a",
+      "name": "Valida JWT e Extrai ID",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-valid",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1488,
+        16
+      ],
+      "id": "3095cb74-c267-4245-8c89-419986e3d8d5",
+      "name": "JWT Válido?"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  code: 200,\n  message: 'Todas as sessões foram revogadas com sucesso'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2128,
+        -80
+      ],
+      "id": "baa7cc65-8b24-49c8-bbfd-b3e4a52f1d1f",
+      "name": "Formata Sucesso"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { error } = $input.first().json;\nreturn {\n  code: 500,\n  message: error || 'Erro ao revogar sessões'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2128,
+        240
+      ],
+      "id": "873b51e7-c3a6-44be-9254-e7a7d3169bb9",
+      "name": "Formata Erro"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2384,
+        64
+      ],
+      "id": "5101d7df-0cbc-4d28-ad42-380328fa150a",
+      "name": "Resposta Web"
+    },
+    {
+      "parameters": {
+        "content": "## Logout All\n\nRevoga TODAS as sessões do usuário autenticado.\n\n**Input:**\n```json\n{\n  \"access_token\": \"eyJhbGc...\"\n}\n```\n\nOu via header `Authorization: Bearer ...` ou cookie `access_token`.\n\n**Output (sucesso):**\n```json\n{\n  \"code\": 200,\n  \"message\": \"Todas as sessões foram revogadas com sucesso\"\n}\n```\n\n**Use case:**\n- Usuário suspeita de comprometimento\n- Troca de senha\n- Segurança adicional",
+        "height": 580,
+        "width": 608
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        48,
+        -128
+      ],
+      "typeVersion": 1,
+      "id": "314cb993-c4a1-4875-93d9-600434c122d1",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        688,
+        16
+      ],
+      "id": "39c29ed8-0692-4063-a271-7bfdb7ddd049",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "gpUfj6fYIY4KmLpB",
+          "mode": "list",
+          "cachedResultName": "user_session",
+          "cachedResultUrl": "/projects/IA9oo7szBC1GndRN/datatables/gpUfj6fYIY4KmLpB"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "revoked": true,
+            "token_hash": "={{ $json.token_hash }}",
+            "family_id": "={{ $json.family_id }}",
+            "user_id": "={{ $json.user_id }}",
+            "consumed_at": "={{ $json.consumed_at }}",
+            "expires_at": "={{ $json.expires_at }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "token_hash",
+              "displayName": "token_hash",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "family_id",
+              "displayName": "family_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "user_id",
+              "displayName": "user_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "consumed_at",
+              "displayName": "consumed_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "expires_at",
+              "displayName": "expires_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "revoked",
+              "displayName": "revoked",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        -80
+      ],
+      "id": "b901aaff-17ee-4a4e-8549-6889d66d1ba0",
+      "name": "Update row(s)",
+      "alwaysOutputData": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "gpUfj6fYIY4KmLpB",
+          "mode": "list",
+          "cachedResultName": "user_session",
+          "cachedResultUrl": "/projects/IA9oo7szBC1GndRN/datatables/gpUfj6fYIY4KmLpB"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "user_id",
+              "keyValue": "={{ $json.data.id_usuario }}"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        1744,
+        -80
+      ],
+      "id": "0a13a9e7-b80d-4581-9309-f2be6349c3d3",
+      "name": "Get rows"
+    }
+  ],
+  "connections": {
+    "Webhook Logout All": {
+      "main": [
+        [
+          {
+            "node": "Extrai Access Token",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrai Access Token": {
+      "main": [
+        [
+          {
+            "node": "Token Extraído?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Token Extraído?": {
+      "main": [
+        [
+          {
+            "node": "Valida JWT e Extrai ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valida JWT e Extrai ID": {
+      "main": [
+        [
+          {
+            "node": "JWT Válido?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JWT Válido?": {
+      "main": [
+        [
+          {
+            "node": "Get rows",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formata Sucesso": {
+      "main": [
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formata Erro": {
+      "main": [
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Extrai Access Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row(s)": {
+      "main": [
+        [
+          {
+            "node": "Formata Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get rows": {
+      "main": [
+        [
+          {
+            "node": "Update row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "dad9c9eb-ade0-4e2f-ab4e-f544408bbe12",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "createdAt": "2025-10-28T21:15:05.640Z",
+      "updatedAt": "2025-10-28T21:15:05.640Z",
+      "role": "workflow:owner",
+      "workflowId": "tK5uOCq2sbz0HHdb",
+      "projectId": "IA9oo7szBC1GndRN",
+      "project": {
+        "createdAt": "2025-10-05T13:15:26.895Z",
+        "updatedAt": "2025-10-05T13:15:53.136Z",
+        "id": "IA9oo7szBC1GndRN",
+        "name": "Guga Coder <guga.coder@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "createdAt": "2025-10-05T13:15:26.896Z",
+            "updatedAt": "2025-10-05T13:15:26.896Z",
+            "userId": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+            "projectId": "IA9oo7szBC1GndRN",
+            "user": {
+              "createdAt": "2025-10-05T13:15:26.419Z",
+              "updatedAt": "2025-10-29T03:00:01.000Z",
+              "id": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+              "email": "guga.coder@gmail.com",
+              "firstName": "Guga",
+              "lastName": "Coder",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-10-05T13:16:06.256Z",
+                "personalization_survey_n8n_version": "1.107.3",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "other",
+                "reportedSourceOther": "KeepNomad"
+              },
+              "settings": {
+                "userActivated": true,
+                "firstSuccessfulWorkflowId": "vW3Gx7OZdi98Dfao",
+                "userActivatedAt": 1759671855172,
+                "easyAIWorkflowOnboarded": true,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1761574956378
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2025-10-29",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

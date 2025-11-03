@@ -1,0 +1,785 @@
+{
+  "createdAt": "2025-10-29T05:57:09.876Z",
+  "updatedAt": "2025-10-29T22:38:17.000Z",
+  "id": "BERaBtKNMSJ9dbfr",
+  "name": "authorize",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Token JWT\nO token de acesso pode ser repassado de várias formas:\n\n### 1. Via Cookie no Header\n\nNa chave `authorization` ou `access_token`\n\n```\nCookie: access_token={Hash do Token}\n```\n\n### 2. No corpo da mensagem\n\nComo propriedade JSON `authorization` ou `access_token`\n\n```json\n{\n  \"access_token\": \"{Hash do Token}\"\n}\n```\n\n\n",
+        "height": 480,
+        "width": 704
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        720,
+        -48
+      ],
+      "typeVersion": 1,
+      "id": "4089eea7-bebc-493d-8b8f-b22ac6446e8f",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Autorização\n\nAutorização neste contexto significa validar o Token JWT e extrair dele o Payload de Usuário, que são as informações estocadas nele sobre o usuário autenticado.\n\nPortanto, um Token JWT `Autorizado` significa que:\n\n1. Ele foi emitido pelo workflow `coletivos-autenticar`\n2. Contém informações válidas sobre o usuário\n\n### Sobre o Payload de Usuário\n\nO conteúdo do Payload pode variar segundo a implementação corrente da procedure `sac.n8n_get_usuario_autenticacao`, que é responsável pela geração do payload.\n\nMas em geral o payload contém:\n\n```json\n{\n  \"id_usuario\": 2,\n  \"email\": \"admin@ciacuidadores.com.br\",\n  \"nome_exibicao\": \"Administrador\",\n  \"avatar_url\": \"/avatares/admin@ciacuidadores.com.br.png\",\n  \"telefone\": \"(00) 0 0000-0000\",\n  \"is_admin\": false,\n  \"preferencias\": {\n    \"fuso_horario\": \"America/Sao_Paulo\",\n    \"idioma\": \"pt-BR\",\n    \"tema\": \"claro\",\n    \"notificacoes_email\": true,\n    \"notificacoes_push\": true\n  },\n  \"atendente\": {},\n  \"papeis\": [\n    {\n      \"codigo\": \"administrador\",\n      \"nome\": \"Administrador\",\n      \"permissoes\": {\n        \"explorar\": true,\n        \"alterar\": true,\n        \"configurar\": true\n      },\n      \"cor\": \"critico\",\n      \"icone\": \"shield\"\n    }\n  ],\n  \"ativo\": true,\n  \"ultimo_login\": null\n}\n\n```",
+        "height": 992,
+        "width": 544,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        -48
+      ],
+      "typeVersion": 1,
+      "id": "b8793821-c228-4857-b9a1-fce10aa81d65",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Resposta\n\nA resposta é um objeto de status na forma:\n\n```json\n{\n  \"code\": 0,\n  \"message\": \"\",\n  \"data\": []\n}\n```\n\n**Mensagem em geral é emitida para erros das séries:**\n- 400 — Erros da parte do usuário\n- 500 — Erros da parte do servidor\n\n```json\n{\n  \"code\": 401,\n  \"message\": \"Token expirado\"\n}\n```\n\n**Mensagem de sucesso, da série 200, contém o Payload de Usuário extraído do token:**\n\n```json\n{\n  \"code\": 200,\n  \"data\": [\n    {\n      \"id_usuario\": 2,\n      \"email\": \"admin@ciacuidadores.com.br\",\n      \"nome_exibicao\": \"Administrador\",\n      \"is_admin\": true,\n      \"preferencias\": {\n        \"fuso_horario\": \"America/Sao_Paulo\",\n        \"idioma\": \"pt-BR\",\n        \"tema\": \"claro\",\n        \"notificacoes_email\": true,\n        \"notificacoes_push\": true\n      },\n      \"papeis\": [\n        {\n          \"codigo\": \"administrador\",\n          \"nome\": \"Administrador\",\n          \"permissoes\": {\n            \"explorar\": true,\n            \"alterar\": true,\n            \"configurar\": true\n          },\n          \"cor\": \"critico\",\n          \"icone\": \"shield\"\n        }\n      ],\n      \"ativo\": true,\n      \"iat\": 1759379415,\n      \"exp\": 1759465815\n    }\n  ]\n}\n```\n",
+        "height": 1136,
+        "width": 512
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3232,
+        -48
+      ],
+      "typeVersion": 1,
+      "id": "bb497906-3e50-47c1-a437-f1f86d778724",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## O que autorizar?\n\nO payload enviado com a requisição deve conter a consulta JSQL a ser autorizada.\n\n### Validando uma operação JSQL\n\n```json\n{\n  \"schema\": \"<schema>\",\n  \"select|mutate\": \"<entity>\",\n  \"action\": \"<action>\n}\n```\nSendo \"action\" opcional.\n\nDesse payload extrai-se todos os parâmetros necessários para validar a permissão:\n\n- schema\n- operation: select|mutate\n- entity\n- action\n\nA chave de permissão é formada pela concatenação das partes:\n\n- `{operation}__{entity}`\n- `{operation}__{entity}__{action}`\n\n### Validando uma permissão específica\n\nUma permissão é uma chave de permissão registrada na base, geralmente formada pela concatenação das partes de uma operação JSQL mas não restrita a ela:\n\n- `{operation}__{entity}`\n- `{operation}__{entity}__{action}`\n\n```json\n{\n  \"schema\": \"<schema>\",\n  \"permission\": \"<permission>\"\n}\n```\n\n### Validando apenas o Token JWT\n\nPara apenas validar o token, garantindo que foi emitido pelo workflow de autenticação do coletivos, mas sem validar uma permissão específica, informe:\n\n```json\n{\n  \"permission\": \"<permission>\"\n}\n```\n\n",
+        "height": 1120,
+        "width": 704
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        720,
+        448
+      ],
+      "typeVersion": 1,
+      "id": "27a224d1-a152-463b-b975-d55b23b7d314",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        1488,
+        0
+      ],
+      "id": "fd25419f-739e-463e-93f3-831a37c1c31d",
+      "name": "Teste Manual"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "permissionState",
+        "key": "={{ $json.redis_key }}",
+        "keyType": "string",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        2400,
+        192
+      ],
+      "id": "d2ca7e19-cc02-4cca-b809-4643763d641e",
+      "name": "Consulta Cache",
+      "credentials": {
+        "redis": {
+          "id": "SCL4cZ8EcUx4qQS0",
+          "name": "Redis Local Cache"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $('Chave Redis').item.json.redis_key }}",
+        "value": "={{ $json.data.isGranted ? 'GRANTED' : 'DENIED' }}",
+        "keyType": "string",
+        "expire": true,
+        "ttl": 30
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        2704,
+        480
+      ],
+      "id": "aeaf0d72-8959-4b2c-a361-c25e127eee02",
+      "name": "Redis",
+      "credentials": {
+        "redis": {
+          "id": "SCL4cZ8EcUx4qQS0",
+          "name": "Redis Local Cache"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        3040,
+        576
+      ],
+      "id": "70e93876-72a7-4449-ac47-09515927e56a",
+      "name": "Resposta Web"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Formato da chave do redis:\n// schema:{$schema}:user:$user:perm:$permission\n//\n// Formato da chave de permissao:\n// (mutate|select).$entity[.$action]\n//\n// Exemplos:\n// schema:{app}:user:1:perm:select.user\n// schema:{app}:user:1:perm:mutate.user.create\n\n\nconst { schema, permission } = $('Checa Autenticacao').first().json?.data;\nconst user_id = $('fn-jwt-validation').first().json.payload.sub;\n\nconst redis_key = `schema:{${schema}}:user:${user_id}:perm:${permission}`;\n\nreturn { redis_key };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2400,
+        48
+      ],
+      "id": "d8a26615-0175-472b-a01d-b5b347116382",
+      "name": "Chave Redis",
+      "alwaysOutputData": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        1488,
+        192
+      ],
+      "id": "4d9d4bc4-bacf-4a6d-93a0-6d5e1bc4528b",
+      "name": "Autenticacao de Workflow"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d37ba6b7-6c4f-4134-b59a-219fce36aa40",
+              "leftValue": "={{ $json.isValid }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "3be724dd-97b6-4e51-acaa-b66a7c5bfa02",
+              "leftValue": "={{ $('Checa Autenticacao').item.json.data.permission }}",
+              "rightValue": "*",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2080,
+        336
+      ],
+      "id": "caf1ad87-0d15-42b7-98b6-abb44cd0d541",
+      "name": "Deve Validar Permissao"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { permissionState } = $input.first().json;\nconst { permission } = $('Checa Autenticacao').first().json.data;\nconst { payload } = $('fn-jwt-validation').first().json;\n\nif ( permissionState === 'GRANTED' ) {\n  return {\n    code: 200,\n    data: {\n      permitido: true,\n      payload\n    }\n  };\n}\n\nif ( permissionState === 'DENIED' ) {\n  return {\n    code: 200,\n    data: {\n      permitido: false,\n      motivo: permission === '*'\n          ? `O token de acesso não é mais válido`\n          : `Usuáro não tem permissão: ${permission}`,\n    }\n  };\n}\n\nreturn { code: 300, message: 'Consulte permissões efetivas' };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2400,
+        336
+      ],
+      "id": "d06c9052-3993-4185-a9ae-184ca2bc8eca",
+      "name": "Checa Permissao em Cache"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ea37c5eb-f876-4cf2-b2a0-363b2745309e",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 300,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2400,
+        480
+      ],
+      "id": "de371c19-6d9b-4b18-8dc9-32b1e35293d4",
+      "name": "Deve Consultar Permissoes"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "api/1/auth/authorize",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1488,
+        384
+      ],
+      "id": "a9b6ca31-6e6b-45e6-abfc-cdd7d832b978",
+      "name": "Autorizacao de Requisicao Web",
+      "webhookId": "0f19d7a1-9ad0-4953-8adb-c741a93b118f",
+      "notesInFlow": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { error } = $input.first().json;\nreturn {\n  code: 500,\n  message: error\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2704,
+        704
+      ],
+      "id": "641e80f1-ef88-4000-8304-8ff291e667f1",
+      "name": "Formatacao de Erro de Autorizacao"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { payload, isValid } = $('fn-jwt-validation').first().json;\nconst { permission } = $('Checa Autenticacao').first().json.data;\nreturn {\n  code: 200,\n  data: {\n    permission,\n    isGranted: isValid\n  }\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2080,
+        480
+      ],
+      "id": "d80b0c41-f57a-4a0e-a07b-983aa6e86a1c",
+      "name": "Formatar Autorização",
+      "alwaysOutputData": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1fa846bc-ccfd-4bd6-af05-8a5dcfa2e655",
+              "leftValue": "={{ $json.data.access_token }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1776,
+        336
+      ],
+      "id": "201a18d8-e94c-453e-ad1b-590890817a1b",
+      "name": "Tem Token?"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "tSDIVIHXw6c5vpUp",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/tSDIVIHXw6c5vpUp",
+          "cachedResultName": "fn-jwt-validation"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "access_token": "={{ $json.data.access_token }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "access_token",
+              "displayName": "access_token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "payload",
+              "displayName": "payload",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2080,
+        192
+      ],
+      "id": "a5c8d25e-9dd6-4dc8-b1c1-49bbb9d9412c",
+      "name": "fn-jwt-validation"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.body || $input.first().json;\nconst headers = $input.first().json.headers || {};\n\n// EXTRAÇÃO DO ACCESS TOKEN\n//\nfunction getAccessTokenFromCookie(cookieHeader) {\n  if (!cookieHeader) return null;\n  const cookies = cookieHeader.split(\";\").reduce((acc, cookie) => {\n    const [name, value] = cookie.trim().split(\"=\");\n    acc[name] = value;\n    return acc;\n  }, {});\n  return cookies[\"access_token\"] || null;\n}\n\n// Busca o token em múltiplas fontes\nlet access_token = null;\n\n// 1. Checa no payload diretamente\nif (input.access_token) {\n  access_token = input.access_token;\n}\n// 2. Tenta pegar do header\nelse if (headers?.access_token) {\n  access_token = headers.access_token;\n}\n// 3. Tenta pegar dos cookies\nelse if (headers?.cookie) {\n  access_token = getAccessTokenFromCookie(headers.cookie);\n}\n\n// EXTRAÇÃO DOS PARÂMETROS\n//\nlet { schema, permission } = input;\nlet operation = null;\nlet entity = null;\nlet action = null;\n\nif (!permission) {\n  const { select, mutate, action: inputAction } = input;\n  operation = select ? 'select' : mutate ? 'mutate' : null;\n  entity = select ?? mutate;\n  action = inputAction || null;\n  \n  if (!operation || !entity) {\n    return {\n      code: 400,\n      message: 'A operação não foi indicada.'\n    };\n  }\n  \n  permission = action\n    ? `${operation}.${entity}.${action}`\n    : `${operation}.${entity}`;\n} else {\n  // Se permission foi fornecida diretamente, extrai as partes dela\n  const parts = permission.split('.');\n  operation = parts[0] || null;\n  entity = parts[1] || null;\n  action = parts[2] || null;\n}\n\nif (!schema && permission === '*') {\n  schema = '*';\n} else if (!schema) {\n  return {\n    code: 400,\n    message: 'O schema não foi indicado.'\n  };\n}\n\nreturn {\n  code: 200,\n  data: {\n    schema,\n    permission,\n    access_token\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1776,
+        192
+      ],
+      "id": "ea769123-155a-4cfc-8e7d-fb89c0519425",
+      "name": "Checa Autenticacao",
+      "notesInFlow": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// CÓDIGO PARA n8n - Validação de Permissões\n// ============================================\n\n// Obter dados do fluxo\nconst user_roles = $('fn-jwt-validation').first().json.payload.roles;\nconst requested_permission = $('Checa Autenticacao').first().json.data.permission;\n\n// 1. MAPA DE ROLES (nome → ID)\nconst available_roles = {\n  \"Administrador\": 1,\n  \"Candidato\": 2,\n  \"Guardião\": 3,\n  \"Parente\": 4,\n  \"Visitante\": 5,\n  \"Financeiro\": 6,\n  \"Recursos Humanos\": 7,\n  \"Dono da Franquia\": 8,\n  \"Supervisor Assistidos\": 9,\n  \"Supervisor\": 10,\n  \"Suporte\": 11,\n  \"Gerente Comercial\": 12,\n  \"Master\": 13\n};\n\n// 2. MAPA DE PERMISSÕES\nconst available_permissions = {\n  \"*\": [1],\n  \"mutate.aniversariante.*\": [8, 9, 13],\n  \"mutate.assistido.*\": [6, 8, 13],\n  \"mutate.assistido.cadastrar\": [6, 8, 13],\n  \"mutate.assistido.criar\": [8, 10, 13],\n  \"mutate.assistido.listar\": [6, 8, 10, 13],\n  \"mutate.candidato.*\": [6, 8, 13],\n  \"mutate.candidato_assistido.listar\": [6, 8, 13],\n  \"mutate.candidato_contratante.listar\": [6, 8, 13],\n  \"mutate.comercial.*\": [6, 8, 12, 13],\n  \"mutate.controle_ponto.*\": [3, 6, 7, 8, 9, 10, 12, 13],\n  \"mutate.controle_ponto.bater\": [3, 6, 7, 8, 9, 10, 12, 13],\n  \"mutate.escala.*\": [8, 13],\n  \"mutate.escala.gerenciar\": [8, 13],\n  \"mutate.folha_pagamento.importar\": [13],\n  \"mutate.funcionario.*\": [6, 7, 8, 12, 13],\n  \"mutate.funcionario.cadastrar\": [6, 7, 8, 12, 13],\n  \"mutate.funcionario.criar\": [6, 7, 8, 12, 13],\n  \"mutate.funcionario.listar\": [6, 7, 8, 12, 13],\n  \"mutate.guardiao.*\": [3, 6, 7, 8, 12, 13],\n  \"mutate.guardiao.cadastrar\": [6, 7, 8, 12, 13],\n  \"mutate.guardiao.criar\": [6, 7, 8, 12, 13],\n  \"mutate.guardiao.listar\": [7, 8, 12, 13],\n  \"mutate.insumo.*\": [6, 8, 13],\n  \"mutate.insumo.criar\": [6, 8, 10, 13],\n  \"mutate.insumo.listar\": [6, 8, 10, 13],\n  \"mutate.medicamento.*\": [6, 8, 10, 13],\n  \"mutate.medicamento.criar\": [6, 8, 10, 13],\n  \"mutate.medicamento.listar\": [6, 8, 10, 13],\n  \"mutate.plantao.trocar\": [3],\n  \"mutate.proposta.*\": [6, 8, 13],\n  \"mutate.proposta.criar\": [6, 8, 13],\n  \"mutate.proposta.listar\": [6, 8, 13],\n  \"mutate.recursos_humanos.*\": [7, 8, 10, 12, 13],\n  \"mutate.servico.*\": [6, 8, 13],\n  \"mutate.servico.criar\": [6, 8, 13],\n  \"mutate.servico.listar\": [6, 8, 13],\n  \"mutate.treinamento.*\": [3],\n  \"mutate.treinamento_guardiao.*\": [3, 8, 13],\n  \"mutate.treinamento_guardiao.listar\": [3, 8, 13],\n  \"select.aniversariante\": [7, 10, 12],\n  \"select.assistente_cici\": [6, 7, 8, 9, 10, 11, 12, 13],\n  \"select.assistido\": [3, 7, 9, 10, 12],\n  \"select.assistido.cadastro\": [3, 7, 9, 10, 12],\n  \"select.assistido.listar\": [3, 7, 9, 10, 12],\n  \"select.auth\": [1, 3, 6, 7, 8, 9, 10, 11, 12, 13],\n  \"select.dashboard_performance_conduta\": [7, 10, 12, 13],\n  \"select.escala\": [3, 7, 9, 10, 12],\n  \"select.escala.gerenciar\": [3, 7, 9, 10, 12],\n  \"select.guardiao\": [9, 10],\n  \"select.guardiao.listar\": [9, 10],\n  \"select.indicador\": [7, 10, 12, 13],\n  \"select.suporte\": [3, 6, 7, 8, 9, 10, 11, 12, 13],\n  \"select.treinamento_guardiao.listar\": [7, 10]\n};\n\n// 3. VALIDAÇÃO INICIAL DA PERMISSÃO SOLICITADA\nif (!requested_permission || typeof requested_permission !== 'string') {\n  return {\n    code: 400,\n    message: 'Permissão solicitada inválida'\n  };\n}\n\n// 4. VERIFICAR SE A CHAVE EXATA EXISTE NO JSON DE PERMISSÕES\n// Esta verificação é LITERAL - a chave deve existir explicitamente\nif (!available_permissions.hasOwnProperty(requested_permission)) {\n  return {\n    code: 403,\n    message: `Permissão '${requested_permission}' não está cadastrada no sistema`\n  };\n}\n\n// 5. VALIDAÇÕES DOS ROLES DO USUÁRIO\nif (!user_roles || !Array.isArray(user_roles) || user_roles.length === 0) {\n  return {\n    code: 403,\n    message: 'Usuário sem papéis definidos'\n  };\n}\n\n// 6. CONVERTER NOMES DE ROLES → IDs\nconst user_role_ids = user_roles\n  .map(roleName => available_roles[roleName])\n  .filter(id => id !== undefined);\n\nif (user_role_ids.length === 0) {\n  return {\n    code: 403,\n    message: 'Nenhum papel válido encontrado para o usuário'\n  };\n}\n\n// 7. VERIFICAR PERMISSÃO ADMIN TOTAL (*)\nif (user_role_ids.includes(1)) {\n  const adminRoles = available_permissions[\"*\"];\n  if (adminRoles && adminRoles.includes(1)) {\n    return {\n      code: 200,\n      data: { isGranted: true }\n    };\n  }\n}\n\n// 8. BUSCAR PERMISSÃO EXATA\nlet allowed_role_ids = available_permissions[requested_permission];\n\n// 9. SE NÃO ENCONTROU, TENTAR PERMISSÕES WILDCARD\nif (!allowed_role_ids) {\n  const parts = requested_permission.split('.');\n  for (let i = parts.length - 1; i > 0; i--) {\n    const wildcardPermission = parts.slice(0, i).join('.') + '.*';\n    if (available_permissions[wildcardPermission]) {\n      allowed_role_ids = available_permissions[wildcardPermission];\n      break;\n    }\n  }\n}\n\n// 10. VERIFICAR SE ALGUM ROLE DO USUÁRIO TEM PERMISSÃO\nconst hasPermission = user_role_ids.some(userId => allowed_role_ids.includes(userId));\n\nif (hasPermission) {\n  return {\n    code: 200,\n    data: {\n      permission: requested_permission,\n      isGranted: true\n    }\n  };\n}\n\n// 11. ACESSO NEGADO\nreturn {\n  code: 403,\n  message: 'Acesso negado'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2704,
+        192
+      ],
+      "id": "21773f2d-9ade-46bd-b8c9-73453b05dd7f",
+      "name": "Validar Permissões"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "532e63d4-3000-4250-b637-d039ae889b0b",
+              "leftValue": "={{ $json.data.isGranted }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2704,
+        336
+      ],
+      "id": "92a9bf84-90ee-4098-8f0f-89f5ea1e7e65",
+      "name": "Validado?"
+    }
+  ],
+  "connections": {
+    "Teste Manual": {
+      "main": [
+        [
+          {
+            "node": "Checa Autenticacao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consulta Cache": {
+      "main": [
+        [
+          {
+            "node": "Checa Permissao em Cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis": {
+      "main": [
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chave Redis": {
+      "main": [
+        [
+          {
+            "node": "Consulta Cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Autenticacao de Workflow": {
+      "main": [
+        [
+          {
+            "node": "Checa Autenticacao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deve Validar Permissao": {
+      "main": [
+        [
+          {
+            "node": "Chave Redis",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formatar Autorização",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checa Permissao em Cache": {
+      "main": [
+        [
+          {
+            "node": "Deve Consultar Permissoes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deve Consultar Permissoes": {
+      "main": [
+        [
+          {
+            "node": "Validar Permissões",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Autorizacao de Requisicao Web": {
+      "main": [
+        [
+          {
+            "node": "Checa Autenticacao",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formatacao de Erro de Autorizacao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatacao de Erro de Autorizacao": {
+      "main": [
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatar Autorização": {
+      "main": [
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tem Token?": {
+      "main": [
+        [
+          {
+            "node": "fn-jwt-validation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fn-jwt-validation": {
+      "main": [
+        [
+          {
+            "node": "Deve Validar Permissao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checa Autenticacao": {
+      "main": [
+        [
+          {
+            "node": "Tem Token?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formatacao de Erro de Autorizacao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar Permissões": {
+      "main": [
+        [
+          {
+            "node": "Validado?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validado?": {
+      "main": [
+        [
+          {
+            "node": "Redis",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "Teste Manual": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.cia.codr.studio",
+            "user-agent": "PostmanRuntime/7.49.0",
+            "content-length": "25",
+            "accept": "*/*",
+            "accept-encoding": "gzip, deflate, br",
+            "content-type": "application/json",
+            "cookie": "access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1YmJhMjQ5ZS01NmEwLTQ3Y2EtOTk4Zi01NWY0MzAxYTI0ZTEiLCJpc3MiOiJjaWFjdWlkYWRvcmVzIiwiYXVkIjoicHJpbWVjYXJlIiwiZXhwIjoxNzYxODYwODQyLCJpYXQiOjE3NjE3NzQ0NDIsImp0aSI6ImVhNjRkM2NlLTEzY2UtNDVkMS1hODk5LTIyNDFhNTk5YjZkYSIsInRlbmFudCI6WzEsMTgsMTksMTIsOCwxM10sInJvbGVzIjpbIkRvbm8gZGEgRnJhbnF1aWEiXSwibmFtZSI6IkdVR0EgQ09ERVIiLCJlbWFpbCI6Imd1Z2EuY29kZXJAZ21haWwuY29tIn0.7XmxDeU5KKE3baoGCoxr9k_8EkXMBDsSoXr6lGDj4ic",
+            "postman-token": "11c18d82-40bb-40f1-93d3-cd04bf68fb00",
+            "x-forwarded-for": "185.203.218.236",
+            "x-forwarded-host": "n8n.cia.codr.studio",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "f03fd09cc87d",
+            "x-real-ip": "185.203.218.236"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "schema": "cia",
+            "permission": "*"
+          },
+          "webhookUrl": "https://n8n.codrstudio.dev/webhook/api/1/auth/authorize",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "versionId": "ceeff9fd-521d-4d24-a40d-1795790e83ed",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "createdAt": "2025-10-29T05:57:09.880Z",
+      "updatedAt": "2025-10-29T05:57:09.880Z",
+      "role": "workflow:owner",
+      "workflowId": "BERaBtKNMSJ9dbfr",
+      "projectId": "IA9oo7szBC1GndRN",
+      "project": {
+        "createdAt": "2025-10-05T13:15:26.895Z",
+        "updatedAt": "2025-10-05T13:15:53.136Z",
+        "id": "IA9oo7szBC1GndRN",
+        "name": "Guga Coder <guga.coder@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "createdAt": "2025-10-05T13:15:26.896Z",
+            "updatedAt": "2025-10-05T13:15:26.896Z",
+            "userId": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+            "projectId": "IA9oo7szBC1GndRN",
+            "user": {
+              "createdAt": "2025-10-05T13:15:26.419Z",
+              "updatedAt": "2025-10-29T03:00:01.000Z",
+              "id": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+              "email": "guga.coder@gmail.com",
+              "firstName": "Guga",
+              "lastName": "Coder",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-10-05T13:16:06.256Z",
+                "personalization_survey_n8n_version": "1.107.3",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "other",
+                "reportedSourceOther": "KeepNomad"
+              },
+              "settings": {
+                "userActivated": true,
+                "firstSuccessfulWorkflowId": "vW3Gx7OZdi98Dfao",
+                "userActivatedAt": 1759671855172,
+                "easyAIWorkflowOnboarded": true,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1761574956378
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2025-10-29",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

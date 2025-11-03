@@ -1,0 +1,759 @@
+{
+  "createdAt": "2025-10-27T14:27:36.810Z",
+  "updatedAt": "2025-10-29T03:28:07.000Z",
+  "id": "oX72lSsHNGa0gSzQ",
+  "name": "auth-login",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1168,
+        128
+      ],
+      "id": "375b99bd-7534-47d9-bc41-7d2e3e784a87",
+      "name": "Resposta Web"
+    },
+    {
+      "parameters": {
+        "content": "### Response (Sucesso - 200)\n```json\n{\n  \"code\": 200,\n  \"data\": {\n    \"access_token\": \"eyJhbGci...\",\n    \"refresh_token\": \"hex_string\",\n    \"token_type\": \"bearer\",\n    \"expires_in\": 1800,\n    \"payload\": {\n      \"sub\": 3,\n      \"iss\": \"ciacuidadores\",\n      \"aud\": \"primecare\",\n      \"exp\": 1759498719,\n      \"iat\": 1759412319,\n      \"jti\": \"uuid-v4\",\n      \"tenant\": [1, 2, 3],\n      \"roles\": [\"admin\"],\n      \"name\": \"Nome Usuário\",\n      \"email\": \"email@exemplo.com\"\n    }\n  }\n}\n```\n\n### Response (Erro)\n```json\n{\n  \"code\": 400,\n  \"field\": \"username\",\n  \"message\": \"Email inválido\"\n}\n```",
+        "height": 928,
+        "width": 560,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        784,
+        -560
+      ],
+      "typeVersion": 1,
+      "id": "41b95862-f006-40bb-9698-9f4e41723dc9",
+      "name": "Documentação"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1fa846bc-ccfd-4bd6-af05-8a5dcfa2e655",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -400,
+        48
+      ],
+      "id": "612645c6-60cd-4066-be20-9570b9268d5a",
+      "name": "Se Credencial Válida"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -768,
+        -64
+      ],
+      "id": "e269eb32-d880-4b20-b422-3e4f6af07aa9",
+      "name": "Autenticação via Workflow"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "api/1/auth/login",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -768,
+        112
+      ],
+      "id": "6880f452-4d5a-48cb-ac10-ecbc1e752364",
+      "name": "Autenticação via HTTP",
+      "webhookId": "0d8af890-896f-48e6-b4bb-dda2f5053a6f",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { json } = $input.first();\n\nif (json?.code) {\n  return json;\n}\n\nif (json?.error) {\n  return {\n    code: 500,\n    message: json?.error\n  };  \n}\n\nif (typeof json?.error === \"string\") {\n  return {\n    code: 500,\n    message: json.error\n  };\n}\n\nreturn {\n  code: 500,\n  message: \"Falha interna ocorrida\"\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        848,
+        208
+      ],
+      "id": "cc29329d-7841-4652-a3f8-ec13a2e3605d",
+      "name": "Formata Erro"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ==========================================\n// Extrai e Valida Credenciais\n// ==========================================\n// Valida formato e presença de username/password\n// Normaliza email (lowercase + trim)\n\nconst json = $input.first().json;\nconst { username, password } = (json.body || json);\n\n// Validação de username\nif (!username) {\n  return { code: 400, field: 'username', message: 'Usuário não informado' };\n}\n\n// Validação de formato de email\nif (!username.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/)) {\n  return { code: 400, field: 'username', message: 'Email inválido' };\n}\n\n// Validação de password\nif (!password) {\n  return { code: 400, field: 'password', message: 'Senha não informada' };\n}\n\n// Retorna credenciais normalizadas\nreturn {\n  code: 200,\n  data: {\n    username: username.toLowerCase().trim(),\n    password\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        -112
+      ],
+      "id": "8414e1da-698a-41d4-bcbd-368a550b73a3",
+      "name": "Extrai a Credencial",
+      "notesInFlow": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -768,
+        -240
+      ],
+      "id": "668047ea-47d1-4e1b-96ea-1e150801ec39",
+      "name": "Teste Manual"
+    },
+    {
+      "parameters": {
+        "operation": "compare",
+        "password": "=123456",
+        "hashToCompare": "={{ $json.data.senha_hash }}"
+      },
+      "type": "n8n-nodes-bcrypt.hashNode",
+      "typeVersion": 1,
+      "position": [
+        240,
+        -208
+      ],
+      "id": "d1174e2e-383d-43b9-bf1d-99e91e5ef02b",
+      "name": "Compara Senha"
+    },
+    {
+      "parameters": {
+        "content": "### 1. Captura Parâmetros\n\n**Triggers disponíveis:**\n- Teste Manual\n- HTTP POST /coletivos/api/1/auth/login\n- Chamada de outro workflow\n\n**Validações:**\n- Username não vazio\n- Formato de email válido\n- Password não vazio\n- Normalização: lowercase + trim",
+        "height": 832,
+        "width": 288,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -496,
+        -560
+      ],
+      "typeVersion": 1,
+      "id": "15cdb4d2-6064-4ad0-89ea-4b2a48fbe26d",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "### 2. Consulta MySQL\n\n**Busca:**\n- Dados do usuário\n- Tenants (multi-tenancy)\n- Hash da senha\n\n**Filtros:**\n- Email = parâmetro\n- Ativo = 1\n\n**Retorna:**\n- ID, email, name\n- Password hash\n- Tenant array",
+        "height": 832,
+        "width": 288,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -176,
+        -560
+      ],
+      "typeVersion": 1,
+      "id": "fca266f0-7d9d-4096-86b6-2c02f228e2ab",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "### 3. Valida Senha\n\n**Processo:**\n1. Converte hash PHP→Node\n   ($2y$ → $2a$)\n2. bcrypt.compare()\n   - Plain password\n   - Hash do banco\n\n**Compatibilidade:**\nAlgoritmos idênticos\napenas prefixo difere",
+        "height": 832,
+        "width": 288,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        -560
+      ],
+      "typeVersion": 1,
+      "id": "5a7be078-6330-4358-9b27-d339ba6ac3f7",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "### 4. Gera Tokens\n\n**Access Token (JWT):**\n- HS256 (SECRET_KEY)\n- 24 horas validade\n- Claims RFC 7519\n\n**Refresh Token:**\n- 32 bytes hex\n- Hash SHA-256\n- Família UUID\n- 7 dias validade\n- Salvo no SQL Server",
+        "height": 832,
+        "width": 288,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        464,
+        -560
+      ],
+      "typeVersion": 1,
+      "id": "437aa80c-20ea-410c-ae4d-af28048b46d4",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Fluxo de Autenticação JWT\n\n### Visão Geral\nSistema completo de autenticação com:\n- Validação de credenciais via MySQL\n- Geração de JWT tokens (access + refresh)\n- Suporte a multi-tenancy\n- Hash bcrypt compatível PHP/Node.js\n- Rotação de refresh tokens\n\n### Processo\n1. Extrai e valida credenciais (email + senha)\n2. Consulta usuário no MySQL (incluindo tenants)\n3. Constrói payload JWT com claims RFC 7519\n4. Valida senha com bcrypt\n5. Gera access_token (24h) e refresh_token (7 dias)\n6. Salva refresh_token no SQL Server\n7. Retorna tokens + payload ao cliente\n\n### JWT Payload\n**Registered Claims (RFC 7519):**\n- `sub`: ID do usuário\n- `iss`: Emissor (ciacuidadores)\n- `aud`: Destinatário (primecare)\n- `exp`: Expiração (timestamp)\n- `iat`: Emitido em (timestamp)\n- `jti`: JWT ID (UUID v4)\n\n**Custom Claims:**\n- `tenant`: Array de tenant IDs\n- `roles`: Array de papéis\n- `name`: Nome de exibição\n- `email`: Email do usuário\n\n### Segurança\n- **Hash**: bcrypt (PHP $2y$ ↔ Node.js $2a$)\n- **JWT**: HS256 com SECRET_KEY\n- **Access Token**: 24 horas\n- **Refresh Token**: 7 dias, rotação com família UUID\n- **Storage**: Refresh token hash SHA-256 no SQL Server\n\n### Variáveis de Ambiente\n- `SECRET_KEY`: Chave para assinar JWT (obrigatório)\n\n### Bancos de Dados\n- **MySQL**: Usuários e tenants",
+        "height": 1120,
+        "width": 416,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1360,
+        -704
+      ],
+      "typeVersion": 1,
+      "id": "3c96a3c3-1926-43c2-8721-65081bca59ae",
+      "name": "Documentação2"
+    },
+    {
+      "parameters": {
+        "content": "### Endpoints\n**POST** `/coletivos/api/1/auth/login`\n\n### Request\n```json\n{\n  \"username\": \"email@exemplo.com\",\n  \"password\": \"senha123\"\n}\n```\n\n",
+        "height": 832,
+        "width": 384,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -912,
+        -560
+      ],
+      "typeVersion": 1,
+      "id": "b7538156-9a9f-4c0e-b64b-b35eb95e2d84",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "pBahnvlT1MXPqxjE",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/pBahnvlT1MXPqxjE",
+          "cachedResultName": "find-user"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -80,
+        -112
+      ],
+      "id": "6c2b0bd4-f8fb-45be-b01c-0e2204802ae4",
+      "name": "Call 'find-user'",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "98c3365c-1792-4cdd-90db-8264033d91ec",
+              "leftValue": "={{ $json.passwordMatches }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        -48
+      ],
+      "id": "83991d5e-1b84-4d52-94bf-e16b15e71eb0",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  code: 401,\n  message: 'Informações de login incorretas'\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        112
+      ],
+      "id": "dac47601-54a7-4ee4-9cca-5617a0c81818",
+      "name": "Login Incorreto"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { tokens, payload } = $('emit-jwt').first().json.data;\nreturn { ...tokens, payload };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        112
+      ],
+      "id": "50f58c16-f569-47af-b793-3f188574eeac",
+      "name": "Formata Resposta Final",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "value": "gpUfj6fYIY4KmLpB",
+          "mode": "list",
+          "cachedResultName": "user_session",
+          "cachedResultUrl": "/projects/IA9oo7szBC1GndRN/datatables/gpUfj6fYIY4KmLpB"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "token_hash",
+              "keyValue": "={{ $json.data.tokens_control.refresh_token_hash }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "revoked": false,
+            "expires_at": "={{ $json.data.tokens_control.expires_at }}",
+            "token_hash": "={{ $json.data.tokens_control.refresh_token_hash }}",
+            "family_id": "={{ $json.data.tokens_control.familia_id }}",
+            "user_id": "={{ $json.data.payload.sub }}",
+            "consumed_at": "={{ null }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "token_hash",
+              "displayName": "token_hash",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "family_id",
+              "displayName": "family_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "user_id",
+              "displayName": "user_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "consumed_at",
+              "displayName": "consumed_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "expires_at",
+              "displayName": "expires_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "revoked",
+              "displayName": "revoked",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -48
+      ],
+      "id": "2da27135-e41c-4420-9bd2-b0329bfc6271",
+      "name": "Upsert Token",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "6qequ6xLeaaSwaAu",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/6qequ6xLeaaSwaAu",
+          "cachedResultName": "emit-jwt"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        560,
+        -208
+      ],
+      "id": "17a344fa-1cc1-475b-b71b-d762722bd763",
+      "name": "emit-jwt",
+      "onError": "continueErrorOutput"
+    }
+  ],
+  "connections": {
+    "Se Credencial Válida": {
+      "main": [
+        [
+          {
+            "node": "Call 'find-user'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Autenticação via Workflow": {
+      "main": [
+        [
+          {
+            "node": "Extrai a Credencial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Autenticação via HTTP": {
+      "main": [
+        [
+          {
+            "node": "Extrai a Credencial",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formata Erro": {
+      "main": [
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrai a Credencial": {
+      "main": [
+        [
+          {
+            "node": "Se Credencial Válida",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Teste Manual": {
+      "main": [
+        [
+          {
+            "node": "Extrai a Credencial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compara Senha": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'find-user'": {
+      "main": [
+        [
+          {
+            "node": "Compara Senha",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "emit-jwt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Login Incorreto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Login Incorreto": {
+      "main": [
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formata Resposta Final": {
+      "main": [
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Token": {
+      "main": [
+        [
+          {
+            "node": "Formata Resposta Final",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "emit-jwt": {
+      "main": [
+        [
+          {
+            "node": "Upsert Token",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "Teste Manual": [
+      {
+        "json": {
+          "username": "guga.coder@gmail.com",
+          "password": "123456"
+        }
+      }
+    ]
+  },
+  "versionId": "84b347a1-9a7d-4c8b-a532-28e535c1edf1",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "createdAt": "2025-10-27T14:27:36.817Z",
+      "updatedAt": "2025-10-27T14:27:36.817Z",
+      "role": "workflow:owner",
+      "workflowId": "oX72lSsHNGa0gSzQ",
+      "projectId": "IA9oo7szBC1GndRN",
+      "project": {
+        "createdAt": "2025-10-05T13:15:26.895Z",
+        "updatedAt": "2025-10-05T13:15:53.136Z",
+        "id": "IA9oo7szBC1GndRN",
+        "name": "Guga Coder <guga.coder@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "createdAt": "2025-10-05T13:15:26.896Z",
+            "updatedAt": "2025-10-05T13:15:26.896Z",
+            "userId": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+            "projectId": "IA9oo7szBC1GndRN",
+            "user": {
+              "createdAt": "2025-10-05T13:15:26.419Z",
+              "updatedAt": "2025-10-29T03:00:01.000Z",
+              "id": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+              "email": "guga.coder@gmail.com",
+              "firstName": "Guga",
+              "lastName": "Coder",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-10-05T13:16:06.256Z",
+                "personalization_survey_n8n_version": "1.107.3",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "other",
+                "reportedSourceOther": "KeepNomad"
+              },
+              "settings": {
+                "userActivated": true,
+                "firstSuccessfulWorkflowId": "vW3Gx7OZdi98Dfao",
+                "userActivatedAt": 1759671855172,
+                "easyAIWorkflowOnboarded": true,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1761574956378
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2025-10-29",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

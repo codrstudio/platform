@@ -1,0 +1,407 @@
+{
+  "createdAt": "2025-10-28T23:38:32.008Z",
+  "updatedAt": "2025-10-29T21:47:09.000Z",
+  "id": "pBahnvlT1MXPqxjE",
+  "name": "fn-find-user",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -896,
+        256
+      ],
+      "id": "da5226b3-ca05-489f-81c4-2af71f31720e",
+      "name": "Autenticação via Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ==========================================\n// Constrói o Payload JWT\n// ==========================================\n// Transforma dados do MySQL em payload JWT RFC 7519\n// com claims customizados para multi-tenancy\n\nconst user = $input.first().json;\nconst now = Math.floor(Date.now() / 1000);\n\n// Gerar UUID v4 para jti (JWT ID)\nfunction generateUUID() {\n  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {\n    const r = Math.random() * 16 | 0;\n    const v = c === 'x' ? r : (r & 0x3 | 0x8);\n    return v.toString(16);\n  });\n}\n\nreturn {\n  json: {\n    code: 200,\n    data: {\n      senha_hash: user.password,\n      payload: {\n        // Registered Claims (RFC 7519)\n        sub: user.id,                    // Subject: ID do usuário\n        iss: 'ciacuidadores',              // Issuer: Emissor do token\n        aud: 'primecare',                  // Audience: Destinatário\n        exp: now + (24 * 60 * 60),         // Expiration: 24 horas\n        iat: now,                          // Issued At: timestamp criação\n        jti: generateUUID(),               // JWT ID: identificador único\n        \n        // Custom Claims\n        tenant: user.tenant_array,       // Multi-tenancy: array de tenants\n        roles: [user.role_name],         // Papéis do usuário\n        name: user.name,                 // Nome de exibição\n        email: user.email                // Email\n      }\n    }\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        -400
+      ],
+      "id": "624e40f5-dec2-4881-8349-0cc4563a6007",
+      "name": "Constrói o Payload de Usuário em JSON",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -896,
+        96
+      ],
+      "id": "c9d7257c-d142-4c65-b392-ea98625e94dd",
+      "name": "Teste Manual"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- ============================================\n-- Consulta Dados do Usuário para JWT\n-- ============================================\n-- Retorna campos necessários para gerar JWT\n-- RFC 7519 + custom claims (multi-tenancy + roles)\n-- ============================================\n\nSELECT\n  -- ==========================================\n  -- Registered Claims (RFC 7519)\n  -- ==========================================\n  users.id,                           -- Subject: ID do usuário\n  users.email,                        -- Email\n  users.name,                         -- Nome de exibição\n  users.password,                     -- Hash bcrypt (validação senha)\n  users.perfil,                       -- Código numérico do perfil\n  users.ativo,                        -- Status (1=ativo, 0=inativo)\n\n  -- ==========================================\n  -- Role Name (mapeamento perfil → nome)\n  -- ==========================================\n  CASE users.perfil\n    WHEN 1  THEN 'Administrador'\n    WHEN 2  THEN 'Candidato'\n    WHEN 3  THEN 'Guardião'\n    WHEN 4  THEN 'Parente'\n    WHEN 5  THEN 'Visitante'\n    WHEN 6  THEN 'Financeiro'\n    WHEN 7  THEN 'Recursos Humanos'\n    WHEN 8  THEN 'Dono da Franquia'\n    WHEN 9  THEN 'Supervisor Assistidos'\n    WHEN 10 THEN 'Supervisor'\n    WHEN 11 THEN 'Suporte'\n    WHEN 12 THEN 'Gerente Comercial'\n    WHEN 13 THEN 'Master'\n    ELSE 'Desconhecido'\n  END AS role_name,\n\n  -- Array com o papel do usuário (para compatibilidade com n8n)\n  JSON_ARRAY(\n    CASE users.perfil\n      WHEN 1  THEN 'Administrador'\n      WHEN 2  THEN 'Candidato'\n      WHEN 3  THEN 'Guardião'\n      WHEN 4  THEN 'Parente'\n      WHEN 5  THEN 'Visitante'\n      WHEN 6  THEN 'Financeiro'\n      WHEN 7  THEN 'Recursos Humanos'\n      WHEN 8  THEN 'Dono da Franquia'\n      WHEN 9  THEN 'Supervisor Assistidos'\n      WHEN 10 THEN 'Supervisor'\n      WHEN 11 THEN 'Suporte'\n      WHEN 12 THEN 'Gerente Comercial'\n      WHEN 13 THEN 'Master'\n      ELSE 'Desconhecido'\n    END\n  ) AS roles,\n\n  -- ==========================================\n  -- Multi-Tenancy (Custom Claims)\n  -- ==========================================\n  users.tenant_id,                    -- Tenant primário\n\n  -- Array de TODOS os tenants do usuário\n  CASE\n    WHEN COUNT(unidades_users.tenant_id) > 0 THEN\n      JSON_ARRAYAGG(unidades_users.tenant_id)\n    ELSE\n      JSON_ARRAY(users.tenant_id)\n  END AS tenant_array\n\nFROM\n  users\n\n  -- Left join para tenants adicionais\n  LEFT JOIN unidades_users\n    ON unidades_users.user_id = users.id\n\nWHERE ( $1 IS NOT NULL AND users.id = $1 )\n   OR ( $2 IS NOT NULL AND users.email = $2 )\n\nGROUP BY\n  users.id, users.email, users.name,\n  users.password, users.perfil,\n  users.ativo, users.tenant_id;\n",
+        "options": {
+          "queryReplacement": "={{ $json.id }}, {{ $json.email || $json.username }}"
+        }
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        -368,
+        176
+      ],
+      "id": "99342b85-397d-43e8-a006-d89f50653393",
+      "name": "Execute a SQL query",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mySql": {
+          "id": "RPrzQQHhCIwyA9UK",
+          "name": "mysql-homologacao"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3de3a0c4-a092-4690-8d24-85b113978df6",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -176,
+        160
+      ],
+      "id": "b8f2f79b-5e19-410d-9fff-babd72503adc",
+      "name": "Se Usuário Encontrado"
+    },
+    {
+      "parameters": {
+        "content": "Versão revisada e ampliada:\n\n---\n\n## Obtém Usuário por ID, E-mail ou Username\n\n**Uso interno apenas.**\n**Não exponha este fluxo em rotas públicas.**\n\n### Estrutura de Requisição\n\nA API aceita o identificador do usuário diretamente no corpo da requisição ou dentro da propriedade `data`.\n\n#### Exemplos válidos\n\n**Com `id` diretamente:**\n```json\n{\n  \"id\": \"h32hdsauui2\"\n}\n```\n\n**Com `email` diretamente:**\n```json\n{\n  \"email\": \"guga.coder@gmail.com\"\n}\n```\n\n**Com `username` diretamente:**\n```json\n{\n  \"username\": \"gugacoder\"\n}\n```\n\n**Encapsulados em `data` ou `payload`:**\n```json\n{ \"data\": { \"id\": \"h32hdsauui2\" } }\n```\n```json\n{ \"payload\": { \"id\": \"h32hdsauui2\" } }\n```\n```json\n{ \"data\": { \"payload\": { \"id\": \"h32hdsauui2\" } } }\n```",
+        "height": 1520,
+        "width": 1024,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -992,
+        -1024
+      ],
+      "typeVersion": 1,
+      "id": "1cc4eb42-2974-4c7d-86a1-7a4d1418100f",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5acdbafa-f740-4470-bf03-4078ce2caaf5",
+              "name": "code",
+              "value": 404,
+              "type": "number"
+            },
+            {
+              "id": "1ff5b9e9-d9e5-4d6d-8268-5f193021ff2a",
+              "name": "message",
+              "value": "Usuário não encontrado",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        384,
+        224
+      ],
+      "id": "facdd465-6039-4906-b342-4835d059e6c2",
+      "name": "Usuário Não Encontrado"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5acdbafa-f740-4470-bf03-4078ce2caaf5",
+              "name": "code",
+              "value": 500,
+              "type": "number"
+            },
+            {
+              "id": "1ff5b9e9-d9e5-4d6d-8268-5f193021ff2a",
+              "name": "message",
+              "value": "Não foi possível pesquisar o usuário",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        336
+      ],
+      "id": "3900e650-8dff-49ac-b7eb-4b88b188886e",
+      "name": "Falha Ocorrida"
+    },
+    {
+      "parameters": {
+        "content": "## Resposta\n\n```json\n{\n  \"code\": 200,\n  \"data\": {\n    \"senha_hash\": \"$2y$10$rkr0jRu...\",\n    \"payload\": {\n      \"sub\": \"5bba249e-56a0-47ca-998f-55f4301a24e1\",\n      \"iss\": \"ciacuidadores\",\n      \"aud\": \"primecare\",\n      \"exp\": 1761781594,\n      \"iat\": 1761695194,\n      \"jti\": \"6204125c-bea4-4aa3-8104-ee99c238de3d\",\n      \"tenant\": [\n        1,\n        18,\n        19,\n        12,\n        8,\n        13\n      ],\n      \"roles\": [\n        null\n      ],\n      \"name\": \"GUGA CODER\",\n      \"email\": \"guga.coder@gmail.com\"\n    }\n  }\n}\n```",
+        "height": 832,
+        "width": 544,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -1024
+      ],
+      "typeVersion": 1,
+      "id": "bc7a44d6-99f6-4379-80e1-4cfde3526fda",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Respostas de Falha\n\n```json\n{\n  \"code\": 404,\n  \"message\": \"Usuário Não Encontrado\"\n}\n```\n\n\n```json\n{\n  \"code\": 500,\n  \"message\": \"Não foi possível pesquisar o usuário\"\n}\n```\n",
+        "height": 640,
+        "width": 544,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -144
+      ],
+      "typeVersion": 1,
+      "id": "1b2a1ead-8327-4ff0-909f-2158c1137f4d",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json = item.json.data?.payload\n      || item.json.data\n      || item.json.payload\n      || item.json;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -576,
+        176
+      ],
+      "id": "1e0c9b9c-cc57-4af4-b86b-6cca86196c9f",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ==========================================\n// Converte Hash PHP para Node.js\n// ==========================================\n// PHP usa $2y$ no bcrypt\n// Node.js usa $2a$ no bcrypt\n// Algoritmos idênticos, apenas prefixo difere\nconst records = [];\n\nfor (const item of $input.all()) {\n  const json = item.json;\n  const data = item.json.data;\n  data.senha_hash = data.senha_hash.replace(/^\\$2y\\$/, '$2a$')\n  \n  records.push({ ...json, data })\n}\n\nreturn records;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        -400
+      ],
+      "id": "a9aa0946-486b-4c75-95f8-14b5464c5fcd",
+      "name": "PHP Hash para NodeJS Hash"
+    }
+  ],
+  "connections": {
+    "Autenticação via Workflow": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Constrói o Payload de Usuário em JSON": {
+      "main": [
+        [
+          {
+            "node": "PHP Hash para NodeJS Hash",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Falha Ocorrida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Teste Manual": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Se Usuário Encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Falha Ocorrida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Se Usuário Encontrado": {
+      "main": [
+        [
+          {
+            "node": "Constrói o Payload de Usuário em JSON",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Usuário Não Encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "Teste Manual": [
+      {
+        "json": {
+          "data": {
+            "username": "guga.coder@gmail.com"
+          }
+        }
+      }
+    ]
+  },
+  "versionId": "d8ee65a5-dbe7-4103-aac1-4ee24425c14c",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "createdAt": "2025-10-28T23:38:32.018Z",
+      "updatedAt": "2025-10-28T23:38:32.018Z",
+      "role": "workflow:owner",
+      "workflowId": "pBahnvlT1MXPqxjE",
+      "projectId": "IA9oo7szBC1GndRN",
+      "project": {
+        "createdAt": "2025-10-05T13:15:26.895Z",
+        "updatedAt": "2025-10-05T13:15:53.136Z",
+        "id": "IA9oo7szBC1GndRN",
+        "name": "Guga Coder <guga.coder@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "createdAt": "2025-10-05T13:15:26.896Z",
+            "updatedAt": "2025-10-05T13:15:26.896Z",
+            "userId": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+            "projectId": "IA9oo7szBC1GndRN",
+            "user": {
+              "createdAt": "2025-10-05T13:15:26.419Z",
+              "updatedAt": "2025-10-29T03:00:01.000Z",
+              "id": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+              "email": "guga.coder@gmail.com",
+              "firstName": "Guga",
+              "lastName": "Coder",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-10-05T13:16:06.256Z",
+                "personalization_survey_n8n_version": "1.107.3",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "other",
+                "reportedSourceOther": "KeepNomad"
+              },
+              "settings": {
+                "userActivated": true,
+                "firstSuccessfulWorkflowId": "vW3Gx7OZdi98Dfao",
+                "userActivatedAt": 1759671855172,
+                "easyAIWorkflowOnboarded": true,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1761574956378
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2025-10-29",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}
