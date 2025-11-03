@@ -15,11 +15,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { EventSourceManager } from '../services/events/EventSourceManager';
 import type {
   SSEContextValue,
-  ConnectionState,
   EventType,
   EventHandler,
   PlatformEvent,
 } from '../services/events/types';
+import { ConnectionState } from '../services/events/types';
 
 /**
  * SSE Context
@@ -68,7 +68,7 @@ export function SSEProvider({
   maxReconnectAttempts = 0,
 }: SSEProviderProps): JSX.Element {
   const { user, isAuthenticated } = useAuth();
-  const [state, setState] = useState<ConnectionState>('disconnected');
+  const [state, setState] = useState<ConnectionState>(ConnectionState.DISCONNECTED);
   const [lastEventTimestamp, setLastEventTimestamp] = useState<string | null>(null);
   const managerRef = useRef<EventSourceManager | null>(null);
   const handlersRef = useRef<Map<EventType, Set<EventHandler>>>(new Map());
@@ -80,7 +80,7 @@ export function SSEProvider({
     // Create manager instance
     const manager = new EventSourceManager({
       url,
-      token: null, // Will be set when authenticated
+      token: undefined, // Will be set when authenticated
       autoReconnect,
       reconnectDelay,
       maxReconnectAttempts,

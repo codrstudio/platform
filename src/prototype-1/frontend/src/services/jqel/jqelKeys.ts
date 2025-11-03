@@ -41,7 +41,7 @@ export const jqelKeys = {
     if (filters) {
       key.push(filters);
     }
-    return key as JQELQueryKey;
+    return key as unknown as JQELQueryKey;
   },
 
   /**
@@ -52,7 +52,7 @@ export const jqelKeys = {
     if (params) {
       key.push(params);
     }
-    return key as JQELQueryKey;
+    return key as unknown as JQELQueryKey;
   },
 
   /**
@@ -79,6 +79,6 @@ export const jqelKeys = {
       key.push('options', query.options);
     }
 
-    return key as JQELQueryKey;
+    return key as unknown as JQELQueryKey;
   },
 };

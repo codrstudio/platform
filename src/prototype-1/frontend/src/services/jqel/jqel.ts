@@ -60,8 +60,9 @@ class JQELService {
     const data: JResult<T> = await response.json();
 
     console.log('📦 [JQEL] Response:', {
-      success: data.success,
+      success: response.ok,
       status: response.status,
+      code: data.code,
       hasData: !!data.data,
     });
 

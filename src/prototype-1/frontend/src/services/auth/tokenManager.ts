@@ -8,7 +8,7 @@ import type { AuthTokens, JWTPayload } from './types';
 
 class TokenManager {
   private accessToken: string | null = null;
-  private refreshTimeout: NodeJS.Timeout | null = null;
+  private refreshTimeout: number | null = null;
   private readonly REFRESH_TOKEN_KEY = 'refresh_token';
   private readonly REFRESH_BUFFER_MS = 60 * 1000; // Refresh 1 min before expiry
 

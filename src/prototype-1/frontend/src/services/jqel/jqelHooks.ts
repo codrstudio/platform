@@ -87,14 +87,14 @@ export function useJQELInvalidate() {
      * Invalidate all JQEL queries
      */
     all: () => {
-      queryClient.invalidateQueries({ queryKey: jqelKeys.all() });
+      queryClient.invalidateQueries({ queryKey: jqelKeys.all() as readonly unknown[] });
     },
 
     /**
      * Invalidate all queries for a schema
      */
     schema: (schema: string) => {
-      queryClient.invalidateQueries({ queryKey: jqelKeys.schema(schema) });
+      queryClient.invalidateQueries({ queryKey: jqelKeys.schema(schema) as readonly unknown[] });
     },
 
     /**
@@ -102,7 +102,7 @@ export function useJQELInvalidate() {
      */
     entity: (schema: string, entity: string) => {
       queryClient.invalidateQueries({
-        queryKey: jqelKeys.entity(schema, entity),
+        queryKey: jqelKeys.entity(schema, entity) as readonly unknown[],
       });
     },
 

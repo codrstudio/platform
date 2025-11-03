@@ -19,8 +19,8 @@ export class JQELError extends Error {
     this.jresult = jresult;
 
     // Maintain proper stack trace (only in V8)
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, JQELError);
+    if (typeof (Error as any).captureStackTrace === 'function') {
+      (Error as any).captureStackTrace(this, JQELError);
     }
   }
 

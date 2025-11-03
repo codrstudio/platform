@@ -6,7 +6,6 @@
 
 import { useMemo } from 'react';
 import { useJQEL } from '@/services/jqel/jqelHooks';
-import { moduleLoader } from '../modules/ModuleLoader';
 import type { Portal } from '../portals/types';
 import type { RouteObject } from 'react-router-dom';
 

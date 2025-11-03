@@ -16,8 +16,8 @@ interface InstanceListProps {
 export function InstanceList({
   portalId,
   moduleId,
-  onEdit,
-  onDelete,
+  onEdit: _onEdit,
+  onDelete: _onDelete,
 }: InstanceListProps) {
   // TODO: Fetch instances from backend when implemented
   // For now, return placeholder

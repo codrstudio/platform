@@ -15,8 +15,8 @@ import type {
   EventType,
   EventHandler,
   EventSourceOptions,
-  ConnectionState,
 } from './types';
+import { ConnectionState } from './types';
 
 /**
  * EventSource Manager Class
@@ -43,7 +43,7 @@ export class EventSourceManager {
     this.autoReconnect = options.autoReconnect ?? true;
     this.reconnectDelay = options.reconnectDelay ?? 3000; // 3 seconds
     this.maxReconnectAttempts = options.maxReconnectAttempts ?? 0; // 0 = infinite
-    this.state = 'disconnected' as ConnectionState;
+    this.state = ConnectionState.DISCONNECTED;
     this.handlers = new Map();
     this.onStateChange = options.onStateChange;
     this.onError = options.onError;
@@ -60,7 +60,7 @@ export class EventSourceManager {
    * Check if connected
    */
   isConnected(): boolean {
-    return this.state === 'connected';
+    return this.state === ConnectionState.CONNECTED;
   }
 
   /**
@@ -88,7 +88,7 @@ export class EventSourceManager {
       return;
     }
 
-    this.setState('connecting');
+    this.setState(ConnectionState.CONNECTING);
     this.reconnectAttempts = 0;
 
     try {
@@ -105,7 +105,7 @@ export class EventSourceManager {
       // Handle connection opened
       this.eventSource.addEventListener('open', () => {
         console.log('[SSE] Connection established');
-        this.setState('connected');
+        this.setState(ConnectionState.CONNECTED);
         this.reconnectAttempts = 0;
       });
 
@@ -133,7 +133,7 @@ export class EventSourceManager {
       });
     } catch (error) {
       console.error('[SSE] Connection error:', error);
-      this.setState('error');
+      this.setState(ConnectionState.ERROR);
       if (this.onError && error instanceof Error) {
         this.onError(error);
       }
@@ -156,7 +156,7 @@ export class EventSourceManager {
       this.eventSource = null;
     }
 
-    this.setState('disconnected');
+    this.setState(ConnectionState.DISCONNECTED);
     this.reconnectAttempts = 0;
   }
 
@@ -234,7 +234,7 @@ export class EventSourceManager {
 
     // Check if connection was open (this is a real error)
     if (this.eventSource?.readyState === EventSource.CLOSED) {
-      this.setState('error');
+      this.setState(ConnectionState.ERROR);
       this.eventSource = null;
 
       if (this.onError) {
@@ -266,12 +266,12 @@ export class EventSourceManager {
         '[SSE] Max reconnection attempts reached:',
         this.maxReconnectAttempts
       );
-      this.setState('error');
+      this.setState(ConnectionState.ERROR);
       return;
     }
 
     this.reconnectAttempts++;
-    this.setState('reconnecting');
+    this.setState(ConnectionState.RECONNECTING);
 
     const delay = this.reconnectDelay * Math.min(this.reconnectAttempts, 5); // Max 5x delay
     console.log(
