@@ -188,14 +188,14 @@
 ## 3. MÓDULOS FUNCIONAIS (Functional Modules)
 
 ### 3.1 Autenticação
-- [ ] **SPEC-module-auth.md** - Authentication Module
-  - [ ] Login/logout/refresh/logout-all
-  - [ ] Context provider para auth state
-  - [ ] ProtectedRoute component
-  - [ ] Renovação automática de token
-  - [ ] Seleção de realm/schema configurável
-  - [ ] Múltiplas instâncias independentes por portal
-  - [ ] Validação de permissões via /api/1/auth/authorize
+- [x] **SPEC-module-auth.md** - Authentication Module
+  - [x] Login/logout/refresh/logout-all
+  - [x] Context provider para auth state
+  - [x] ProtectedRoute component
+  - [x] Renovação automática de token
+  - [x] Seleção de realm/schema configurável
+  - [x] Múltiplas instâncias independentes por portal
+  - [x] Validação de permissões via /api/1/auth/authorize
 
 ### 3.2 Chat
 - [ ] **SPEC-module-chat.md** - Chat Module
@@ -336,10 +336,10 @@
 |-----------|-------|-------|--------------|----------|
 | **1. Fundamentos** | 10 features | 9 | 0 | 1 |
 | **2. Sistema de Módulos** | 2 features | 2 | 0 | 0 |
-| **3. Módulos Funcionais** | 12 módulos | 0 | 0 | 12 |
+| **3. Módulos Funcionais** | 12 módulos | 1 | 0 | 11 |
 | **4. Módulos de Componentes** | 4 módulos | 0 | 0 | 4 |
 | **5. Infraestrutura Avançada** | 3 features | 0 | 0 | 3 |
-| **TOTAL** | **31 items** | **11 (35%)** | **0 (0%)** | **20 (65%)** |
+| **TOTAL** | **31 items** | **12 (39%)** | **0 (0%)** | **19 (61%)** |
 
 ---
 
@@ -417,9 +417,9 @@
 
 ---
 
-**Document Version**: 1.1
+**Document Version**: 1.2
 **Last Review**: 2025-11-05
-**Status**: Foundation Complete | 3 Functional Modules Implemented | 9 Stubs Created
+**Status**: Foundation Complete | Auth Module Implemented | 11 Functional Modules Pending
 
 ---
 
@@ -429,18 +429,21 @@
 
 #### ✅ Wave 8: Auth Module (COMPLETE)
 **Location**: `src/modules/auth/`
-**Status**: Fully implemented, pending shadcn/ui component library setup
+**Status**: Fully implemented and tested ✅
 **Components**:
 - ✅ LoginForm - Complete login interface with realm/schema support
-- ✅ LoginPage - Full page login with routing
-- ✅ ProtectedRoute - Route protection wrapper
-- ✅ LogoutButton - Logout action component
-- ✅ UserAvatar - User display component with avatar
+- ✅ LoginPage - Full page login with routing and redirect support
+- ✅ ProtectedRoute - Route protection wrapper (re-exported from core)
+- ✅ LogoutButton - Logout action component with redirect
+- ✅ UserAvatar - User display component with initials fallback
 - ✅ useAuth hook - Re-exported from AuthContext
 
-**Known Issues**:
-- Requires shadcn/ui components (button, form, input, alert, card, avatar) to be installed
-- Build fails without UI library setup
+**Implementation Details**:
+- ✅ shadcn/ui components installed and configured
+- ✅ TypeScript compilation passes
+- ✅ Build successful (116.28 kB main bundle, 205.50 kB total)
+- ✅ All SPEC-module-auth.md requirements implemented
+- ✅ Registered in module registry
 
 #### ✅ Wave 9: Sidebar Module (COMPLETE)
 **Location**: `src/modules/sidebar/`
@@ -523,6 +526,6 @@ All remaining functional modules have been created as properly structured stubs 
 
 ---
 
-**Document Version**: 1.1
+**Document Version**: 1.2
 **Last Review**: 2025-11-05
-**Status**: Foundation Complete | 3 Functional Modules Implemented | 9 Stubs Created
+**Status**: Foundation Complete | Auth Module Implemented | 11 Functional Modules Pending

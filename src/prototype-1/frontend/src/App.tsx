@@ -10,12 +10,12 @@ import { PortalLoader } from '@/core/routing/PortalLoader';
 /**
  * Root Router Configuration
  * SPEC-R-PR-001: Main portal at "/", others at "/:portalId/*"
+ *
+ * Strategy: Try "main" portal first for all routes.
+ * If a route segment matches a known portalId (like "setup"),
+ * PortalLoader will detect and load that portal instead.
  */
 const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <PortalLoader portalId="main" />,
-  },
   {
     path: '/health',
     element: (
@@ -31,21 +31,8 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: '/:portalId/*',
+    path: '/*',
     element: <PortalLoader />,
-  },
-  {
-    path: '*',
-    element: (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center max-w-md">
-          <h1 className="text-2xl font-bold mb-2">404 - Page Not Found</h1>
-          <p className="text-muted-foreground">
-            The requested page does not exist.
-          </p>
-        </div>
-      </div>
-    ),
   },
 ]);
 

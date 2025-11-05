@@ -5,14 +5,44 @@
  */
 
 import { Suspense, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { usePortalRoutes } from './usePortalRoutes';
 import { PortalRouter } from './PortalRouter';
 import { moduleLoader } from '../modules/ModuleLoader';
 import type { RouteObject } from 'react-router-dom';
 
 interface PortalLoaderProps {
-  portalId?: string; // Optional: If not provided, read from URL params
+  portalId?: string; // Optional: If not provided, detect from URL
+}
+
+/**
+ * Detects portal ID from URL path
+ * SPEC-R-PR-001: Main portal has priority
+ *
+ * Strategy:
+ * 1. Check if first path segment matches a known portal ID
+ * 2. If yes, use that portal
+ * 3. If no, default to "main"
+ */
+function detectPortalId(pathname: string): string {
+  const segments = pathname.split('/').filter(Boolean);
+
+  if (segments.length === 0) {
+    return 'main';
+  }
+
+  const firstSegment = segments[0];
+
+  // Known portal IDs that should NOT be handled by "main"
+  // TODO: This should ideally come from a dynamic portal list query
+  const knownPortalIds = ['setup'];
+
+  if (knownPortalIds.includes(firstSegment)) {
+    return firstSegment;
+  }
+
+  // Default to "main" for all other routes
+  return 'main';
 }
 
 /**
@@ -21,7 +51,32 @@ interface PortalLoaderProps {
  */
 export function PortalLoader({ portalId: propPortalId }: PortalLoaderProps) {
   const params = useParams<{ portalId?: string }>();
-  const portalId = propPortalId || params.portalId || 'main';
+  const location = useLocation();
+
+  // State for dynamic portal detection
+  // Initial value: prop > param > detection > default
+  const [portalId, setPortalId] = useState(
+    propPortalId || params.portalId || detectPortalId(location.pathname)
+  );
+
+  // Recalculate portalId when location changes (fixes navigation issue)
+  // This ensures that programmatic navigation (navigate, Link) works correctly
+  useEffect(() => {
+    // If portalId comes from prop or param, don't override
+    if (propPortalId || params.portalId) {
+      const explicitPortalId = propPortalId || params.portalId;
+      if (explicitPortalId && explicitPortalId !== portalId) {
+        setPortalId(explicitPortalId);
+      }
+      return;
+    }
+
+    // Detect portal from current pathname
+    const detected = detectPortalId(location.pathname);
+    if (detected !== portalId) {
+      setPortalId(detected);
+    }
+  }, [location.pathname, propPortalId, params.portalId, portalId]);
 
   const { portal, isLoading, error } = usePortalRoutes(portalId);
   const [routes, setRoutes] = useState<RouteObject[]>([]);
