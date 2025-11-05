@@ -103,7 +103,7 @@ function renderFileSelector() {
 }
 
 /**
- * Renders hierarchical list (headings + tasks)
+ * Renders hierarchical list (headings + tasks) in accordion style
  */
 function renderTaskList(items, level = 0) {
   if (!items || items.length === 0) {
@@ -117,15 +117,19 @@ function renderTaskList(items, level = 0) {
     const isTask = item.type === 'task';
 
     if (isHeading) {
-      // Render heading
+      // Render heading in accordion style
+      const statusIcon = getAggregatedStatusIcon(item.aggregatedStatus);
+      const expandIcon = hasChildren ? (isExpanded ? '⮟' : '⮜') : '';
+
       return `
-        <div class="hierarchy-item heading-item level-${level}" data-type="heading" data-id="${escapeHtml(item.id)}">
-          <div class="heading-header" data-line="${item.line}" data-file="${escapeHtml(currentPlan.filePath)}">
-            ${hasChildren ? `<span class="toggle" data-id="${escapeHtml(item.id)}">${isExpanded ? '▼' : '▶'}</span>` : '<span class="toggle"></span>'}
+        <div class="accordion-item heading-item h${item.level}" data-type="heading" data-id="${escapeHtml(item.id)}" data-status="${item.aggregatedStatus || 'pending'}">
+          <div class="accordion-header" data-line="${item.line}" data-file="${escapeHtml(currentPlan.filePath)}">
+            <span class="status-icon">${statusIcon}</span>
             <span class="heading-text">${escapeHtml(item.text)}</span>
+            ${expandIcon ? `<span class="expand-icon" data-id="${escapeHtml(item.id)}">${expandIcon}</span>` : ''}
           </div>
           ${hasChildren && isExpanded ? `
-            <div class="hierarchy-children">
+            <div class="accordion-content">
               ${renderTaskList(item.children, level + 1)}
             </div>
           ` : ''}
@@ -133,16 +137,18 @@ function renderTaskList(items, level = 0) {
       `;
     } else if (isTask) {
       // Render task
-      const icon = getStateIcon(item.state);
+      const statusIcon = getStateIcon(item.state);
+      const expandIcon = hasChildren ? (isExpanded ? '⮟' : '⮜') : '';
+
       return `
-        <div class="hierarchy-item task-item level-${level}" data-state="${item.state}" data-type="task" data-id="${escapeHtml(item.id)}">
-          <div class="task-header" data-line="${item.line}" data-file="${escapeHtml(currentPlan.filePath)}">
-            ${hasChildren ? `<span class="toggle" data-id="${escapeHtml(item.id)}">${isExpanded ? '▼' : '▶'}</span>` : '<span class="toggle"></span>'}
-            <span class="icon">${icon}</span>
-            <span class="text">${escapeHtml(item.text)}</span>
+        <div class="accordion-item task-item" data-state="${item.state}" data-type="task" data-id="${escapeHtml(item.id)}">
+          <div class="accordion-header task-header" data-line="${item.line}" data-file="${escapeHtml(currentPlan.filePath)}">
+            <span class="status-icon">${statusIcon}</span>
+            <span class="task-text">${escapeHtml(item.text)}</span>
+            ${expandIcon ? `<span class="expand-icon" data-id="${escapeHtml(item.id)}">${expandIcon}</span>` : ''}
           </div>
           ${hasChildren && isExpanded ? `
-            <div class="hierarchy-children">
+            <div class="accordion-content">
               ${renderTaskList(item.children, level + 1)}
             </div>
           ` : ''}
@@ -152,6 +158,21 @@ function renderTaskList(items, level = 0) {
 
     return '';
   }).join('');
+}
+
+/**
+ * Gets icon for aggregated status (headings)
+ */
+function getAggregatedStatusIcon(status) {
+  switch (status) {
+    case 'done':
+      return '✅';
+    case 'partial':
+      return '🟡';
+    case 'pending':
+    default:
+      return '☐';
+  }
 }
 
 /**
@@ -177,10 +198,10 @@ function getStateIcon(state) {
  */
 function attachHandlers() {
   // Click to navigate (both tasks and headings)
-  document.querySelectorAll('.task-header, .heading-header').forEach(el => {
+  document.querySelectorAll('.accordion-header').forEach(el => {
     el.addEventListener('click', (e) => {
-      // Don't navigate if clicking on toggle
-      if (e.target.classList.contains('toggle')) {
+      // Don't navigate if clicking on expand icon
+      if (e.target.classList.contains('expand-icon')) {
         return;
       }
 
@@ -195,8 +216,8 @@ function attachHandlers() {
     });
   });
 
-  // Toggle sections
-  document.querySelectorAll('.toggle').forEach(el => {
+  // Toggle sections with expand icon
+  document.querySelectorAll('.expand-icon').forEach(el => {
     const itemId = el.dataset.id;
     if (!itemId) return;
 

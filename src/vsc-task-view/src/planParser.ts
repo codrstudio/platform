@@ -260,3 +260,101 @@ function buildHierarchy(
 
   return root;
 }
+
+/**
+ * Marks items that have task descendants (recursively)
+ * @param items Hierarchy to mark
+ * @returns true if this branch has tasks
+ */
+function markTaskDescendants(items: HierarchyItem[]): boolean {
+  let hasAnyTasks = false;
+
+  for (const item of items) {
+    if (item.type === ItemType.Task) {
+      // This is a task
+      item.hasTaskDescendants = true;
+      hasAnyTasks = true;
+    } else if (item.children.length > 0) {
+      // This is a heading with children - check recursively
+      const childrenHaveTasks = markTaskDescendants(item.children);
+      item.hasTaskDescendants = childrenHaveTasks;
+      if (childrenHaveTasks) {
+        hasAnyTasks = true;
+      }
+    } else {
+      // This is a heading without children - no tasks
+      item.hasTaskDescendants = false;
+    }
+  }
+
+  return hasAnyTasks;
+}
+
+/**
+ * Filters hierarchy to keep only branches that culminate in tasks
+ * @param items Hierarchy to filter
+ * @returns Filtered hierarchy
+ */
+function filterTaskBranches(items: HierarchyItem[]): HierarchyItem[] {
+  return items
+    .filter(item => item.hasTaskDescendants)
+    .map(item => ({
+      ...item,
+      children: filterTaskBranches(item.children)
+    }));
+}
+
+/**
+ * Calculates aggregated status for headings based on children
+ * @param items Hierarchy to process
+ */
+function calculateAggregatedStatus(items: HierarchyItem[]): void {
+  for (const item of items) {
+    // Recursively process children first
+    if (item.children.length > 0) {
+      calculateAggregatedStatus(item.children);
+    }
+
+    // Calculate status for headings
+    if (item.type === ItemType.Heading && item.children.length > 0) {
+      // Collect all descendant tasks (recursively)
+      const descendantTasks = collectDescendantTasks(item);
+
+      if (descendantTasks.length === 0) {
+        item.aggregatedStatus = AggregatedStatus.Pending;
+      } else {
+        const doneCount = descendantTasks.filter(t => t.state === TaskState.Done).length;
+        const totalCount = descendantTasks.length;
+
+        if (doneCount === totalCount) {
+          item.aggregatedStatus = AggregatedStatus.Done;
+        } else if (doneCount > 0) {
+          item.aggregatedStatus = AggregatedStatus.Partial;
+        } else {
+          item.aggregatedStatus = AggregatedStatus.Pending;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Collects all descendant tasks recursively
+ * @param item Item to collect tasks from
+ * @returns Array of all descendant tasks
+ */
+function collectDescendantTasks(item: HierarchyItem): HierarchyItem[] {
+  const tasks: HierarchyItem[] = [];
+
+  for (const child of item.children) {
+    if (child.type === ItemType.Task) {
+      tasks.push(child);
+    }
+
+    if (child.children.length > 0) {
+      tasks.push(...collectDescendantTasks(child));
+    }
+  }
+
+  return tasks;
+}
