@@ -118,15 +118,15 @@ function renderTaskList(items, level = 0) {
 
     if (isHeading) {
       // Render heading in accordion style
-      const statusIcon = getAggregatedStatusIcon(item.aggregatedStatus);
-      const expandIcon = hasChildren ? (isExpanded ? '⮟' : '⮜') : '';
+      const { icon: statusIcon, class: statusClass } = getAggregatedStatusIcon(item.aggregatedStatus);
+      const expandIcon = hasChildren ? (isExpanded ? 'chevron-down' : 'chevron-right') : '';
 
       return `
         <div class="accordion-item heading-item h${item.level}" data-type="heading" data-id="${escapeHtml(item.id)}" data-status="${item.aggregatedStatus || 'pending'}">
           <div class="accordion-header" data-line="${item.line}" data-file="${escapeHtml(currentPlan.filePath)}">
-            <span class="status-icon">${statusIcon}</span>
+            <span class="status-icon ${statusClass}"><i class="codicon codicon-${statusIcon}"></i></span>
             <span class="heading-text">${escapeHtml(item.text)}</span>
-            ${expandIcon ? `<span class="expand-icon" data-id="${escapeHtml(item.id)}">${expandIcon}</span>` : ''}
+            ${expandIcon ? `<span class="expand-icon" data-id="${escapeHtml(item.id)}"><i class="codicon codicon-${expandIcon}"></i></span>` : ''}
           </div>
           ${hasChildren && isExpanded ? `
             <div class="accordion-content">
@@ -137,15 +137,24 @@ function renderTaskList(items, level = 0) {
       `;
     } else if (isTask) {
       // Render task
-      const statusIcon = getStateIcon(item.state);
-      const expandIcon = hasChildren ? (isExpanded ? '⮟' : '⮜') : '';
+      const { icon: statusIcon, class: statusClass } = getStateIcon(item.state);
+      const expandIcon = hasChildren ? (isExpanded ? 'chevron-down' : 'chevron-right') : '';
+
+      // Determine task classes based on hierarchy
+      const taskClasses = ['accordion-item', 'task-item'];
+      if (hasChildren) {
+        taskClasses.push('has-children');
+      }
+      if (level > 0) {
+        taskClasses.push('nested');
+      }
 
       return `
-        <div class="accordion-item task-item" data-state="${item.state}" data-type="task" data-id="${escapeHtml(item.id)}">
+        <div class="${taskClasses.join(' ')}" data-state="${item.state}" data-type="task" data-id="${escapeHtml(item.id)}">
           <div class="accordion-header task-header" data-line="${item.line}" data-file="${escapeHtml(currentPlan.filePath)}">
-            <span class="status-icon">${statusIcon}</span>
+            <span class="status-icon ${statusClass}"><i class="codicon codicon-${statusIcon}"></i></span>
             <span class="task-text">${escapeHtml(item.text)}</span>
-            ${expandIcon ? `<span class="expand-icon" data-id="${escapeHtml(item.id)}">${expandIcon}</span>` : ''}
+            ${expandIcon ? `<span class="expand-icon" data-id="${escapeHtml(item.id)}"><i class="codicon codicon-${expandIcon}"></i></span>` : ''}
           </div>
           ${hasChildren && isExpanded ? `
             <div class="accordion-content">
@@ -162,34 +171,36 @@ function renderTaskList(items, level = 0) {
 
 /**
  * Gets icon for aggregated status (headings)
+ * Returns { icon: 'codicon-name', class: 'css-class' }
  */
 function getAggregatedStatusIcon(status) {
   switch (status) {
     case 'done':
-      return '✅';
+      return { icon: 'pass-filled', class: 'status-done' };
     case 'partial':
-      return '🟡';
+      return { icon: 'circle-large-outline', class: 'status-partial' };
     case 'pending':
     default:
-      return '☐';
+      return { icon: 'circle-large-outline', class: 'status-pending' };
   }
 }
 
 /**
  * Gets icon for task state
+ * Returns { icon: 'codicon-name', class: 'css-class' }
  */
 function getStateIcon(state) {
   switch (state) {
     case 'pending':
-      return '📝';
+      return { icon: 'circle-outline', class: 'status-pending' };
     case 'done':
-      return '✅';
+      return { icon: 'pass-filled', class: 'status-done' };
     case 'in-progress':
-      return '🔄';
+      return { icon: 'sync', class: 'status-in-progress' };
     case 'blocked':
-      return '⚠️';
+      return { icon: 'error', class: 'status-blocked' };
     default:
-      return '•';
+      return { icon: 'circle-outline', class: 'status-pending' };
   }
 }
 

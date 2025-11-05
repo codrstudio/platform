@@ -305,7 +305,7 @@ function filterTaskBranches(items: HierarchyItem[]): HierarchyItem[] {
 }
 
 /**
- * Calculates aggregated status for headings based on children
+ * Calculates aggregated status for headings and tasks with children
  * @param items Hierarchy to process
  */
 function calculateAggregatedStatus(items: HierarchyItem[]): void {
@@ -315,8 +315,8 @@ function calculateAggregatedStatus(items: HierarchyItem[]): void {
       calculateAggregatedStatus(item.children);
     }
 
-    // Calculate status for headings
-    if (item.type === ItemType.Heading && item.children.length > 0) {
+    // Calculate status for headings AND tasks with children
+    if (item.children.length > 0) {
       // Collect all descendant tasks (recursively)
       const descendantTasks = collectDescendantTasks(item);
 

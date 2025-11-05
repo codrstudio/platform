@@ -364,6 +364,11 @@ export class PlanMonitorProvider implements vscode.WebviewViewProvider {
       vscode.Uri.joinPath(this._extensionUri, 'webview', 'style.css')
     );
 
+    // Get Codicons font URI
+    const codiconsUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css')
+    );
+
     // Generate nonce for CSP
     const nonce = this._getNonce();
 
@@ -372,7 +377,8 @@ export class PlanMonitorProvider implements vscode.WebviewViewProvider {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';">
+  <link href="${codiconsUri}" rel="stylesheet">
   <link href="${styleUri}" rel="stylesheet">
   <title>Plan Monitor</title>
 </head>

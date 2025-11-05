@@ -2,7 +2,7 @@
   "name": "plan-monitor",
   "displayName": "Plan Monitor",
   "description": "Visualize PLAN*.md checklist files in sidebar",
-  "version": "0.6.0",
+  "version": "0.8.0",
   "publisher": "codr-studio",
   "engines": {
     "vscode": "^1.75.0"
@@ -44,17 +44,18 @@
     "lint": "eslint src --ext ts"
   },
   "devDependencies": {
-    "@types/vscode": "^1.75.0",
-    "@types/node": "^18.0.0",
     "@types/markdown-it": "^13.0.0",
-    "@vscode/vsce": "^2.22.0",
-    "typescript": "^5.0.0",
-    "eslint": "^8.0.0",
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.75.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
-    "esbuild": "^0.19.0"
+    "@vscode/vsce": "^2.22.0",
+    "esbuild": "^0.19.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@vscode/codicons": "^0.0.41",
     "markdown-it": "^14.0.0",
     "markdown-it-task-lists": "^2.1.1"
   }
