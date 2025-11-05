@@ -1,11 +1,19 @@
 // Root application component
-// This file will be implemented in subsequent tasks
+// Based on SPEC-routing.md routing architecture
+
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import PortalLoader from './core/routing/PortalLoader';
 
 export default function App() {
   return (
-    <div>
-      <h1>Platform - Prototype 2</h1>
-      <p>Application structure initialized. Implementation in progress...</p>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        {/* Main portal - root path */}
+        <Route path="/" element={<PortalLoader portalId="main" />} />
+
+        {/* All other portals - dynamic path */}
+        <Route path="/:portalId/*" element={<PortalLoader />} />
+      </Routes>
+    </BrowserRouter>
   );
 }

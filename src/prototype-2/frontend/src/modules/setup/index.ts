@@ -1,5 +1,17 @@
 // Setup module entry point
-// This file will be implemented in module development tasks
+// Module exports structure for dynamic loading
 
-export { default as manifest } from './manifest';
-export { default as routes } from './routes';
+import type { ModuleExports } from '../../types/module';
+import routes from './routes';
+
+const setupModule: ModuleExports = {
+  routes,
+  onActivate: (portal) => {
+    console.log(`Setup module activated in portal: ${portal.portalId}`);
+  },
+  onDeactivate: (portal) => {
+    console.log(`Setup module deactivated from portal: ${portal.portalId}`);
+  },
+};
+
+export default setupModule;

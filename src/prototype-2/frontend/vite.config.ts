@@ -228,14 +228,14 @@ export default defineConfig(({ mode }) => {
 
     // Development server
     server: {
-      port: Number(env.VITE_PORT) || 5173,
+      port: Number(env.VITE_PORT) || 3300,
       strictPort: true, // Fail if port occupied
       host: true, // Listen on all addresses
 
       // Proxy API requests to backend
       proxy: {
         '/api': {
-          target: env.VITE_API_URL || 'http://localhost:3000',
+          target: env.VITE_API_URL || 'http://localhost:3333',
           changeOrigin: true,
           secure: false,
           ws: true, // WebSocket support for SSE

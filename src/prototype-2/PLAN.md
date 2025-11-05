@@ -81,7 +81,7 @@
 ### SISTEMA 1.2: Roteamento ✅
 
 #### Componente: Router Base
-- [ ] Implementar PortalRouter com React Router  
+- [x] Implementar PortalRouter com React Router
   Refs: SPEC-routing.md (SPEC-R-BS-001:008)
 
 - [ ] Implementar rota "/" para portal main  
