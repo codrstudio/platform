@@ -1,0 +1,12 @@
+/* Global styles and Tailwind imports */
+/* This file will be properly configured in Tailwind setup task */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Theme colors will be defined here */
+  }
+}

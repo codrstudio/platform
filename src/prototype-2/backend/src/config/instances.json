@@ -1,0 +1,11 @@
+{
+  "instances": [
+    {
+      "instanceId": "setup-default",
+      "moduleId": "setup",
+      "portalId": "setup",
+      "config": {},
+      "active": true
+    }
+  ]
+}

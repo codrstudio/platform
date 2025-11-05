@@ -1,0 +1,20 @@
+{
+  "portals": [
+    {
+      "portalId": "main",
+      "name": "Main Portal",
+      "description": "Main application portal",
+      "path": "/",
+      "activeModules": [],
+      "settings": {}
+    },
+    {
+      "portalId": "setup",
+      "name": "Setup Portal",
+      "description": "Platform setup and configuration",
+      "path": "/setup",
+      "activeModules": ["setup"],
+      "settings": {}
+    }
+  ]
+}
