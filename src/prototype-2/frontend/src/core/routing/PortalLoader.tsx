@@ -3,7 +3,9 @@
 
 import { useParams } from 'react-router-dom';
 import { usePortalConfig } from '../../hooks/usePortalConfig';
+import { useModuleLoader } from '../../hooks/useModuleLoader';
 import { MainPortalRouter } from './MainPortalRouter';
+import PortalRouter from './PortalRouter';
 import { LoadingState } from '../../components/common/LoadingState';
 import { ErrorState } from '../../components/common/ErrorState';
 
@@ -15,19 +17,26 @@ export default function PortalLoader({ portalId: providedPortalId }: PortalLoade
   const params = useParams<{ portalId?: string }>();
   const portalId = providedPortalId || params.portalId || 'main';
 
-  const { portal, loading, error } = usePortalConfig(portalId);
+  const { portal, loading: portalLoading, error: portalError } = usePortalConfig(portalId);
 
-  // Loading state
-  if (loading) {
-    return <LoadingState message="Loading platform..." />;
+  // Load modules for the portal (only if portal is loaded)
+  const {
+    modules,
+    loading: modulesLoading,
+    error: modulesError
+  } = useModuleLoader(portal?.activeModules || []);
+
+  // Loading state - portal or modules
+  if (portalLoading || modulesLoading) {
+    return <LoadingState message="Loading portal..." />;
   }
 
-  // Error state
-  if (error) {
+  // Error state - portal loading failed
+  if (portalError) {
     return (
       <ErrorState
         title="Portal Not Found"
-        message={error.message}
+        message={portalError.message}
         onRetry={() => window.location.reload()}
       />
     );
@@ -43,16 +52,22 @@ export default function PortalLoader({ portalId: providedPortalId }: PortalLoade
     );
   }
 
-  // For now, only main portal is implemented
+  // Error state - modules loading failed
+  if (modulesError) {
+    return (
+      <ErrorState
+        title="Failed to Load Modules"
+        message={modulesError.message}
+        onRetry={() => window.location.reload()}
+      />
+    );
+  }
+
+  // Main portal uses specialized router
   if (portalId === 'main') {
     return <MainPortalRouter portal={portal} />;
   }
 
-  // Other portals will be implemented in task 1.2.3
-  return (
-    <ErrorState
-      title="Portal Not Implemented"
-      message={`Portal "${portalId}" routing is not yet implemented.`}
-    />
-  );
+  // All other portals use generic PortalRouter with loaded modules
+  return <PortalRouter portal={portal} modules={modules} />;
 }

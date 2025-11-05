@@ -1,11 +1,12 @@
 // Portal Router - Injects module routes into React Router
 // Based on SPEC-routing.md Route injection patterns
 
-import React, { useMemo } from 'react';
+import React, { useMemo, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import type { Portal } from '../../types/portal';
 import type { ModuleExports } from '../../types/module';
 import type { PrefixedRoute } from '../../types/routing';
+import { LoadingFallback } from '../../components/loading';
 
 interface PortalRouterProps {
   portal: Portal;
@@ -72,27 +73,35 @@ export default function PortalRouter({ portal, modules }: PortalRouterProps) {
     );
   }
 
-  // Render routes
+  // Render routes with portal-level Suspense
   return (
-    <Routes>
-      {routes.map((route, index) => (
-        <Route
-          key={`${route.prefixedPath}-${index}`}
-          path={route.prefixedPath}
-          element={<route.component />}
+    <Suspense
+      fallback={
+        <LoadingFallback
+          message={`Loading ${portal.name}...`}
         />
-      ))}
+      }
+    >
+      <Routes>
+        {routes.map((route, index) => (
+          <Route
+            key={`${route.prefixedPath}-${index}`}
+            path={route.prefixedPath}
+            element={<route.component />}
+          />
+        ))}
 
-      {/* 404 fallback for unmatched routes within portal */}
-      <Route
-        path="*"
-        element={
-          <div style={{ padding: '2rem' }}>
-            <h2>Page Not Found</h2>
-            <p>The requested page does not exist in {portal.name}.</p>
-          </div>
-        }
-      />
-    </Routes>
+        {/* 404 fallback for unmatched routes within portal */}
+        <Route
+          path="*"
+          element={
+            <div style={{ padding: '2rem' }}>
+              <h2>Page Not Found</h2>
+              <p>The requested page does not exist in {portal.name}.</p>
+            </div>
+          }
+        />
+      </Routes>
+    </Suspense>
   );
 }

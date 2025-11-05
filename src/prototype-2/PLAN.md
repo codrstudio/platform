@@ -84,30 +84,30 @@
 - [x] Implementar PortalRouter com React Router
   Refs: SPEC-routing.md (SPEC-R-BS-001:008)
 
-- [ ] Implementar rota "/" para portal main  
+- [x] Implementar rota "/" para portal main
   Refs: SPEC-routing.md (SPEC-R-BS-001, SPEC-R-BS-003)
 
-- [ ] Implementar rota "/:portalId/*" para outros portais  
+- [x] Implementar rota "/:portalId/*" para outros portais
   Refs: SPEC-routing.md (SPEC-R-BS-002, SPEC-R-BS-004)
 
 #### Componente: Dynamic Routes
-- [ ] Criar função registerRoutes()  
+- [x] Criar função registerRoutes()
   Refs: SPEC-routing.md (SPEC-R-DY-001:009), SPEC-module-loading.md (SPEC-LOAD-R-001:007)
 
-- [ ] Implementar prefixação automática por portal  
+- [x] Implementar prefixação automática por portal
   Refs: SPEC-routing.md (SPEC-R-PR-001:004)
 
-- [ ] Implementar lazy loading de rotas  
+- [x] Implementar lazy loading de rotas
   Refs: SPEC-routing.md (SPEC-R-LL-001:007)
 
 #### Componente: Protected Routes
-- [ ] Criar componente ProtectedRoute  
+- [x] Criar componente ProtectedRoute
   Refs: SPEC-routing.md (SPEC-R-PR-001:008)
 
-- [ ] Implementar validação de autenticação  
+- [x] Implementar validação de autenticação
   Refs: SPEC-routing.md (SPEC-R-PR-002:005)
 
-- [ ] Implementar redirecionamento para login  
+- [x] Implementar redirecionamento para login
   Refs: SPEC-routing.md (SPEC-R-PR-006:008)
 
 ---
