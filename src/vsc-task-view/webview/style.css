@@ -1,0 +1,266 @@
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+  color: var(--vscode-foreground);
+  background-color: var(--vscode-sideBar-background);
+  padding: 8px;
+}
+
+/* App container */
+#app {
+  width: 100%;
+}
+
+/* Loading state */
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: var(--vscode-descriptionForeground);
+}
+
+/* Error message */
+.error {
+  padding: 12px;
+  margin: 8px 0;
+  background-color: var(--vscode-inputValidation-errorBackground);
+  color: var(--vscode-inputValidation-errorForeground);
+  border: 1px solid var(--vscode-inputValidation-errorBorder);
+  border-radius: 4px;
+}
+
+/* Header section */
+.header {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+.header h2 {
+  font-size: 1.2em;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--vscode-foreground);
+}
+
+.header .subtitle {
+  font-size: 0.9em;
+  color: var(--vscode-descriptionForeground);
+  margin-bottom: 8px;
+}
+
+/* File selector */
+.file-selector {
+  margin-bottom: 12px;
+}
+
+.file-selector select {
+  width: 100%;
+  padding: 6px 8px;
+  background-color: var(--vscode-dropdown-background);
+  color: var(--vscode-dropdown-foreground);
+  border: 1px solid var(--vscode-dropdown-border);
+  border-radius: 2px;
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+  cursor: pointer;
+}
+
+.file-selector select:focus {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: -1px;
+}
+
+/* Statistics */
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.85em;
+}
+
+.stats span {
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+.stats .pending {
+  background-color: var(--vscode-badge-background);
+  color: var(--vscode-badge-foreground);
+}
+
+.stats .done {
+  background-color: var(--vscode-testing-iconPassed);
+  color: var(--vscode-editor-background);
+}
+
+.stats .in-progress {
+  background-color: var(--vscode-testing-iconQueued);
+  color: var(--vscode-editor-background);
+}
+
+.stats .blocked {
+  background-color: var(--vscode-testing-iconFailed);
+  color: var(--vscode-editor-background);
+}
+
+/* Task list */
+.task-list {
+  margin-top: 12px;
+}
+
+/* Hierarchy item (generic for heading and task) */
+.hierarchy-item {
+  margin: 4px 0;
+}
+
+/* Heading item */
+.heading-item {
+  margin: 8px 0 4px 0;
+}
+
+.heading-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 8px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background-color 0.1s;
+  font-weight: 600;
+  font-size: 1.05em;
+}
+
+.heading-header:hover {
+  background-color: var(--vscode-list-hoverBackground);
+}
+
+.heading-header .toggle {
+  min-width: 16px;
+  text-align: center;
+  color: var(--vscode-descriptionForeground);
+  cursor: pointer;
+  user-select: none;
+  font-weight: normal;
+}
+
+.heading-header .heading-text {
+  flex: 1;
+  color: var(--vscode-foreground);
+  word-break: break-word;
+}
+
+/* Task item */
+.task-item {
+  margin: 2px 0;
+}
+
+.task-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background-color 0.1s;
+}
+
+.task-header:hover {
+  background-color: var(--vscode-list-hoverBackground);
+}
+
+.task-header .toggle {
+  min-width: 16px;
+  text-align: center;
+  color: var(--vscode-descriptionForeground);
+  cursor: pointer;
+  user-select: none;
+}
+
+.task-header .icon {
+  min-width: 20px;
+  text-align: center;
+  font-size: 1.1em;
+}
+
+.task-header .text {
+  flex: 1;
+  color: var(--vscode-foreground);
+  word-break: break-word;
+}
+
+/* Task state colors */
+.task-item[data-state="pending"] .text {
+  color: var(--vscode-descriptionForeground);
+}
+
+.task-item[data-state="done"] .text {
+  color: var(--vscode-testing-iconPassed);
+  text-decoration: line-through;
+  opacity: 0.8;
+}
+
+.task-item[data-state="in-progress"] .text {
+  color: var(--vscode-testing-iconQueued);
+  font-weight: 500;
+}
+
+.task-item[data-state="blocked"] .text {
+  color: var(--vscode-testing-iconFailed);
+  font-weight: 500;
+}
+
+/* Hierarchy children (nested items - both headings and tasks) */
+.hierarchy-children {
+  margin-left: 20px;
+  border-left: 1px solid var(--vscode-panel-border);
+  padding-left: 8px;
+  margin-top: 4px;
+}
+
+/* Level-based indentation */
+.task-item.level-0 {
+  margin-left: 0;
+}
+
+.task-item.level-1 {
+  margin-left: 8px;
+}
+
+.task-item.level-2 {
+  margin-left: 16px;
+}
+
+.task-item.level-3 {
+  margin-left: 24px;
+}
+
+.task-item.level-4 {
+  margin-left: 32px;
+}
+
+.task-item.level-5 {
+  margin-left: 40px;
+}
+
+.task-item.level-6 {
+  margin-left: 48px;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--vscode-descriptionForeground);
+}
+
+.empty-state p {
+  margin: 8px 0;
+}
