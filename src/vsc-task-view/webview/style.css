@@ -116,113 +116,137 @@ body {
   margin-top: 12px;
 }
 
-/* Hierarchy item (generic for heading and task) */
-.hierarchy-item {
-  margin: 4px 0;
-}
-
-/* Heading item */
-.heading-item {
-  margin: 8px 0 4px 0;
-}
-
-.heading-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 8px;
-  cursor: pointer;
-  border-radius: 3px;
-  transition: background-color 0.1s;
-  font-weight: 600;
-  font-size: 1.05em;
-}
-
-.heading-header:hover {
-  background-color: var(--vscode-list-hoverBackground);
-}
-
-.heading-header .toggle {
-  min-width: 16px;
-  text-align: center;
-  color: var(--vscode-descriptionForeground);
-  cursor: pointer;
-  user-select: none;
-  font-weight: normal;
-}
-
-.heading-header .heading-text {
-  flex: 1;
-  color: var(--vscode-foreground);
-  word-break: break-word;
-}
-
-/* Task item */
-.task-item {
+/* Accordion item (generic) */
+.accordion-item {
   margin: 2px 0;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
-.task-header {
+/* Accordion header (clickable bar) */
+.accordion-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
+  gap: 8px;
+  padding: 8px 10px;
   cursor: pointer;
-  border-radius: 3px;
-  transition: background-color 0.1s;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
 }
 
-.task-header:hover {
+.accordion-header:hover {
   background-color: var(--vscode-list-hoverBackground);
+  border-color: var(--vscode-list-hoverBackground);
 }
 
-.task-header .toggle {
-  min-width: 16px;
-  text-align: center;
-  color: var(--vscode-descriptionForeground);
-  cursor: pointer;
-  user-select: none;
-}
-
-.task-header .icon {
+.accordion-header .status-icon {
   min-width: 20px;
   text-align: center;
   font-size: 1.1em;
 }
 
-.task-header .text {
+.accordion-header .heading-text,
+.accordion-header .task-text {
   flex: 1;
-  color: var(--vscode-foreground);
   word-break: break-word;
 }
 
+.accordion-header .expand-icon {
+  min-width: 20px;
+  text-align: center;
+  color: var(--vscode-descriptionForeground);
+  cursor: pointer;
+  user-select: none;
+  font-size: 1em;
+  transition: transform 0.2s;
+}
+
+/* Heading styles with background colors by level */
+.heading-item.h2 .accordion-header {
+  background-color: rgba(100, 149, 237, 0.15); /* Cornflower blue tint */
+  font-weight: 700;
+  font-size: 1.1em;
+  padding: 10px 12px;
+  border-left: 3px solid rgba(100, 149, 237, 0.5);
+}
+
+.heading-item.h2 .accordion-header:hover {
+  background-color: rgba(100, 149, 237, 0.25);
+}
+
+.heading-item.h3 .accordion-header {
+  background-color: rgba(147, 112, 219, 0.12); /* Purple tint */
+  font-weight: 600;
+  font-size: 1.05em;
+  padding: 9px 12px;
+  margin-left: 12px;
+  border-left: 3px solid rgba(147, 112, 219, 0.4);
+}
+
+.heading-item.h3 .accordion-header:hover {
+  background-color: rgba(147, 112, 219, 0.20);
+}
+
+.heading-item.h4 .accordion-header {
+  background-color: rgba(70, 130, 180, 0.10); /* Steel blue tint */
+  font-weight: 600;
+  font-size: 1em;
+  padding: 8px 12px;
+  margin-left: 24px;
+  border-left: 2px solid rgba(70, 130, 180, 0.3);
+}
+
+.heading-item.h4 .accordion-header:hover {
+  background-color: rgba(70, 130, 180, 0.18);
+}
+
+/* Task item styling */
+.task-item .accordion-header {
+  padding: 6px 10px;
+  margin-left: 36px;
+  background-color: transparent;
+}
+
+.task-item .accordion-header:hover {
+  background-color: var(--vscode-list-hoverBackground);
+}
+
 /* Task state colors */
-.task-item[data-state="pending"] .text {
+.task-item[data-state="pending"] .task-text {
   color: var(--vscode-descriptionForeground);
 }
 
-.task-item[data-state="done"] .text {
+.task-item[data-state="done"] .task-text {
   color: var(--vscode-testing-iconPassed);
   text-decoration: line-through;
-  opacity: 0.8;
+  opacity: 0.7;
 }
 
-.task-item[data-state="in-progress"] .text {
+.task-item[data-state="in-progress"] .task-text {
   color: var(--vscode-testing-iconQueued);
   font-weight: 500;
 }
 
-.task-item[data-state="blocked"] .text {
+.task-item[data-state="blocked"] .task-text {
   color: var(--vscode-testing-iconFailed);
   font-weight: 500;
 }
 
-/* Hierarchy children (nested items - both headings and tasks) */
-.hierarchy-children {
-  margin-left: 20px;
-  border-left: 1px solid var(--vscode-panel-border);
-  padding-left: 8px;
-  margin-top: 4px;
+/* Accordion content (children) */
+.accordion-content {
+  margin-top: 2px;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+  }
 }
 
 /* Level-based indentation */
