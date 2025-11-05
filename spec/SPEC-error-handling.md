@@ -109,6 +109,25 @@ Informações sensíveis NÃO DEVEM ser expostas em mensagens de erro
 - **Mensagem ao usuário**: "Não foi possível conectar às notificações em tempo real."
 - **Ação sugerida**: Botão "Tentar novamente"
 
+### Erros de Filas (Jobs)
+
+**SPEC-ERR-QUEUE-001:** Job timeout
+- **Timeout padrão**: Configurável por fila (ex: 10min)
+- **Mensagem ao usuário**: "Processamento demorou demais."
+- **Ação sugerida**: Retry automático conforme configuração
+
+**SPEC-ERR-QUEUE-002:** Job falha após múltiplas tentativas
+- **Mensagem ao usuário**: "Não foi possível processar. Tente novamente mais tarde."
+- **Ação sugerida**: Job move para failed queue (análise manual)
+
+**SPEC-ERR-QUEUE-003:** Dependência externa indisponível
+- **Mensagem ao usuário**: "Serviço temporariamente indisponível."
+- **Ação sugerida**: Retry com backoff exponencial
+
+**SPEC-ERR-QUEUE-004:** Dados de job inválidos
+- **Mensagem ao usuário**: "Dados inválidos para processamento."
+- **Ação sugerida**: Não fazer retry, mover para failed
+
 ### Erros de Carregamento de Módulos
 
 **SPEC-ERR-MOD-001:** Falha ao carregar módulo
@@ -328,6 +347,22 @@ Erro ao carregar este componente.
 - 4xx (exceto 429)
 - Erros de validação
 - Erros de permissão
+
+### Retry para Jobs (BullMQ)
+
+**SPEC-ERR-JOB-RETRY-001:** Jobs DEVEM ter configuração de retry por fila
+
+**SPEC-ERR-JOB-RETRY-002:** Backoff exponencial DEVE ser padrão: 2s, 4s, 8s, 16s...
+
+**SPEC-ERR-JOB-RETRY-003:** Máximo de tentativas DEVE ser configurável (padrão: 3-10)
+
+**SPEC-ERR-JOB-RETRY-004:** Jobs com dados inválidos NÃO DEVEM ter retry
+
+**SPEC-ERR-JOB-RETRY-005:** Jobs com erro 4xx de API externa NÃO DEVEM ter retry
+
+**SPEC-ERR-JOB-RETRY-006:** Jobs com erro 5xx de API externa DEVEM ter retry
+
+**SPEC-ERR-JOB-RETRY-007:** Jobs que excedem máximo de tentativas movem para failed queue
 
 ### Retry Manual
 

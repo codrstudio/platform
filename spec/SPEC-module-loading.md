@@ -226,6 +226,10 @@ Carregando módulos... (2/5)
 
 **SPEC-LOAD-D-004:** Se falhar, DEVE reverter ativação e exibir erro
 
+**SPEC-LOAD-D-018:** Cache de HTML NÃO DEVE impedir ativação em runtime de funcionar
+
+**SPEC-LOAD-D-019:** Estratégia network-first para HTML DEVE ser usada para garantir que mudanças de configuração sejam refletidas
+
 ### Desativação em Runtime
 
 **SPEC-LOAD-D-005:** Quando módulo é desativado via Setup, plataforma DEVE:

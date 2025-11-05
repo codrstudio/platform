@@ -280,6 +280,10 @@ Este documento define os requisitos de configuração da plataforma, incluindo P
 
 **SPEC-CF-AS-013:** Após edição manual, Backend DEVE recarregar configurações
 
+**SPEC-CF-AS-014:** Respostas HTML DEVEM usar estratégia de cache network-first para refletir mudanças de configuração
+
+**SPEC-CF-AS-015:** Service Worker DEVE buscar HTML atualizado da rede após mutations de configuração
+
 ---
 
 ## 8. Configurações Opcionais do Frontend (/config/*.json)

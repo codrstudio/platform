@@ -329,4 +329,52 @@ Este documento define os requisitos do sistema de eventos da plataforma, incluin
 
 ---
 
-*Esta especificação detalha o sistema de eventos. Integração com outros canais em SPEC-channels.md.*
+## 9. Eventos de Filas (Queue Events)
+
+### Integração com SSE
+
+**SPEC-EV-QUEUE-001:** Workers PODEM emitir eventos SSE quando jobs completam
+
+**SPEC-EV-QUEUE-002:** Evento de conclusão DEVE incluir `type: "job-completed"`
+
+**SPEC-EV-QUEUE-003:** Evento de conclusão DEVE incluir `jobId` e `result`
+
+**SPEC-EV-QUEUE-004:** Evento de falha DEVE incluir `type: "job-failed"`
+
+**SPEC-EV-QUEUE-005:** Evento de falha DEVE incluir `jobId` e mensagem de erro
+
+**SPEC-EV-QUEUE-006:** Eventos de progresso DEVEM ser emitidos para jobs de longa duração
+
+**SPEC-EV-QUEUE-007:** Frontend DEVE usar SSE para monitorar jobs (preferencial) ou polling (fallback)
+
+### Payload de Evento
+
+**SPEC-EV-QUEUE-008:** Formato de evento de job:
+```json
+{
+  "type": "job-completed" | "job-failed" | "job-progress",
+  "id": "evt_<timestamp>_<random>",
+  "userId": "user_123",
+  "timestamp": "2025-11-05T10:30:00Z",
+  "data": {
+    "jobId": "job_12345",
+    "queueName": "file-processing",
+    "status": "completed" | "failed",
+    "progress": 100,
+    "result": {},
+    "error": "error message if failed"
+  }
+}
+```
+
+### Recuperação de Status
+
+**SPEC-EV-QUEUE-009:** Frontend PODE consultar status de job via JQEL
+
+**SPEC-EV-QUEUE-010:** Consulta DEVE usar schema `backend` ou `system`
+
+**SPEC-EV-QUEUE-011:** Resposta DEVE incluir: state, progress, data, returnvalue
+
+---
+
+*Esta especificação detalha o sistema de eventos. Integração com outros canais em SPEC-channels.md. Para sistema de filas completo, ver SPEC-queues.md.*

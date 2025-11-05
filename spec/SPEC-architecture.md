@@ -115,9 +115,53 @@ Este documento define os requisitos arquiteturais da plataforma, incluindo stack
 
 **SPEC-A-S-021:** A plataforma PODE usar Redis para cache (opcional)
 
+**SPEC-A-S-022:** A plataforma DEVE usar BullMQ para processamento assíncrono de tarefas
+
+**SPEC-A-S-023:** BullMQ DEVE usar a mesma infraestrutura Redis
+
 ---
 
-## 3. Progressive Web App (PWA)
+## 3. Sistema de Filas (Queue System)
+
+### Requisitos Obrigatórios
+
+**SPEC-A-Q-001:** Backend DEVE usar BullMQ para processamento assíncrono de tarefas
+
+**SPEC-A-Q-002:** Sistema de filas DEVE usar Redis como message broker
+
+**SPEC-A-Q-003:** Sistema DEVE definir filas separadas por domínio funcional
+
+**SPEC-A-Q-004:** Workers DEVEM rodar em processos separados do servidor API
+
+**SPEC-A-Q-005:** Jobs DEVEM ter configuração de retry com backoff exponencial
+
+### Retenção e Limpeza
+
+**SPEC-A-Q-006:** Jobs completados DEVEM ser retidos por no mínimo 100 execuções
+
+**SPEC-A-Q-007:** Jobs falhados DEVEM ser retidos por no mínimo 500 execuções
+
+**SPEC-A-Q-008:** Jobs antigos DEVEM ser removidos automaticamente após retenção
+
+### Monitoramento
+
+**SPEC-A-Q-009:** Sistema DEVE fornecer UI de monitoramento via BullBoard
+
+**SPEC-A-Q-010:** UI de monitoramento DEVE ser protegida por autenticação
+
+**SPEC-A-Q-011:** Monitoramento DEVE ser acessível em rota administrativa (ex: /admin/queues)
+
+### Integração com Backbone
+
+**SPEC-A-Q-012:** Backbone (n8n) PODE adicionar jobs às filas via nodo BullMQ
+
+**SPEC-A-Q-013:** Workers PODEM chamar webhooks n8n para processar lógica de negócio
+
+**SPEC-A-Q-014:** Jobs NÃO DEVEM conter lógica de negócio complexa (delegada ao Backbone)
+
+---
+
+## 4. Progressive Web App (PWA)
 
 ### Requisitos Obrigatórios
 
@@ -169,9 +213,35 @@ Este documento define os requisitos arquiteturais da plataforma, incluindo stack
 
 **SPEC-A-PWA-022:** O Service Worker NÃO DEVE cachear dados sensíveis
 
+### Estratégia de Cache HTML
+
+**SPEC-A-PWA-023:** Requisições de navegação HTML DEVEM usar estratégia network-first
+
+**SPEC-A-PWA-024:** Arquivos HTML (`/`, `/index.html`) NÃO DEVEM ser incluídos no precache do Service Worker
+
+**SPEC-A-PWA-025:** Service Worker DEVE detectar requisições de navegação (`request.mode === 'navigate'`)
+
+**SPEC-A-PWA-026:** Requisições de navegação DEVEM buscar da rede primeiro, usando cache apenas como fallback offline
+
+**SPEC-A-PWA-027:** Backend DEVE definir header `Cache-Control: no-cache` para respostas HTML
+
+**SPEC-A-PWA-028:** Assets estáticos (JS, CSS, imagens, fontes) DEVEM continuar usando estratégia cache-first
+
+**SPEC-A-PWA-029:** Assets com hash de conteúdo no filename PODEM usar `Cache-Control: immutable`
+
+### Justificativa
+
+HTML usa network-first para garantir que:
+1. Mudanças na configuração de portais/módulos sejam imediatamente refletidas
+2. Ativação de módulos em runtime funcione sem reload de página
+3. Usuários sempre recebam a estrutura de rotas e navegação atual
+4. Funcionalidade offline seja preservada via fallback de cache
+
+Esta abordagem alinha-se com SPEC-A-PWA-009 (network-first para dados), pois o conteúdo HTML depende de dados de configuração dinâmicos.
+
 ---
 
-## 4. Responsividade
+## 5. Responsividade
 
 ### Requisitos Gerais
 
@@ -221,7 +291,7 @@ Este documento define os requisitos arquiteturais da plataforma, incluindo stack
 
 ---
 
-## 5. Componentes Especializados
+## 6. Componentes Especializados
 
 ### Estrutura de Módulos de Componentes
 
@@ -289,7 +359,7 @@ Este documento define os requisitos arquiteturais da plataforma, incluindo stack
 
 ---
 
-## 6. Acesso a Dados
+## 7. Acesso a Dados
 
 ### JQEL como Padrão
 
@@ -319,7 +389,7 @@ Este documento define os requisitos arquiteturais da plataforma, incluindo stack
 
 ---
 
-## 7. Persistência de Configurações
+## 8. Persistência de Configurações
 
 ### Armazenamento
 
@@ -343,7 +413,7 @@ Este documento define os requisitos arquiteturais da plataforma, incluindo stack
 
 ---
 
-## 8. Lazy Loading
+## 9. Lazy Loading
 
 ### Requisitos de Carregamento
 
@@ -371,7 +441,7 @@ Este documento define os requisitos arquiteturais da plataforma, incluindo stack
 
 ---
 
-## 9. Visual e Temas
+## 10. Visual e Temas
 
 ### Tema Claro/Escuro
 
@@ -419,7 +489,7 @@ Este documento define os requisitos arquiteturais da plataforma, incluindo stack
 
 ---
 
-## 10. Configurações Opcionais do Frontend
+## 11. Configurações Opcionais do Frontend
 
 ### Arquivo /config/*.json
 

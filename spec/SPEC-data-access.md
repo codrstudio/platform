@@ -346,6 +346,38 @@ eventSource.addEventListener('data_changed', (event) => {
 
 **SPEC-DA-EV-008:** Escolha depende do tipo de mudança
 
+### Invalidação por Jobs
+
+**SPEC-DA-JOB-001:** Conclusão de job PODE disparar invalidação de queries
+
+**SPEC-DA-JOB-002:** Worker PODE emitir evento `data_changed` ao completar job
+
+**SPEC-DA-JOB-003:** Frontend DEVE invalidar queries relacionadas ao job
+
+**SPEC-DA-JOB-004:** Exemplo de fluxo:
+```typescript
+// Worker completa job de processamento de arquivo
+fileWorker.on('completed', (job) => {
+  // Emitir evento SSE de mudança de dados
+  redisPublisher.publish('platform:events', JSON.stringify({
+    type: 'data_changed',
+    schema: 'storage',
+    entity: 'file',
+    ids: [job.data.fileId]
+  }));
+
+  // Também emitir evento de conclusão de job
+  redisPublisher.publish('platform:events', JSON.stringify({
+    type: 'job-completed',
+    userId: job.data.userId,
+    data: { jobId: job.id, result: job.returnvalue }
+  }));
+});
+
+// Frontend invalida queries
+queryClient.invalidateQueries(['storage', 'file', { id: fileId }]);
+```
+
 ---
 
 ## 6. Validação

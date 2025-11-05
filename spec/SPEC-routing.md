@@ -233,6 +233,10 @@ Este documento define os requisitos do sistema de roteamento da plataforma, incl
 
 **SPEC-R-LD-010:** Usuário NÃO DEVE precisar recarregar página
 
+**SPEC-R-LD-018:** Service Worker DEVE usar estratégia network-first para HTML para suportar mudanças em runtime
+
+**SPEC-R-LD-019:** HTML em cache DEVE ser usado apenas quando rede não estiver disponível (fallback offline)
+
 ### Desativação em Runtime
 
 **SPEC-R-LD-011:** Desativação de módulo NÃO DEVE remover código da memória
