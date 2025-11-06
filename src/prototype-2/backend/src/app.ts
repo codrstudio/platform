@@ -14,6 +14,7 @@ import authRoutes from './routes/auth.routes.js';
 import jqelRoutes from './routes/jqel.routes.js';
 import eventsRoutes from './routes/events.routes.js';
 import portalsRoutes from './routes/portals.routes.js';
+import platformSettingsRoutes from './routes/platform-settings.routes.js';
 
 /**
  * Create and configure Express application
@@ -103,6 +104,9 @@ app.use('/api/events', eventsRoutes);
 
 // Portal configuration endpoints (Task 2.1)
 app.use('/api/1/portals', portalsRoutes);
+
+// Platform settings endpoint (Task 2.2.6)
+app.use('/api', platformSettingsRoutes);
 
 // ============================================
 // FUTURE: Internal Routes (n8n → Backend)

@@ -48,6 +48,7 @@ export interface UpdatePortalVariables {
   name?: string;
   description?: string;
   settings?: Record<string, unknown>;
+  activeModules?: string[];
 }
 
 export async function updatePortal(variables: UpdatePortalVariables): Promise<Portal> {

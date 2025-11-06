@@ -94,6 +94,58 @@ export class N8nProxyService {
   }
 
   /**
+   * Health check for n8n Backbone
+   *
+   * SPEC-MS-HE-001:003: Send lightweight request to n8n to verify connectivity
+   *
+   * @returns Health status with latency measurement
+   */
+  async healthCheck(): Promise<{
+    status: 'ok' | 'degraded' | 'down';
+    latency?: number;
+    error?: string;
+    timestamp: string;
+  }> {
+    const start = Date.now();
+
+    try {
+      // Use a lightweight health check endpoint (5 second timeout)
+      await this.callWorkflow<any>(
+        '/webhook/health',
+        {},
+        { timeout: 5000 }
+      );
+
+      const latency = Date.now() - start;
+
+      return {
+        status: 'ok',
+        latency,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error: any) {
+      const latency = Date.now() - start;
+      let status: 'degraded' | 'down' = 'down';
+      let errorMessage = error.message;
+
+      // Classify error types
+      if (error.message.includes('timeout')) {
+        status = 'degraded';
+        errorMessage = 'Request timeout - service slow or overloaded';
+      } else if (error.message.includes('unreachable')) {
+        errorMessage = 'Service unreachable - check n8n is running';
+      }
+
+      return {
+        status,
+        latency,
+        error: errorMessage,
+        timestamp: new Date().toISOString(),
+      };
+    }
+  }
+
+  /**
    * Generic method to call n8n webhook
    *
    * Handles HTTP communication, authentication, timeout, and error handling.

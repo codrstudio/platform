@@ -3,6 +3,7 @@
 
 import type { Portal } from './portal';
 import type { RouteDefinition } from './routing';
+import type { ModuleConfigSchema } from '../modules/setup/types/schema';
 
 export interface ModuleManifest {
   id: string;
@@ -32,6 +33,8 @@ export interface Module {
   version: string;
   active: boolean;
   dependencies: string[];
+  portals?: string[]; // Array of portalIds where module is active
+  configSchema?: ModuleConfigSchema; // Configuration schema for module instances
   createdAt: string;
   updatedAt: string;
 }

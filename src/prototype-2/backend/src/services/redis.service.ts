@@ -395,6 +395,57 @@ export class RedisService {
   }
 
   /**
+   * Health check for Redis
+   *
+   * SPEC-MS-HE-004:006: Ping Redis server to verify connectivity
+   *
+   * @returns Health status with latency measurement
+   */
+  async healthCheck(): Promise<{
+    status: 'ok' | 'down';
+    latency?: number;
+    error?: string;
+    timestamp: string;
+  }> {
+    const start = Date.now();
+
+    try {
+      // Ensure connection and ping Redis
+      await this.connect();
+      await this.client!.ping();
+
+      const latency = Date.now() - start;
+
+      return {
+        status: 'ok',
+        latency,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error: any) {
+      const latency = Date.now() - start;
+      let errorMessage = error.message;
+
+      // Classify error types for better user feedback
+      if (error.message?.includes('ECONNREFUSED')) {
+        errorMessage = 'Connection refused - Redis may not be running';
+      } else if (error.message?.includes('NOAUTH') || error.message?.includes('AUTH')) {
+        errorMessage = 'Authentication required or failed';
+      } else if (error.message?.includes('timeout')) {
+        errorMessage = 'Connection timeout';
+      } else if (error.message?.includes('ENOTFOUND')) {
+        errorMessage = 'Cannot resolve Redis hostname';
+      }
+
+      return {
+        status: 'down',
+        latency,
+        error: errorMessage,
+        timestamp: new Date().toISOString(),
+      };
+    }
+  }
+
+  /**
    * Disconnect from Redis
    *
    * Gracefully closes the connection.

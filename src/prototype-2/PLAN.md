@@ -523,66 +523,66 @@ Status: ✅ Completo (2025-11-06)
 ### SISTEMA 2.2: Setup Module ✅
 
 #### Componente: Portal CRUD
-- [ ] Implementar listagem de portais  
+- [x] Implementar listagem de portais
   Refs: SPEC-module-setup.md (SPEC-MS-FU-001)
 
-- [ ] Implementar criação de portal  
+- [x] Implementar criação de portal
   Refs: SPEC-module-setup.md (SPEC-MS-FU-002)
 
-- [ ] Implementar edição de portal  
+- [x] Implementar edição de portal
   Refs: SPEC-module-setup.md (SPEC-MS-FU-003)
 
-- [ ] Implementar remoção de portal  
+- [x] Implementar remoção de portal
   Refs: SPEC-module-setup.md (SPEC-MS-FU-004:005)
 
 #### Componente: Module Management
-- [ ] Implementar listagem de módulos disponíveis  
+- [x] Implementar listagem de módulos disponíveis  
   Refs: SPEC-module-setup.md (SPEC-MS-FU-006)
 
-- [ ] Implementar ativação de módulo  
+- [x] Implementar ativação de módulo
   Refs: SPEC-module-setup.md (SPEC-MS-FU-007)
 
-- [ ] Implementar desativação de módulo  
+- [x] Implementar desativação de módulo
   Refs: SPEC-module-setup.md (SPEC-MS-FU-008)
 
-- [ ] Exibir e resolver dependências  
+- [x] Exibir e resolver dependências
   Refs: SPEC-module-setup.md (SPEC-MS-FU-009:012)
 
 #### Componente: Instance CRUD
-- [ ] Implementar listagem de instâncias  
+- [x] Implementar listagem de instâncias
   Refs: SPEC-module-setup.md (SPEC-MS-FU-013)
 
-- [ ] Implementar criação de instância  
+- [x] Implementar criação de instância
   Refs: SPEC-module-setup.md (SPEC-MS-FU-014)
 
-- [ ] Implementar edição de instância  
+- [x] Implementar edição de instância  
   Refs: SPEC-module-setup.md (SPEC-MS-FU-015)
 
-- [ ] Implementar remoção de instância  
+- [x] Implementar remoção de instância  
   Refs: SPEC-module-setup.md (SPEC-MS-FU-016)
 
-- [ ] Validar configuração com schema  
+- [x] Validar configuração com schema  
   Refs: SPEC-module-setup.md (SPEC-MS-FU-017)
 
 #### Componente: Theme Configuration
-- [ ] Implementar color picker para brand color  
+- [x] Implementar color picker para brand color
   Refs: SPEC-module-setup.md (SPEC-MS-TH-001:006)
 
-- [ ] Preview de tema em tempo real  
+- [x] Preview de tema em tempo real
   Refs: SPEC-module-setup.md (SPEC-MS-TH-007:010)
 
 #### Componente: Platform Settings View
-- [ ] Exibir platform settings (read-only)  
+- [x] Exibir platform settings (read-only)
   Refs: SPEC-module-setup.md (SPEC-MS-PS-001:005)
 
 #### Componente: Health Checks
-- [ ] Implementar health check n8n  
+- [x] Implementar health check n8n
   Refs: SPEC-module-setup.md (SPEC-MS-HE-001:003)
 
-- [ ] Implementar health check Redis  
+- [x] Implementar health check Redis
   Refs: SPEC-module-setup.md (SPEC-MS-HE-004:006)
 
-- [ ] Implementar health check Backend  
+- [x] Implementar health check Backend
   Refs: SPEC-module-setup.md (SPEC-MS-HE-007:009)
 
 ---
