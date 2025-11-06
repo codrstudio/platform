@@ -10,10 +10,6 @@ import { PortalLoader } from '@/core/routing/PortalLoader';
 /**
  * Root Router Configuration
  * SPEC-R-PR-001: Main portal at "/", others at "/:portalId/*"
- *
- * Strategy: Try "main" portal first for all routes.
- * If a route segment matches a known portalId (like "setup"),
- * PortalLoader will detect and load that portal instead.
  */
 const router = createBrowserRouter([
   {

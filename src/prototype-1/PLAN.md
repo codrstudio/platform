@@ -124,6 +124,13 @@
   - [x] Validação WCAG AA de contraste
   - [x] CSS custom properties
 
+- [ ] **Cache Strategy** - Service Worker (PWA)
+  - [ ] Network-first para HTML (requisições de navegação)
+  - [ ] HTML não incluído no precache do Service Worker
+  - [ ] Cache-Control: no-cache para respostas HTML
+  - [ ] Cache-first para assets (JS, CSS, imagens, fontes)
+  - [ ] Fallback offline para navegação
+
 ### 1.7 Configuração
 - [x] **SPEC-configuration.md** - Gestão de Configuração
   - [x] Platform Settings (.env - requer restart)
@@ -158,6 +165,17 @@
 - [ ] **SPEC-access-parameters.md** - Parâmetros de Acesso
   - [ ] Validação de parâmetros de acesso
   - [ ] Controle de permissões
+
+### 1.11 Sistema de Filas
+- [ ] **SPEC-queues.md** - Queue System com BullMQ
+  - [ ] 4 filas obrigatórias (file-processing, notifications, external-api, scheduled)
+  - [ ] Workers para processamento de jobs
+  - [ ] BullBoard UI (/admin/queues)
+  - [ ] API de jobs (criar, consultar status, retry)
+  - [ ] Integração com n8n via nodo BullMQ
+  - [ ] Retry logic com backoff exponencial
+  - [ ] Priorização e agendamento (delayed + cron)
+  - [ ] Eventos SSE para jobs (completed, failed, progress)
 
 ---
 
@@ -334,12 +352,12 @@
 
 | Categoria | Total | Feito | Em Progresso | Pendente |
 |-----------|-------|-------|--------------|----------|
-| **1. Fundamentos** | 10 features | 9 | 0 | 1 |
+| **1. Fundamentos** | 11 features | 9 | 0 | 2 |
 | **2. Sistema de Módulos** | 2 features | 2 | 0 | 0 |
 | **3. Módulos Funcionais** | 12 módulos | 1 | 0 | 11 |
 | **4. Módulos de Componentes** | 4 módulos | 0 | 0 | 4 |
 | **5. Infraestrutura Avançada** | 3 features | 0 | 0 | 3 |
-| **TOTAL** | **31 items** | **12 (39%)** | **0 (0%)** | **19 (61%)** |
+| **TOTAL** | **32 items** | **12 (38%)** | **0 (0%)** | **20 (62%)** |
 
 ---
 
@@ -414,12 +432,15 @@
 - **Specifications**: `spec/SPEC-*.md` (32 files)
 - **Philosophy**: `MANIFESTO.md`
 - **Working Code**: `src/prototype-1/`
+- **What's New**:
+  - `spec/whats-new/2025-11-05-bullmq-queue-system.md` - Sistema de Filas com BullMQ
+  - `spec/whats-new/2025-11-05-cache-strategy.md` - Service Worker Cache Strategy
 
 ---
 
-**Document Version**: 1.2
+**Document Version**: 1.3
 **Last Review**: 2025-11-05
-**Status**: Foundation Complete | Auth Module Implemented | 11 Functional Modules Pending
+**Status**: Foundation Complete | Auth Module Implemented | Queue System & Cache Strategy Added | 11 Functional Modules Pending
 
 ---
 
@@ -526,6 +547,6 @@ All remaining functional modules have been created as properly structured stubs 
 
 ---
 
-**Document Version**: 1.2
+**Document Version**: 1.3
 **Last Review**: 2025-11-05
-**Status**: Foundation Complete | Auth Module Implemented | 11 Functional Modules Pending
+**Status**: Foundation Complete | Auth Module Implemented | Queue System & Cache Strategy Added | 11 Functional Modules Pending

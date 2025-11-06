@@ -65,6 +65,18 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(requestLogger);
 
 /**
+ * HTML Cache Headers Middleware
+ * SPEC-A-PWA-027: Backend MUST set Cache-Control: no-cache for HTML
+ * This ensures HTML always fetches fresh from network in network-first strategy
+ */
+app.use((req, res, next) => {
+  if (req.path === '/' || req.path === '/index.html' || req.accepts('html') === 'html') {
+    res.setHeader('Cache-Control', 'no-cache');
+  }
+  next();
+});
+
+/**
  * General Rate Limiting
  * Apply to all routes (except health checks)
  */
