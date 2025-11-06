@@ -1,6 +1,8 @@
 import type { QueryClient } from '@tanstack/react-query';
 import type { JQELQuery } from '../../types/jqel';
 import { queryKeys } from './queryKeys';
+import { registerWildcardHandler } from '../events/eventHandlers';
+import type { PlatformEvent } from '../../types/events';
 
 /**
  * JQEL Cache Invalidation
@@ -286,4 +288,70 @@ export function invalidateEntity(
   } catch (error) {
     console.error('[Invalidation] Error invalidating entity:', error);
   }
+}
+
+/**
+ * Setup event-driven cache invalidation
+ *
+ * Registers wildcard event handler that invalidates cache based on event data.
+ * Task 1.5.11 - Integrar com TanStack Query (invalidação)
+ *
+ * SPEC-EV-FR-001: Use events to invalidate TanStack Query cache
+ *
+ * @param queryClient - TanStack QueryClient instance
+ */
+export function setupEventInvalidation(queryClient: QueryClient): void {
+  // Register wildcard handler for all events
+  registerWildcardHandler(async (event: PlatformEvent) => {
+    try {
+      // Check if event contains invalidation data
+      if (!event.data) {
+        return;
+      }
+
+      const { schema, entity, id, invalidate } = event.data;
+
+      // Skip if event doesn't request invalidation
+      if (invalidate === false) {
+        return;
+      }
+
+      // Event-driven invalidation based on data fields
+      if (schema && entity && id) {
+        // Specific record invalidation
+        invalidateEntity(queryClient, schema, entity, { recordId: id });
+      } else if (schema && entity) {
+        // Entity-level invalidation
+        invalidateEntity(queryClient, schema, entity);
+      } else if (schema) {
+        // Schema-level invalidation
+        queryClient.invalidateQueries({ queryKey: queryKeys.schema.all(schema) });
+      }
+
+      // Special handling for backend schema
+      if (event.data.backend) {
+        const { portal, module, instance } = event.data.backend;
+        invalidateBackend(queryClient, {
+          portal: portal !== false,
+          module: module !== false,
+          instance: instance !== false,
+        });
+      }
+
+      if (import.meta.env.DEV) {
+        console.log('[EventInvalidation] Cache invalidated from event:', {
+          eventType: event.type,
+          eventId: event.id,
+          schema,
+          entity,
+          id,
+        });
+      }
+    } catch (error) {
+      console.error('[EventInvalidation] Error processing event invalidation:', error);
+      // Don't throw - invalidation errors shouldn't break event handling
+    }
+  });
+
+  console.log('[EventInvalidation] Event-driven cache invalidation registered');
 }

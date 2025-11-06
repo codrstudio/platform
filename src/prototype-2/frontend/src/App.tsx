@@ -7,6 +7,9 @@ import PortalLoader from './core/routing/PortalLoader';
 import { registerRoutes } from './core/routing';
 import setupRoutes from './modules/setup/routes';
 import { AuthProvider } from './providers/AuthProvider';
+import { SSEProvider } from './providers/SSEProvider';
+import { ErrorBoundary } from './components/error/ErrorBoundary';
+import { Toaster } from './components/ui/toaster';
 
 export default function App() {
   useEffect(() => {
@@ -15,16 +18,21 @@ export default function App() {
   }, []);
 
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Main portal - root path */}
-          <Route path="/" element={<PortalLoader portalId="main" />} />
+    <ErrorBoundary level="global">
+      <AuthProvider>
+        <SSEProvider>
+          <BrowserRouter>
+            <Routes>
+              {/* Main portal - root path */}
+              <Route path="/" element={<PortalLoader portalId="main" />} />
 
-          {/* All other portals - dynamic path */}
-          <Route path="/:portalId/*" element={<PortalLoader />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+              {/* All other portals - dynamic path */}
+              <Route path="/:portalId/*" element={<PortalLoader />} />
+            </Routes>
+          </BrowserRouter>
+          <Toaster />
+        </SSEProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
