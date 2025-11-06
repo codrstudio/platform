@@ -31,7 +31,6 @@
       "@/hooks/*": ["./src/hooks/*"],
       "@/types/*": ["./src/types/*"],
       "@/utils/*": ["./src/utils/*"],
-      "@/lib/*": ["./src/lib/*"],
       "@/providers/*": ["./src/providers/*"]
     }
   },

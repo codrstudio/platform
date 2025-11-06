@@ -4,13 +4,10 @@
  * SPEC-A-L-011 to SPEC-A-L-017
  */
 
-// IMPORTANT: Load environment variables FIRST, before any other imports
-// This ensures all modules have access to process.env when they are loaded
-import './config/env.js';
-
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import { config } from 'dotenv';
 
 // Configuration
 import { getCorsConfig } from './config/cors.js';
@@ -34,6 +31,9 @@ import eventsRoutes from './routes/events.routes.js';
 // Services
 import { connectRedis, disconnectRedis } from './services/redisService.js';
 import { startListening, shutdown as shutdownSSE } from './services/sseService.js';
+
+// Load environment variables
+config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -63,18 +63,6 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
  * SPEC-A-L-015: Backend control operations
  */
 app.use(requestLogger);
-
-/**
- * HTML Cache Headers Middleware
- * SPEC-A-PWA-027: Backend MUST set Cache-Control: no-cache for HTML
- * This ensures HTML always fetches fresh from network in network-first strategy
- */
-app.use((req, res, next) => {
-  if (req.path === '/' || req.path === '/index.html' || req.accepts('html') === 'html') {
-    res.setHeader('Cache-Control', 'no-cache');
-  }
-  next();
-});
 
 /**
  * General Rate Limiting

@@ -5,9 +5,7 @@
     "path": "/",
     "settingsKey": "default",
     "removable": false,
-    "activeModules": [
-      "auth"
-    ],
+    "activeModules": [],
     "metadata": {
       "description": "Main application portal",
       "icon": "home"

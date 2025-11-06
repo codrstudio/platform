@@ -13,6 +13,10 @@ import { PortalLoader } from '@/core/routing/PortalLoader';
  */
 const router = createBrowserRouter([
   {
+    path: '/',
+    element: <PortalLoader portalId="main" />,
+  },
+  {
     path: '/health',
     element: (
       <div className="flex items-center justify-center min-h-screen">
@@ -27,8 +31,21 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: '/*',
+    path: '/:portalId/*',
     element: <PortalLoader />,
+  },
+  {
+    path: '*',
+    element: (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center max-w-md">
+          <h1 className="text-2xl font-bold mb-2">404 - Page Not Found</h1>
+          <p className="text-muted-foreground">
+            The requested page does not exist.
+          </p>
+        </div>
+      </div>
+    ),
   },
 ]);
 
