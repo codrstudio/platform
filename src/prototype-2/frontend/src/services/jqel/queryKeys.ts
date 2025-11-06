@@ -104,28 +104,20 @@ export const queryKeys = {
   schema: schemaKeys,
 };
 
-/**
- * Type helper to extract query key from factory function
- */
-export type QueryKey = ReturnType<
-  typeof backendKeys[keyof typeof backendKeys] |
-  typeof schemaKeys[keyof typeof schemaKeys]
->;
-
 // Legacy exports for backward compatibility (from Task 1.4.7)
 export const jqelKeys = schemaKeys;
 export const portalKeys = {
   all: () => backendKeys.portals(),
-  list: (filters?: any) => backendKeys.portals(),
+  list: () => backendKeys.portals(),
   detail: (portalId: string) => backendKeys.portal(portalId),
 };
 export const moduleKeys = {
   all: () => backendKeys.modules(),
-  list: (filters?: any) => backendKeys.modules(),
+  list: () => backendKeys.modules(),
   detail: (moduleId: string) => backendKeys.module(moduleId),
 };
 export const instanceKeys = {
   all: () => backendKeys.instances(),
-  list: (filters?: any) => backendKeys.instances(),
+  list: () => backendKeys.instances(),
   detail: (instanceId: string) => backendKeys.instance(instanceId),
 };
