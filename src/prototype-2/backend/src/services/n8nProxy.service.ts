@@ -1,6 +1,6 @@
 // backend/src/services/n8nProxy.service.ts
 import { config } from '../config/env.js';
-import type { LoginCredentials, N8nUserData, N8nLoginResponse } from '../types/auth.types.js';
+import type { LoginCredentials, N8nUserData, N8nLoginResponse, N8nAuthorizeResponse } from '../types/auth.types.js';
 
 /**
  * N8nProxyService
@@ -44,6 +44,28 @@ export class N8nProxyService {
     );
 
     return response.data.user;
+  }
+
+  /**
+   * Call n8n authorize workflow
+   *
+   * SPEC-AU-AZ-016:017: Backend proxies permission check to Backbone
+   *
+   * @param payload - Authorization payload (token, schema, permission)
+   * @returns Authorization decision from n8n
+   * @throws Error if n8n is unreachable, times out, or returns error
+   */
+  async authorize(payload: {
+    access_token: string;
+    schema: string;
+    permission: string;
+  }): Promise<N8nAuthorizeResponse> {
+    const response = await this.callWorkflow<N8nAuthorizeResponse>(
+      '/webhook/api/1/auth/authorize',
+      payload
+    );
+
+    return response;
   }
 
   /**

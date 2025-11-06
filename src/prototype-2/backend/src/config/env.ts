@@ -30,6 +30,16 @@ export interface EnvConfig {
   jwtAccessTokenExpiresIn: string;
   jwtRefreshTokenExpiresIn: string;
 
+  // Rate Limiting
+  rateLimitWindowMs: number;
+  rateLimitMaxRequests: number;
+  rateLimitSkipSuccessful: boolean;
+
+  // Brute Force Protection
+  bruteForceMaxAttempts: number;
+  bruteForceLockoutDuration: number;
+  bruteForceWindowDuration: number;
+
   // Platform
   platformSharedSecret: string;
 
@@ -61,6 +71,9 @@ function validateEnv(): EnvConfig {
   if (nodeEnv && !['development', 'staging', 'production'].includes(nodeEnv)) {
     errors.push('NODE_ENV must be one of: development, staging, production');
   }
+
+  // Determine default rate limit based on environment
+  const defaultMaxRequests = nodeEnv === 'production' ? '10' : '100';
 
   // Validate PORT
   const port = parseInt(getOptional('PORT', '3000'), 10);
@@ -107,6 +120,34 @@ function validateEnv(): EnvConfig {
     errors.push(`LOG_LEVEL must be one of: ${validLogLevels.join(', ')}`);
   }
 
+  // Brute Force Protection Configuration
+  const bruteForceMaxAttempts = parseInt(
+    getOptional('BRUTE_FORCE_MAX_ATTEMPTS', '5'),
+    10
+  );
+
+  if (isNaN(bruteForceMaxAttempts) || bruteForceMaxAttempts < 1 || bruteForceMaxAttempts > 100) {
+    errors.push('BRUTE_FORCE_MAX_ATTEMPTS must be between 1 and 100');
+  }
+
+  const bruteForceLockoutDuration = parseInt(
+    getOptional('BRUTE_FORCE_LOCKOUT_DURATION', '900'), // 15 minutes
+    10
+  );
+
+  if (isNaN(bruteForceLockoutDuration) || bruteForceLockoutDuration < 60 || bruteForceLockoutDuration > 86400) {
+    errors.push('BRUTE_FORCE_LOCKOUT_DURATION must be between 60 and 86400 seconds (1 minute to 24 hours)');
+  }
+
+  const bruteForceWindowDuration = parseInt(
+    getOptional('BRUTE_FORCE_WINDOW_DURATION', '600'), // 10 minutes
+    10
+  );
+
+  if (isNaN(bruteForceWindowDuration) || bruteForceWindowDuration < 60 || bruteForceWindowDuration > 3600) {
+    errors.push('BRUTE_FORCE_WINDOW_DURATION must be between 60 and 3600 seconds (1 minute to 1 hour)');
+  }
+
   // If there are errors, log them and exit
   if (errors.length > 0) {
     console.error('\n❌ Environment validation failed:\n');
@@ -129,6 +170,12 @@ function validateEnv(): EnvConfig {
     jwtSecret,
     jwtAccessTokenExpiresIn: getOptional('JWT_ACCESS_TOKEN_EXPIRES_IN', '15m'),
     jwtRefreshTokenExpiresIn: getOptional('JWT_REFRESH_TOKEN_EXPIRES_IN', '7d'),
+    rateLimitWindowMs: parseInt(getOptional('RATE_LIMIT_WINDOW_MS', '60000'), 10),
+    rateLimitMaxRequests: parseInt(getOptional('RATE_LIMIT_MAX_REQUESTS', defaultMaxRequests), 10),
+    rateLimitSkipSuccessful: getOptional('RATE_LIMIT_SKIP_SUCCESSFUL', 'false') === 'true',
+    bruteForceMaxAttempts,
+    bruteForceLockoutDuration,
+    bruteForceWindowDuration,
     platformSharedSecret,
     logLevel: logLevel as 'debug' | 'info' | 'warn' | 'error',
     requestTimeout: parseInt(getOptional('REQUEST_TIMEOUT', '30000'), 10),

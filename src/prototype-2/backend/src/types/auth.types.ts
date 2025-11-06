@@ -191,3 +191,78 @@ export interface N8nLoginResponse {
     user: N8nUserData;
   };
 }
+
+/**
+ * Authorization request from client
+ *
+ * SPEC-AU-AZ-001:008 - Authorize endpoint accepts token and permission
+ */
+export interface AuthorizeRequest {
+  /** Access token (optional, can come from header/cookie) */
+  access_token?: string;
+
+  /** Schema for permission validation (optional, defaults to "*") */
+  schema?: string;
+
+  /** Permission string in format: {operation}.{entity}[.{action}] */
+  permission?: string;
+
+  /** JQEL select operation (alternative to permission) */
+  select?: string;
+
+  /** JQEL mutate operation (alternative to permission) */
+  mutate?: string;
+
+  /** JQEL action (optional, used with select/mutate) */
+  action?: string;
+}
+
+/**
+ * Authorization response to client
+ *
+ * SPEC-AU-AZ-020:029 - Authorize endpoint returns authorization decision
+ */
+export interface AuthorizeResponse {
+  /** Whether user is authorized */
+  authorized: boolean;
+
+  /** JWT payload (included on success) */
+  payload?: JwtPayload;
+
+  /** Permissions user has (optional) */
+  permissions?: string[];
+
+  /** Error code (included on failure) */
+  code?: string;
+
+  /** Error message (included on failure) */
+  message?: string;
+
+  /** Required permission (included when forbidden) */
+  required_permission?: string;
+}
+
+/**
+ * n8n authorize workflow response
+ *
+ * Contract from workflows/auth/authorize.json
+ */
+export interface N8nAuthorizeResponse {
+  /** HTTP status code */
+  code: number;
+
+  /** Response data */
+  data?: {
+    /** Whether permission is granted */
+    isGranted: boolean;
+
+    /** JWT payload */
+    payload?: JwtPayload;
+
+    /** User permissions (optional) */
+    permissions?: string[];
+  };
+
+  /** Error message (if code !== 200) */
+  message?: string;
+}

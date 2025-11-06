@@ -3,6 +3,9 @@ import crypto from 'crypto';
 import { tokenRotationService } from '../services/tokenRotation.service.js';
 import { jwtService } from '../services/jwt.service.js';
 import { n8nProxyService } from '../services/n8nProxy.service.js';
+import { redisService } from '../services/redis.service.js';
+import { bruteForceService } from '../services/bruteForceProtection.service.js';
+import bruteForceMiddleware from '../middleware/bruteForce.middleware.js';
 import type { JwtPayload } from '../types/auth.types.js';
 
 const router = Router();
@@ -23,6 +26,7 @@ const router = Router();
  */
 router.post(
   '/login',
+  bruteForceMiddleware, // NEW - check brute force protection BEFORE processing credentials
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       // SPEC-AU-LI-007: Validate presence of username and password
@@ -68,6 +72,9 @@ router.post(
 
         // SPEC-AU-LI-019:022: Invalid credentials return HTTP 401
         if (error.message?.includes('Invalid credentials')) {
+          // Record failed attempt for brute force protection
+          await bruteForceService.recordFailure(credentials.username, req.ip || '0.0.0.0');
+
           res.status(401).json({
             code: 'invalid_credentials',
             message: 'Invalid username or password',
@@ -128,6 +135,9 @@ router.post(
         ipAddress: req.ip,
         userAgent: req.get('user-agent'),
       });
+
+      // Clear brute force attempts after successful login
+      await bruteForceService.clearAttempts(credentials.username, req.ip || '0.0.0.0');
 
       // SPEC-AU-LI-012:018: Success response
       res.status(200).json({
@@ -438,6 +448,238 @@ router.post(
     } catch (error) {
       console.error('❌ Error in /auth/logout-all:', error);
       // SPEC-AU-LA-017: Internal error returns HTTP 500
+      next(error);
+    }
+  }
+);
+
+/**
+ * POST /api/1/auth/authorize
+ *
+ * Validate JWT access token and check user permissions.
+ * Supports validating token only, or token + specific permission.
+ *
+ * SPEC References:
+ * - SPEC-AU-AZ-001:004: Accept access_token from header, body, or cookie
+ * - SPEC-AU-AZ-005:008: Accept schema and permission parameters
+ * - SPEC-AU-AZ-009:013: Permission format {operation}.{entity}[.{action}]
+ * - SPEC-AU-AZ-014:019: Validate JWT, proxy to n8n, cache result
+ * - SPEC-AU-AZ-033:036: Cache authorization decisions in Redis
+ */
+router.post(
+  '/authorize',
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      // STEP 1: Extract access_token with priority: header > body > cookie
+      // SPEC-AU-AZ-001:004
+      let accessToken: string | undefined;
+
+      // Priority 1: Authorization header
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        accessToken = authHeader.substring(7);
+      }
+
+      // Priority 2: Body
+      if (!accessToken && req.body.access_token) {
+        accessToken = req.body.access_token;
+      }
+
+      // Priority 3: Cookie
+      if (!accessToken && req.cookies?.access_token) {
+        accessToken = req.cookies.access_token;
+      }
+
+      // Validate presence of token
+      if (!accessToken) {
+        res.status(401).json({
+          authorized: false,
+          code: 'missing_token',
+          message: 'Access token is required',
+        });
+        return;
+      }
+
+      // STEP 2: Parse schema and permission from request
+      // SPEC-AU-AZ-005:008
+      let schema = req.body.schema || '*';
+      let permission: string;
+
+      // Check if permission is directly specified
+      if (req.body.permission) {
+        permission = req.body.permission;
+      } else {
+        // Parse from JQEL query (select/mutate)
+        const operation = req.body.select ? 'select' : req.body.mutate ? 'mutate' : null;
+        const entity = req.body.select || req.body.mutate;
+        const action = req.body.action;
+
+        if (!operation || !entity) {
+          res.status(400).json({
+            authorized: false,
+            code: 'missing_permission',
+            message: 'Permission, select, or mutate must be specified',
+          });
+          return;
+        }
+
+        // Build permission string: {operation}.{entity}[.{action}]
+        // SPEC-AU-AZ-009:013
+        permission = action
+          ? `${operation}.${entity}.${action}`
+          : `${operation}.${entity}`;
+      }
+
+      // STEP 3: Validate JWT locally (fast, synchronous check)
+      // SPEC-AU-AZ-014:015
+      let payload: JwtPayload;
+      try {
+        payload = jwtService.verifyAccessToken(accessToken);
+
+        if (!payload.sub) {
+          res.status(401).json({
+            authorized: false,
+            code: 'invalid_token',
+            message: 'Token does not contain user ID',
+          });
+          return;
+        }
+      } catch (error: any) {
+        // SPEC-AU-AZ-030:032: Invalid or expired token returns 401
+        if (error.message === 'Token expired') {
+          res.status(401).json({
+            authorized: false,
+            code: 'token_expired',
+            message: 'Access token has expired',
+          });
+          return;
+        }
+
+        res.status(401).json({
+          authorized: false,
+          code: 'invalid_token',
+          message: 'Access token is invalid',
+        });
+        return;
+      }
+
+      // STEP 4: If permission is "*", only validate token (no permission check)
+      // SPEC-AU-AZ-008
+      if (permission === '*') {
+        res.status(200).json({
+          authorized: true,
+          payload,
+        });
+        return;
+      }
+
+      // STEP 5: Check Redis cache for permission decision
+      // SPEC-AU-AZ-033:036
+      const userId = payload.sub;
+      const cacheKey = `schema:{${schema}}:user:${userId}:perm:${permission}`;
+
+      try {
+        const cached = await redisService.get(cacheKey);
+
+        if (cached === 'GRANTED') {
+          // Cache hit - authorized
+          res.status(200).json({
+            authorized: true,
+            payload,
+          });
+          return;
+        }
+
+        if (cached === 'DENIED') {
+          // Cache hit - forbidden
+          res.status(403).json({
+            authorized: false,
+            code: 'forbidden',
+            message: 'Permission denied',
+            required_permission: permission,
+          });
+          return;
+        }
+      } catch (error) {
+        // Redis error - log but continue (don't block on cache failure)
+        console.warn('⚠️ Redis cache read failed in /authorize:', error);
+      }
+
+      // STEP 6: Cache miss - proxy to n8n for permission validation
+      // SPEC-AU-AZ-016:017
+      try {
+        const n8nResponse = await n8nProxyService.authorize({
+          access_token: accessToken,
+          schema,
+          permission,
+        });
+
+        // Extract authorization decision from n8n response
+        const isGranted = n8nResponse.data?.isGranted || false;
+
+        // STEP 7: Cache the result in Redis
+        // SPEC-AU-AZ-018:019
+        try {
+          await redisService.set(
+            cacheKey,
+            isGranted ? 'GRANTED' : 'DENIED',
+            300 // 5 minutes TTL (SPEC-AU-AZ-036)
+          );
+        } catch (error) {
+          // Redis error - log but don't fail request
+          console.warn('⚠️ Redis cache write failed in /authorize:', error);
+        }
+
+        // STEP 8: Return authorization decision
+        if (isGranted) {
+          // SPEC-AU-AZ-020:024 - Authorized
+          res.status(200).json({
+            authorized: true,
+            payload,
+            permissions: n8nResponse.data?.permissions,
+          });
+        } else {
+          // SPEC-AU-AZ-025:029 - Forbidden
+          res.status(403).json({
+            authorized: false,
+            code: 'forbidden',
+            message: 'Permission denied',
+            required_permission: permission,
+          });
+        }
+      } catch (error: any) {
+        // n8n proxy errors
+        console.error('❌ Error proxying to n8n in /authorize:', error);
+
+        // Network errors - n8n unreachable
+        if (error.message?.includes('n8n unreachable')) {
+          res.status(500).json({
+            authorized: false,
+            code: 'n8n_unavailable',
+            message: 'Authorization service is unavailable',
+          });
+          return;
+        }
+
+        // Timeout errors
+        if (error.message?.includes('timeout')) {
+          res.status(500).json({
+            authorized: false,
+            code: 'request_timeout',
+            message: 'Authorization request timed out',
+          });
+          return;
+        }
+
+        // Other n8n errors
+        res.status(500).json({
+          authorized: false,
+          code: 'internal_error',
+          message: 'An unexpected error occurred during authorization',
+        });
+      }
+    } catch (error) {
+      console.error('❌ Unexpected error in /auth/authorize:', error);
       next(error);
     }
   }

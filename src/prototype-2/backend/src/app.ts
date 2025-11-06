@@ -3,6 +3,7 @@ import compression from 'compression';
 import { corsMiddleware } from './middleware/cors.middleware.js';
 import { getSecurityMiddleware } from './middleware/security.middleware.js';
 import { loggerMiddleware } from './middleware/logger.middleware.js';
+import { authRateLimiter } from './middleware/rateLimit.middleware.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.middleware.js';
 import { redisService } from './services/redis.service.js';
 import healthRoutes from './routes/health.routes.js';
@@ -17,9 +18,10 @@ import authRoutes from './routes/auth.routes.js';
  * 3. Logging (after CORS)
  * 4. Body parsing (before routes)
  * 5. Compression
- * 6. Routes
- * 7. 404 handler (after routes)
- * 8. Error handler (last, with 4 parameters)
+ * 6. Rate limiting (before protected routes)
+ * 7. Routes
+ * 8. 404 handler (after routes)
+ * 9. Error handler (last, with 4 parameters)
  */
 const app: Application = express();
 
@@ -59,6 +61,9 @@ redisService.connect().catch((error) => {
 
 // Health check endpoint
 app.use('/api', healthRoutes);
+
+// Rate limiting for authentication endpoints (Task 1.3.13)
+app.use('/api/1/auth', authRateLimiter);
 
 // Authentication routes (Task 1.3)
 app.use('/api/1/auth', authRoutes);

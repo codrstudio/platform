@@ -127,7 +127,7 @@
 - [x] Implementar /api/1/auth/logout-all
   Refs: SPEC-authentication.md (SPEC-AU-LA-*)
 
-- [ ] Implementar /api/1/auth/authorize  
+- [x] Implementar /api/1/auth/authorize
   Refs: SPEC-authentication.md (SPEC-AU-AZ-*)
 
 #### Componente: Token Management
@@ -144,25 +144,25 @@
   Refs: SPEC-authentication.md (SPEC-AU-LGT-006:007)
 
 #### Componente: Auth Context Frontend
-- [ ] Criar AuthContext com React Context  
+- [x] Criar AuthContext com React Context
   Refs: SPEC-frontend-state.md (SPEC-FS-AU-001:007)
 
-- [ ] Implementar armazenamento seguro de tokens  
+- [x] Implementar armazenamento seguro de tokens
   Refs: SPEC-authentication.md (SPEC-AU-TO-001:005)
 
-- [ ] Implementar renovação automática de tokens  
+- [x] Implementar renovação automática de tokens
   Refs: SPEC-authentication.md (SPEC-AU-TO-006:009)
 
 #### Componente: Rate Limiting
-- [ ] Implementar rate limiting por IP  
+- [x] Implementar rate limiting por IP
   Refs: SPEC-authentication.md (SPEC-AU-RL-001:008)
 
-- [ ] Implementar proteção contra brute force  
+- [x] Implementar proteção contra brute force
   Refs: SPEC-authentication.md (SPEC-AU-RL-009:013)
 
 ---
 
-### SISTEMA 1.4: Acesso a Dados (JQEL) ✅
+### SISTEMA 1.4: Acesso a Dados (JQEL)
 
 #### Componente: JQEL Endpoint
 - [ ] Criar /api/jqel no backend  
