@@ -961,3 +961,5 @@ When asked to use Playwright:
 
 **CRITICAL**
 - ✗ Do NOT read files in .tmp folder unless it was created by you or was explicit told so by the user.
+- É proibido usar o comando kill para encerrar processos do Node.js e liberar portas. O Node normalmente já roda em modo hot reload e não precisa ser finalizado. Além disso, pode haver um processo de produção ativo que não deve ser interrompido.
+- É proibido alterar a porta para forçar o aplicativo a funcionar. Se a porta estiver ocupada, não a modifique; apenas pare a execução e reporte o problema.
