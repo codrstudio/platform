@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { moduleRegistry } from '@/core/modules/ModuleRegistry';
 import { moduleLoader } from '@/core/modules/ModuleLoader';
 import { useJQEL } from '@/services/jqel/jqelHooks';
+import { PortalSelectDialog } from './PortalSelectDialog';
 import type { ModuleManifest } from '@/core/modules/types';
 import type { Portal } from '@/core/portals/types';
 
@@ -16,9 +17,20 @@ interface ModuleListProps {
   onDeactivate?: (moduleId: string, portalId: string) => void;
 }
 
+interface DialogState {
+  open: boolean;
+  mode: 'activate' | 'deactivate';
+  moduleId: string | null;
+}
+
 export function ModuleList({ onActivate, onDeactivate }: ModuleListProps) {
   const [modules, setModules] = useState<ModuleManifest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [dialogState, setDialogState] = useState<DialogState>({
+    open: false,
+    mode: 'activate',
+    moduleId: null,
+  });
 
   const { data: portalsResult } = useJQEL<Portal[]>({
     schema: 'backend',
@@ -52,6 +64,32 @@ export function ModuleList({ onActivate, onDeactivate }: ModuleListProps) {
     return portals.filter((portal) =>
       portal.activeModules?.includes(moduleId)
     );
+  };
+
+  const handleActivateClick = (moduleId: string) => {
+    setDialogState({
+      open: true,
+      mode: 'activate',
+      moduleId,
+    });
+  };
+
+  const handleDeactivateClick = (moduleId: string) => {
+    setDialogState({
+      open: true,
+      mode: 'deactivate',
+      moduleId,
+    });
+  };
+
+  const handlePortalSelect = (portalId: string) => {
+    if (!dialogState.moduleId) return;
+
+    if (dialogState.mode === 'activate' && onActivate) {
+      onActivate(dialogState.moduleId, portalId);
+    } else if (dialogState.mode === 'deactivate' && onDeactivate) {
+      onDeactivate(dialogState.moduleId, portalId);
+    }
   };
 
   if (isLoading) {
@@ -185,14 +223,7 @@ export function ModuleList({ onActivate, onDeactivate }: ModuleListProps) {
               <div className="pt-4 border-t flex gap-2">
                 {onActivate && (
                   <button
-                    onClick={() => {
-                      const portalId = prompt(
-                        'Enter portal ID to activate this module:'
-                      );
-                      if (portalId) {
-                        onActivate(module.moduleId, portalId);
-                      }
-                    }}
+                    onClick={() => handleActivateClick(module.moduleId)}
                     className="flex-1 px-3 py-2 text-sm bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
                   >
                     Activate
@@ -200,14 +231,7 @@ export function ModuleList({ onActivate, onDeactivate }: ModuleListProps) {
                 )}
                 {onDeactivate && activePortals.length > 0 && (
                   <button
-                    onClick={() => {
-                      const portalId = prompt(
-                        'Enter portal ID to deactivate this module:'
-                      );
-                      if (portalId) {
-                        onDeactivate(module.moduleId, portalId);
-                      }
-                    }}
+                    onClick={() => handleDeactivateClick(module.moduleId)}
                     className="flex-1 px-3 py-2 text-sm border rounded hover:bg-accent transition-colors"
                   >
                     Deactivate
@@ -218,6 +242,30 @@ export function ModuleList({ onActivate, onDeactivate }: ModuleListProps) {
           </div>
         );
       })}
+
+      {/* Portal Selection Dialog */}
+      {dialogState.moduleId && (
+        <PortalSelectDialog
+          open={dialogState.open}
+          onOpenChange={(open) =>
+            setDialogState((prev) => ({ ...prev, open }))
+          }
+          portals={portals}
+          activePortals={getPortalsUsingModule(dialogState.moduleId)}
+          title={
+            dialogState.mode === 'activate'
+              ? 'Select Portal to Activate Module'
+              : 'Select Portal to Deactivate Module'
+          }
+          description={
+            dialogState.mode === 'activate'
+              ? 'Choose which portal to activate this module in'
+              : 'Choose which portal to deactivate this module from'
+          }
+          onSelect={handlePortalSelect}
+          mode={dialogState.mode}
+        />
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@
  */
 
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useJQEL, useJQELMutation, useJQELInvalidate } from '@/services/jqel/jqelHooks';
 import { ModuleList } from '../components/ModuleList';
 import type { Portal } from '@/core/portals/types';
@@ -24,12 +25,16 @@ export function ModuleManager() {
     const portal = portals.find((p) => p.portalId === portalId);
 
     if (!portal) {
-      alert(`Portal "${portalId}" not found`);
+      toast.error('Portal not found', {
+        description: `Portal "${portalId}" does not exist`,
+      });
       return;
     }
 
     if (portal.activeModules?.includes(moduleId)) {
-      alert(`Module "${moduleId}" is already active in portal "${portalId}"`);
+      toast.warning('Module already active', {
+        description: `Module "${moduleId}" is already active in portal "${portalId}"`,
+      });
       return;
     }
 
@@ -47,9 +52,13 @@ export function ModuleManager() {
       });
 
       invalidate.entity('backend', 'portal');
-      alert(`Module "${moduleId}" activated in portal "${portalId}"`);
+      toast.success('Module activated', {
+        description: `Module "${moduleId}" activated in portal "${portalId}"`,
+      });
     } catch (error: any) {
-      alert(`Failed to activate module: ${error.message}`);
+      toast.error('Failed to activate module', {
+        description: error.message || 'An unexpected error occurred',
+      });
     }
   };
 
@@ -57,12 +66,16 @@ export function ModuleManager() {
     const portal = portals.find((p) => p.portalId === portalId);
 
     if (!portal) {
-      alert(`Portal "${portalId}" not found`);
+      toast.error('Portal not found', {
+        description: `Portal "${portalId}" does not exist`,
+      });
       return;
     }
 
     if (!portal.activeModules?.includes(moduleId)) {
-      alert(`Module "${moduleId}" is not active in portal "${portalId}"`);
+      toast.warning('Module not active', {
+        description: `Module "${moduleId}" is not active in portal "${portalId}"`,
+      });
       return;
     }
 
@@ -80,9 +93,13 @@ export function ModuleManager() {
       });
 
       invalidate.entity('backend', 'portal');
-      alert(`Module "${moduleId}" deactivated in portal "${portalId}"`);
+      toast.success('Module deactivated', {
+        description: `Module "${moduleId}" deactivated from portal "${portalId}"`,
+      });
     } catch (error: any) {
-      alert(`Failed to deactivate module: ${error.message}`);
+      toast.error('Failed to deactivate module', {
+        description: error.message || 'An unexpected error occurred',
+      });
     }
   };
 

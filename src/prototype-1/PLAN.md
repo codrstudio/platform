@@ -74,6 +74,8 @@
   - [x] Rotas protegidas com validação de autenticação
   - [x] Prioridades de rotas (main > outros)
   - [x] Lazy loading com React Router
+  - [x] SPEC-R-LD-018: Service Worker usa network-first para HTML
+  - [x] SPEC-R-LD-019: HTML cache apenas para fallback offline
 
 ### 1.3 Autenticação
 - [x] **SPEC-authentication.md** - Sistema de Auth
@@ -131,6 +133,7 @@
   - [x] Cache-first para assets (JS, CSS, imagens, fontes)
   - [x] Fallback offline para navegação
 
+
 ### 1.7 Configuração
 - [x] **SPEC-configuration.md** - Gestão de Configuração
   - [x] Platform Settings (.env - requer restart)
@@ -139,6 +142,8 @@
   - [x] Variáveis obrigatórias (NODE_ENV, PORT, N8N_BASE_URL, JWT_SECRET, Redis)
   - [x] Validação de secrets
   - [x] Configurações por ambiente
+  - [x] SPEC-CF-AS-014: HTML usa cache network-first para refletir mudanças
+  - [x] SPEC-CF-AS-015: Service Worker busca HTML atualizado após mutations
 
 ### 1.8 Tratamento de Erros
 - [x] **SPEC-error-handling.md** - Gestão de Erros
@@ -190,6 +195,8 @@
   - [x] Lazy loading com React.lazy()
   - [x] Ciclo de vida (loading → init → activation/deactivation)
   - [x] Tipos: "components" ou "functionality"
+  - [x] SPEC-LOAD-D-018: Cache de HTML não impede ativação em runtime
+  - [x] SPEC-LOAD-D-019: Network-first para HTML garante mudanças refletidas
 
 ### 2.2 Módulo Setup (Configurador)
 - [x] **SPEC-module-setup.md** - Setup Module
@@ -213,7 +220,7 @@
   - [x] Renovação automática de token
   - [x] Seleção de realm/schema configurável
   - [x] Múltiplas instâncias independentes por portal
-  - [x] Validação de permissões via /api/1/auth/authorize
+  - [ ] Validação de permissões via /api/1/auth/authorize
 
 ### 3.2 Chat
 - [ ] **SPEC-module-chat.md** - Chat Module
@@ -354,10 +361,10 @@
 |-----------|-------|-------|--------------|----------|
 | **1. Fundamentos** | 11 features | 9 | 0 | 2 |
 | **2. Sistema de Módulos** | 2 features | 2 | 0 | 0 |
-| **3. Módulos Funcionais** | 12 módulos | 1 | 0 | 11 |
+| **3. Módulos Funcionais** | 12 módulos | 2 | 0 | 10 |
 | **4. Módulos de Componentes** | 4 módulos | 0 | 0 | 4 |
 | **5. Infraestrutura Avançada** | 3 features | 0 | 0 | 3 |
-| **TOTAL** | **32 items** | **12 (38%)** | **0 (0%)** | **20 (62%)** |
+| **TOTAL** | **32 items** | **13 (41%)** | **0 (0%)** | **19 (59%)** |
 
 ---
 
@@ -377,10 +384,10 @@
 
 **Files**: `src/prototype-1/` (functional prototype)
 
-### 📋 Phase 2: FUNCTIONAL MODULES (PENDING - Waves 8-14)
-**Status**: 0% Complete
+### 📋 Phase 2: FUNCTIONAL MODULES (IN PROGRESS - Waves 8-14)
+**Status**: ~8% Complete (1 of 12 modules)
 **Priority Modules**:
-1. [ ] Auth Module (wave 8)
+1. [x] Auth Module (wave 8) ✅
 2. [ ] Sidebar Module (wave 9)
 3. [ ] Notifications Module (wave 10)
 4. [ ] Command Palette Module (wave 11)
@@ -435,12 +442,46 @@
 - **What's New**:
   - `spec/whats-new/2025-11-05-bullmq-queue-system.md` - Sistema de Filas com BullMQ
   - `spec/whats-new/2025-11-05-cache-strategy.md` - Service Worker Cache Strategy
+- **Implementation Reports**:
+  - `src/prototype-1/CACHE-STRATEGY-IMPLEMENTATION.md` - Cache Strategy Implementation Summary
+  - `src/prototype-1/SPEC-COMPLIANCE-CACHE-STRATEGY.md` - SPEC Compliance Verification
 
 ---
 
-**Document Version**: 1.3
-**Last Review**: 2025-11-05
-**Status**: Foundation Complete | Auth Module Implemented | Queue System & Cache Strategy Added | 11 Functional Modules Pending
+**Document Version**: 1.4
+**Last Review**: 2025-11-06
+**Status**: Foundation Complete | Cache Strategy Fully Implemented | Updated SPEC Compliance Verified | 11 Functional Modules Pending
+
+---
+
+## Implementation Status Update (2025-11-06)
+
+### ✅ Cache Strategy Implementation (2025-11-06)
+
+**Status**: COMPLETE ✅
+**Compliance**: All updated SPEC requirements implemented
+
+The cache strategy has been fully implemented following `spec/whats-new/2025-11-05-cache-strategy.md`:
+
+**New SPEC Requirements Implemented**:
+- ✅ **SPEC-R-LD-018**: Service Worker uses network-first for HTML
+- ✅ **SPEC-R-LD-019**: HTML cache only for offline fallback
+- ✅ **SPEC-LOAD-D-018**: HTML cache doesn't block runtime module activation
+- ✅ **SPEC-LOAD-D-019**: Network-first ensures config changes reflected
+- ✅ **SPEC-CF-AS-014**: HTML responses use network-first cache strategy
+- ✅ **SPEC-CF-AS-015**: Service Worker fetches fresh HTML after mutations
+
+**Files Created**:
+- `frontend/public/sw.js` - Service Worker with cache strategies
+- `frontend/public/manifest.json` - PWA manifest
+- `frontend/public/icons/` - All PWA icons
+- `backend/src/middleware/cacheControl.middleware.ts` - Cache-Control headers
+
+**Documentation**:
+- `CACHE-STRATEGY-IMPLEMENTATION.md` - Implementation summary
+- `SPEC-COMPLIANCE-CACHE-STRATEGY.md` - Compliance verification report
+
+**Problem Solved**: Module activation now works with normal navigation (F5) instead of requiring hard refresh (Ctrl+Shift+R).
 
 ---
 
@@ -547,6 +588,6 @@ All remaining functional modules have been created as properly structured stubs 
 
 ---
 
-**Document Version**: 1.3
-**Last Review**: 2025-11-05
-**Status**: Foundation Complete | Auth Module Implemented | Queue System & Cache Strategy Added | 11 Functional Modules Pending
+**Document Version**: 1.4
+**Last Review**: 2025-11-06
+**Status**: Foundation Complete | Cache Strategy Fully Implemented | Updated SPEC Compliance Verified | 11 Functional Modules Pending

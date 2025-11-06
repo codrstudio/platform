@@ -5,7 +5,9 @@
  */
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { PortalLoader } from '@/core/routing/PortalLoader';
+import { UpdateAvailableDialog } from '@/components/pwa/UpdateAvailableDialog';
 
 /**
  * Root Router Configuration
@@ -50,7 +52,13 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} />
+      <Toaster position="bottom-right" richColors />
+      <UpdateAvailableDialog />
+    </>
+  );
 }
 
 export default App;

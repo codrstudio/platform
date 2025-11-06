@@ -24,5 +24,13 @@
       "description": "Platform configuration and module management",
       "icon": "settings"
     }
+  },
+  {
+    "portalId": "sandbox",
+    "name": "Sandbox",
+    "path": "/sandbox",
+    "settingsKey": "sandbox",
+    "removable": true,
+    "activeModules": []
   }
 ]

@@ -6,13 +6,16 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useJQELMutation, useJQELInvalidate } from '@/services/jqel/jqelHooks';
 import { PortalList } from '../components/PortalList';
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import type { Portal } from '@/core/portals/types';
 
 export function PortalManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPortal, setEditingPortal] = useState<Portal | null>(null);
+  const [portalToDelete, setPortalToDelete] = useState<Portal | null>(null);
   const [formData, setFormData] = useState({
     portalId: '',
     name: '',
@@ -48,23 +51,31 @@ export function PortalManager() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (portal: Portal) => {
-    if (!confirm(`Are you sure you want to delete portal "${portal.name}"?`)) {
-      return;
-    }
+  const handleDelete = (portal: Portal) => {
+    setPortalToDelete(portal);
+  };
+
+  const confirmDelete = async () => {
+    if (!portalToDelete) return;
 
     try {
       await mutation.mutateAsync({
         schema: 'backend',
         mutate: 'portal',
         action: 'delete',
-        where: { portalId: { eq: portal.portalId } },
+        where: { portalId: { eq: portalToDelete.portalId } },
       });
 
       invalidate.entity('backend', 'portal');
-      alert('Portal deleted successfully');
+      toast.success('Portal deleted', {
+        description: `Portal "${portalToDelete.name}" has been deleted successfully`,
+      });
     } catch (error: any) {
-      alert(`Failed to delete portal: ${error.message}`);
+      toast.error('Failed to delete portal', {
+        description: error.message || 'An unexpected error occurred',
+      });
+    } finally {
+      setPortalToDelete(null);
     }
   };
 
@@ -86,7 +97,9 @@ export function PortalManager() {
             removable: formData.removable,
           },
         });
-        alert('Portal updated successfully');
+        toast.success('Portal updated', {
+          description: `Portal "${formData.name}" has been updated successfully`,
+        });
       } else {
         // Create new portal
         await mutation.mutateAsync({
@@ -98,13 +111,17 @@ export function PortalManager() {
             activeModules: [],
           },
         });
-        alert('Portal created successfully');
+        toast.success('Portal created', {
+          description: `Portal "${formData.name}" has been created successfully`,
+        });
       }
 
       invalidate.entity('backend', 'portal');
       setIsDialogOpen(false);
     } catch (error: any) {
-      alert(`Failed to save portal: ${error.message}`);
+      toast.error('Failed to save portal', {
+        description: error.message || 'An unexpected error occurred',
+      });
     }
   };
 
@@ -250,6 +267,21 @@ export function PortalManager() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Delete Confirmation Dialog */}
+        {portalToDelete && (
+          <ConfirmDialog
+            open={!!portalToDelete}
+            onOpenChange={(open) => !open && setPortalToDelete(null)}
+            title="Delete Portal"
+            description={`Are you sure you want to delete "${portalToDelete.name}"? This action cannot be undone.`}
+            confirmText="Delete"
+            cancelText="Cancel"
+            variant="destructive"
+            onConfirm={confirmDelete}
+            isLoading={mutation.isPending}
+          />
         )}
       </div>
     </div>

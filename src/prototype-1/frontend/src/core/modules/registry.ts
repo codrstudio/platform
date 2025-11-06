@@ -15,6 +15,9 @@ import { moduleRegistry } from './ModuleRegistry';
 // Register setup module
 moduleRegistry.register('setup', () => import('@/modules/setup'));
 
+// Register auth module
+moduleRegistry.register('auth', () => import('@/modules/auth'));
+
 // Register additional modules here as they are created
 // Example:
 // moduleRegistry.register('chat', () => import('@/modules/chat'));
