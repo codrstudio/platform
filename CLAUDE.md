@@ -2,8 +2,6 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Em src/vsc-task-view
-
 ## Project Overview
 
 This is a **modular platform** project for building reusable, scalable web applications. The platform allows creating isolated sub-applications (Portals) with activatable features (Modules) that can have multiple configurations (Instances).
@@ -453,6 +451,43 @@ The platform MUST be a fully functional PWA:
 - Initial bundle: < 200KB gzipped
 - Module chunks: < 500KB gzipped each
 
+## Theming System
+
+The platform implements a comprehensive theming system based on SPEC-theming.md:
+
+### Theme Modes
+- **light** - Light theme
+- **dark** - Dark theme
+- **system** - Auto-detect from OS preferences (default)
+
+### Implementation
+- `ThemeProvider` wraps the entire application
+- Theme state managed in React Context
+- Preferences persisted to localStorage with `settings-key` scoping
+- Automatic system preference detection using `matchMedia`
+- CSS custom properties for dynamic theming
+
+### Brand Colors
+- Portal-specific brand color customization
+- Automatic palette generation from brand color
+- WCAG AA contrast validation
+- Semantic color generation (success, warning, error, info)
+
+### Usage in Components
+```typescript
+import { useTheme } from '@/hooks/useTheme';
+
+function MyComponent() {
+  const { theme, rawTheme, setTheme, brandColor, setBrandColor } = useTheme();
+
+  return (
+    <div className={theme === 'dark' ? 'bg-gray-900' : 'bg-white'}>
+      <button onClick={() => setTheme('dark')}>Dark Mode</button>
+    </div>
+  );
+}
+```
+
 ## Development Commands
 
 ### Prototype-2 Commands (Current Active Prototype)
@@ -486,10 +521,27 @@ npm run lint         # Run ESLint
 # Frontend
 cd src/prototype-2/frontend
 cp .env.example .env  # Edit VITE_API_URL if needed
+# Windows: copy .env.example .env
 
 # Backend
 cd src/prototype-2/backend
 cp .env.example .env  # Configure N8N_WEBHOOK_BASE_URL, REDIS_URL, JWT_SECRET
+# Windows: copy .env.example .env
+```
+
+**Starting Redis** (platform-specific):
+```bash
+# Linux/macOS
+redis-server
+
+# Windows (using WSL)
+wsl redis-server
+
+# Windows (using Docker)
+docker run -d -p 6379:6379 redis:latest
+
+# Windows (native Redis from MSOpenTech)
+redis-server.exe
 ```
 
 ### Other Prototypes
@@ -658,6 +710,141 @@ npm run dev
 - **Import paths**: Use relative imports, not absolute
   - Wrong: `import { foo } from 'src/utils'`
   - Right: `import { foo } from '../utils'`
+
+## Debugging & Troubleshooting
+
+### Quick Diagnostics
+
+**Backend Health Check**:
+```bash
+# Check backend is running and responding
+curl http://localhost:3000/health
+
+# Expected response:
+# {"status":"healthy","timestamp":"2025-11-06T...","uptime":...}
+```
+
+**Redis Connectivity**:
+```bash
+# Check Redis is running
+redis-cli ping
+# Should return: PONG
+
+# Check Redis Pub/Sub channels
+redis-cli PUBSUB CHANNELS
+# Should list: platform:events (if SSE is active)
+
+# Monitor Redis events in real-time
+redis-cli MONITOR
+```
+
+**Frontend Console Debugging**:
+```javascript
+// In browser console, check these:
+
+// 1. Check if auth token exists
+localStorage.getItem('refresh_token')
+localStorage.getItem('access_token')
+
+// 2. Check current theme
+localStorage.getItem('theme:default')
+
+// 3. Inspect TanStack Query cache
+window.__REACT_QUERY_DEVTOOLS__
+
+// 4. Check if SSE connection is active
+// Look for EventSource in Network tab (filter by "stream")
+```
+
+**TypeScript Type Checking**:
+```bash
+# Frontend - fast type check without building
+cd src/prototype-2/frontend
+npm run type-check
+
+# Backend - fast type check without building
+cd src/prototype-2/backend
+npm run type-check
+
+# Both will show type errors without the overhead of a full build
+```
+
+**Debugging JQEL Queries**:
+```bash
+# Enable backend logging to see JQEL queries
+# In backend/.env, ensure LOG_LEVEL=debug
+
+# Watch backend logs for JQEL processing
+cd src/prototype-2/backend
+npm run dev
+# Look for logs like: "JQEL Query: {...}" and "JQEL Result: {...}"
+```
+
+### Network Debugging
+
+**Inspect SSE Stream**:
+```bash
+# Connect to SSE endpoint directly
+curl -N -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  http://localhost:3000/api/events/stream
+
+# Should see: Connected to event stream
+# Then event data as it's published
+```
+
+**Test n8n Webhook**:
+```bash
+# Verify n8n is accessible from backend
+curl http://YOUR_N8N_URL/webhook/health
+
+# Test auth workflow (should fail without credentials, but confirms connectivity)
+curl -X POST http://YOUR_N8N_URL/webhook/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"wrong"}'
+```
+
+**CORS Debugging**:
+```bash
+# Test CORS headers from backend
+curl -H "Origin: http://localhost:5173" \
+  -H "Access-Control-Request-Method: POST" \
+  -H "Access-Control-Request-Headers: Content-Type" \
+  -X OPTIONS \
+  http://localhost:3000/api/jqel \
+  -v
+
+# Look for: Access-Control-Allow-Origin: http://localhost:5173
+```
+
+### Performance Profiling
+
+**Bundle Analysis**:
+```bash
+# Analyze frontend bundle size
+cd src/prototype-2/frontend
+npm run build
+# Check dist/ folder sizes
+du -sh dist/*
+
+# Use browser DevTools:
+# 1. Open Network tab
+# 2. Reload page
+# 3. Look at transferred vs resource size
+# 4. Check for code splitting (multiple .js chunks)
+```
+
+**Lighthouse Audit**:
+```bash
+# Build frontend first
+cd src/prototype-2/frontend
+npm run build
+npm run preview
+
+# In Chrome DevTools:
+# 1. Open Lighthouse tab
+# 2. Select categories: Performance, PWA, Accessibility
+# 3. Run audit on http://localhost:4173
+```
 
 ## Important Notes
 
