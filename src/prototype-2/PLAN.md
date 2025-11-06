@@ -261,27 +261,27 @@
 ### SISTEMA 1.6: Temas e UI ✅
 
 #### Componente: Theme System
-- [ ] Criar ThemeProvider  
+- [x] Criar ThemeProvider
   Refs: SPEC-theming.md (SPEC-TH-PR-001:006)
 
-- [ ] Implementar detecção de modo (light/dark/system)  
+- [x] Implementar detecção de modo (light/dark/system)
   Refs: SPEC-theming.md (SPEC-TH-MO-001:008)
 
-- [ ] Implementar persistência de preferências  
+- [x] Implementar persistência de preferências
   Refs: SPEC-theming.md (SPEC-TH-PE-001:004)
 
 #### Componente: Color Generation
-- [ ] Implementar geração de paleta a partir de brand color  
+- [x] Implementar geração de paleta a partir de brand color
   Refs: SPEC-theming.md (SPEC-TH-CO-001:009)
 
-- [ ] Implementar validação WCAG AA  
+- [x] Implementar validação WCAG AA
   Refs: SPEC-theming.md (SPEC-TH-AC-001:007)
 
-- [ ] Gerar cores semânticas (success, warning, error, info)  
+- [x] Gerar cores semânticas (success, warning, error, info)
   Refs: SPEC-theming.md (SPEC-TH-SE-001:004)
 
 #### Componente: CSS Variables
-- [ ] Gerar CSS custom properties  
+- [x] Gerar CSS custom properties
   Refs: SPEC-theming.md (SPEC-TH-CS-001:008)
 
 - [ ] Aplicar tema globalmente  
