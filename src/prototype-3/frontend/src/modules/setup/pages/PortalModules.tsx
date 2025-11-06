@@ -77,7 +77,7 @@ export default function PortalModules() {
     return (
       <div className="container mx-auto py-6 space-y-6">
         <div className="flex items-center gap-4">
-          <Link to="/portals">
+          <Link to="/setup/portals">
             <Button variant="ghost">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Portals
@@ -104,7 +104,7 @@ export default function PortalModules() {
     return (
       <div className="container mx-auto py-6 space-y-6">
         <div className="flex items-center gap-4">
-          <Link to="/portals">
+          <Link to="/setup/portals">
             <Button variant="ghost">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Portals
@@ -127,7 +127,7 @@ export default function PortalModules() {
     return (
       <div className="container mx-auto py-6 space-y-6">
         <div className="flex items-center gap-4">
-          <Link to="/portals">
+          <Link to="/setup/portals">
             <Button variant="ghost">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Portals
@@ -150,7 +150,7 @@ export default function PortalModules() {
       {/* SPEC-MS-UI-002: Show breadcrumb */}
       {/* SPEC-MS-UI-003: Allow returning to previous page */}
       <div className="flex items-center gap-4">
-        <Link to="/portals">
+        <Link to="/setup/portals">
           <Button variant="ghost">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Portals

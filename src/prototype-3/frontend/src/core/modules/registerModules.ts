@@ -18,8 +18,8 @@ import moduleRegistry from './ModuleRegistry';
  * Each module's manifest and exports are registered with the central ModuleRegistry.
  *
  * Module loading strategy:
- * - Import modules synchronously during app initialization
- * - Modules auto-register themselves when imported
+ * - Import modules asynchronously during app initialization
+ * - Await all imports to complete before app renders
  * - Registry acts as single source of truth for module discovery
  *
  * Adding new modules:
@@ -30,7 +30,7 @@ import moduleRegistry from './ModuleRegistry';
  * SPEC-MO-ST-006: Entry point (index.ts) exports module metadata
  * SPEC-MO-EX-007: index.ts is the entry point for each module
  */
-export function registerModules(): void {
+export async function registerModules(): Promise<void> {
   if (import.meta.env.DEV) {
     console.log('[ModuleRegistry] Starting module registration...');
   }
@@ -38,37 +38,31 @@ export function registerModules(): void {
   try {
     // Register Setup module (SPEC-module-setup.md)
     // Setup is the platform configuration module - always available
-    import('../../modules/setup').then((setupModule) => {
-      moduleRegistry.register({
-        manifest: setupModule.manifest,
-        routes: setupModule.routes,
-      });
+    const setupModule = await import('../../modules/setup');
+    moduleRegistry.register({
+      manifest: setupModule.manifest,
+      routes: setupModule.routes,
     });
 
     // Future modules will be registered here:
     // Example:
-    // import('../../modules/chat').then((chatModule) => {
-    //   moduleRegistry.register({
-    //     manifest: chatModule.manifest,
-    //     routes: chatModule.routes,
-    //     components: chatModule.components,
-    //     hooks: chatModule.hooks,
-    //   });
+    // const chatModule = await import('../../modules/chat');
+    // moduleRegistry.register({
+    //   manifest: chatModule.manifest,
+    //   routes: chatModule.routes,
+    //   components: chatModule.components,
+    //   hooks: chatModule.hooks,
     // });
     //
-    // import('../../modules/app-components').then((appComponents) => {
-    //   moduleRegistry.register({
-    //     manifest: appComponents.manifest,
-    //     components: appComponents.components,
-    //   });
+    // const appComponents = await import('../../modules/app-components');
+    // moduleRegistry.register({
+    //   manifest: appComponents.manifest,
+    //   components: appComponents.components,
     // });
 
     if (import.meta.env.DEV) {
-      // Wait a bit for async registrations to complete
-      setTimeout(() => {
-        const stats = moduleRegistry.getStats();
-        console.log('[ModuleRegistry] Module registration complete:', stats);
-      }, 100);
+      const stats = moduleRegistry.getStats();
+      console.log('[ModuleRegistry] Module registration complete:', stats);
     }
   } catch (error) {
     console.error('[ModuleRegistry] Failed to register modules:', error);

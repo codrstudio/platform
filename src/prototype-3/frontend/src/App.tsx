@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { PWAUpdatePrompt } from './components/common/PWAUpdatePrompt';
 import { OfflineIndicator } from './components/common/OfflineIndicator';
 import { NotificationCenter } from './components/notifications';
@@ -54,12 +54,28 @@ function AppContent() {
  * Story 1.5.2: Initialize module registry on app startup
  */
 function App() {
+  const [modulesReady, setModulesReady] = useState(false);
+
   // Initialize module registry on app startup
   // SPEC-MO-ST-006: Entry point exports module metadata
   // SPEC-MO-LC-001: Modules loaded when portal opens
   useEffect(() => {
-    registerModules();
+    registerModules().then(() => {
+      setModulesReady(true);
+    });
   }, []);
+
+  // Wait for modules to register before rendering
+  if (!modulesReady) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading modules...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <GlobalErrorBoundary>

@@ -16,6 +16,13 @@ export interface ProtectedRouteProps {
   children: React.ReactNode;
 
   /**
+   * Whether authentication is required (default: true)
+   * SPEC-R-RP-001: Routes MAY require authentication (not MUST)
+   * Set to false to allow public access without authentication
+   */
+  requireAuth?: boolean;
+
+  /**
    * Optional action to check (e.g., 'read', 'write', 'delete')
    * If not provided, only authentication is checked.
    */
@@ -75,6 +82,7 @@ export interface ProtectedRouteProps {
  */
 export function ProtectedRoute({
   children,
+  requireAuth = true,
   action,
   resource,
   context,
@@ -90,6 +98,12 @@ export function ProtectedRoute({
   ),
 }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+
+  // If auth not required, render children directly (public route)
+  // SPEC-R-RP-001: Routes MAY require authentication
+  if (!requireAuth) {
+    return <>{children}</>;
+  }
 
   // Check permission if action/resource provided
   const {

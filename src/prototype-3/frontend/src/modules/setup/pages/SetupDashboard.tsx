@@ -30,7 +30,7 @@ export default function SetupDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Portals Card - SPEC-MS-UI-004 */}
         <Link
-          to="/portals"
+          to="portals"
           className="block p-6 bg-card border rounded-lg hover:shadow-lg transition-shadow"
         >
           <div className="flex items-center gap-3 mb-3">
@@ -44,7 +44,7 @@ export default function SetupDashboard() {
 
         {/* Modules Card - SPEC-MS-UI-016 */}
         <Link
-          to="/portals"
+          to="portals"
           className="block p-6 bg-card border rounded-lg hover:shadow-lg transition-shadow"
         >
           <div className="flex items-center gap-3 mb-3">
@@ -58,7 +58,7 @@ export default function SetupDashboard() {
 
         {/* Instances Card - SPEC-MS-UI-022 */}
         <Link
-          to="/portals"
+          to="portals"
           className="block p-6 bg-card border rounded-lg hover:shadow-lg transition-shadow"
         >
           <div className="flex items-center gap-3 mb-3">
@@ -72,7 +72,7 @@ export default function SetupDashboard() {
 
         {/* Platform Settings Card - SPEC-MS-PS-001 */}
         <Link
-          to="/platform-settings"
+          to="platform-settings"
           className="block p-6 bg-card border rounded-lg hover:shadow-lg transition-shadow"
         >
           <div className="flex items-center gap-3 mb-3">

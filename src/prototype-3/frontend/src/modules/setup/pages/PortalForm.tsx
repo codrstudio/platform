@@ -61,7 +61,7 @@ export default function PortalForm() {
   const createMutation = useInsert<Portal>('platform', 'portal', {
     invalidation: { scope: 'entity' },
     onSuccess: () => {
-      navigate('/portals');
+      navigate('/setup/portals');
     },
   });
 
@@ -69,7 +69,7 @@ export default function PortalForm() {
   const updateMutation = useUpdate<Portal>('platform', 'portal', {
     invalidation: { scope: 'specific' },
     onSuccess: () => {
-      navigate('/portals');
+      navigate('/setup/portals');
     },
   });
 
@@ -151,7 +151,7 @@ export default function PortalForm() {
 
   // Handle cancel
   const handleCancel = () => {
-    navigate('/portals');
+    navigate('/setup/portals');
   };
 
   // Loading state
@@ -175,7 +175,7 @@ export default function PortalForm() {
               Failed to load portal: {loadError.message}
             </AlertDescription>
           </Alert>
-          <Link to="/portals">
+          <Link to="/setup/portals">
             <Button className="mt-4">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Portals
@@ -192,11 +192,11 @@ export default function PortalForm() {
         {/* Header - SPEC-MS-UI-002: Breadcrumb navigation */}
         <div className="mb-8">
           <nav className="text-sm text-muted-foreground mb-2">
-            <Link to="/" className="hover:text-foreground">
+            <Link to="/setup" className="hover:text-foreground">
               Setup
             </Link>
             {' > '}
-            <Link to="/portals" className="hover:text-foreground">
+            <Link to="/setup/portals" className="hover:text-foreground">
               Portals
             </Link>
             {' > '}

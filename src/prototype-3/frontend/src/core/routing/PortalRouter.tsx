@@ -13,6 +13,7 @@ import { PortalLoader } from './PortalLoader';
 import { ProtectedRoute } from '@/components/routing/ProtectedRoute';
 import { LazyErrorBoundary } from '@/components/error/LazyErrorBoundary';
 import { PageSkeleton, PortalSkeleton } from '@/components/loading/PageSkeleton';
+import { portalRequiresAuth } from '@/utils/portalConfig';
 import type { Portal } from '@/types/portal';
 
 // Lazy-loaded page components - SPEC-R-LD-003, SPEC-R-LD-005
@@ -20,7 +21,6 @@ import type { Portal } from '@/types/portal';
 // SPEC-R-PE-003: Routes use React.lazy()
 const Login = lazy(() => import('@/pages/Login').then(m => ({ default: m.Login })));
 const NotFound = lazy(() => import('@/pages/NotFound').then(m => ({ default: m.NotFound })));
-const PortalLanding = lazy(() => import('@/pages/PortalLanding').then(m => ({ default: m.PortalLanding })));
 const PortalContent = lazy(() => import('@/pages/PortalContent').then(m => ({ default: m.PortalContent })));
 
 /**
@@ -28,7 +28,8 @@ const PortalContent = lazy(() => import('@/pages/PortalContent').then(m => ({ de
  *
  * SPEC-R-STR-001: Main portal uses "/", others use "/:portalId/*"
  * SPEC-R-PRI-001: Route priority - exact match > partial match > wildcard
- * SPEC-R-RP-001 to SPEC-R-RP-004: Protected routes with authentication
+ * SPEC-R-RP-001: Routes MAY require authentication (not MUST - now optional)
+ * SPEC-R-RP-009: Protection is module responsibility (checked per portal)
  * SPEC-R-LD-001: Modules loaded on portal opening
  */
 export function PortalRouter() {
@@ -47,15 +48,14 @@ export function PortalRouter() {
             }
           />
 
-          {/* Protected routes: All portals require authentication */}
+          {/* Portal routes: Protection applied conditionally per portal */}
+          {/* SPEC-R-RP-001: Routes MAY require auth (portal decides) */}
           <Route
             path="/*"
             element={
-              <ProtectedRoute redirectTo="/login">
-                <PortalLoader>
-                  {(portals) => <PortalRoutes portals={portals} />}
-                </PortalLoader>
-              </ProtectedRoute>
+              <PortalLoader>
+                {(portals) => <PortalRoutes portals={portals} />}
+              </PortalLoader>
             }
           />
         </Routes>
@@ -68,8 +68,10 @@ export function PortalRouter() {
  * Portal Routes Component
  *
  * Renders routes for all loaded portals.
- * All routes within are protected by the parent ProtectedRoute.
+ * Protection applied conditionally per portal based on auth module activation.
  * SPEC-R-LD-002: Inactive modules not loaded
+ * SPEC-R-RP-001: Routes MAY require authentication (portal decides)
+ * SPEC-R-RP-009: Protection is module responsibility
  */
 interface PortalRoutesProps {
   portals: Portal[];
@@ -89,26 +91,22 @@ function PortalRoutes({ portals }: PortalRoutesProps) {
     <Routes>
       {/* Main portal routes (if exists) - SPEC-R-STR-001 */}
       {mainPortal && (
-        <Route path="/" element={<PortalRoot portal={mainPortal} />}>
-          {/* Main portal landing page */}
-          <Route
-            index
-            element={
-              <Suspense fallback={<PortalSkeleton />}>
-                <PortalLanding portal={mainPortal} />
-              </Suspense>
-            }
-          />
-          {/* Main portal wildcard routes */}
-          <Route
-            path="*"
-            element={
+        <Route
+          path="/*"
+          element={
+            portalRequiresAuth(mainPortal) ? (
+              <ProtectedRoute redirectTo="/login">
+                <Suspense fallback={<PortalSkeleton />}>
+                  <PortalContent portal={mainPortal} />
+                </Suspense>
+              </ProtectedRoute>
+            ) : (
               <Suspense fallback={<PortalSkeleton />}>
                 <PortalContent portal={mainPortal} />
               </Suspense>
-            }
-          />
-        </Route>
+            )
+          }
+        />
       )}
 
       {/* Other portal routes - SPEC-R-STR-001 */}
@@ -116,27 +114,20 @@ function PortalRoutes({ portals }: PortalRoutesProps) {
         <Route
           key={portal.portalId}
           path={`/${portal.portalId}/*`}
-          element={<PortalRoot portal={portal} />}
-        >
-          {/* Portal landing page */}
-          <Route
-            index
-            element={
-              <Suspense fallback={<PortalSkeleton />}>
-                <PortalLanding portal={portal} />
-              </Suspense>
-            }
-          />
-          {/* Portal wildcard routes */}
-          <Route
-            path="*"
-            element={
+          element={
+            portalRequiresAuth(portal) ? (
+              <ProtectedRoute redirectTo="/login">
+                <Suspense fallback={<PortalSkeleton />}>
+                  <PortalContent portal={portal} />
+                </Suspense>
+              </ProtectedRoute>
+            ) : (
               <Suspense fallback={<PortalSkeleton />}>
                 <PortalContent portal={portal} />
               </Suspense>
-            }
-          />
-        </Route>
+            )
+          }
+        />
       ))}
 
       {/* Fallback: Redirect to main portal or 404 */}
@@ -153,44 +144,5 @@ function PortalRoutes({ portals }: PortalRoutesProps) {
         />
       )}
     </Routes>
-  );
-}
-
-/**
- * Portal Root Component
- *
- * Root component for each portal (provides portal context).
- * SPEC-R-LD-004: Each module as separate chunk
- */
-interface PortalRootProps {
-  portal: Portal;
-}
-
-function PortalRoot({ portal }: PortalRootProps) {
-  return (
-    <div data-portal={portal.portalId}>
-      {/* Portal-specific layout or context can be added here */}
-      <div className="min-h-screen">
-        {/* Outlet will render matched child routes */}
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <Suspense fallback={<PortalSkeleton />}>
-                <PortalLanding portal={portal} />
-              </Suspense>
-            }
-          />
-          <Route
-            path="*"
-            element={
-              <Suspense fallback={<PortalSkeleton />}>
-                <PortalContent portal={portal} />
-              </Suspense>
-            }
-          />
-        </Routes>
-      </div>
-    </div>
   );
 }

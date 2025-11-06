@@ -71,7 +71,7 @@ export default function PortalList() {
       {/* Header - SPEC-MS-UI-002: Breadcrumb navigation */}
       <div className="mb-8">
         <nav className="text-sm text-muted-foreground mb-2">
-          <Link to="/" className="hover:text-foreground">Setup</Link>
+          <Link to="/setup" className="hover:text-foreground">Setup</Link>
           {' > '}
           <span>Portals</span>
         </nav>
@@ -83,7 +83,7 @@ export default function PortalList() {
             </p>
           </div>
           {/* SPEC-MS-UI-007: Button to create new portal */}
-          <Link to="/portals/new">
+          <Link to="new">
             <Button>
               <Plus className="h-4 w-4 mr-2" />
               New Portal

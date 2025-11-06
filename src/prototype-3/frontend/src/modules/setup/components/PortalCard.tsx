@@ -109,7 +109,7 @@ export default function PortalCard({ portal, onDelete }: PortalCardProps) {
       {/* Portal Actions - SPEC-MS-UI-008 */}
       <div className="flex gap-2">
         {/* Edit Portal */}
-        <Link to={`/portals/${portal.portalId}`} className="flex-1">
+        <Link to={portal.portalId} className="flex-1">
           <Button variant="secondary" className="w-full text-sm px-3 py-2">
             <Edit className="h-4 w-4 mr-1" />
             Edit
@@ -117,7 +117,7 @@ export default function PortalCard({ portal, onDelete }: PortalCardProps) {
         </Link>
 
         {/* Manage Modules */}
-        <Link to={`/portals/${portal.portalId}/modules`} className="flex-1">
+        <Link to={`${portal.portalId}/modules`} className="flex-1">
           <Button variant="secondary" className="w-full text-sm px-3 py-2">
             <Package className="h-4 w-4 mr-1" />
             Modules
