@@ -325,7 +325,7 @@ body {
 }
 
 .heading-item.h2 .accordion-header {
-  background-color: var(--vscode-list-activeSelectionBackground);
+  background-color: var(--vscode-button-background);
   font-weight: 600;
   padding: 4px 8px;
   border-left-color: var(--vscode-focusBorder);
@@ -366,7 +366,7 @@ body {
 
 /* Task nível 2+ (aninhada) - fundo diferenciado */
 .task-item[data-has-children="true"] .accordion-content .task-item .accordion-header {
-  background-color: color-mix(in srgb, var(--vscode-sideBar-background) 70%, var(--vscode-editor-background)) !important;
+  background-color: color-mix(in srgb, var(--vscode-sideBar-background) 30%, var(--vscode-editor-background)) !important;
 }
 
 .task-item .accordion-header:hover {

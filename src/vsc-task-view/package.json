@@ -2,7 +2,7 @@
   "name": "plan-monitor",
   "displayName": "Plan Monitor",
   "description": "Visualize PLAN*.md checklist files in sidebar",
-  "version": "0.11.8",
+  "version": "0.11.12",
   "publisher": "codr-studio",
   "license": "MIT",
   "repository": {
