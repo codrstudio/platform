@@ -115,32 +115,32 @@
 ### SISTEMA 1.3: Autenticação ✅
 
 #### Componente: Auth Endpoints Backend
-- [ ] Implementar /api/1/auth/login  
+- [x] Implementar /api/1/auth/login
   Refs: SPEC-authentication.md (SPEC-AU-LO-*)
 
-- [ ] Implementar /api/1/auth/refresh  
+- [x] Implementar /api/1/auth/refresh
   Refs: SPEC-authentication.md (SPEC-AU-RE-*)
 
-- [ ] Implementar /api/1/auth/logout  
+- [x] Implementar /api/1/auth/logout
   Refs: SPEC-authentication.md (SPEC-AU-LGT-*)
 
-- [ ] Implementar /api/1/auth/logout-all  
+- [x] Implementar /api/1/auth/logout-all
   Refs: SPEC-authentication.md (SPEC-AU-LA-*)
 
 - [ ] Implementar /api/1/auth/authorize  
   Refs: SPEC-authentication.md (SPEC-AU-AZ-*)
 
 #### Componente: Token Management
-- [ ] Implementar geração de JWT  
+- [x] Implementar geração de JWT
   Refs: SPEC-authentication.md (SPEC-AU-LO-013:016)
 
-- [ ] Implementar rotação de refresh tokens  
+- [x] Implementar rotação de refresh tokens
   Refs: SPEC-authentication.md (SPEC-AU-RE-012:015)
 
-- [ ] Implementar detecção de reuso de tokens  
+- [x] Implementar detecção de reuso de tokens
   Refs: SPEC-authentication.md (SPEC-AU-RE-016:021)
 
-- [ ] Implementar revogação de tokens  
+- [x] Implementar revogação de tokens
   Refs: SPEC-authentication.md (SPEC-AU-LGT-006:007)
 
 #### Componente: Auth Context Frontend

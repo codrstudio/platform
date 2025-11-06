@@ -1,6 +1,7 @@
 // Import environment configuration FIRST (loads dotenv)
 import { config } from './config/env.js';
 import app from './app.js';
+import { redisService } from './services/redis.service.js';
 import http from 'http';
 
 /**
@@ -26,14 +27,20 @@ server.listen(config.port, () => {
  * Graceful shutdown handler
  * Handles SIGTERM and SIGINT signals
  */
-const gracefulShutdown = (signal: string) => {
+const gracefulShutdown = async (signal: string) => {
   console.log(`\n⚠️  Received ${signal}, initiating graceful shutdown...`);
 
   // Stop accepting new connections
-  server.close(() => {
+  server.close(async () => {
     console.log('✅ Server closed successfully');
 
-    // Close other connections (Redis, etc.) here in future tasks
+    // Close Redis connection
+    try {
+      await redisService.disconnect();
+      console.log('✅ Redis connection closed');
+    } catch (error) {
+      console.error('❌ Error closing Redis connection:', error);
+    }
 
     process.exit(0);
   });

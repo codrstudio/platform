@@ -4,7 +4,9 @@ import { corsMiddleware } from './middleware/cors.middleware.js';
 import { getSecurityMiddleware } from './middleware/security.middleware.js';
 import { loggerMiddleware } from './middleware/logger.middleware.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.middleware.js';
+import { redisService } from './services/redis.service.js';
 import healthRoutes from './routes/health.routes.js';
+import authRoutes from './routes/auth.routes.js';
 
 /**
  * Create and configure Express application
@@ -42,14 +44,26 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(compression());
 
 // ============================================
+// SERVICES INITIALIZATION
+// ============================================
+
+// Initialize Redis connection (lazy - will connect on first use)
+redisService.connect().catch((error) => {
+  console.error('❌ Failed to connect to Redis:', error);
+  console.warn('⚠️  Token rotation and reuse detection will not work without Redis');
+});
+
+// ============================================
 // ROUTES
 // ============================================
 
 // Health check endpoint
 app.use('/api', healthRoutes);
 
+// Authentication routes (Task 1.3)
+app.use('/api/1/auth', authRoutes);
+
 // Future routes will be mounted here:
-// app.use('/api/1/auth', authRoutes);       // Task 1.3 - Authentication
 // app.use('/api/jqel', jqelRoutes);         // Task 1.4 - JQEL processor
 // app.use('/api/events', eventsRoutes);     // Task 1.5 - SSE events
 
