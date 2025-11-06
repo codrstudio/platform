@@ -9,7 +9,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
+      includeAssets: ['robots.txt'],
       manifest: {
         name: 'Codr Platform',
         short_name: 'Codr',
@@ -18,24 +18,9 @@ export default defineConfig({
         background_color: '#ffffff',
         display: 'standalone',
         start_url: '/',
-        icons: [
-          {
-            src: '/icon-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: '/icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          },
-          {
-            src: '/icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
-          }
-        ]
+        // Icons will be added in production
+        // For now, use icon.svg as fallback
+        icons: []
       },
       workbox: {
         // Cache-first for static assets (SPEC-A-PWA-008)
@@ -116,42 +101,94 @@ export default defineConfig({
     }
   },
   server: {
-    port: 5173,
+    port: 3400,
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'http://localhost:3000',
+        target: process.env.VITE_API_URL || 'http://localhost:3443',
         changeOrigin: true
       }
     }
   },
   build: {
+    // SPEC-A-LL-010: Tree-shaking to eliminate unused code
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.log in production
+        drop_debugger: true,
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks(id) {
-          // Separate vendor chunks for better caching
+          // SPEC-A-LL-008: Vendor chunks for better caching
+          // SPEC-R-PE-001: Each module as separate chunk
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
+            // React core (most stable, cache longest)
+            if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
               return 'vendor-react';
             }
+            // React Router (routing, relatively stable)
+            if (id.includes('react-router')) {
+              return 'vendor-router';
+            }
+            // TanStack Query (data fetching)
             if (id.includes('@tanstack')) {
               return 'vendor-tanstack';
             }
+            // UI components (shadcn/ui dependencies)
             if (id.includes('lucide-react')) {
               return 'vendor-icons';
             }
+            if (id.includes('class-variance-authority') || id.includes('clsx') || id.includes('tailwind-merge')) {
+              return 'vendor-ui';
+            }
+            // Form libraries
+            if (id.includes('react-hook-form') || id.includes('zod') || id.includes('@hookform')) {
+              return 'vendor-forms';
+            }
+            // Everything else
             return 'vendor';
           }
-          // Separate module chunks (SPEC-A-LL-004, SPEC-A-LL-008)
+
+          // SPEC-A-LL-004: Separate module chunks
+          // Future modules will be split automatically
           if (id.includes('/modules/')) {
             const moduleName = id.split('/modules/')[1]?.split('/')[0];
             if (moduleName) {
               return `module-${moduleName}`;
             }
           }
+
+          // SPEC-R-PE-004: Lazy-loaded pages as separate chunks
+          if (id.includes('/pages/')) {
+            const pageName = id.split('/pages/')[1]?.split('.')[0];
+            if (pageName) {
+              return `page-${pageName}`;
+            }
+          }
+
+          // Core routing components
+          if (id.includes('/core/routing/')) {
+            return 'core-routing';
+          }
+
+          // Services layer
+          if (id.includes('/services/')) {
+            return 'core-services';
+          }
+
+          // Auth components and providers
+          if (id.includes('/providers/') || id.includes('/components/auth/')) {
+            return 'core-auth';
+          }
         }
       }
     },
-    // Target bundle size (SPEC-A-LL-007)
-    chunkSizeWarningLimit: 500
+    // SPEC-A-LL-007: Target bundle size < 200KB initial
+    // SPEC-A-LL-009: Module chunks < 500KB
+    chunkSizeWarningLimit: 500,
+    // Enable code splitting for better loading
+    cssCodeSplit: true,
   }
 });
