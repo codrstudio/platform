@@ -274,6 +274,10 @@ function markTaskDescendants(items: HierarchyItem[]): boolean {
       // This is a task
       item.hasTaskDescendants = true;
       hasAnyTasks = true;
+      // Tasks can have children (subtasks) - mark them too
+      if (item.children.length > 0) {
+        markTaskDescendants(item.children);
+      }
     } else if (item.children.length > 0) {
       // This is a heading with children - check recursively
       const childrenHaveTasks = markTaskDescendants(item.children);

@@ -2,7 +2,7 @@
   "name": "plan-monitor",
   "displayName": "Plan Monitor",
   "description": "Visualize PLAN*.md checklist files in sidebar",
-  "version": "0.8.0",
+  "version": "0.9.6",
   "publisher": "codr-studio",
   "engines": {
     "vscode": "^1.75.0"

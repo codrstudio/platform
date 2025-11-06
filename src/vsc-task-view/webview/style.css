@@ -155,7 +155,7 @@ body {
 .accordion-header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 3px 8px;
   cursor: pointer;
   transition: background-color 0.1s ease;
@@ -166,26 +166,77 @@ body {
   background-color: var(--vscode-list-hoverBackground);
 }
 
-.accordion-header .status-icon {
+/* Checkbox customizado */
+.checkbox {
+  width: 16px;
+  height: 16px;
   min-width: 16px;
-  text-align: center;
+  border: 1.5px solid var(--vscode-descriptionForeground);
+  border-radius: 3px;
+  display: inline-block;
+  position: relative;
+  background-color: transparent;
 }
 
-.accordion-header .heading-text,
-.accordion-header .task-text {
-  flex: 1;
-  word-break: break-word;
+.checkbox.checked {
+  background-color: var(--vscode-testing-iconPassed, #73C991);
+  border-color: var(--vscode-testing-iconPassed, #73C991);
 }
 
-.accordion-header .expand-icon {
-  min-width: 16px;
-  text-align: center;
-  color: var(--vscode-descriptionForeground);
-  user-select: none;
+.checkbox.checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.checkbox.partial {
+  background-color: var(--vscode-testing-iconQueued, #CCA700);
+  border-color: var(--vscode-testing-iconQueued, #CCA700);
+}
+
+.checkbox.partial::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 6px;
+  width: 8px;
+  height: 2px;
+  background-color: white;
+}
+
+.checkbox.unchecked {
+  border-color: var(--vscode-descriptionForeground);
   opacity: 0.6;
 }
 
-/* Heading styles - using accent color with varying opacity */
+/* Texto sem wrap e com ellipsis */
+.accordion-header .heading-text,
+.accordion-header .task-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Link icon - aparece só no hover */
+.link-icon {
+  min-width: 16px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  color: var(--vscode-descriptionForeground);
+}
+
+.accordion-header:hover .link-icon {
+  opacity: 1;
+}
+
+/* Heading styles - using accent color with varying opacity - SEM INDENTAÇÃO */
 .heading-item.h2 .accordion-header {
   background-color: var(--vscode-list-activeSelectionBackground);
   font-weight: 600;
@@ -200,7 +251,7 @@ body {
 .heading-item.h3 .accordion-header {
   background-color: color-mix(in srgb, var(--vscode-list-activeSelectionBackground) 60%, transparent);
   font-weight: 600;
-  padding: 4px 8px 4px 20px;
+  padding: 4px 8px;
   border-left-color: color-mix(in srgb, var(--vscode-focusBorder) 60%, transparent);
 }
 
@@ -211,7 +262,7 @@ body {
 .heading-item.h4 .accordion-header {
   background-color: color-mix(in srgb, var(--vscode-list-activeSelectionBackground) 30%, transparent);
   font-weight: 500;
-  padding: 3px 8px 3px 32px;
+  padding: 3px 8px;
   border-left-color: color-mix(in srgb, var(--vscode-focusBorder) 30%, transparent);
 }
 
@@ -219,26 +270,20 @@ body {
   background-color: var(--vscode-list-hoverBackground);
 }
 
-/* Task item styling - subtle background variations */
+/* Task item styling - SEM INDENTAÇÃO - Fundo do VSCodium */
 .task-item .accordion-header {
-  padding: 2px 8px 2px 44px;
-  background-color: transparent;
+  padding: 2px 8px;
+  background-color: var(--vscode-sideBar-background) !important;
   font-size: 0.95em;
+}
+
+/* Task nível 2+ (aninhada) - fundo levemente mais claro */
+.task-item[data-has-children="true"] .accordion-content .task-item .accordion-header {
+  background-color: color-mix(in srgb, var(--vscode-sideBar-background) 98%, var(--vscode-foreground)) !important;
 }
 
 .task-item .accordion-header:hover {
   background-color: var(--vscode-list-hoverBackground);
-}
-
-/* Task with children (level 1) */
-.task-item.has-children .accordion-header {
-  background-color: color-mix(in srgb, var(--vscode-sideBar-background) 95%, var(--vscode-foreground));
-}
-
-/* Nested task (level 2+) */
-.task-item.nested .accordion-header {
-  padding-left: 56px;
-  background-color: color-mix(in srgb, var(--vscode-sideBar-background) 97%, var(--vscode-foreground));
 }
 
 /* Task state colors */

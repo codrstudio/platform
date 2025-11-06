@@ -51,10 +51,10 @@ function renderPlan(plan) {
       <h2>${escapeHtml(plan.title)}</h2>
       <p class="subtitle">${escapeHtml(plan.subtitle)}</p>
       <div class="stats">
-        <span class="pending">📝 ${plan.stateCount.pending} pending</span>
-        <span class="done">✅ ${plan.stateCount.done} done</span>
-        <span class="in-progress">🔄 ${plan.stateCount.inProgress} in progress</span>
-        <span class="blocked">⚠️ ${plan.stateCount.blocked} blocked</span>
+        <span class="pending">${plan.stateCount.pending} pending</span>
+        <span class="done">${plan.stateCount.done} done</span>
+        <span class="in-progress">${plan.stateCount.inProgress} in progress</span>
+        <span class="blocked">${plan.stateCount.blocked} blocked</span>
       </div>
     </div>
     <div class="task-list">
@@ -118,15 +118,14 @@ function renderTaskList(items, level = 0) {
 
     if (isHeading) {
       // Render heading in accordion style
-      const { icon: statusIcon, class: statusClass } = getAggregatedStatusIcon(item.aggregatedStatus);
-      const expandIcon = hasChildren ? (isExpanded ? 'chevron-down' : 'chevron-right') : '';
+      const checkboxClass = getCheckboxClass(item.aggregatedStatus);
 
       return `
-        <div class="accordion-item heading-item h${item.level}" data-type="heading" data-id="${escapeHtml(item.id)}" data-status="${item.aggregatedStatus || 'pending'}">
-          <div class="accordion-header" data-line="${item.line}" data-file="${escapeHtml(currentPlan.filePath)}">
-            <span class="status-icon ${statusClass}"><i class="codicon codicon-${statusIcon}"></i></span>
+        <div class="accordion-item heading-item h${item.level}" data-type="heading" data-id="${escapeHtml(item.id)}" data-status="${item.aggregatedStatus || 'pending'}" ${hasChildren ? `data-has-children="true"` : ''}>
+          <div class="accordion-header" data-id="${escapeHtml(item.id)}">
+            <span class="checkbox ${checkboxClass}"></span>
             <span class="heading-text">${escapeHtml(item.text)}</span>
-            ${expandIcon ? `<span class="expand-icon" data-id="${escapeHtml(item.id)}"><i class="codicon codicon-${expandIcon}"></i></span>` : ''}
+            <span class="link-icon" data-line="${item.line}" data-file="${escapeHtml(currentPlan.filePath)}">🔗</span>
           </div>
           ${hasChildren && isExpanded ? `
             <div class="accordion-content">
@@ -137,24 +136,14 @@ function renderTaskList(items, level = 0) {
       `;
     } else if (isTask) {
       // Render task
-      const { icon: statusIcon, class: statusClass } = getStateIcon(item.state);
-      const expandIcon = hasChildren ? (isExpanded ? 'chevron-down' : 'chevron-right') : '';
-
-      // Determine task classes based on hierarchy
-      const taskClasses = ['accordion-item', 'task-item'];
-      if (hasChildren) {
-        taskClasses.push('has-children');
-      }
-      if (level > 0) {
-        taskClasses.push('nested');
-      }
+      const checkboxClass = getCheckboxClass(item.state, hasChildren ? item.aggregatedStatus : null);
 
       return `
-        <div class="${taskClasses.join(' ')}" data-state="${item.state}" data-type="task" data-id="${escapeHtml(item.id)}">
-          <div class="accordion-header task-header" data-line="${item.line}" data-file="${escapeHtml(currentPlan.filePath)}">
-            <span class="status-icon ${statusClass}"><i class="codicon codicon-${statusIcon}"></i></span>
+        <div class="accordion-item task-item" data-state="${item.state}" data-type="task" data-id="${escapeHtml(item.id)}" ${hasChildren ? `data-has-children="true"` : ''}>
+          <div class="accordion-header task-header" data-id="${escapeHtml(item.id)}">
+            <span class="checkbox ${checkboxClass}"></span>
             <span class="task-text">${escapeHtml(item.text)}</span>
-            ${expandIcon ? `<span class="expand-icon" data-id="${escapeHtml(item.id)}"><i class="codicon codicon-${expandIcon}"></i></span>` : ''}
+            <span class="link-icon" data-line="${item.line}" data-file="${escapeHtml(currentPlan.filePath)}">🔗</span>
           </div>
           ${hasChildren && isExpanded ? `
             <div class="accordion-content">
@@ -170,37 +159,30 @@ function renderTaskList(items, level = 0) {
 }
 
 /**
- * Gets icon for aggregated status (headings)
- * Returns { icon: 'codicon-name', class: 'css-class' }
+ * Gets checkbox class based on status
+ * @param {string} state - Task state or aggregated status
+ * @param {string} aggregatedStatus - Aggregated status for tasks with children
+ * @returns {string} CSS class for checkbox
  */
-function getAggregatedStatusIcon(status) {
-  switch (status) {
-    case 'done':
-      return { icon: 'pass-filled', class: 'status-done' };
-    case 'partial':
-      return { icon: 'circle-large-outline', class: 'status-partial' };
-    case 'pending':
-    default:
-      return { icon: 'circle-large-outline', class: 'status-pending' };
+function getCheckboxClass(state, aggregatedStatus = null) {
+  // If task has children, use aggregated status
+  if (aggregatedStatus) {
+    if (aggregatedStatus === 'done') return 'checked';
+    if (aggregatedStatus === 'partial') return 'partial';
+    return 'unchecked';
   }
-}
 
-/**
- * Gets icon for task state
- * Returns { icon: 'codicon-name', class: 'css-class' }
- */
-function getStateIcon(state) {
+  // Regular task or heading
   switch (state) {
-    case 'pending':
-      return { icon: 'circle-outline', class: 'status-pending' };
     case 'done':
-      return { icon: 'pass-filled', class: 'status-done' };
+      return 'checked';
+    case 'partial':
+      return 'partial';
+    case 'pending':
     case 'in-progress':
-      return { icon: 'sync', class: 'status-in-progress' };
     case 'blocked':
-      return { icon: 'error', class: 'status-blocked' };
     default:
-      return { icon: 'circle-outline', class: 'status-pending' };
+      return 'unchecked';
   }
 }
 
@@ -208,13 +190,32 @@ function getStateIcon(state) {
  * Attaches event handlers to interactive elements
  */
 function attachHandlers() {
-  // Click to navigate (both tasks and headings)
+  // Click on header to toggle (expand/collapse)
   document.querySelectorAll('.accordion-header').forEach(el => {
     el.addEventListener('click', (e) => {
-      // Don't navigate if clicking on expand icon
-      if (e.target.classList.contains('expand-icon')) {
+      // Don't toggle if clicking on link icon
+      if (e.target.closest('.link-icon')) {
         return;
       }
+
+      const itemId = el.dataset.id;
+      const hasChildren = el.parentElement.dataset.hasChildren === 'true';
+
+      if (hasChildren && itemId) {
+        if (expandedSections.has(itemId)) {
+          expandedSections.delete(itemId);
+        } else {
+          expandedSections.add(itemId);
+        }
+        renderPlan(currentPlan);
+      }
+    });
+  });
+
+  // Double-click on link icon to navigate to file
+  document.querySelectorAll('.link-icon').forEach(el => {
+    el.addEventListener('dblclick', (e) => {
+      e.stopPropagation();
 
       const line = parseInt(el.dataset.line);
       const file = el.dataset.file;
@@ -224,24 +225,6 @@ function attachHandlers() {
         filePath: file,
         line: line
       });
-    });
-  });
-
-  // Toggle sections with expand icon
-  document.querySelectorAll('.expand-icon').forEach(el => {
-    const itemId = el.dataset.id;
-    if (!itemId) return;
-
-    el.addEventListener('click', (e) => {
-      e.stopPropagation();
-
-      if (expandedSections.has(itemId)) {
-        expandedSections.delete(itemId);
-      } else {
-        expandedSections.add(itemId);
-      }
-
-      renderPlan(currentPlan);
     });
   });
 }
