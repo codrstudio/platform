@@ -162,7 +162,7 @@
 
 ---
 
-### SISTEMA 1.4: Acesso a Dados (JQEL)
+### SISTEMA 1.4: Acesso a Dados (JQEL) ✅
 
 #### Componente: JQEL Endpoint
 - [x] Criar /api/jqel no backend
@@ -191,59 +191,70 @@
 - [x] Criar hooks useJQELMutation
   Refs: SPEC-data-access.md (SPEC-DA-MU-001:012)
 
-- [ ] Implementar invalidação de cache  
+- [x] Implementar invalidação de cache
   Refs: SPEC-data-access.md (SPEC-DA-IN-001:008)
 
-- [ ] Implementar optimistic updates  
+- [x] Implementar optimistic updates
   Refs: SPEC-data-access.md (SPEC-DA-OP-001:009)
 
 #### Componente: Error Handling
-- [ ] Implementar retry logic  
+- [x] Implementar retry logic
   Refs: SPEC-data-access.md (SPEC-DA-ERR-004:005)
 
-- [ ] Implementar error boundaries  
+- [x] Implementar error boundaries
   Refs: SPEC-data-access.md (SPEC-DA-ERR-006:008)
 
 ---
 
-### SISTEMA 1.5: Eventos em Tempo Real ✅
+### SISTEMA 1.5: Eventos em Tempo Real ✅ CONCLUÍDO
 
 #### Componente: SSE Server
-- [ ] Criar endpoint /api/events (SSE)  
+- [x] Criar endpoint /api/events (SSE)
   Refs: SPEC-events.md (SPEC-EV-SSE-001:016)
+  Status: ✅ CONCLUÍDO - Task 1.5.1
 
-- [ ] Implementar heartbeat e keepalive  
+- [x] Implementar heartbeat e keepalive
   Refs: SPEC-events.md (SPEC-EV-SSE-010:012)
+  Status: ✅ CONCLUÍDO - Task 1.5.2 (integrado no SSE service)
 
-- [ ] Implementar reconnection automática  
+- [x] Implementar reconnection automática
   Refs: SPEC-events.md (SPEC-EV-SSE-013:016)
+  Status: ✅ CONCLUÍDO - Task 1.5.3 (suporte via Last-Event-ID)
 
 #### Componente: Redis Integration
-- [ ] Configurar Redis Pub/Sub  
+- [x] Configurar Redis Pub/Sub
   Refs: SPEC-events.md (SPEC-EV-PS-001:010)
+  Status: ✅ CONCLUÍDO - Task 1.5.4
 
-- [ ] Configurar Redis Streams para buffering  
+- [x] Configurar Redis Streams para buffering
   Refs: SPEC-events.md (SPEC-EV-ST-001:013)
+  Status: ✅ CONCLUÍDO - Task 1.5.5
 
-- [ ] Implementar recuperação offline  
+- [x] Implementar recuperação offline
   Refs: SPEC-events.md (SPEC-EV-OF-001:010)
+  Status: ✅ CONCLUÍDO - Task 1.5.6
 
 #### Componente: Event Types
-- [ ] Implementar Notification events  
+- [x] Implementar Notification events
   Refs: SPEC-events.md (SPEC-EV-NO-001:009)
+  Status: ✅ CONCLUÍDO - Task 1.5.7
 
-- [ ] Implementar Task events  
+- [x] Implementar Task events
   Refs: SPEC-events.md (SPEC-EV-TA-001:010)
+  Status: ✅ CONCLUÍDO - Task 1.5.8
 
 #### Componente: Frontend SSE Client
-- [ ] Criar EventSource connection manager  
+- [x] Criar EventSource connection manager
   Refs: SPEC-events.md (SPEC-EV-FE-001:007)
+  Status: ✅ CONCLUÍDO - Task 1.5.9
 
-- [ ] Implementar event handlers  
+- [x] Implementar event handlers
   Refs: SPEC-events.md (SPEC-EV-FE-008:012)
+  Status: ✅ CONCLUÍDO - Task 1.5.10
 
-- [ ] Integrar com TanStack Query (invalidação)  
+- [x] Integrar com TanStack Query (invalidação)
   Refs: SPEC-events.md (SPEC-EV-FE-013:016)
+  Status: ✅ CONCLUÍDO - Task 1.5.11
 
 ---
 

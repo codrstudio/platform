@@ -192,6 +192,121 @@ platform/
 
 **Note**: Each prototype in `src/` is a completely independent implementation experiment. Refer to each prototype's PLAN.md for its specific structure and approach.
 
+### Prototype-2 Architecture (Current Active)
+
+Prototype-2 implements a **Registry-Based Module System** with the following structure:
+
+**Frontend Architecture**:
+```
+src/prototype-2/frontend/src/
+├── core/
+│   ├── routing/           # Portal and module routing system
+│   │   ├── PortalRouter.tsx          # Main router with portal isolation
+│   │   ├── PortalLoader.tsx          # Lazy loads portal configurations
+│   │   ├── registerRoutes.ts         # Dynamic route registration
+│   │   ├── prefixRoutes.ts           # Auto-prefix module routes per portal
+│   │   ├── lazyRoute.ts              # Lazy loading utilities
+│   │   └── ProtectedRoute.tsx        # Authentication guard
+│   └── modules/           # Module loading and registry
+│       ├── ModuleRegistry.ts         # Central module registration
+│       └── ModuleLoader.ts           # Module lifecycle management
+├── modules/               # Actual modules (lazy-loaded)
+│   └── setup/            # Setup module example
+│       ├── manifest.ts               # Module metadata
+│       ├── routes.ts                 # Module route definitions
+│       ├── pages/                    # Module pages
+│       └── index.ts                  # Module entry point
+├── services/
+│   ├── auth/             # Authentication (JWT + token rotation)
+│   │   ├── authClient.ts             # Auth API calls
+│   │   ├── tokenStorage.ts           # Secure token storage
+│   │   └── storageStrategies.ts      # localStorage + sessionStorage
+│   └── jqel/             # JQEL data access layer
+│       ├── client.ts                 # Core JQEL HTTP client
+│       ├── errors.ts                 # JQELError with helpers
+│       ├── queryKeys.ts              # Hierarchical query key factories
+│       ├── mutations.ts              # Insert/update/delete operations
+│       ├── invalidation.ts           # Smart cache invalidation
+│       └── hooks/                    # TanStack Query integration
+│           ├── useJQELQuery.ts       # Query hook with retry logic
+│           ├── useInsert.ts          # Insert mutation
+│           ├── useUpdate.ts          # Update mutation
+│           └── useDelete.ts          # Delete mutation
+├── hooks/
+│   ├── jqel/             # Optimistic update hooks
+│   │   ├── useOptimisticMutation.ts  # Base optimistic mutation
+│   │   ├── optimisticHelpers.ts      # Snapshot/rollback utilities
+│   │   └── usePortalMutations.ts     # Portal-specific mutations
+│   ├── useModuleLoader.ts            # Module loading hook
+│   └── usePortalConfig.ts            # Portal configuration hook
+├── components/
+│   ├── error/            # Error boundaries and fallbacks
+│   │   ├── ErrorBoundary.tsx         # Generic error boundary
+│   │   ├── JQELErrorBoundary.tsx     # JQEL-specific boundary
+│   │   ├── ErrorFallback.tsx         # Full-page error UI
+│   │   ├── InlineErrorFallback.tsx   # Inline error UI
+│   │   └── MinimalErrorFallback.tsx  # Minimal error UI
+│   ├── loading/          # Loading states
+│   └── common/           # Shared components
+├── providers/
+│   └── AuthProvider.tsx  # Auth context with token management
+└── types/                # TypeScript definitions
+    ├── auth.ts           # Authentication types
+    ├── jqel.ts           # JQEL query/response types
+    ├── module.ts         # Module manifest types
+    ├── portal.ts         # Portal configuration types
+    ├── routing.ts        # Route definition types
+    ├── errorBoundary.ts  # Error boundary types
+    └── optimistic.ts     # Optimistic update types
+```
+
+**Backend Architecture**:
+```
+src/prototype-2/backend/src/
+├── routes/
+│   ├── auth.routes.ts    # Proxy to n8n auth workflows
+│   ├── jqel.routes.ts    # JQEL endpoint (POST /api/jqel)
+│   └── health.routes.ts  # Health check endpoint
+├── services/
+│   ├── n8nProxy.service.ts           # HTTP proxy to n8n Backbone
+│   ├── jqelProcessor.service.ts      # Main JQEL query processor
+│   ├── jqelRouter.service.ts         # Schema-based routing logic
+│   ├── backendProcessor.service.ts   # File-based CRUD for backend schema
+│   ├── jwt.service.ts                # JWT validation
+│   ├── redis.service.ts              # Redis client wrapper
+│   ├── tokenRotation.service.ts      # Token rotation logic
+│   ├── rateLimiter.service.ts        # Rate limiting
+│   └── bruteForceProtection.service.ts  # Login attempt tracking
+├── middleware/
+│   ├── jqelValidation.middleware.ts  # JQEL query validation
+│   ├── bruteForce.middleware.ts      # Brute force protection
+│   ├── rateLimit.middleware.ts       # Rate limiting
+│   ├── errorHandler.middleware.ts    # Global error handler
+│   ├── cors.middleware.ts            # CORS configuration
+│   ├── security.middleware.ts        # Helmet security headers
+│   └── logger.middleware.ts          # Morgan HTTP logging
+├── types/
+│   ├── jqel.types.ts     # JQEL query/response types
+│   ├── auth.types.ts     # Auth-related types
+│   └── bruteForce.types.ts  # Brute force types
+├── config/
+│   ├── env.ts            # Environment variable loading
+│   ├── portals.json      # Portal configurations (backend schema)
+│   ├── modules.json      # Module configurations (backend schema)
+│   └── instances.json    # Instance configurations (backend schema)
+└── app.ts                # Express app configuration
+```
+
+**Key Implementation Patterns**:
+
+1. **Module Registration**: Modules register themselves in `ModuleRegistry` with manifest metadata
+2. **Dynamic Routes**: Module routes are registered at runtime and prefixed per portal
+3. **Schema Routing**: JQEL queries route based on schema (backend → local files, platform → n8n)
+4. **Error Isolation**: Three-level error boundaries (Global → Portal → Module)
+5. **Token Rotation**: Automatic JWT renewal with exponential backoff retry
+6. **Optimistic Updates**: Snapshot-based rollback on mutation failure
+7. **Cache Invalidation**: Three-tier scoping (specific → entity → schema)
+
 ## Key Rules & Constraints
 
 ### Data Access
@@ -340,22 +455,94 @@ The platform MUST be a fully functional PWA:
 
 ## Development Commands
 
-**IMPORTANT**: Each prototype has its own setup and commands. Refer to the specific prototype's PLAN.md or README for:
-- How to install dependencies
-- How to run development servers
-- Environment configuration
-- Build commands
-- Testing commands
+### Prototype-2 Commands (Current Active Prototype)
 
-**Do NOT assume** all prototypes use the same commands or structure.
+**Frontend** (`src/prototype-2/frontend`):
+```bash
+npm install          # Install dependencies
+npm run dev          # Start dev server (http://localhost:5173)
+npm run build        # Build for production (TypeScript + Vite)
+npm run preview      # Preview production build
+npm run type-check   # Check TypeScript types only (no build)
+npm run lint         # Run ESLint
+```
+
+**Backend** (`src/prototype-2/backend`):
+```bash
+npm install          # Install dependencies
+npm run dev          # Start with hot-reload (nodemon + ts-node)
+npm run build        # Compile TypeScript to dist/
+npm start            # Run compiled code from dist/
+npm run type-check   # Check TypeScript types only (no build)
+npm run lint         # Run ESLint
+```
+
+**Required Services**:
+- Redis server must be running (default: localhost:6379)
+- n8n instance must be accessible (configure N8N_WEBHOOK_BASE_URL in backend .env)
+
+**Environment Setup**:
+```bash
+# Frontend
+cd src/prototype-2/frontend
+cp .env.example .env  # Edit VITE_API_URL if needed
+
+# Backend
+cd src/prototype-2/backend
+cp .env.example .env  # Configure N8N_WEBHOOK_BASE_URL, REDIS_URL, JWT_SECRET
+```
+
+### Other Prototypes
+
+**IMPORTANT**: Each prototype has its own setup and commands. Refer to the specific prototype's PLAN.md or README for commands. **Do NOT assume** all prototypes use the same structure.
 
 ## Testing & Validation
 
-**IMPORTANT**: Each prototype has its own testing approach and validation procedures. Refer to the specific prototype's PLAN.md for:
-- Testing strategy and commands
-- Manual testing procedures
-- Build validation steps
-- Performance targets
+### Prototype-2 Validation Commands
+
+**Quick Validation** (run before committing):
+```bash
+# Frontend
+cd src/prototype-2/frontend
+npm run type-check    # TypeScript type checking (fast, no build)
+npm run build         # Full production build
+
+# Backend
+cd src/prototype-2/backend
+npm run type-check    # TypeScript type checking (fast, no build)
+npm run build         # Compile TypeScript to dist/
+```
+
+**Development Validation** (verify dev servers work):
+```bash
+# Terminal 1 - Start Redis (required)
+redis-server
+
+# Terminal 2 - Start Backend
+cd src/prototype-2/backend
+npm run dev
+
+# Terminal 3 - Start Frontend
+cd src/prototype-2/frontend
+npm run dev
+
+# Verify:
+# - Backend: http://localhost:3000/health
+# - Frontend: http://localhost:5173
+# - No console errors in either terminal
+```
+
+**Manual Testing Checklist**:
+- [ ] Frontend builds without errors (`npm run build`)
+- [ ] Backend compiles without errors (`npm run build`)
+- [ ] Dev servers start without crashes
+- [ ] Health endpoint returns 200 (`curl http://localhost:3000/health`)
+- [ ] No TypeScript errors (`npm run type-check` in both frontend/backend)
+- [ ] Browser console has no errors on page load
+
+### Other Prototypes
+
+**IMPORTANT**: Each prototype has its own testing approach. Refer to the specific prototype's PLAN.md for testing procedures.
 
 ### General Validation Targets (apply to all prototypes)
 
