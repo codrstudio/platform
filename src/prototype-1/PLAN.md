@@ -124,12 +124,12 @@
   - [x] Validação WCAG AA de contraste
   - [x] CSS custom properties
 
-- [ ] **Cache Strategy** - Service Worker (PWA)
-  - [ ] Network-first para HTML (requisições de navegação)
-  - [ ] HTML não incluído no precache do Service Worker
-  - [ ] Cache-Control: no-cache para respostas HTML
-  - [ ] Cache-first para assets (JS, CSS, imagens, fontes)
-  - [ ] Fallback offline para navegação
+- [x] **Cache Strategy** - Service Worker (PWA)
+  - [x] Network-first para HTML (requisições de navegação)
+  - [x] HTML não incluído no precache do Service Worker
+  - [x] Cache-Control: no-cache para respostas HTML
+  - [x] Cache-first para assets (JS, CSS, imagens, fontes)
+  - [x] Fallback offline para navegação
 
 ### 1.7 Configuração
 - [x] **SPEC-configuration.md** - Gestão de Configuração

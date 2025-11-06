@@ -21,6 +21,7 @@ import {
   authRateLimiter,
   jqelRateLimiter,
 } from './middleware/rateLimiter.middleware.js';
+import { cacheControlMiddleware } from './middleware/cacheControl.middleware.js';
 
 // Routes
 import authRoutes from './routes/auth.routes.js';
@@ -57,6 +58,13 @@ app.use(cors(getCorsConfig()));
  */
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+/**
+ * Cache Control Middleware
+ * SPEC-A-PWA-027: Set Cache-Control: no-cache for HTML
+ * SPEC-A-PWA-029: Set Cache-Control: immutable for hashed assets
+ */
+app.use(cacheControlMiddleware);
 
 /**
  * Request Logging Middleware
