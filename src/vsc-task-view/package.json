@@ -55,7 +55,7 @@
     "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
     "compile": "npm run esbuild-base -- --sourcemap",
     "watch": "npm run esbuild-base -- --sourcemap --watch",
-    "package": "npx vsce@2.15.0 package",
+    "package": "TZ=UTC npx vsce@2.15.0 package",
     "lint": "eslint src --ext ts"
   },
   "devDependencies": {
