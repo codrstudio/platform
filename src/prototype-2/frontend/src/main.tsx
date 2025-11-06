@@ -7,6 +7,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import App from './App';
 import './styles/globals.css';
+import { initializeEventHandlers } from './services/events';
+import { setupEventInvalidation } from './services/jqel/invalidation';
 
 // Create QueryClient instance with default options
 const queryClient = new QueryClient({
@@ -18,6 +20,12 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// Initialize event handlers with QueryClient (Task 1.5.10)
+initializeEventHandlers(queryClient);
+
+// Setup event-driven cache invalidation (Task 1.5.11)
+setupEventInvalidation(queryClient);
 
 const rootElement = document.getElementById('root');
 

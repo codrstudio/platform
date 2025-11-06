@@ -6,9 +6,11 @@ import { loggerMiddleware } from './middleware/logger.middleware.js';
 import { authRateLimiter } from './middleware/rateLimit.middleware.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.middleware.js';
 import { redisService } from './services/redis.service.js';
+import { sseService } from './services/sse.service.js';
 import healthRoutes from './routes/health.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import jqelRoutes from './routes/jqel.routes.js';
+import eventsRoutes from './routes/events.routes.js';
 
 /**
  * Create and configure Express application
@@ -56,6 +58,12 @@ redisService.connect().catch((error) => {
   console.warn('⚠️  Token rotation and reuse detection will not work without Redis');
 });
 
+// Initialize SSE service (Redis Pub/Sub for real-time events)
+sseService.initialize().catch((error) => {
+  console.error('❌ Failed to initialize SSEService:', error);
+  console.warn('⚠️  Real-time events will not work without SSEService');
+});
+
 // ============================================
 // ROUTES
 // ============================================
@@ -72,8 +80,8 @@ app.use('/api/1/auth', authRoutes);
 // JQEL data access endpoint (Task 1.4.1)
 app.use('/api/jqel', jqelRoutes);
 
-// Future routes will be mounted here:
-// app.use('/api/events', eventsRoutes);     // Task 1.5 - SSE events
+// SSE events endpoint (Task 1.5.1)
+app.use('/api/events', eventsRoutes);
 
 // ============================================
 // ERROR HANDLING (Must be last!)
@@ -84,5 +92,39 @@ app.use(notFoundHandler);
 
 // Global error handler - absolutely last (4 parameters!)
 app.use(errorHandler);
+
+// ============================================
+// GRACEFUL SHUTDOWN
+// ============================================
+
+/**
+ * Graceful shutdown handler
+ *
+ * Cleanup connections before process exit:
+ * - Close SSE connections
+ * - Close Redis Pub/Sub subscriber
+ * - Disconnect main Redis client
+ */
+async function gracefulShutdown(signal: string): Promise<void> {
+  console.log(`\n⚠️  Received ${signal}, starting graceful shutdown...`);
+
+  try {
+    // Shutdown SSE service (closes subscriber and all connections)
+    await sseService.shutdown();
+
+    // Disconnect main Redis client
+    await redisService.disconnect();
+
+    console.log('✅ Graceful shutdown complete');
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Error during shutdown:', error);
+    process.exit(1);
+  }
+}
+
+// Register shutdown handlers
+process.on('SIGINT', () => gracefulShutdown('SIGINT')); // Ctrl+C
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM')); // Kill command
 
 export default app;
