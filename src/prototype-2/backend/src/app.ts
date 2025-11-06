@@ -8,6 +8,7 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler.middlew
 import { redisService } from './services/redis.service.js';
 import healthRoutes from './routes/health.routes.js';
 import authRoutes from './routes/auth.routes.js';
+import jqelRoutes from './routes/jqel.routes.js';
 
 /**
  * Create and configure Express application
@@ -68,8 +69,10 @@ app.use('/api/1/auth', authRateLimiter);
 // Authentication routes (Task 1.3)
 app.use('/api/1/auth', authRoutes);
 
+// JQEL data access endpoint (Task 1.4.1)
+app.use('/api/jqel', jqelRoutes);
+
 // Future routes will be mounted here:
-// app.use('/api/jqel', jqelRoutes);         // Task 1.4 - JQEL processor
 // app.use('/api/events', eventsRoutes);     // Task 1.5 - SSE events
 
 // ============================================

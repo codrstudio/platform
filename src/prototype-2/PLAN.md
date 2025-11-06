@@ -165,30 +165,30 @@
 ### SISTEMA 1.4: Acesso a Dados (JQEL)
 
 #### Componente: JQEL Endpoint
-- [ ] Criar /api/jqel no backend  
+- [x] Criar /api/jqel no backend
   Refs: SPEC-data-access.md (SPEC-DA-EP-001:009)
 
-- [ ] Implementar validação de queries  
+- [x] Implementar validação de queries
   Refs: SPEC-jqel-syntax.md (SPEC-JQEL-QR-*, SPEC-JQEL-MU-*)
 
-- [ ] Implementar envelope JResult  
+- [x] Implementar envelope JResult
   Refs: SPEC-jqel-syntax.md (SPEC-JQEL-RE-001:009)
 
 #### Componente: JQEL Router
-- [ ] Implementar roteamento por schema  
+- [x] Implementar roteamento por schema
   Refs: SPEC-data-access.md (SPEC-DA-SC-001:007), SPEC-channels.md (SPEC-CH-RO-*)
 
-- [ ] Implementar proxy para n8n (schema "platform")  
+- [x] Implementar proxy para n8n (schema "platform")
   Refs: SPEC-architecture.md (SPEC-A-D-007)
 
-- [ ] Implementar processamento local (schema "backend")  
+- [x] Implementar processamento local (schema "backend")
   Refs: SPEC-architecture.md (SPEC-A-D-008)
 
 #### Componente: TanStack Query Integration
-- [ ] Criar hooks useJQELQuery  
+- [x] Criar hooks useJQELQuery
   Refs: SPEC-data-access.md (SPEC-DA-TQ-001:010)
 
-- [ ] Criar hooks useJQELMutation  
+- [x] Criar hooks useJQELMutation
   Refs: SPEC-data-access.md (SPEC-DA-MU-001:012)
 
 - [ ] Implementar invalidação de cache  
@@ -392,10 +392,10 @@
 ### SISTEMA 1.10: Canais e Acesso
 
 #### Componente: Data Channels
-- [ ] Implementar roteamento por schema  
+- [x] Implementar roteamento por schema
   Refs: SPEC-channels.md (SPEC-CH-RO-*)
 
-- [ ] Implementar schemas reservados (platform, backend, system)  
+- [x] Implementar schemas reservados (platform, backend, system)
   Refs: SPEC-channels.md (SPEC-CH-P-*, SPEC-CH-B-*, SPEC-CH-S-*)
 
 #### Componente: Access Parameters

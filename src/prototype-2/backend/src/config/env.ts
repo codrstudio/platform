@@ -43,6 +43,9 @@ export interface EnvConfig {
   // Platform
   platformSharedSecret: string;
 
+  // JQEL
+  systemSchemaTarget: 'backend' | 'n8n';
+
   // Optional
   logLevel: 'debug' | 'info' | 'warn' | 'error';
   requestTimeout: number;
@@ -156,6 +159,12 @@ function validateEnv(): EnvConfig {
     process.exit(1);
   }
 
+  // Validate SYSTEM_SCHEMA_TARGET
+  const systemSchemaTarget = getOptional('SYSTEM_SCHEMA_TARGET', 'n8n');
+  if (!['backend', 'n8n'].includes(systemSchemaTarget)) {
+    errors.push('SYSTEM_SCHEMA_TARGET must be either "backend" or "n8n"');
+  }
+
   // Return validated config
   return {
     nodeEnv: nodeEnv as 'development' | 'staging' | 'production',
@@ -177,6 +186,7 @@ function validateEnv(): EnvConfig {
     bruteForceLockoutDuration,
     bruteForceWindowDuration,
     platformSharedSecret,
+    systemSchemaTarget: systemSchemaTarget as 'backend' | 'n8n',
     logLevel: logLevel as 'debug' | 'info' | 'warn' | 'error',
     requestTimeout: parseInt(getOptional('REQUEST_TIMEOUT', '30000'), 10),
     sseHeartbeatInterval: parseInt(getOptional('SSE_HEARTBEAT_INTERVAL', '30000'), 10),

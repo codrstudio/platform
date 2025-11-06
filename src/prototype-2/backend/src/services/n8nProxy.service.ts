@@ -1,6 +1,7 @@
 // backend/src/services/n8nProxy.service.ts
 import { config } from '../config/env.js';
 import type { LoginCredentials, N8nUserData, N8nLoginResponse, N8nAuthorizeResponse } from '../types/auth.types.js';
+import type { JQELQuery, JResult } from '../types/jqel.types.js';
 
 /**
  * N8nProxyService
@@ -63,6 +64,24 @@ export class N8nProxyService {
     const response = await this.callWorkflow<N8nAuthorizeResponse>(
       '/webhook/api/1/auth/authorize',
       payload
+    );
+
+    return response;
+  }
+
+  /**
+   * Call n8n JQEL processor workflow
+   *
+   * SPEC-CH-DA-006: Backend proxies queries to Backbone
+   *
+   * @param query - JQEL query object
+   * @returns JResult response from n8n
+   * @throws Error if n8n is unreachable, times out, or returns error
+   */
+  async jqel(query: JQELQuery): Promise<JResult> {
+    const response = await this.callWorkflow<JResult>(
+      '/webhook/api/jqel',
+      query
     );
 
     return response;
