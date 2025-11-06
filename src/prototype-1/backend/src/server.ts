@@ -4,10 +4,13 @@
  * SPEC-A-L-011 to SPEC-A-L-017
  */
 
+// IMPORTANT: Load environment variables FIRST, before any other imports
+// This ensures all modules have access to process.env when they are loaded
+import './config/env.js';
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { config } from 'dotenv';
 
 // Configuration
 import { getCorsConfig } from './config/cors.js';
@@ -31,9 +34,6 @@ import eventsRoutes from './routes/events.routes.js';
 // Services
 import { connectRedis, disconnectRedis } from './services/redisService.js';
 import { startListening, shutdown as shutdownSSE } from './services/sseService.js';
-
-// Load environment variables
-config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;

@@ -6,7 +6,8 @@
 
 import type { JResult } from '../types/jresult.types.js';
 
-const N8N_BASE_URL = process.env.N8N_WEBHOOK_BASE_URL || 'http://localhost:5678/webhook';
+// Normalize base URL - remove trailing slashes to avoid double slashes
+const N8N_BASE_URL = (process.env.N8N_WEBHOOK_BASE_URL || 'http://localhost:5678/webhook').replace(/\/+$/, '');
 const N8N_AUTH_SECRET = process.env.N8N_AUTH_SECRET || '';
 const REQUEST_TIMEOUT = 5000; // 5 seconds
 
@@ -22,7 +23,9 @@ class N8NProxyService {
     body: any,
     timeout: number = REQUEST_TIMEOUT
   ): Promise<JResult<T>> {
-    const url = `${N8N_BASE_URL}${path}`;
+    // Normalize path - ensure it starts with a single slash
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    const url = `${N8N_BASE_URL}${normalizedPath}`;
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
