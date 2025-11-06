@@ -25,6 +25,38 @@ function shouldRetry(failureCount: number, error: JQELError): boolean {
 }
 
 /**
+ * Calculate exponential backoff delay for retry attempts
+ * Based on SPEC-DA-ERR-005 and AuthProvider pattern
+ *
+ * Formula: min(baseDelay * 2^attemptIndex, maxDelay)
+ *
+ * @param attemptIndex - 0-based retry attempt (0 = first retry, 1 = second retry, etc.)
+ * @param _error - JQELError from failed query (currently unused, but available for future logic)
+ * @returns Delay in milliseconds before next retry
+ *
+ * @example
+ * calculateRetryDelay(0) // 1000ms (1 second)
+ * calculateRetryDelay(1) // 2000ms (2 seconds)
+ * calculateRetryDelay(2) // 4000ms (4 seconds)
+ * calculateRetryDelay(10) // 30000ms (30 seconds - capped)
+ */
+function calculateRetryDelay(attemptIndex: number, _error: JQELError): number {
+  const BASE_DELAY_MS = 1000; // 1 second base
+  const MAX_DELAY_MS = 30000; // 30 second cap
+
+  // Exponential backoff: 1s, 2s, 4s, 8s, 16s, 32s (capped at 30s)
+  const delay = BASE_DELAY_MS * Math.pow(2, attemptIndex);
+  const cappedDelay = Math.min(delay, MAX_DELAY_MS);
+
+  // Log retry delay in development
+  if (import.meta.env.DEV) {
+    console.log(`[JQEL Retry] Attempt ${attemptIndex + 1} will retry in ${cappedDelay}ms`);
+  }
+
+  return cappedDelay;
+}
+
+/**
  * Default options for JQEL queries
  * Based on SPEC-DA-PERF-003
  */
@@ -33,6 +65,7 @@ const DEFAULT_OPTIONS: Partial<UseJQELQueryOptions<any>> = {
   gcTime: 10 * 60 * 1000,          // 10 minutes
   refetchOnWindowFocus: false,
   retry: shouldRetry,
+  retryDelay: calculateRetryDelay, // Add exponential backoff
 };
 
 /**
@@ -64,8 +97,14 @@ function generateQueryKey(query: JQELQuery): readonly unknown[] {
  *
  * Based on SPEC-DA-TQ-001:015
  *
+ * Automatic retry with exponential backoff (SPEC-DA-ERR-004:005):
+ * - Client errors (4xx): No retry (won't succeed)
+ * - Server errors (5xx): Retry up to 3 times with backoff (1s, 2s, 4s)
+ * - Network errors: Retry up to 3 times with backoff
+ * - Max delay capped at 30 seconds
+ *
  * @example
- * // Fetch single portal
+ * // Basic usage (automatic retry on server errors)
  * const { data: portal, isLoading } = useJQELQuery<Portal>({
  *   schema: 'backend',
  *   select: 'portal',
@@ -75,11 +114,12 @@ function generateQueryKey(query: JQELQuery): readonly unknown[] {
  * });
  *
  * @example
- * // Fetch list of portals
- * const { data: portals, error } = useJQELQuery<Portal>({
- *   schema: 'backend',
- *   select: 'portal',
- *   output: ['portalId', 'name', 'activeModules'],
+ * // Disable retries for specific query
+ * const { data, error } = useJQELQuery<User>({
+ *   schema: 'platform',
+ *   select: 'user',
+ * }, {
+ *   retry: false, // No retries
  * });
  *
  * @param query - JQEL query object

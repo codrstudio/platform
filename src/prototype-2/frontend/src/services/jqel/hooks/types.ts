@@ -2,6 +2,30 @@ import type { UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import type { JQELError } from '../errors';
 
 /**
+ * Retry configuration for JQEL queries
+ * Based on SPEC-DA-ERR-004:005
+ */
+export interface RetryConfig {
+  /**
+   * Maximum number of retry attempts
+   * @default 3
+   */
+  maxAttempts?: number;
+
+  /**
+   * Base delay in milliseconds for exponential backoff
+   * @default 1000 (1 second)
+   */
+  baseDelayMs?: number;
+
+  /**
+   * Maximum delay cap in milliseconds
+   * @default 30000 (30 seconds)
+   */
+  maxDelayMs?: number;
+}
+
+/**
  * Options for useJQELQuery hook
  * Extends TanStack Query UseQueryOptions with sensible defaults
  * Based on SPEC-DA-TQ-010:013
@@ -33,6 +57,12 @@ export interface UseJQELQueryOptions<T>
    * @default Smart retry (don't retry 4xx, retry 5xx up to 3 times)
    */
   retry?: boolean | number | ((failureCount: number, error: JQELError) => boolean);
+
+  /**
+   * Retry configuration (overrides defaults)
+   * Set to false to disable retries
+   */
+  retryConfig?: RetryConfig | false;
 
   /**
    * Refetch when window regains focus

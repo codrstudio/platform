@@ -1,4 +1,5 @@
 import type { JResult } from '../../types/jqel';
+import { logError } from '../logging/errorLogger';
 
 /**
  * JQEL Error - Wraps JResult errors with typed structure
@@ -55,6 +56,63 @@ export class JQELError extends Error {
    */
   isServerError(): boolean {
     return this.code >= 500 && this.code < 600;
+  }
+
+  /**
+   * Log this error with JQEL context
+   * Based on SPEC-DA-ERR-008
+   *
+   * @param context - Additional context data
+   *
+   * @example
+   * try {
+   *   await jqelQuery(query);
+   * } catch (error) {
+   *   if (isJQELError(error)) {
+   *     error.log({ component: 'PortalLoader' });
+   *   }
+   * }
+   */
+  log(context?: Record<string, any>): void {
+    logError(this, {
+      category: 'jqel',
+      level: 'ERROR',
+      context: {
+        code: this.code,
+        field: this.field,
+        ...context
+      }
+    });
+  }
+
+  /**
+   * Get user-friendly error message based on error code
+   * Provides non-technical messages for end users
+   *
+   * @returns User-friendly error message
+   *
+   * @example
+   * if (isJQELError(error)) {
+   *   showToast(error.getUserMessage(), 'error');
+   * }
+   */
+  getUserMessage(): string {
+    if (this.isValidationError()) {
+      return 'Invalid data. Please check your input.';
+    }
+    if (this.code === 401) {
+      return 'Please log in to continue.';
+    }
+    if (this.code === 403) {
+      return 'You do not have permission for this action.';
+    }
+    if (this.code === 404) {
+      return 'Resource not found.';
+    }
+    if (this.isServerError()) {
+      return 'Server error. Please try again later.';
+    }
+    return this.message || 'An error occurred.';
   }
 }
 
