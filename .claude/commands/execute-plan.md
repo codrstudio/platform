@@ -1,82 +1,33 @@
-# Execute um PLAN.md
+# Executa um PLAN.md
 
-Execute planos de implementação coordenando agentes task-planner e task-runner.
+- **$ARGUMENTS**: Arquivo de plano e explicações adicionais sobre a tarefa (pode especificar tarefas específicas ou escopo)
 
-## Arguments
-- **$ARGUMENTS**: Path para PLAN.md e escopo opcional
-  - Format: `@path/to/PLAN.md [scope]`
-  - Examples:
-    - `@src/prototype-2/PLAN.md` (executa tudo)
-    - `@src/prototype-2/PLAN.md increment 1`
-    - `@src/prototype-2/PLAN.md system 1.1`
-    - `@src/prototype-2/PLAN.md task 1.1.1`
+Use o agente `plan-task-executor` para executar as tarefas definidas no arquivo PLAN.md fornecido.
 
-## Your Role
+**IMPORTANTE**: O agente deve ser acionado **INDIVIDUALMENTE** para cada tarefa dentro do escopo solicitado.
 
-Você é um **coordenador de execução**. Seu trabalho:
-1. Ler PLAN.md
-2. Identificar tarefas no escopo
-3. Distribuir para agentes (planner → runner)
-4. Atualizar progresso
-5. Continuar até completar
+## Fluxo de Execução
 
-## Workflow
+1. **Identificar escopo**: Analisar $ARGUMENTS para determinar quais tarefas devem ser executadas:
+   - Se nenhuma tarefa específica for mencionada: executar TODAS as tarefas pendentes do PLAN.md
+   - Se tarefas específicas forem mencionadas: executar apenas essas tarefas
+   - Se um escopo for mencionado (ex: "Epic 1.1"): executar todas as tarefas daquele escopo
 
-### Step 1: Parse Scope
-- Sem args → Todas as tarefas `[ ]`
-- "increment X" → Todas tarefas do increment
-- "system X.Y" → Todas tarefas do sistema
-- "task X.Y.Z" → Tarefa específica
+2. **Executar tarefas sequencialmente**: Para cada tarefa identificada no escopo:
+   - Invocar o agente `plan-task-executor` com a tarefa específica
+   - Aguardar conclusão da tarefa atual antes de prosseguir para a próxima
+   - Verificar se a tarefa foi marcada como concluída no PLAN.md
+   - Se houver erro, reportar e perguntar ao usuário se deve continuar
 
-### Step 2: Analyze Dependencies
-- Agrupar tarefas independentes
-- Ordenar tarefas dependentes
-- Planejar batches de execução
+3. **O agente `plan-task-executor` irá (para cada tarefa)**:
+   - Ler o arquivo PLAN.md especificado
+   - Identificar a tarefa específica a ser executada
+   - Ler os arquivos SPEC referenciados na tarefa
+   - Implementar a tarefa seguindo as especificações e arquitetura
+   - Atualizar o PLAN.md marcando a tarefa como concluída
+   - Retornar resultado da execução
 
-### Step 3: Execute Pipeline
-
-**Planning (Paralelo):**
-```
-@task-planner plan task 1.1.1 (nome) from path/PLAN.md
-@task-planner plan task 1.1.2 (nome) from path/PLAN.md
-@task-planner plan task 1.1.3 (nome) from path/PLAN.md
-```
-
-**Execution (Sequential):**
-```
-@task-runner execute task 1.1.1 (nome) from path/PLAN.md
-[wait] → update PLAN.md
-@task-runner execute task 1.1.2 (nome) from path/PLAN.md
-[wait] → update PLAN.md
-...
-```
-
-### Step 4: Update Progress
-
-Após cada tarefa:
-1. Marcar `[x]` no PLAN.md
-2. Mostrar progresso: "Task 1.1.1 ✓ (3/15)"
-3. Continuar para próxima
-
-### Step 5: Continue Until Done
-
-**Nunca pare** até escopo completo.
-
-## Key Rules
-
-1. **@agent explícito** - Sempre use @task-planner e @task-runner
-2. **Planejar em paralelo** - 2-4 planners simultâneos
-3. **Executar sequencial** - Um runner por vez
-4. **Fluxo contínuo** - Não pergunte, continue
-5. **Update imediato** - PLAN.md após cada tarefa
-6. **Passar localização** - Sempre inclua path do PLAN.md
-7. **Incluir nome** - Task name do PLAN.md nos comandos
-8. **Parar só em erro crítico** - Runner falha = STOP
-
-## Start Execution
-
-Now:
-1. Extract PLAN.md path de $ARGUMENTS
-2. Read PLAN.md
-3. Identify scope
-4. Begin distribution
+4. **Finalização**: Após todas as tarefas do escopo serem concluídas:
+   - Reportar resumo de tarefas executadas
+   - Indicar se houve alguma falha
+   - Sugerir próximos passos se houver tarefas pendentes
