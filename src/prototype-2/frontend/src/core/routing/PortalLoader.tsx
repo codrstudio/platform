@@ -9,6 +9,7 @@ import PortalRouter from './PortalRouter';
 import { LoadingState } from '../../components/common/LoadingState';
 import { ErrorState } from '../../components/common/ErrorState';
 import { ErrorBoundary } from '../../components/error/ErrorBoundary';
+import { PortalErrorFallback } from '../../components/error/PortalErrorFallback';
 
 interface PortalLoaderProps {
   portalId?: string; // If provided, use this; otherwise extract from URL
@@ -67,7 +68,7 @@ export default function PortalLoader({ portalId: providedPortalId }: PortalLoade
   // Main portal uses specialized router
   if (portalId === 'main') {
     return (
-      <ErrorBoundary level="portal">
+      <ErrorBoundary level="portal" fallback={PortalErrorFallback}>
         <MainPortalRouter portal={portal} />
       </ErrorBoundary>
     );
@@ -75,7 +76,7 @@ export default function PortalLoader({ portalId: providedPortalId }: PortalLoade
 
   // All other portals use generic PortalRouter with loaded modules
   return (
-    <ErrorBoundary level="portal">
+    <ErrorBoundary level="portal" fallback={PortalErrorFallback}>
       <PortalRouter portal={portal} modules={modules} />
     </ErrorBoundary>
   );

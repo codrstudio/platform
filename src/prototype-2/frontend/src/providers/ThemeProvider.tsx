@@ -3,7 +3,7 @@
  *
  * Based on SPEC-theming.md SPEC-TH-AP-001:020
  *
- * Features:
+ * Features (from 1.6.8):
  * - Theme mode management (light/dark/system)
  * - System theme detection and watching
  * - localStorage persistence
@@ -11,6 +11,12 @@
  * - CSS palette generation and application
  * - Cross-tab synchronization
  * - Prevention of flash-of-unstyled-content (FOUC)
+ *
+ * NEW (1.6.9):
+ * - Portal settings-key awareness
+ * - Per-settings-key theme isolation
+ * - Automatic theme reload on portal switch
+ * - Settings-key based storage keys
  *
  * Usage:
  * ```tsx
@@ -22,7 +28,7 @@
  * Consuming components use the `useTheme()` hook to access theme state.
  */
 
-import { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import type { ThemeMode, ThemeContextValue, ThemeProviderProps } from '../types/theme';
 import * as themeStorage from '../services/theme/themeStorage';
 import { convertHexToHSL, generatePalette, applyPalette, generateSemanticColors } from '../services/theme';
@@ -30,19 +36,159 @@ import { convertHexToHSL, generatePalette, applyPalette, generateSemanticColors 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 /**
- * ThemeProvider component
+ * Extract portal ID from current URL pathname
+ * Works without React Router hooks (can be used before Router is mounted)
+ */
+function getPortalIdFromPath(pathname: string): string {
+  // Root path "/" maps to "main" portal
+  if (pathname === '/') return 'main';
+
+  // Other paths like "/setup" or "/setup/whatever" extract first segment
+  const segments = pathname.split('/').filter(Boolean);
+  return segments[0] || 'main';
+}
+
+/**
+ * ThemeProvider component with settings-key support
  * Manages global theme state and provides theme methods to the application
+ *
+ * NOTE: Does not depend on React Router - uses native window.location
  */
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  // Settings key for localStorage (hardcoded for now, will be from portal config in future)
-  const [settingsKey] = useState<string>('default');
+  // Determine portal ID from URL (without React Router hooks)
+  const [portalId, setPortalId] = useState<string>(() =>
+    getPortalIdFromPath(window.location.pathname)
+  );
+
+  // Listen for URL changes (for when user navigates between portals)
+  useEffect(() => {
+    const handleLocationChange = () => {
+      const newPortalId = getPortalIdFromPath(window.location.pathname);
+      if (newPortalId !== portalId) {
+        setPortalId(newPortalId);
+      }
+    };
+
+    // Listen to both popstate (back/forward) and custom navigation events
+    window.addEventListener('popstate', handleLocationChange);
+
+    // For client-side navigation, we'll check on interval (React Router doesn't fire popstate)
+    const intervalId = setInterval(handleLocationChange, 500);
+
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      clearInterval(intervalId);
+    };
+  }, [portalId]);
+
+  // For now, use hardcoded settingsKey mapping
+  // TODO: Load portal config via JQEL to get real settingsKey
+  const settingsKey = useMemo(() => {
+    // Hardcoded mapping until we can load portal config
+    // Both main and setup use 'default' settings-key
+    return 'default';
+  }, [portalId]);
+
+  // Track current settings-key to detect changes
+  const [currentSettingsKey, setCurrentSettingsKey] = useState<string>('default');
+
+  // Migration flag (run once per settings-key)
+  const [migrated, setMigrated] = useState<Set<string>>(new Set());
 
   // Theme state
-  const [rawTheme, setRawTheme] = useState<ThemeMode>('system'); // User's preference
-  const [theme, setTheme] = useState<'light' | 'dark'>('light'); // Resolved theme
-  const [brandColor, setBrandColorState] = useState<string | null>(null);
+  const [rawTheme, setRawTheme] = useState<ThemeMode>(() => {
+    // Initial load from 'default' settings-key
+    return themeStorage.loadTheme('default') || 'system';
+  });
 
-  // Effect: Resolve "system" theme to actual light/dark
+  // Resolved theme (light/dark only, no 'system')
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const initial = themeStorage.loadTheme('default') || 'system';
+    if (initial === 'system') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return initial;
+  });
+
+  // Brand color state
+  const [brandColor, setBrandColorState] = useState<string | null>(() => {
+    // Initial load from 'default' settings-key
+    return themeStorage.loadBrandColor('default');
+  });
+
+  /**
+   * Load theme for current settings-key
+   */
+  const loadThemeForSettingsKey = useCallback((key: string) => {
+    // Run migration once per settings-key
+    if (!migrated.has(key)) {
+      themeStorage.migrateGlobalTheme(key);
+      setMigrated(prev => new Set(prev).add(key));
+    }
+
+    // Load theme mode
+    const savedMode = themeStorage.loadTheme(key) || 'system';
+    setRawTheme(savedMode);
+
+    // Resolve mode
+    if (savedMode !== 'system') {
+      setTheme(savedMode);
+    } else {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      setTheme(systemTheme);
+    }
+
+    // Load brand color
+    const savedColor = themeStorage.loadBrandColor(key);
+    setBrandColorState(savedColor);
+
+    console.log(`[Theme] Loaded theme for settings-key "${key}": mode=${savedMode}, color=${savedColor}`);
+  }, [migrated]);
+
+  /**
+   * Detect settings-key changes and reload theme
+   */
+  useEffect(() => {
+    if (settingsKey !== currentSettingsKey) {
+      loadThemeForSettingsKey(settingsKey);
+      setCurrentSettingsKey(settingsKey);
+    }
+  }, [settingsKey, currentSettingsKey, loadThemeForSettingsKey]);
+
+  /**
+   * Update theme mode (settings-key aware)
+   */
+  const handleSetTheme = useCallback((newMode: ThemeMode) => {
+    console.log(`[Theme] Setting theme to: ${newMode}`);
+    setRawTheme(newMode);
+    themeStorage.saveTheme(currentSettingsKey, newMode);
+
+    // Resolve immediately if not system
+    if (newMode !== 'system') {
+      setTheme(newMode);
+    } else {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      setTheme(systemTheme);
+    }
+  }, [currentSettingsKey]);
+
+  /**
+   * Update brand color (settings-key aware)
+   */
+  const handleSetBrandColor = useCallback((color: string | null) => {
+    console.log(`[Theme] Setting brand color to: ${color || 'null (removed)'}`);
+    setBrandColorState(color);
+
+    if (color) {
+      themeStorage.saveBrandColor(currentSettingsKey, color);
+    } else {
+      themeStorage.removeBrandColor(currentSettingsKey);
+    }
+  }, [currentSettingsKey]);
+
+  /**
+   * Effect: Resolve "system" theme to actual light/dark
+   */
   useEffect(() => {
     if (rawTheme !== 'system') {
       // User explicitly selected light or dark
@@ -67,22 +213,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     return () => mediaQuery.removeEventListener('change', updateTheme);
   }, [rawTheme]);
 
-  // Effect: Load theme preferences from localStorage on mount
-  useEffect(() => {
-    const savedTheme = themeStorage.loadTheme(settingsKey);
-    if (savedTheme) {
-      console.log(`[Theme] Restored theme: ${savedTheme}`);
-      setRawTheme(savedTheme);
-    }
-
-    const savedColor = themeStorage.loadBrandColor(settingsKey);
-    if (savedColor) {
-      console.log(`[Theme] Restored brand color: ${savedColor}`);
-      setBrandColorState(savedColor);
-    }
-  }, [settingsKey]);
-
-  // Effect: Apply dark class to HTML element
+  /**
+   * Effect: Apply dark class to HTML element
+   */
   useEffect(() => {
     const root = document.documentElement;
 
@@ -93,7 +226,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     }
   }, [theme]);
 
-  // Effect: Apply CSS palette when brand color or mode changes
+  /**
+   * Effect: Apply CSS palette when brand color or mode changes
+   */
   useEffect(() => {
     if (brandColor) {
       try {
@@ -110,70 +245,57 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
         // Apply palette to document
         applyPalette(completePalette);
       } catch (error) {
-        console.error('Failed to apply brand color palette:', error);
+        console.error('[Theme] Failed to apply brand color palette:', error);
         // Continue with default theme - no user-visible error
       }
     }
     // Note: If no brand color, Tailwind's default theme will be used from CSS
   }, [brandColor, theme]);
 
-  // Effect: Sync theme changes across tabs using storage event
+  /**
+   * Effect: Cross-tab synchronization (settings-key filtered)
+   */
   useEffect(() => {
     const handleStorageChange = (event: StorageEvent) => {
-      // Only respond to localStorage changes (not sessionStorage)
-      if (event.storageArea !== localStorage) return;
+      if (!event.key) return;
 
-      const themeKey = `${settingsKey}:theme`;
-      const colorKey = `${settingsKey}:brand-color`;
+      // Extract settings-key from changed key
+      const changedSettingsKey = themeStorage.extractSettingsKey(event.key);
 
-      // Handle theme change from another tab
-      if (event.key === themeKey) {
-        const newTheme = event.newValue as ThemeMode | null;
-        if (newTheme && (newTheme === 'light' || newTheme === 'dark' || newTheme === 'system')) {
-          console.log(`[Theme] Cross-tab sync - theme changed to: ${newTheme}`);
-          setRawTheme(newTheme); // Update state (don't save again!)
+      // Only apply if it matches current settings-key
+      if (changedSettingsKey !== currentSettingsKey) {
+        return;
+      }
+
+      // Handle theme mode change
+      if (event.key === themeStorage.getThemeModeKey(currentSettingsKey)) {
+        const newMode = event.newValue as ThemeMode | null;
+        if (newMode === 'light' || newMode === 'dark' || newMode === 'system') {
+          console.log(`[Theme] Cross-tab sync - theme changed to: ${newMode}`);
+          setRawTheme(newMode);
+
+          if (newMode !== 'system') {
+            setTheme(newMode);
+          } else {
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            setTheme(systemTheme);
+          }
         }
       }
 
-      // Handle brand color change from another tab
-      if (event.key === colorKey) {
-        const newColor = event.newValue;
-        console.log(`[Theme] Cross-tab sync - brand color changed to: ${newColor || 'null (removed)'}`);
-        setBrandColorState(newColor); // Update state (don't save again!)
+      // Handle brand color change
+      if (event.key === themeStorage.getBrandColorKey(currentSettingsKey)) {
+        console.log(`[Theme] Cross-tab sync - brand color changed to: ${event.newValue || 'null (removed)'}`);
+        setBrandColorState(event.newValue);
       }
     };
 
-    // Add listener
     window.addEventListener('storage', handleStorageChange);
-    console.log(`[Theme] Cross-tab sync enabled for settings key: ${settingsKey}`);
 
-    // Cleanup listener
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      console.log(`[Theme] Cross-tab sync disabled for settings key: ${settingsKey}`);
     };
-  }, [settingsKey]);
-
-  // Handler: Update theme preference
-  const handleSetTheme = (newTheme: ThemeMode) => {
-    console.log(`[Theme] Setting theme to: ${newTheme}`);
-    setRawTheme(newTheme);
-    themeStorage.saveTheme(settingsKey, newTheme);
-  };
-
-  // Handler: Update brand color
-  // Accepts HEX color format (e.g., "#3b82f6")
-  // Conversion to HSL and palette generation happens in effect above
-  const handleSetBrandColor = (color: string | null) => {
-    console.log(`[Theme] Setting brand color to: ${color || 'null (removed)'}`);
-    setBrandColorState(color);
-
-    if (color) {
-      themeStorage.saveBrandColor(settingsKey, color);
-    } else {
-      themeStorage.removeBrandColor(settingsKey);
-    }
-  };
+  }, [currentSettingsKey]);
 
   // Context value (optimized with useMemo to prevent unnecessary re-renders)
   const value = useMemo<ThemeContextValue>(
@@ -181,12 +303,11 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       theme,
       rawTheme,
       brandColor,
-      settingsKey,
+      settingsKey: currentSettingsKey,
       setTheme: handleSetTheme,
       setBrandColor: handleSetBrandColor,
     }),
-    [theme, rawTheme, brandColor, settingsKey]
-    // Note: handleSetTheme and handleSetBrandColor are stable references
+    [theme, rawTheme, brandColor, currentSettingsKey, handleSetTheme, handleSetBrandColor]
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

@@ -1,0 +1,99 @@
+/**
+ * Retry configuration and types
+ * Based on SPEC-error-handling.md SPEC-EH-RE-001:007
+ */
+
+export type BackoffStrategy = 'exponential' | 'linear' | 'constant';
+
+export interface RetryConfig {
+  /**
+   * Maximum number of retry attempts
+   * @default 3
+   */
+  maxAttempts?: number;
+
+  /**
+   * Base delay in milliseconds
+   * @default 1000 (1 second)
+   */
+  baseDelayMs?: number;
+
+  /**
+   * Maximum delay cap in milliseconds
+   * @default 30000 (30 seconds)
+   */
+  maxDelayMs?: number;
+
+  /**
+   * Backoff strategy
+   * @default 'exponential'
+   */
+  strategy?: BackoffStrategy;
+
+  /**
+   * Add random jitter to prevent thundering herd
+   * Jitter is ±10% of calculated delay
+   * @default true
+   */
+  jitter?: boolean;
+
+  /**
+   * Custom function to determine if error should be retried
+   * @param error - The error that occurred
+   * @param attemptNumber - Current attempt number (0-based)
+   * @returns true to retry, false to fail immediately
+   */
+  shouldRetry?: (error: Error, attemptNumber: number) => boolean;
+
+  /**
+   * Callback invoked before each retry attempt
+   * @param attemptNumber - Current attempt number (0-based)
+   * @param delay - Delay in ms before this attempt
+   */
+  onRetry?: (attemptNumber: number, delay: number) => void;
+
+  /**
+   * AbortSignal to cancel retry loop
+   */
+  signal?: AbortSignal;
+}
+
+export interface RetryResult<T> {
+  /** The successful result */
+  value: T;
+  /** Number of attempts made (includes initial attempt) */
+  attempts: number;
+  /** Total time spent in ms (including delays) */
+  totalTimeMs: number;
+  /** Whether result came from retry (true) or first attempt (false) */
+  wasRetried: boolean;
+}
+
+export interface RetryableError extends Error {
+  /** Original error that caused retry */
+  originalError: Error;
+  /** Number of attempts made before giving up */
+  attempts: number;
+  /** Whether error is considered retryable */
+  isRetryable: boolean;
+}
+
+/**
+ * Error classification for retry decisions
+ */
+export enum RetryableErrorType {
+  /** Network timeout or connection error - RETRY */
+  NETWORK_ERROR = 'network',
+  /** Server error (5xx) - RETRY */
+  SERVER_ERROR = 'server',
+  /** Rate limit (429) - RETRY with longer delay */
+  RATE_LIMIT = 'rate_limit',
+  /** Client error (4xx except 429) - DON'T RETRY */
+  CLIENT_ERROR = 'client',
+  /** Authentication error (401, 403) - DON'T RETRY */
+  AUTH_ERROR = 'auth',
+  /** Validation error - DON'T RETRY */
+  VALIDATION_ERROR = 'validation',
+  /** Unknown error - RETRY (cautiously) */
+  UNKNOWN = 'unknown'
+}

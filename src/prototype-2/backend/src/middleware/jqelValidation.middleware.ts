@@ -83,6 +83,33 @@ export const jqelValidationMiddleware = (
     return;
   }
 
+  // Backend schema validation
+  if (query.schema === 'backend') {
+    const entity = query.select || query.mutate;
+    const validEntities = ['portal', 'module', 'instance'];
+
+    if (!entity || !validEntities.includes(entity)) {
+      res.status(400).json({
+        code: 400,
+        message: `Invalid backend entity: '${entity}'. Must be one of: portal, module, instance`,
+        field: query.select ? 'select' : 'mutate',
+      });
+      return;
+    }
+
+    // UPDATE and DELETE require WHERE clause
+    if (query.mutate && ['update', 'delete'].includes(query.action as string)) {
+      if (!query.where || Object.keys(query.where).length === 0) {
+        res.status(400).json({
+          code: 400,
+          message: `Action '${query.action}' requires a WHERE clause`,
+          field: 'where',
+        });
+        return;
+      }
+    }
+  }
+
   // All validations passed
   next();
 };

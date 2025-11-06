@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { config } from '../config/env.js';
+import { logger } from '../services/logger.service.js';
 
 /**
  * Structured error response format
@@ -29,14 +30,17 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction // Must be present even if unused!
 ) => {
-  // Log error with context
-  console.error('\n❌ Error caught by error handler:');
-  console.error({
-    timestamp: new Date().toISOString(),
-    message: err.message,
-    stack: config.nodeEnv === 'development' ? err.stack : undefined,
-    url: req.url,
+  // Log error with structured context
+  logger.error('Error caught by error handler', {
+    category: 'http-error',
+    error: {
+      name: err.name,
+      message: err.message,
+      stack: err.stack,
+      code: err.statusCode || err.status || 500,
+    },
     method: req.method,
+    url: req.url,
     ip: req.ip,
   });
 

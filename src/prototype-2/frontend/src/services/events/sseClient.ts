@@ -14,7 +14,7 @@ import { dispatchEvent } from './eventHandlers';
 import { logError, logInfo, logWarning } from '../logging/errorLogger';
 
 const SSE_ENDPOINT = '/api/events/stream';
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3333';
 
 // SPEC-EV-FE-005: Exponential backoff configuration
 const RECONNECT_BASE_DELAY_MS = 1000; // 1 second

@@ -87,3 +87,26 @@ export interface LogErrorOptions {
    */
   context?: Record<string, any>;
 }
+
+/**
+ * Props for ModuleErrorBoundary wrapper component
+ * Based on SPEC-ERR-BOUND-008
+ */
+export interface ModuleBoundaryProps {
+  /**
+   * Child components to render
+   */
+  children: ReactNode;
+
+  /**
+   * Module identifier for contextual logging
+   * @optional
+   */
+  moduleId?: string;
+
+  /**
+   * Custom error handler callback
+   * @optional
+   */
+  onError?: (error: Error, errorInfo: ErrorInfo) => void;
+}

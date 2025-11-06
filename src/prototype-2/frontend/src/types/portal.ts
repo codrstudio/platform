@@ -6,6 +6,7 @@ export interface Portal {
   name: string;
   description?: string;
   path: string;
+  settingsKey?: string; // Theme sharing key (default: 'default')
   activeModules: string[];
   settings: Record<string, unknown>;
   removable: boolean;

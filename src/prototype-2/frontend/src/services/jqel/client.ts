@@ -4,7 +4,7 @@
 import type { JQELQuery } from '../../types/jqel';
 import { parseJQELResponse } from './errors';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3333';
 
 /**
  * Execute JQEL query against backend

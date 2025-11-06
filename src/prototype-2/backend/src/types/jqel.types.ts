@@ -76,3 +76,43 @@ export interface JqelContext {
   ipAddress?: string;       // Client IP address
   userAgent?: string;       // Client user agent
 }
+
+/**
+ * Validation rules for schema
+ */
+export interface ValidationRules {
+  maxLimit: number;
+  maxOffset: number;
+  maxOrderByFields: number;
+  allowedOperators: string[];
+  blocklistedOperators: string[];
+  allowedEntities?: string[];
+}
+
+/**
+ * Parameter validation error details
+ */
+export interface ParameterValidationError {
+  code: 400;
+  message: string;
+  field?: string;
+  context?: string; // Additional context about where error occurred
+}
+
+/**
+ * Permission rules for schema
+ */
+export interface PermissionRules {
+  requireAuth: boolean;
+  publicEntities?: string[];
+  protectedEntities?: string[];
+}
+
+/**
+ * Permission check result
+ */
+export interface PermissionCheckResult {
+  authorized: boolean;
+  payload?: any;
+  required_permission?: string;
+}

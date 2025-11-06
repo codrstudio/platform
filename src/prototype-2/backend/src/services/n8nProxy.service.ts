@@ -10,12 +10,18 @@ import type { JQELQuery, JResult } from '../types/jqel.types.js';
  * Handles authentication, timeout, and error handling for n8n requests.
  *
  * Features:
- * - Mutual authentication via X-Platform-Key header
+ * - Mutual authentication via X-Platform-Key header (SPEC-CF-AM-001:006)
  * - Configurable timeout with AbortController
  * - Structured error handling for network and HTTP errors
  * - Type-safe workflow method wrappers
  *
+ * Authentication:
+ * - Backend → n8n: Includes X-Platform-Key with N8N_SHARED_SECRET value
+ * - n8n validates header before processing webhook
+ * - n8n returns 401 if header missing or incorrect
+ *
  * SPEC References:
+ * - SPEC-CF-AM-001:006: X-Platform-Key header requirements
  * - SPEC-AU-AR-002: Backend acts as proxy for authentication routes
  * - SPEC-AU-LI-007:011: Backend validates presence, Backbone validates credentials
  */
@@ -26,7 +32,7 @@ export class N8nProxyService {
 
   constructor() {
     this.baseUrl = config.n8nBaseUrl;
-    this.platformKey = config.platformSharedSecret;
+    this.platformKey = config.n8nSharedSecret; // SPEC-CF-AM-005: Use N8N_SHARED_SECRET for Backend → n8n
   }
 
   /**

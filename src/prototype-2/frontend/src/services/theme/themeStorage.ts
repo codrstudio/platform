@@ -88,3 +88,68 @@ export function removeBrandColor(settingsKey: string): void {
     console.error('localStorage.removeItem failed for brand color:', error);
   }
 }
+
+/**
+ * Get storage key for theme mode
+ * Exposed for cross-tab synchronization
+ * @param settingsKey - Portal's settings key
+ * @returns Full storage key
+ */
+export function getThemeModeKey(settingsKey: string): string {
+  return `${settingsKey}:theme`;
+}
+
+/**
+ * Get storage key for brand color
+ * Exposed for cross-tab synchronization
+ * @param settingsKey - Portal's settings key
+ * @returns Full storage key
+ */
+export function getBrandColorKey(settingsKey: string): string {
+  return `${settingsKey}:brand-color`;
+}
+
+/**
+ * Extract settings-key from storage key
+ * Used for cross-tab synchronization filtering
+ * @param storageKey - Full storage key (e.g., "default:theme")
+ * @returns Settings-key or null if invalid format
+ */
+export function extractSettingsKey(storageKey: string): string | null {
+  const parts = storageKey.split(':');
+
+  if (parts.length >= 2) {
+    return parts[0];
+  }
+
+  return null;
+}
+
+/**
+ * Migrate old global theme key to settings-key format
+ * Called once on first load to preserve user preferences
+ * @param settingsKey - Target settings-key (usually 'default')
+ */
+export function migrateGlobalTheme(settingsKey: string): void {
+  try {
+    // Old global key (from task 1.6.8 - before settings-key support)
+    const oldKey = 'platform:theme:mode';
+    const oldValue = localStorage.getItem(oldKey);
+
+    if (oldValue) {
+      // Move to new settings-key format
+      const newKey = getThemeModeKey(settingsKey);
+
+      // Only migrate if new key doesn't exist
+      if (!localStorage.getItem(newKey)) {
+        localStorage.setItem(newKey, oldValue);
+        console.log(`[Theme] Migrated theme from ${oldKey} to ${newKey}`);
+      }
+
+      // Remove old key
+      localStorage.removeItem(oldKey);
+    }
+  } catch (error) {
+    console.error('[Theme] Failed to migrate theme:', error);
+  }
+}

@@ -32,14 +32,13 @@ morgan.token('sanitized-body', (req: any) => {
   return JSON.stringify(sanitized);
 });
 
-// Development format: detailed with colors
-const devFormat = ':method :url :status :response-time ms - :res[content-length]';
-
-// Production format: minimal, structured
-const prodFormat = ':remote-addr :method :url :status :response-time ms';
-
 /**
  * HTTP request logging middleware
+ *
+ * Environment-aware logging:
+ * - Development: detailed logs with colors
+ * - Staging: combined format, JSON structure
+ * - Production: minimal logs, JSON structure
  *
  * Implements SPEC-ERR-LOG-001 to SPEC-ERR-LOG-005:
  * - Logs all HTTP requests
@@ -47,15 +46,28 @@ const prodFormat = ':remote-addr :method :url :status :response-time ms';
  * - Sanitizes sensitive data
  * - Skips health checks in production (reduce noise)
  */
-export const loggerMiddleware = morgan(
-  config.nodeEnv === 'production' ? prodFormat : devFormat,
-  {
-    skip: (req) => {
-      // Skip health check logs in production to reduce noise
-      if (config.nodeEnv === 'production' && req.url === '/api/health') {
-        return true;
-      }
-      return false;
-    },
+
+// Define format based on environment
+const getLogFormat = (): string => {
+  switch (config.nodeEnv) {
+    case 'development':
+      return 'dev'; // Colorized, detailed output
+    case 'staging':
+      return 'combined'; // Standard Apache combined log
+    case 'production':
+      return 'combined'; // Standard Apache combined log
+    default:
+      return 'combined';
   }
-);
+};
+
+// Create logger with environment-specific format
+export const loggerMiddleware = morgan(getLogFormat(), {
+  // Skip logging for health checks in production (reduce noise)
+  skip: (req, _res) => {
+    if (config.nodeEnv === 'production' && req.url === '/api/health') {
+      return true;
+    }
+    return false;
+  },
+});

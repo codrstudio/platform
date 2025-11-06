@@ -160,6 +160,25 @@
 - [x] Implementar proteção contra brute force
   Refs: SPEC-authentication.md (SPEC-AU-RL-009:013)
 
+#### Componente: Logout UI (User Story: Logout seguro)
+- [x] Criar SessionStatus component com informações do usuário
+  Refs: SPEC-authentication.md (SPEC-AU-LO-*, SPEC-AU-LA-*)
+
+- [x] Implementar botão de logout (sessão atual)
+  Refs: SPEC-authentication.md (SPEC-AU-LO-013:015)
+
+- [x] Implementar botão de logout-all (todos os dispositivos)
+  Refs: SPEC-authentication.md (SPEC-AU-LA-010)
+
+- [x] Adicionar confirmação antes de logout-all
+  Best practice: Prevenir logout acidental de todas as sessões
+
+- [x] Adicionar feedback visual com toast após logout
+  UX: Confirmar ação bem-sucedida ao usuário
+
+- [x] Criar AlertDialog component (shadcn/ui pattern)
+  Componente reutilizável para confirmações críticas
+
 ---
 
 ### SISTEMA 1.4: Acesso a Dados (JQEL) ✅
@@ -284,11 +303,11 @@
 - [x] Gerar CSS custom properties
   Refs: SPEC-theming.md (SPEC-TH-CS-001:008)
 
-- [ ] Aplicar tema globalmente  
+- [x] Aplicar tema globalmente
   Refs: SPEC-theming.md (SPEC-TH-AP-001:005)
 
 #### Componente: Settings Key
-- [ ] Implementar compartilhamento de tema por settings-key  
+- [x] Implementar compartilhamento de tema por settings-key
   Refs: SPEC-theming.md (SPEC-TH-SK-001:005)
 
 ---
@@ -296,30 +315,30 @@
 ### SISTEMA 1.7: Configuração ✅
 
 #### Componente: Platform Settings
-- [ ] Configurar .env para settings de plataforma  
+- [x] Configurar .env para settings de plataforma
   Refs: SPEC-configuration.md (SPEC-CF-PS-001:012)
 
-- [ ] Validar variáveis obrigatórias no startup  
+- [x] Validar variáveis obrigatórias no startup
   Refs: SPEC-configuration.md (SPEC-CF-PS-013:016)
 
-- [ ] Implementar carregamento por ambiente  
+- [x] Implementar carregamento por ambiente
   Refs: SPEC-configuration.md (SPEC-CF-PS-017:019)
 
 #### Componente: Application Settings
-- [ ] Criar estrutura de arquivos JSON  
+- [x] Criar estrutura de arquivos JSON
   Refs: SPEC-configuration.md (SPEC-CF-AS-001:004)
 
-- [ ] Implementar acesso via JQEL  
+- [x] Implementar acesso via JQEL
   Refs: SPEC-configuration.md (SPEC-CF-AS-005:008)
 
-- [ ] Implementar hot reload de configurações  
+- [x] Implementar hot reload de configurações
   Refs: SPEC-configuration.md (SPEC-CF-AS-012:013)
 
 #### Componente: n8n Integration
-- [ ] Implementar header X-Platform-Key  
+- [x] Implementar header X-Platform-Key
   Refs: SPEC-configuration.md (SPEC-CF-N8-001:006)
 
-- [ ] Validar chave de plataforma  
+- [x] Validar chave de plataforma
   Refs: SPEC-configuration.md (SPEC-CF-N8-007:009)
 
 ---
@@ -327,40 +346,40 @@
 ### SISTEMA 1.8: Tratamento de Erros ✅
 
 #### Componente: Error Boundaries
-- [ ] Criar GlobalErrorBoundary  
+- [x] Criar GlobalErrorBoundary
   Refs: SPEC-error-handling.md (SPEC-EH-EB-001:006)
 
-- [ ] Criar PortalErrorBoundary  
+- [x] Criar PortalErrorBoundary
   Refs: SPEC-error-handling.md (SPEC-EH-EB-007:010)
 
-- [ ] Criar ModuleErrorBoundary  
+- [x] Criar ModuleErrorBoundary
   Refs: SPEC-error-handling.md (SPEC-EH-EB-011:014)
 
 #### Componente: Logging System
-- [ ] Configurar Winston para logging  
+- [x] Configurar Winston para logging
   Refs: SPEC-error-handling.md (SPEC-EH-LO-001:010)
 
-- [ ] Implementar níveis (ERROR, WARN, INFO, DEBUG)  
+- [x] Implementar níveis (ERROR, WARN, INFO, DEBUG)
   Refs: SPEC-error-handling.md (SPEC-EH-LO-011:014)
 
-- [ ] Implementar logging estruturado  
+- [x] Implementar logging estruturado
   Refs: SPEC-error-handling.md (SPEC-EH-LO-015:018)
 
 #### Componente: Error Display
-- [ ] Implementar exibição via toast  
+- [x] Implementar exibição via toast
   Refs: SPEC-error-handling.md (SPEC-EH-DI-001:004)
 
-- [ ] Implementar exibição via modal  
+- [x] Implementar exibição via modal
   Refs: SPEC-error-handling.md (SPEC-EH-DI-005:007)
 
-- [ ] Implementar exibição inline  
+- [x] Implementar exibição inline
   Refs: SPEC-error-handling.md (SPEC-EH-DI-008:010)
 
 #### Componente: Retry Logic
-- [ ] Implementar retry com backoff exponencial  
+- [x] Implementar retry com backoff exponencial
   Refs: SPEC-error-handling.md (SPEC-EH-RE-001:007)
 
-- [ ] Implementar circuit breaker  
+- [x] Implementar circuit breaker
   Refs: SPEC-error-handling.md (SPEC-EH-RE-008:012)
 
 ---
@@ -368,31 +387,39 @@
 ### SISTEMA 1.9: Estado Frontend ✅
 
 #### Componente: Platform State
-- [ ] Criar PlatformContext  
+- [x] Criar PlatformContext
   Refs: SPEC-frontend-state.md (SPEC-FS-PL-001:007)
+  Implementado em: PlatformProvider.tsx (Task 1.9.1)
 
-- [ ] Gerenciar lista de portais  
+- [x] Gerenciar lista de portais
   Refs: SPEC-frontend-state.md (SPEC-FS-PL-008:010)
+  Implementado em: PlatformProvider.tsx (Task 1.9.2)
 
-- [ ] Gerenciar lista de módulos  
+- [x] Gerenciar lista de módulos
   Refs: SPEC-frontend-state.md (SPEC-FS-PL-011:013)
+  Implementado em: PlatformProvider.tsx (Task 1.9.3)
 
 #### Componente: Auth State
-- [ ] Criar AuthContext  
+- [x] Criar AuthContext
   Refs: SPEC-frontend-state.md (SPEC-FS-AU-001:007)
+  Implementado em: AuthProvider.tsx (Task 1.3.10)
 
-- [ ] Gerenciar tokens em memória  
+- [x] Gerenciar tokens em memória
   Refs: SPEC-frontend-state.md (SPEC-FS-AU-008:010)
+  Implementado em: AuthProvider.tsx (access token em state, refresh em storage)
 
-- [ ] Gerenciar user info  
+- [x] Gerenciar user info
   Refs: SPEC-frontend-state.md (SPEC-FS-AU-011:013)
+  Implementado em: AuthProvider.tsx (user state com todos os campos)
 
 #### Componente: Data State
-- [ ] Configurar QueryClient (TanStack Query)  
+- [x] Configurar QueryClient (TanStack Query)
   Refs: SPEC-frontend-state.md (SPEC-FS-DA-001:007)
+  Implementado em: main.tsx (Task 1.4.3)
 
-- [ ] Configurar cache defaults  
+- [x] Configurar cache defaults
   Refs: SPEC-frontend-state.md (SPEC-FS-DA-008:010)
+  Implementado em: main.tsx (refetchOnWindowFocus, retry, staleTime)
 
 #### Componente: Hydration Order
 - [ ] Implementar ordem de hidratação  
@@ -410,11 +437,13 @@
   Refs: SPEC-channels.md (SPEC-CH-P-*, SPEC-CH-B-*, SPEC-CH-S-*)
 
 #### Componente: Access Parameters
-- [ ] Implementar validação de parâmetros  
+- [x] Implementar validação de parâmetros
   Refs: SPEC-access-parameters.md (SPEC-AP-*)
+  Status: ✅ CONCLUÍDO - Task 1.10.3 (2025-11-06)
 
-- [ ] Implementar controle granular de permissões  
+- [x] Implementar controle granular de permissões
   Refs: SPEC-access-parameters.md (SPEC-AP-*)
+  Status: ✅ CONCLUÍDO - Task 1.10.4 (2025-11-06)
 
 ---
 
@@ -427,45 +456,56 @@
 
 ### SISTEMA 2.1: Module Infrastructure ✅
 
+**US-2.1: Infraestrutura de Módulos**
+- [x] Backend: Criar rotas `/api/1/portals` (GET / e GET /:portalId)
+- [x] Backend: Criar serviço de leitura de portals.json
+- [x] Frontend: Criar types para Portal e Routing
+- [x] Frontend: Criar portalClient para fetch de configurações
+- [x] Frontend: Criar PortalLoader para carregar configuração
+- [x] Frontend: Integrar React Router no App.tsx
+- [x] Frontend: Criar página NotFound para 404 global
+- [x] Validação: type-check backend e frontend
+Status: ✅ Completo (2025-11-06)
+
 #### Componente: Module Manifest
-- [ ] Definir estrutura do manifesto  
+- [ ] Definir estrutura do manifesto
   Refs: SPEC-modules.md (SPEC-MO-MA-001:013)
 
-- [ ] Implementar validação de manifesto  
+- [ ] Implementar validação de manifesto
   Refs: SPEC-modules.md (SPEC-MO-MA-005:006)
 
 #### Componente: Module Loading
-- [ ] Criar função loadModule()  
+- [ ] Criar função loadModule()
   Refs: SPEC-module-loading.md (SPEC-LOAD-I-001:005)
 
-- [ ] Implementar lazy loading com dynamic imports  
+- [ ] Implementar lazy loading com dynamic imports
   Refs: SPEC-module-loading.md (SPEC-LOAD-CS-001:005)
 
-- [ ] Implementar loading states  
+- [ ] Implementar loading states
   Refs: SPEC-module-loading.md (SPEC-LOAD-I-003:005)
 
 #### Componente: Dependency Resolution
-- [ ] Implementar resolução de dependências  
+- [ ] Implementar resolução de dependências
   Refs: SPEC-modules.md (SPEC-MO-DE-014:017), SPEC-module-loading.md (SPEC-LOAD-DEP-001:004)
 
-- [ ] Detectar dependências circulares  
+- [ ] Detectar dependências circulares
   Refs: SPEC-module-loading.md (SPEC-LOAD-DEP-005:007)
 
-- [ ] Ativar dependências automaticamente  
+- [ ] Ativar dependências automaticamente
   Refs: SPEC-modules.md (SPEC-MO-DE-007)
 
 #### Componente: Module Registry
-- [ ] Criar registry de módulos carregados  
+- [ ] Criar registry de módulos carregados
   Refs: SPEC-module-loading.md (SPEC-LOAD-C-001:002)
 
-- [ ] Criar registry de rotas por portal  
+- [ ] Criar registry de rotas por portal
   Refs: SPEC-module-loading.md (SPEC-LOAD-R-001:002)
 
-- [ ] Criar registry de componentes por portal  
+- [ ] Criar registry de componentes por portal
   Refs: SPEC-module-loading.md (SPEC-LOAD-C-003:005)
 
 #### Componente: Module Lifecycle
-- [ ] Implementar onActivate hook  
+- [ ] Implementar onActivate hook
   Refs: SPEC-modules.md (SPEC-MO-LC-009:013), SPEC-module-loading.md (SPEC-LOAD-E-007)
 
 - [ ] Implementar onDeactivate hook  

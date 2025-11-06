@@ -195,3 +195,13 @@ export function useToast() {
     dismiss: (toastId?: string) => dispatch({ type: 'DISMISS_TOAST', toastId }),
   };
 }
+
+// Re-export error toast utilities for convenience
+export {
+  showErrorToast,
+  showWarningToast,
+  showSuccessToast,
+  showInfoToast,
+  getErrorMessage,
+  type ErrorToastOptions
+} from '../services/logging/errorToast';

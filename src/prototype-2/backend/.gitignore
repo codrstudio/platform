@@ -11,7 +11,8 @@ dist/
 build/
 
 # Logs
-logs/
+logs/*.log
+logs/*.gz
 *.log
 npm-debug.log*
 yarn-debug.log*

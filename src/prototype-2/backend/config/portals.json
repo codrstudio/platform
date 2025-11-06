@@ -3,6 +3,7 @@
     "portalId": "main",
     "name": "Main Portal",
     "path": "/",
+    "settingsKey": "default",
     "active": true,
     "activeModules": [
       "setup"
@@ -14,6 +15,7 @@
     "portalId": "setup",
     "name": "Setup Portal",
     "path": "/setup",
+    "settingsKey": "default",
     "active": true,
     "activeModules": [
       "setup"

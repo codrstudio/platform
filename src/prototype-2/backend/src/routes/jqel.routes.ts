@@ -1,5 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { jqelValidationMiddleware } from '../middleware/jqelValidation.middleware.js';
+import { jqelParameterValidationMiddleware } from '../middleware/jqelParameterValidation.middleware.js';
+import { jqelAuthorizationMiddleware } from '../middleware/jqelAuthorization.middleware.js';
 import { jqelProcessor } from '../services/jqelProcessor.service.js';
 import type { JQELQuery, JResult } from '../types/jqel.types.js';
 
@@ -26,23 +28,27 @@ const router = Router();
  */
 router.post(
   '/',
-  jqelValidationMiddleware,
+  jqelValidationMiddleware,           // Basic structure validation
+  jqelParameterValidationMiddleware,  // Extended parameter validation
+  jqelAuthorizationMiddleware,        // Authorization check
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       // Extract validated query from body
       const query = req.body as JQELQuery;
 
-      // Log query for debugging (development only)
-      if (process.env.NODE_ENV === 'development') {
-        console.log('📊 JQEL Query:', {
-          schema: query.schema,
-          operation: query.select ? `SELECT ${query.select}` : `MUTATE ${query.mutate}`,
-          action: query.action,
-        });
-      }
+      // Context is now enriched by authorization middleware (req.jqelContext)
+      const context = req.jqelContext;
 
-      // Process query via processor service
-      const result: JResult = await jqelProcessor.process(query);
+      // Log query execution
+      console.log('ℹ️  Executing JQEL query:', {
+        schema: query.schema,
+        operation: query.select ? 'select' : 'mutate',
+        entity: query.select || query.mutate,
+        userId: context?.userId,
+      });
+
+      // Process query with enriched context
+      const result: JResult = await jqelProcessor.process(query, context);
 
       // Return result with appropriate HTTP status
       // SPEC-JQEL-RES-003:005: Use code field as HTTP status

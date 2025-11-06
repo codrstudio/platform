@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { JQELQuery, JResult } from '../types/jqel.types.js';
+import { configCache } from './configCache.service.js';
 
 /**
  * BackendProcessorService
@@ -11,6 +12,8 @@ import { JQELQuery, JResult } from '../types/jqel.types.js';
  * SPEC References:
  * - SPEC-DA-SC-008: Backend schema processed locally
  * - SPEC-CH-DA-019: Backend schema MUST be processed by Backend
+ *
+ * Task 1.7.6 - Hot reload: Uses in-memory cache with file watching
  */
 export class BackendProcessorService {
   private readonly configDir: string;
@@ -55,28 +58,16 @@ export class BackendProcessorService {
    * Process SELECT query
    *
    * Supports entities: portal, module, instance
+   * Task 1.7.6 - Uses cache instead of direct file read
    */
   private async processSelect(query: JQELQuery): Promise<JResult> {
     const entity = query.select!;
-    const filePath = this.getConfigPath(entity);
 
-    // Read configuration file
+    // Read from cache (cache will load from file if needed)
     let data: any[];
     try {
-      const fileContent = await fs.readFile(filePath, 'utf-8');
-      data = JSON.parse(fileContent);
-
-      // Ensure data is array
-      if (!Array.isArray(data)) {
-        data = [data];
-      }
+      data = await configCache.get(entity);
     } catch (error: any) {
-      // File not found or invalid JSON
-      if (error.code === 'ENOENT') {
-        // Return empty array for missing file (not an error)
-        return { code: 200, data: [] };
-      }
-
       return {
         code: 500,
         message: `Failed to read ${entity}: ${error.message}`,
@@ -176,6 +167,7 @@ export class BackendProcessorService {
 
   /**
    * Insert new record
+   * Task 1.7.6 - Invalidates cache after write
    */
   private async insert(
     data: any[],
@@ -196,11 +188,16 @@ export class BackendProcessorService {
     // Write back to file
     await this.writeConfig(filePath, data);
 
+    // Invalidate cache (Task 1.7.6)
+    const entity = query.mutate!;
+    configCache.invalidate(entity);
+
     return { code: 201, data: [query.values] };
   }
 
   /**
    * Update existing records
+   * Task 1.7.6 - Invalidates cache after write
    */
   private async update(
     data: any[],
@@ -242,6 +239,10 @@ export class BackendProcessorService {
     // Write back to file
     await this.writeConfig(filePath, data);
 
+    // Invalidate cache (Task 1.7.6)
+    const entity = query.mutate!;
+    configCache.invalidate(entity);
+
     // Return updated records
     const updated = this.applyWhere(data, query.where);
     return { code: 200, data: updated };
@@ -249,6 +250,7 @@ export class BackendProcessorService {
 
   /**
    * Delete records
+   * Task 1.7.6 - Invalidates cache after write
    */
   private async delete(
     data: any[],
@@ -274,6 +276,10 @@ export class BackendProcessorService {
 
     // Write back to file
     await this.writeConfig(filePath, data);
+
+    // Invalidate cache (Task 1.7.6)
+    const entity = query.mutate!;
+    configCache.invalidate(entity);
 
     const deletedCount = beforeCount - data.length;
     return { code: 200, message: `${deletedCount} records deleted` };
