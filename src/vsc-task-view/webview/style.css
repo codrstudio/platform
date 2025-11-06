@@ -67,22 +67,20 @@ body {
 
 /* Header section */
 .header {
-  margin-bottom: 16px;
-  padding-bottom: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--vscode-panel-border);
 }
 
-.header h2 {
-  font-size: 1.2em;
+.header .title {
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
   font-weight: 600;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   color: var(--vscode-foreground);
-}
-
-.header .subtitle {
-  font-size: 0.9em;
-  color: var(--vscode-descriptionForeground);
-  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* File selector */
@@ -107,38 +105,119 @@ body {
   outline-offset: -1px;
 }
 
-/* Statistics */
+/* Statistics badges */
 .stats {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  font-size: 0.85em;
+  align-items: center;
+  gap: 4px;
 }
 
-.stats span {
+.stats .spacer {
+  flex: 1;
+}
+
+.stats .badge {
+  min-width: 24px;
+  height: 20px;
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  font-size: 0.85em;
+  font-weight: 500;
+  cursor: help;
+  position: relative;
+}
+
+.stats .badge::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--vscode-editorHoverWidget-background);
+  color: var(--vscode-editorHoverWidget-foreground);
+  border: 1px solid var(--vscode-editorHoverWidget-border);
   padding: 4px 8px;
   border-radius: 3px;
-  font-weight: 500;
+  font-size: 0.9em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 1000;
 }
 
-.stats .pending {
+.stats .badge:hover::after {
+  opacity: 1;
+}
+
+.stats .badge.pending {
   background-color: var(--vscode-badge-background);
   color: var(--vscode-badge-foreground);
 }
 
-.stats .done {
+.stats .badge.done {
   background-color: var(--vscode-testing-iconPassed);
   color: var(--vscode-editor-background);
 }
 
-.stats .in-progress {
+.stats .badge.in-progress {
   background-color: var(--vscode-testing-iconQueued);
   color: var(--vscode-editor-background);
 }
 
-.stats .blocked {
+.stats .badge.blocked {
   background-color: var(--vscode-testing-iconFailed);
   color: var(--vscode-editor-background);
+}
+
+/* Action buttons (expand/collapse all) */
+.stats .action-btn {
+  min-width: 20px;
+  height: 20px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--vscode-button-border, transparent);
+  background-color: var(--vscode-button-secondaryBackground);
+  color: var(--vscode-button-secondaryForeground);
+  border-radius: 3px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.1s;
+}
+
+.stats .action-btn:hover {
+  background-color: var(--vscode-button-secondaryHoverBackground);
+}
+
+.stats .action-btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--vscode-editorHoverWidget-background);
+  color: var(--vscode-editorHoverWidget-foreground);
+  border: 1px solid var(--vscode-editorHoverWidget-border);
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 1000;
+  font-weight: normal;
+}
+
+.stats .action-btn:hover::after {
+  opacity: 1;
 }
 
 /* Task list */
@@ -237,6 +316,14 @@ body {
 }
 
 /* Heading styles - using accent color with varying opacity - SEM INDENTAÇÃO */
+.heading-item.h2 {
+  margin-top: 4px;
+}
+
+.heading-item.h2:first-child {
+  margin-top: 0;
+}
+
 .heading-item.h2 .accordion-header {
   background-color: var(--vscode-list-activeSelectionBackground);
   font-weight: 600;
@@ -277,9 +364,9 @@ body {
   font-size: 0.95em;
 }
 
-/* Task nível 2+ (aninhada) - fundo levemente mais claro */
+/* Task nível 2+ (aninhada) - fundo diferenciado */
 .task-item[data-has-children="true"] .accordion-content .task-item .accordion-header {
-  background-color: color-mix(in srgb, var(--vscode-sideBar-background) 98%, var(--vscode-foreground)) !important;
+  background-color: color-mix(in srgb, var(--vscode-sideBar-background) 70%, var(--vscode-editor-background)) !important;
 }
 
 .task-item .accordion-header:hover {

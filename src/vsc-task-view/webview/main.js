@@ -48,13 +48,15 @@ function renderPlan(plan) {
   app.innerHTML = `
     <div class="file-selector" id="file-selector"></div>
     <div class="header">
-      <h2>${escapeHtml(plan.title)}</h2>
-      <p class="subtitle">${escapeHtml(plan.subtitle)}</p>
+      <div class="title">${escapeHtml(plan.title)}</div>
       <div class="stats">
-        <span class="pending">${plan.stateCount.pending} pending</span>
-        <span class="done">${plan.stateCount.done} done</span>
-        <span class="in-progress">${plan.stateCount.inProgress} in progress</span>
-        <span class="blocked">${plan.stateCount.blocked} blocked</span>
+        <span class="badge pending" data-tooltip="Pending">${plan.stateCount.pending}</span>
+        <span class="badge done" data-tooltip="Done">${plan.stateCount.done}</span>
+        <span class="badge in-progress" data-tooltip="In Progress">${plan.stateCount.inProgress}</span>
+        <span class="badge blocked" data-tooltip="Blocked">${plan.stateCount.blocked}</span>
+        <span class="spacer"></span>
+        <button class="action-btn" id="collapse-all" data-tooltip="Collapse All">−</button>
+        <button class="action-btn" id="expand-all" data-tooltip="Expand All">+</button>
       </div>
     </div>
     <div class="task-list">
@@ -67,6 +69,9 @@ function renderPlan(plan) {
 
   // Attach click handlers
   attachHandlers();
+
+  // Attach expand/collapse all handlers
+  attachExpandCollapseHandlers();
 }
 
 /**
@@ -192,6 +197,7 @@ function getCheckboxClass(state, aggregatedStatus = null) {
 function attachHandlers() {
   // Click on header to toggle (expand/collapse)
   document.querySelectorAll('.accordion-header').forEach(el => {
+    // Single click: toggle expand/collapse
     el.addEventListener('click', (e) => {
       // Don't toggle if clicking on link icon
       if (e.target.closest('.link-icon')) {
@@ -210,11 +216,30 @@ function attachHandlers() {
         renderPlan(currentPlan);
       }
     });
+
+    // Double-click on description: navigate to line
+    el.addEventListener('dblclick', (e) => {
+      // Don't navigate if clicking on link icon (it has its own handler)
+      if (e.target.closest('.link-icon')) {
+        return;
+      }
+
+      e.stopPropagation();
+
+      const line = parseInt(el.dataset.line);
+      const file = currentPlan.filePath;
+
+      vscode.postMessage({
+        type: 'navigateToLine',
+        filePath: file,
+        line: line
+      });
+    });
   });
 
-  // Double-click on link icon to navigate to file
+  // Single-click on link icon: navigate to file
   document.querySelectorAll('.link-icon').forEach(el => {
-    el.addEventListener('dblclick', (e) => {
+    el.addEventListener('click', (e) => {
       e.stopPropagation();
 
       const line = parseInt(el.dataset.line);
@@ -227,6 +252,42 @@ function attachHandlers() {
       });
     });
   });
+}
+
+/**
+ * Attaches expand/collapse all handlers
+ */
+function attachExpandCollapseHandlers() {
+  const expandAllBtn = document.getElementById('expand-all');
+  const collapseAllBtn = document.getElementById('collapse-all');
+
+  if (expandAllBtn) {
+    expandAllBtn.addEventListener('click', () => {
+      // Recursively collect all item IDs that have children
+      function collectAllIds(items) {
+        const ids = [];
+        items.forEach(item => {
+          if (item.children && item.children.length > 0) {
+            ids.push(item.id);
+            ids.push(...collectAllIds(item.children));
+          }
+        });
+        return ids;
+      }
+
+      // Expand all items with children
+      const allIds = collectAllIds(currentPlan.tasks);
+      allIds.forEach(id => expandedSections.add(id));
+      renderPlan(currentPlan);
+    });
+  }
+
+  if (collapseAllBtn) {
+    collapseAllBtn.addEventListener('click', () => {
+      expandedSections.clear();
+      renderPlan(currentPlan);
+    });
+  }
 }
 
 /**
