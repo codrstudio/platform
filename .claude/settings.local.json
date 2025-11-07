@@ -5,9 +5,14 @@
       "Bash(curl:*)",
       "Bash(npm run dev:*)",
       "Bash(git worktree add:*)",
-      "Bash(git worktree:*)"
+      "Bash(git worktree:*)",
+      "Bash(npm run type-check:*)"
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "enableAllProjectMcpServers": false,
+  "disabledMcpjsonServers": [
+    "shadcn"
+  ]
 }
