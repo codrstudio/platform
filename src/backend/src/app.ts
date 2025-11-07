@@ -5,6 +5,7 @@ import morgan from 'morgan'
 import { env } from './config/env.js'
 import authRoutes from './routes/auth.routes.js'
 import jqelRoutes from './routes/jqel.routes.js'
+import eventsRoutes from './routes/events.routes.js'
 
 const app = express()
 
@@ -54,6 +55,9 @@ app.use('/api/1/auth', authRoutes)
 
 // JQEL routes (SPEC-DA-W-005)
 app.use('/api/jqel', jqelRoutes)
+
+// Events routes (SPEC-EV-SSE-005, SPEC-CH-EV-015)
+app.use('/api/events', eventsRoutes)
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

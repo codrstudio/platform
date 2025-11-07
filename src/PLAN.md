@@ -424,7 +424,7 @@
 
 ### EPIC 1.5: Notificações em Tempo Real
 
-- [ ] Story: Receber notificações
+- [x] Story: Receber notificações
 
   > Como usuário,
   > Quero receber notificações em tempo real,
@@ -435,7 +435,16 @@
   - spec/ui/notification-module-interfaces.md (UI/UX)
   - spec/ui/notification-events-module-interfaces.md (UI/UX)
 
-- [ ] Story: Tarefas interativas
+  Implementação:
+  - Backend: event.types.ts, redis.service.ts, sse.service.ts, events.routes.ts
+  - Frontend: event.ts (types), sseClient.ts, useSSE.ts, EventContext.tsx
+  - UI: EventNotification.tsx (toast notifications), ConnectionStatus.tsx
+  - Redis Pub/Sub + Streams implementados (SPEC-EV-PS-*, SPEC-EV-ST-*)
+  - SSE com auto-reconnect e heartbeat (SPEC-EV-SSE-*)
+  - Integração com TanStack Query para invalidação de queries (SPEC-EV-FR-001)
+  - Validação: type-check e build passaram em frontend e backend
+
+- [x] Story: Tarefas interativas
 
   > Como usuário,
   > Quero receber tarefas que requerem minha ação,
@@ -445,13 +454,26 @@
   - SPEC-events.md (SPEC-EV-TA-*)
   - spec/ui/task-module-interfaces.md (UI/UX)
 
-- [ ] Story: Sincronização offline
+  Implementação:
+  - Tipos TaskEvent implementados com status (pending, completed, cancelled)
+  - Task events suportados no sistema de eventos
+  - UI notifications exibem tasks com visual diferenciado
+  - Handlers configurados via useEventListener hook
+
+- [x] Story: Sincronização offline
 
   > Como usuário,
   > Quero que eventos sejam sincronizados quando volto online,
   > Para não perder informações importantes
 
   Refs: SPEC-events.md (SPEC-EV-OF-*, SPEC-EV-ST-*)
+
+  Implementação:
+  - Redis Streams armazenam eventos para usuários offline (MAXLEN ~1000)
+  - Endpoint /api/events/history para recuperar eventos perdidos
+  - sseClient.fetchMissedEvents() busca eventos ao reconectar
+  - lastEventId rastreado para recovery preciso (SPEC-EV-SSE-028)
+  - Eventos recuperados processados como novos (SPEC-EV-FR-006)
 
 ---
 

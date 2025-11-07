@@ -14,7 +14,9 @@ const envSchema = z.object({
   N8N_SHARED_SECRET: z.string().min(32, 'N8N_SHARED_SECRET must be at least 32 characters'),
 
   // Redis
-  REDIS_URL: z.string().default('redis://localhost:6379'),
+  REDIS_HOST: z.string().default('localhost'),
+  REDIS_PORT: z.coerce.number().default(6379),
+  REDIS_PASSWORD: z.string().optional(),
   REDIS_DB: z.coerce.number().min(0).max(15).default(0),
 
   // JWT

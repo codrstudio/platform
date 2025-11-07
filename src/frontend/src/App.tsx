@@ -2,9 +2,11 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Suspense } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
+import { EventProvider } from './contexts/EventContext';
 import { ProtectedRoute } from './components/routing/ProtectedRoute';
 import { PortalRouter } from './components/routing/PortalRouter';
 import { LoginPage, NotFoundPage } from './pages';
+import { EventNotification, ConnectionStatus } from './components/events';
 import { Loader2 } from 'lucide-react';
 
 /**
@@ -60,7 +62,12 @@ function App() {
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <Suspense fallback={<LoadingFallback />}>
+          <EventProvider>
+            <Suspense fallback={<LoadingFallback />}>
+            {/* Event system UI components */}
+            <EventNotification />
+            <ConnectionStatus />
+
             <Routes>
               {/* Public route: Login */}
               <Route path="/login" element={<LoginPage />} />
@@ -79,6 +86,7 @@ function App() {
               />
             </Routes>
           </Suspense>
+          </EventProvider>
         </AuthProvider>
       </QueryClientProvider>
     </BrowserRouter>
