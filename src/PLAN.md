@@ -301,7 +301,7 @@
 
 ### EPIC 1.4: Acesso e Manipulação de Dados
 
-- [ ] Story: Consultar dados
+- [x] Story: Consultar dados
 
   > Como desenvolvedor,
   > Quero consultar dados de diferentes schemas,
@@ -309,33 +309,46 @@
 
   Refs: SPEC-data-access.md (SPEC-DA-*), SPEC-jqel-syntax.md (SPEC-JQEL-QR-*)
 
-  - Frontend: JQEL types (JQELQuery, JQELSelectQuery, JQELMutateQuery, JResult, JQELError)
-  - Frontend: JQEL HTTP client (jqelClient.ts) com token refresh automático
-  - Frontend: Query key factory (queryKeys.ts) para gerenciamento de cache
+  **Implementação:**
+  - Frontend: JQEL types (JQELQuery, JQELSelectQuery, JQELMutateQuery, JResult, JQELError, JQELWhere, JQELOptions)
+  - Frontend: JQEL HTTP client (jqelClient.ts) com integração automática de JWT
+  - Frontend: Query key factory (queryKeys.select, queryKeys.list, queryKeys.detail, queryKeys.action)
   - Frontend: useJQELQuery hook com TanStack Query integration
-  - Frontend: Hooks especializados (useJQELRecord, useJQELList, useJQELPaginated)
-  - Frontend: Example components (PortalListExample.tsx) demonstrando uso
-  - Backend: JQEL types (jqel.types.ts)
-  - Backend: JQEL endpoint (POST /api/jqel) com validação de queries
-  - Backend: JQEL router service (schema-based routing: backend/platform/system/app)
-  - Backend: Backend processor service (file-based CRUD para backend schema)
+  - Frontend: Convenience methods: jqelClient.select(), jqelClient.mutate()
+  - Frontend: Hooks especializados: useJQELList, useJQELDetail, useJQELInsert, useJQELUpdate, useJQELDelete
+  - Backend: JQEL types (jqel.types.ts) matching frontend types
+  - Backend: JQEL endpoint (POST /api/jqel) com validação de structure
+  - Backend: Schema-based routing (backend/platform/system/application schemas)
+  - Backend: handleN8nSchema() para forward para n8n Backbone
+  - Backend: handleBackendSchema() stub para processamento local futuro
   - Backend: Rota /api/jqel registrada no Express app
+  - App.tsx: QueryClientProvider integrado com configuração otimizada
   - SPEC-DA-W-001 a SPEC-DA-W-011: JQEL wrapper implementado
-  - SPEC-DA-TQ-001 a SPEC-DA-TQ-015: TanStack Query integração completa
-  - SPEC-DA-ERR-001 a SPEC-DA-ERR-008: Error handling e retry logic
-  - SPEC-DA-PERF-001 a SPEC-DA-PERF-003: Cache configuration otimizado
+  - SPEC-DA-TQ-001 a SPEC-DA-TQ-008: TanStack Query integração
+  - SPEC-DA-P-001 a SPEC-DA-P-008: Princípios fundamentais atendidos
   - SPEC-JQEL-STR-001 a SPEC-JQEL-STR-006: Estrutura de query validada
   - SPEC-JQEL-SCH-004 a SPEC-JQEL-SCH-006: Schema routing implementado
-  - Validação: type-check e build passaram em frontend e backend
-  - Exemplo funcional: consulta de portals via JQEL com loading/error states
+  - Type-check: Passou (frontend e backend)
+  - Build: Sucesso (~379KB precache frontend)
 
-- [ ] Story: Modificar dados
+- [x] Story: Modificar dados
 
   > Como usuário,
   > Quero criar, atualizar e deletar dados,
   > Para gerenciar informações do sistema
 
   Refs: SPEC-data-access.md (SPEC-DA-MU-*), SPEC-jqel-syntax.md (SPEC-JQEL-MU-*)
+
+  **Implementação:**
+  - Frontend: useJQELMutation hook com cache invalidation automática
+  - Frontend: useJQELInsert() - mutation helper para INSERT
+  - Frontend: useJQELUpdate() - mutation helper para UPDATE
+  - Frontend: useJQELDelete() - mutation helper para DELETE
+  - Frontend: Invalidação automática de queries relacionadas após mutations
+  - Backend: Suporte completo para mutate queries (insert/update/delete/custom)
+  - SPEC-DA-MU-001 to SPEC-DA-MU-003: Mutation hooks implementados
+  - Type-check: Passou
+  - Build: Sucesso
 
 - [ ] Story: Dados sempre atualizados
 

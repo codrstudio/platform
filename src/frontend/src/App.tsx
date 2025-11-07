@@ -1,10 +1,30 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Suspense } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/routing/ProtectedRoute';
 import { PortalRouter } from './components/routing/PortalRouter';
 import { LoginPage, NotFoundPage } from './pages';
 import { Loader2 } from 'lucide-react';
+
+/**
+ * TanStack Query Client Configuration
+ * SPEC-DA-TQ-006 to SPEC-DA-TQ-007: Query client configuration
+ */
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,      // 5 minutes
+      gcTime: 1000 * 60 * 30,         // 30 minutes (formerly cacheTime)
+      retry: 1,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
+    },
+    mutations: {
+      retry: 0,
+    },
+  },
+});
 
 /**
  * Loading Fallback Component
@@ -26,37 +46,41 @@ function LoadingFallback() {
  *
  * Architecture:
  * - BrowserRouter: Client-side routing
+ * - QueryClientProvider: TanStack Query data management
  * - AuthProvider: Global authentication state
  * - Suspense: Lazy loading fallback
  * - Routes: Application routing structure
  *
  * SPEC-R-PM-001: Main portal uses "/"
  * SPEC-R-PO-001: Other portals use "/:portalId/*"
+ * SPEC-DA-P-005: TanStack Query encapsulates JQEL
  */
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Suspense fallback={<LoadingFallback />}>
-          <Routes>
-            {/* Public route: Login */}
-            <Route path="/login" element={<LoginPage />} />
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <Suspense fallback={<LoadingFallback />}>
+            <Routes>
+              {/* Public route: Login */}
+              <Route path="/login" element={<LoginPage />} />
 
-            {/* Protected routes: Portal navigation */}
-            <Route
-              path="/*"
-              element={
-                <ProtectedRoute>
-                  <PortalRouter>
-                    {/* 404 fallback */}
-                    <Route path="*" element={<NotFoundPage />} />
-                  </PortalRouter>
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </Suspense>
-      </AuthProvider>
+              {/* Protected routes: Portal navigation */}
+              <Route
+                path="/*"
+                element={
+                  <ProtectedRoute>
+                    <PortalRouter>
+                      {/* 404 fallback */}
+                      <Route path="*" element={<NotFoundPage />} />
+                    </PortalRouter>
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </Suspense>
+        </AuthProvider>
+      </QueryClientProvider>
     </BrowserRouter>
   );
 }

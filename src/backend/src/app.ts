@@ -4,6 +4,7 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import { env } from './config/env.js'
 import authRoutes from './routes/auth.routes.js'
+import jqelRoutes from './routes/jqel.routes.js'
 
 const app = express()
 
@@ -50,6 +51,9 @@ app.get('/health', (_req: Request, res: Response) => {
 
 // Authentication routes (SPEC-AU-RO-001)
 app.use('/api/1/auth', authRoutes)
+
+// JQEL routes (SPEC-DA-W-005)
+app.use('/api/jqel', jqelRoutes)
 
 // 404 handler
 app.use((_req: Request, res: Response) => {
