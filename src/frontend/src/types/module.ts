@@ -1,6 +1,8 @@
 // Module Type Definitions
 // Based on SPEC-modules.md
 
+import type React from 'react';
+
 /**
  * Module route definition
  */
@@ -8,6 +10,11 @@ export interface ModuleRoute {
   path: string;
   component: React.ComponentType<any>;
   index?: boolean;
+  isPublic?: boolean;
+  meta?: {
+    title?: string;
+    description?: string;
+  };
 }
 
 /**
@@ -15,28 +22,50 @@ export interface ModuleRoute {
  * Defines the metadata and capabilities of a module
  */
 export interface ModuleManifest {
-  moduleId: string;
+  id: string; // Module ID (alias for moduleId)
+  moduleId?: string; // Optional for backwards compatibility
   version: string;
   name: string;
   description: string;
   type: 'functionality' | 'component';
-  category: 'system' | 'business' | 'productivity' | 'communication';
+  category: 'system' | 'business' | 'productivity' | 'communication' | 'core';
+  author?: string;
   dependencies: string[];
-  routes: Array<{
+  capabilities?: {
+    providesAuth?: boolean;
+    providesRoutes?: boolean;
+    providesComponents?: boolean;
+    providesWidgets?: boolean;
+  };
+  routes?: Array<{
     path: string;
     index?: boolean;
   }>;
-  widgets: Array<{
+  widgets?: Array<{
     widgetId: string;
     name: string;
     description: string;
   }>;
-  components: Array<{
+  components?: Array<{
     componentId: string;
     name: string;
     description: string;
   }>;
   permissions: string[];
+  config?: {
+    schema?: any;
+    defaults?: Record<string, any>;
+  };
+}
+
+/**
+ * Module exports
+ */
+export interface ModuleExports {
+  manifest: ModuleManifest;
+  routes?: ModuleRoute[];
+  components?: Record<string, React.ComponentType<any>>;
+  widgets?: Record<string, React.ComponentType<any>>;
 }
 
 /**
