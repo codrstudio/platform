@@ -41,16 +41,34 @@ class RedisService {
   }
 
   private async connect(): Promise<void> {
+    // Graceful failure: Don't try to reconnect if already connected
+    if (this.isConnected) {
+      return
+    }
+
     try {
-      await Promise.all([
-        this.client.connect(),
-        this.subscriber.connect(),
-        this.publisher.connect(),
-      ])
+      // Check if clients are already connected before trying to connect
+      const connectPromises = []
+
+      if (!this.client.isOpen) {
+        connectPromises.push(this.client.connect())
+      }
+      if (!this.subscriber.isOpen) {
+        connectPromises.push(this.subscriber.connect())
+      }
+      if (!this.publisher.isOpen) {
+        connectPromises.push(this.publisher.connect())
+      }
+
+      if (connectPromises.length > 0) {
+        await Promise.all(connectPromises)
+      }
+
       this.isConnected = true
-      console.log('✓ Redis connected successfully')
+      console.log('[Redis] Connected successfully')
     } catch (error) {
-      console.error('Failed to connect to Redis:', error)
+      console.error('[Redis] Failed to connect:', error instanceof Error ? error.message : error)
+      console.log('[Redis] System will continue without Redis support')
       this.isConnected = false
     }
   }
@@ -81,6 +99,12 @@ class RedisService {
       await this.connect()
     }
 
+    // Graceful failure: If still not connected, skip subscription
+    if (!this.isConnected) {
+      console.warn(`[Redis] Cannot subscribe to channel "${channel}" - Redis unavailable`)
+      return
+    }
+
     await this.subscriber.subscribe(channel, (message) => {
       callback(message)
     })
@@ -95,11 +119,18 @@ class RedisService {
       if (!this.isConnected) {
         await this.connect()
       }
+
+      // Graceful failure: If still not connected, log and return
+      if (!this.isConnected) {
+        console.warn(`[Redis] Cannot publish to channel "${channel}" - Redis unavailable`)
+        return
+      }
+
       const message = JSON.stringify(event)
       await this.publisher.publish(channel, message)
     } catch (error) {
       // SPEC-EV-PS-012: Error should not interrupt workflow
-      console.error('Failed to publish event:', error)
+      console.error('[Redis] Failed to publish event:', error instanceof Error ? error.message : error)
     }
   }
 
@@ -112,6 +143,13 @@ class RedisService {
       if (!this.isConnected) {
         await this.connect()
       }
+
+      // Graceful failure: If still not connected, log and return
+      if (!this.isConnected) {
+        console.warn(`[Redis] Cannot add to stream "${streamKey}" - Redis unavailable`)
+        return
+      }
+
       // SPEC-EV-ST-008: MAXLEN ~ 1000 (approximate for performance)
       await this.client.xAdd(
         streamKey,
@@ -120,7 +158,7 @@ class RedisService {
         { TRIM: { strategy: 'MAXLEN', threshold: 1000, strategyModifier: '~' } }
       )
     } catch (error) {
-      console.error('Failed to add event to stream:', error)
+      console.error('[Redis] Failed to add event to stream:', error instanceof Error ? error.message : error)
     }
   }
 
@@ -172,6 +210,13 @@ class RedisService {
     if (!this.isConnected) {
       await this.connect()
     }
+
+    // Graceful failure
+    if (!this.isConnected) {
+      console.warn(`[Redis] Cannot SET key "${key}" - Redis unavailable`)
+      return
+    }
+
     if (ttlSeconds) {
       await this.client.setEx(key, ttlSeconds, value)
     } else {
@@ -186,6 +231,13 @@ class RedisService {
     if (!this.isConnected) {
       await this.connect()
     }
+
+    // Graceful failure
+    if (!this.isConnected) {
+      console.warn(`[Redis] Cannot GET key "${key}" - Redis unavailable`)
+      return null
+    }
+
     return await this.client.get(key)
   }
 
@@ -196,6 +248,13 @@ class RedisService {
     if (!this.isConnected) {
       await this.connect()
     }
+
+    // Graceful failure
+    if (!this.isConnected) {
+      console.warn(`[Redis] Cannot DEL key "${key}" - Redis unavailable`)
+      return
+    }
+
     await this.client.del(key)
   }
 

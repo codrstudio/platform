@@ -25,14 +25,20 @@ class SSEService {
    * SPEC-EV-PS-005, SPEC-EV-AR-001
    */
   private async subscribeToEvents(): Promise<void> {
-    await redisService.subscribe('platform:events', (message: string) => {
-      try {
-        const event: PlatformEvent = JSON.parse(message)
-        this.broadcastEvent(event)
-      } catch (error) {
-        console.error('Failed to parse event from Redis:', error)
-      }
-    })
+    try {
+      await redisService.subscribe('platform:events', (message: string) => {
+        try {
+          const event: PlatformEvent = JSON.parse(message)
+          this.broadcastEvent(event)
+        } catch (error) {
+          console.error('[SSE] Failed to parse event from Redis:', error instanceof Error ? error.message : error)
+        }
+      })
+    } catch (error) {
+      // Graceful failure: SSE can work without Redis (just no real-time events)
+      console.warn('[SSE] Cannot subscribe to Redis events - real-time updates disabled')
+      console.log('[SSE] Connections will still work for direct pushes')
+    }
   }
 
   /**

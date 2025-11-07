@@ -10,6 +10,19 @@ const server = app.listen(env.PORT, () => {
   console.log(`✓ Server started successfully`)
 })
 
+// Handle port already in use error
+server.on('error', (error: NodeJS.ErrnoException) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error()
+    console.error(`❌ ERROR: Port ${env.PORT} is already in use`)
+    console.error(`❌ Backend MUST run on port ${env.PORT}`)
+    console.error(`❌ Port reconfiguration is FORBIDDEN`)
+    console.error()
+    process.exit(1)
+  }
+  throw error
+})
+
 // Graceful shutdown
 const gracefulShutdown = (signal: string) => {
   console.log()

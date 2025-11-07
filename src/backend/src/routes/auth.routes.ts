@@ -7,6 +7,29 @@ import { n8nProxy } from '../services/n8nProxy.service.js';
 const router = Router();
 
 /**
+ * Helper function to handle n8n errors gracefully
+ */
+function handleN8nError(error: any, res: Response, defaultMessage: string) {
+  const status = error.response?.status || 500;
+
+  // Check if n8n is unreachable (graceful degradation)
+  if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
+    console.error('[Auth] n8n backend unavailable:', error.message);
+    return res.status(503).json({
+      code: 'service_unavailable',
+      message: 'Authentication service temporarily unavailable',
+    });
+  }
+
+  const data = error.response?.data || {
+    code: 'internal_error',
+    message: defaultMessage,
+  };
+
+  return res.status(status).json(data);
+}
+
+/**
  * POST /api/1/auth/login
  * SPEC-AU-RO-005, SPEC-AU-LI-001 to SPEC-AU-LI-026
  *
@@ -35,14 +58,7 @@ router.post('/login', async (req: Request, res: Response) => {
     // Return response from n8n
     return res.status(response.status || 200).json(response.data);
   } catch (error: any) {
-    // Handle n8n errors
-    const status = error.response?.status || 500;
-    const data = error.response?.data || {
-      code: 'internal_error',
-      message: 'Internal server error',
-    };
-
-    return res.status(status).json(data);
+    return handleN8nError(error, res, 'Internal server error');
   }
 });
 
@@ -73,13 +89,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
 
     return res.status(response.status || 200).json(response.data);
   } catch (error: any) {
-    const status = error.response?.status || 500;
-    const data = error.response?.data || {
-      code: 'internal_error',
-      message: 'Token refresh failed',
-    };
-
-    return res.status(status).json(data);
+    return handleN8nError(error, res, 'Token refresh failed');
   }
 });
 
@@ -111,13 +121,7 @@ router.post('/logout', async (req: Request, res: Response) => {
 
     return res.status(response.status || 200).json(response.data);
   } catch (error: any) {
-    const status = error.response?.status || 500;
-    const data = error.response?.data || {
-      code: 'internal_error',
-      message: 'Logout failed',
-    };
-
-    return res.status(status).json(data);
+    return handleN8nError(error, res, 'Logout failed');
   }
 });
 
@@ -157,13 +161,7 @@ router.post('/logout-all', async (req: Request, res: Response) => {
 
     return res.status(response.status || 200).json(response.data);
   } catch (error: any) {
-    const status = error.response?.status || 500;
-    const data = error.response?.data || {
-      code: 'internal_error',
-      message: 'Logout all failed',
-    };
-
-    return res.status(status).json(data);
+    return handleN8nError(error, res, 'Logout all failed');
   }
 });
 
@@ -209,13 +207,7 @@ router.post('/authorize', async (req: Request, res: Response) => {
 
     return res.status(response.status || 200).json(response.data);
   } catch (error: any) {
-    const status = error.response?.status || 500;
-    const data = error.response?.data || {
-      code: 'internal_error',
-      message: 'Authorization failed',
-    };
-
-    return res.status(status).json(data);
+    return handleN8nError(error, res, 'Authorization failed');
   }
 });
 
