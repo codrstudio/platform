@@ -47,11 +47,13 @@ export interface ThemeContextValue {
 }
 
 /**
- * Default Brand Color (blue)
+ * Default Brand Color (vibrant orange from brand)
  * SPEC-TH-BC-022
+ * Color: #ff7f2a (Laranja Vibrante)
+ * Source: public/brand-colors.json
  */
 export const DEFAULT_BRAND_COLOR: BrandColor = {
-  hue: 221,
-  saturation: 83,
-  lightness: 53,
+  hue: 24,
+  saturation: 100,
+  lightness: 58,
 }
