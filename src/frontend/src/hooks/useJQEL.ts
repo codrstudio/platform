@@ -167,3 +167,158 @@ export function useJQELDelete<T = unknown>(
     options
   );
 }
+
+/**
+ * Domain-Specific Hooks for Backend Schema
+ */
+
+// Portal Types
+export interface Portal {
+  portalId: string
+  name: string
+  description?: string
+  settingsKey: string
+  activeModules: string[]
+  removable: boolean
+  metadata?: Record<string, unknown>
+}
+
+// Module Types
+export interface Module {
+  moduleId: string
+  name: string
+  description?: string
+  type: 'component' | 'functionality'
+  category?: 'system' | 'business' | 'productivity' | 'communication'
+  dependencies: string[]
+  version: string
+  enabled: boolean
+  metadata?: Record<string, unknown>
+}
+
+// Instance Types
+export interface Instance {
+  instanceId: string
+  portalId: string
+  moduleId: string
+  config: Record<string, unknown>
+  active: boolean
+  createdAt?: string
+  updatedAt?: string
+  metadata?: Record<string, unknown>
+}
+
+/**
+ * Portal Hooks
+ */
+export function usePortals() {
+  return useJQELList<Portal>('backend', 'portal')
+}
+
+export function usePortal(portalId: string) {
+  return useJQELQuery<Portal[]>({
+    schema: 'backend',
+    select: 'portal',
+    where: { portalId: { $eq: portalId } },
+  }, {
+    enabled: !!portalId,
+  })
+}
+
+export function useCreatePortal() {
+  return useJQELInsert<Portal>('backend', 'portal')
+}
+
+export function useUpdatePortal() {
+  return useJQELUpdate<Portal>('backend', 'portal')
+}
+
+export function useDeletePortal() {
+  return useJQELDelete<null>('backend', 'portal')
+}
+
+/**
+ * Module Hooks
+ */
+export function useModules() {
+  return useJQELList<Module>('backend', 'module')
+}
+
+export function useModule(moduleId: string) {
+  return useJQELQuery<Module[]>({
+    schema: 'backend',
+    select: 'module',
+    where: { moduleId: { $eq: moduleId } },
+  }, {
+    enabled: !!moduleId,
+  })
+}
+
+/**
+ * Get modules active in a specific portal
+ */
+export function usePortalModules(portalId: string) {
+  const { data: portalResult, isLoading: isLoadingPortal } = usePortal(portalId)
+  const { data: modulesResult, isLoading: isLoadingModules } = useModules()
+
+  const portal = portalResult?.data?.[0]
+  const modules = modulesResult?.data || []
+  const activeModuleIds = portal?.activeModules || []
+
+  // Filter modules that are active in this portal
+  const portalModules = modules.filter(m => activeModuleIds.includes(m.moduleId))
+
+  return {
+    data: portalModules,
+    isLoading: isLoadingPortal || isLoadingModules,
+    portal,
+  }
+}
+
+/**
+ * Instance Hooks
+ */
+export function useInstances(portalId?: string, moduleId?: string) {
+  const where: Record<string, any> = {}
+
+  if (portalId) {
+    where.portalId = { $eq: portalId }
+  }
+
+  if (moduleId) {
+    where.moduleId = { $eq: moduleId }
+  }
+
+  return useJQELQuery<Instance[]>({
+    schema: 'backend',
+    select: 'instance',
+    ...(Object.keys(where).length > 0 && { where }),
+  }, {
+    enabled: !!portalId || !!moduleId,
+  })
+}
+
+export function useInstance(instanceId: string, portalId: string) {
+  return useJQELQuery<Instance[]>({
+    schema: 'backend',
+    select: 'instance',
+    where: {
+      instanceId: { $eq: instanceId },
+      portalId: { $eq: portalId },
+    },
+  }, {
+    enabled: !!instanceId && !!portalId,
+  })
+}
+
+export function useCreateInstance() {
+  return useJQELInsert<Instance>('backend', 'instance')
+}
+
+export function useUpdateInstance() {
+  return useJQELUpdate<Instance>('backend', 'instance')
+}
+
+export function useDeleteInstance() {
+  return useJQELDelete<null>('backend', 'instance')
+}
