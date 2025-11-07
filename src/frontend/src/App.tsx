@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Suspense } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { EventProvider } from './contexts/EventContext';
 import { ProtectedRoute } from './components/routing/ProtectedRoute';
@@ -8,6 +9,7 @@ import { PortalRouter } from './components/routing/PortalRouter';
 import { LoginPage, NotFoundPage } from './pages';
 import { EventNotification, ConnectionStatus } from './components/events';
 import { Loader2 } from 'lucide-react';
+import { Toaster } from '@/components/ui/sonner';
 
 /**
  * TanStack Query Client Configuration
@@ -61,9 +63,19 @@ function App() {
   return (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <EventProvider>
-            <Suspense fallback={<LoadingFallback />}>
+        <ThemeProvider>
+          <AuthProvider>
+            <EventProvider>
+              <Suspense fallback={<LoadingFallback />}>
+            {/* Global toast notifications - SPEC-ERR-UI-001 */}
+            <Toaster
+              position="bottom-right"
+              expand={false}
+              richColors
+              closeButton
+              duration={5000}
+            />
+
             {/* Event system UI components */}
             <EventNotification />
             <ConnectionStatus />
@@ -86,8 +98,9 @@ function App() {
               />
             </Routes>
           </Suspense>
-          </EventProvider>
-        </AuthProvider>
+            </EventProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </QueryClientProvider>
     </BrowserRouter>
   );

@@ -2,10 +2,12 @@
 // Based on SPEC-routing.md and SPEC-concepts.md
 
 import { Routes, Route, Navigate, useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { portalService } from '@/services/portalService';
-import type { Portal } from '@/types/portal';
+import { Suspense } from 'react';
+import { usePortal } from '@/hooks/useJQEL';
 import { Loader2 } from 'lucide-react';
+import { PortalDefaultView } from '@/components/portal/PortalDefaultView';
+import { useTheme } from '@/contexts/ThemeContext';
+import { renderSetupRoutes } from '@/modules/setup';
 
 interface PortalRouterProps {
   children?: React.ReactNode;
@@ -16,30 +18,10 @@ interface PortalRouterProps {
  * Displays content for a specific portal
  */
 function PortalContent({ portalId }: { portalId: string }) {
-  const [portal, setPortal] = useState<Portal | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { mode } = useTheme();
+  const { data: portalResult, isLoading, error } = usePortal(portalId);
 
-  useEffect(() => {
-    const loadPortal = async () => {
-      try {
-        setIsLoading(true);
-        const data = await portalService.getPortalById(portalId);
-
-        if (!data) {
-          setError('Portal não encontrado');
-        } else {
-          setPortal(data);
-        }
-      } catch (err) {
-        setError('Erro ao carregar portal');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadPortal();
-  }, [portalId]);
+  const portal = portalResult?.data?.[0] || null;
 
   if (isLoading) {
     return (
@@ -59,12 +41,43 @@ function PortalContent({ portalId }: { portalId: string }) {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <h2 className="text-2xl font-bold">Portal não encontrado</h2>
-          <p className="text-muted-foreground">{error || 'O portal solicitado não existe.'}</p>
+          <p className="text-muted-foreground">
+            {error instanceof Error ? error.message : 'O portal solicitado não existe.'}
+          </p>
         </div>
       </div>
     );
   }
 
+  // If portal has no active modules, show PortalDefaultView
+  if (portal.activeModules.length === 0) {
+    return (
+      <PortalDefaultView
+        portalId={portal.portalId}
+        portalName={portal.name}
+        settingsKey={portal.settingsKey}
+        removable={portal.removable}
+        theme={mode}
+      />
+    );
+  }
+
+  // If portal has active modules, render module routes
+  if (portal.activeModules.includes('setup')) {
+    return (
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      }>
+        <Routes>
+          {renderSetupRoutes()}
+        </Routes>
+      </Suspense>
+    );
+  }
+
+  // TODO: When other modules are implemented, add their routing logic here
   return (
     <div className="min-h-screen">
       <div className="container mx-auto p-8">
