@@ -2,8 +2,11 @@
 // Based on SPEC-data-access.md and SPEC-jqel-schema.md
 
 import { Router, type Request, type Response } from 'express'
-import type { JQELQuery, JResult } from '../types/jqel.types.js'
+import type { JQELQuery, JResult, JQELSelectQuery } from '../types/jqel.types.js'
 import { n8nProxy } from '../services/n8nProxy.service.js'
+import { configService } from '../services/config.service.js'
+import type { Portal, Module, Instance } from '../types/config.types.js'
+import { executeJQELQuery, applyWhere } from '../utils/jqelProcessor.js'
 
 const router = Router()
 
@@ -76,15 +79,301 @@ router.post('/', async (req: Request, res: Response) => {
  * Handle backend schema queries (file-based storage)
  * SPEC-JQEL-SCH-004: backend schema processed by Backend
  */
-async function handleBackendSchema(_query: JQELQuery, res: Response) {
-  // For now, return a simple response
-  // In production, this would read/write to config files
-  return res.status(501).json({
-    code: 501,
-    message: 'Backend schema processing not yet implemented',
+async function handleBackendSchema(query: JQELQuery, res: Response) {
+  try {
+    const isSelect = 'select' in query
+    const entity = isSelect ? query.select : query.mutate
+
+    // Validate entity
+    if (!['portal', 'portals', 'module', 'modules', 'instance', 'instances'].includes(entity!)) {
+      return res.status(400).json({
+        code: 400,
+        message: `Invalid entity: ${entity}. Must be 'portal', 'module', or 'instance'`,
+        data: null,
+      } as JResult)
+    }
+
+    // Normalize entity name (singular form)
+    const normalizedEntity = entity!.replace(/s$/, '') as 'portal' | 'module' | 'instance'
+
+    if (isSelect) {
+      return await handleSelect(query, normalizedEntity, res)
+    } else {
+      return await handleMutate(query, normalizedEntity, res)
+    }
+  } catch (error: any) {
+    console.error('Backend schema error:', error)
+    return res.status(500).json({
+      code: 500,
+      message: error.message || 'Internal server error',
+      data: null,
+    } as JResult)
+  }
+}
+
+/**
+ * Handle SELECT queries
+ */
+async function handleSelect(query: JQELQuery, entity: 'portal' | 'module' | 'instance', res: Response) {
+  // Load data based on entity
+  let data: any[] = []
+  switch (entity) {
+    case 'portal':
+      data = await configService.getPortals()
+      break
+    case 'module':
+      data = await configService.getModules()
+      break
+    case 'instance':
+      data = await configService.getInstances()
+      break
+  }
+
+  // Execute JQEL query using the processor utility
+  const result = executeJQELQuery(data, query as JQELSelectQuery)
+
+  return res.status(200).json({
+    code: 200,
+    message: 'Success',
+    data: result,
+  } as JResult)
+}
+
+/**
+ * Handle MUTATE queries (INSERT/UPDATE/DELETE)
+ */
+async function handleMutate(query: JQELQuery, entity: 'portal' | 'module' | 'instance', res: Response) {
+  const action = query.action
+
+  if (!action || !['insert', 'update', 'delete'].includes(action)) {
+    return res.status(400).json({
+      code: 400,
+      message: `Invalid action: ${action}. Must be 'insert', 'update', or 'delete'`,
+      data: null,
+    } as JResult)
+  }
+
+  switch (action) {
+    case 'insert':
+      return await handleInsert(query, entity, res)
+    case 'update':
+      return await handleUpdate(query, entity, res)
+    case 'delete':
+      return await handleDelete(query, entity, res)
+    default:
+      return res.status(400).json({
+        code: 400,
+        message: `Unsupported action: ${action}`,
+        data: null,
+      } as JResult)
+  }
+}
+
+/**
+ * Handle INSERT
+ */
+async function handleInsert(query: JQELQuery, entity: 'portal' | 'module' | 'instance', res: Response) {
+  // Type guard for mutate query
+  if (!('mutate' in query)) {
+    return res.status(400).json({
+      code: 400,
+      message: 'Invalid query type for insert',
+      data: null,
+    } as JResult)
+  }
+
+  if (!query.values) {
+    return res.status(400).json({
+      code: 400,
+      message: 'Missing required field: values',
+      data: null,
+    } as JResult)
+  }
+
+  let data: any[] = []
+  const newItem = query.values
+
+  switch (entity) {
+    case 'portal': {
+      const portals = await configService.getPortals()
+      portals.push(newItem as Portal)
+      await configService.savePortals(portals)
+      data = [newItem]
+      break
+    }
+    case 'module': {
+      const modules = await configService.getModules()
+      modules.push(newItem as Module)
+      await configService.saveModules(modules)
+      data = [newItem]
+      break
+    }
+    case 'instance': {
+      const instances = await configService.getInstances()
+      instances.push(newItem as Instance)
+      await configService.saveInstances(instances)
+      data = [newItem]
+      break
+    }
+  }
+
+  return res.status(201).json({
+    code: 201,
+    message: 'Created',
+    data,
+  } as JResult)
+}
+
+/**
+ * Handle UPDATE
+ */
+async function handleUpdate(query: JQELQuery, entity: 'portal' | 'module' | 'instance', res: Response) {
+  // Type guard for mutate query
+  if (!('mutate' in query)) {
+    return res.status(400).json({
+      code: 400,
+      message: 'Invalid query type for update',
+      data: null,
+    } as JResult)
+  }
+
+  if (!query.values) {
+    return res.status(400).json({
+      code: 400,
+      message: 'Missing required field: values',
+      data: null,
+    } as JResult)
+  }
+
+  if (!query.where) {
+    return res.status(400).json({
+      code: 400,
+      message: 'Missing required field: where',
+      data: null,
+    } as JResult)
+  }
+
+  let data: any[] = []
+  let updated = 0
+
+  switch (entity) {
+    case 'portal': {
+      const portals = await configService.getPortals()
+      const matchingPortals = applyWhere(portals, query.where)
+
+      matchingPortals.forEach(match => {
+        const index = portals.findIndex(p => p.portalId === match.portalId)
+        if (index !== -1) {
+          portals[index] = { ...portals[index], ...query.values }
+          updated++
+        }
+      })
+
+      await configService.savePortals(portals)
+      data = applyWhere(portals, query.where)
+      break
+    }
+    case 'module': {
+      const modules = await configService.getModules()
+      const matchingModules = applyWhere(modules, query.where)
+
+      matchingModules.forEach(match => {
+        const index = modules.findIndex(m => m.moduleId === match.moduleId)
+        if (index !== -1) {
+          modules[index] = { ...modules[index], ...query.values }
+          updated++
+        }
+      })
+
+      await configService.saveModules(modules)
+      data = applyWhere(modules, query.where)
+      break
+    }
+    case 'instance': {
+      const instances = await configService.getInstances()
+      const matchingInstances = applyWhere(instances, query.where)
+
+      matchingInstances.forEach(match => {
+        const index = instances.findIndex(i =>
+          i.instanceId === match.instanceId && i.portalId === match.portalId
+        )
+        if (index !== -1) {
+          instances[index] = { ...instances[index], ...query.values }
+          updated++
+        }
+      })
+
+      await configService.saveInstances(instances)
+      data = applyWhere(instances, query.where)
+      break
+    }
+  }
+
+  return res.status(200).json({
+    code: 200,
+    message: `Updated ${updated} record(s)`,
+    data,
+  } as JResult)
+}
+
+/**
+ * Handle DELETE
+ */
+async function handleDelete(query: JQELQuery, entity: 'portal' | 'module' | 'instance', res: Response) {
+  if (!query.where) {
+    return res.status(400).json({
+      code: 400,
+      message: 'Missing required field: where',
+      data: null,
+    } as JResult)
+  }
+
+  let deleted = 0
+
+  switch (entity) {
+    case 'portal': {
+      const portals = await configService.getPortals()
+      const matchingPortals = applyWhere(portals, query.where)
+      const remaining = portals.filter(p =>
+        !matchingPortals.some(m => m.portalId === p.portalId)
+      )
+      deleted = portals.length - remaining.length
+      await configService.savePortals(remaining)
+      break
+    }
+    case 'module': {
+      const modules = await configService.getModules()
+      const matchingModules = applyWhere(modules, query.where)
+      const remaining = modules.filter(m =>
+        !matchingModules.some(match => match.moduleId === m.moduleId)
+      )
+      deleted = modules.length - remaining.length
+      await configService.saveModules(remaining)
+      break
+    }
+    case 'instance': {
+      const instances = await configService.getInstances()
+      const matchingInstances = applyWhere(instances, query.where)
+      const remaining = instances.filter(i =>
+        !matchingInstances.some(m =>
+          m.instanceId === i.instanceId && m.portalId === i.portalId
+        )
+      )
+      deleted = instances.length - remaining.length
+      await configService.saveInstances(remaining)
+      break
+    }
+  }
+
+  return res.status(200).json({
+    code: 200,
+    message: `Deleted ${deleted} record(s)`,
     data: null,
   } as JResult)
 }
+
+// Note: applyWhere and other query processing functions are now
+// imported from jqelProcessor.ts utility
 
 /**
  * Handle n8n schema queries (platform, system, and application schemas)
