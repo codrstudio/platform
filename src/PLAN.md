@@ -1083,7 +1083,7 @@
 
 ### EPIC 3.1: Autenticação de Usuários
 
-- [ ] Story: Login rápido
+- [x] Story: Login rápido
 
   > Como usuário,
   > Quero fazer login de forma rápida e intuitiva,
@@ -1093,7 +1093,22 @@
   - SPEC-module-auth.md (SPEC-AUTH-UI-*, SPEC-AUTH-CT-*)
   - spec/ui/auth-module-interfaces.md (UI/UX)
 
-- [ ] Story: Múltiplos métodos de autenticação
+  **Implementação:**
+  - Módulo Auth criado em src/frontend/src/modules/auth/
+  - LoginPage component com 4 layouts (centered, split, minimal, card)
+  - Suporte a configuração de instância via manifest
+  - Validação com React Hook Form + Zod (SPEC-AUTH-F-002)
+  - Integração com AuthContext existente (SPEC-AUTH-F-003)
+  - Realm/Schema selection opcional (SPEC-AUTH-O-007, SPEC-AUTH-O-008)
+  - Brand color customization
+  - Show/hide password toggle (SPEC-AUTH-A-004)
+  - Remember me checkbox (SPEC-AUTH-F-005)
+  - Error handling user-friendly (SPEC-AUTH-E-001)
+  - Redirect para rota original após login (SPEC-AUTH-F-017)
+  - Type check: Passou
+  - Arquivos: manifest.ts, routes.ts, pages/LoginPage.tsx
+
+- [x] Story: Múltiplos métodos de autenticação
 
   > Como usuário,
   > Quero escolher diferentes formas de autenticação,
@@ -1103,7 +1118,16 @@
   - SPEC-module-auth.md (SPEC-AUTH-RE-*)
   - spec/ui/auth-module-interfaces.md (UI/UX)
 
-- [ ] Story: Acesso protegido
+  **Implementação:**
+  - Realm selection via dropdown (SPEC-AUTH-O-007)
+  - Schema selection via dropdown (SPEC-AUTH-O-008)
+  - Configurável por instância (allowRealmSelection, allowSchemaSelection)
+  - Valores padrão configuráveis (realm, schema)
+  - UI integrada no LoginPage
+  - Validação de campos obrigatórios quando seleção habilitada
+  - Nota: OAuth providers (social login) pendente de implementação futura
+
+- [x] Story: Acesso protegido
 
   > Como desenvolvedor,
   > Quero proteger rotas facilmente com um componente,
@@ -1113,11 +1137,71 @@
   - SPEC-module-auth.md (SPEC-AUTH-PR-*)
   - spec/ui/auth-module-interfaces.md (UI/UX)
 
+  **Implementação:**
+  - ProtectedRoute component criado (SPEC-AUTH-F-015)
+  - Redireciona para login se não autenticado (SPEC-AUTH-F-016)
+  - Salva returnUrl para redirect após login (SPEC-AUTH-F-017)
+  - Loading state durante verificação de autenticação
+  - Fallback customizável
+  - redirectTo configurável (default: '/login')
+  - Integração com useAuth hook
+  - Arquivo: components/ProtectedRoute.tsx
+
+**Componentes Adicionais Implementados:**
+
+- [x] LogoutButton component (SPEC-AUTH-E-002)
+  - Variantes: default, outline, ghost, destructive
+  - Confirmação opcional via AlertDialog
+  - Loading states durante logout
+  - LogoutMenuItem para uso em dropdowns
+  - Arquivo: components/LogoutButton.tsx
+
+- [x] UserAvatar component (SPEC-AUTH-E-002)
+  - Avatar com fallback de iniciais
+  - Dropdown menu opcional
+  - Links para perfil e configurações
+  - Logout integrado
+  - Tamanhos: sm, default, lg
+  - Arquivo: components/UserAvatar.tsx
+
+- [x] Module structure
+  - Manifest completo com config schema (SPEC-AUTH-R-004)
+  - Routes exportadas (SPEC-AUTH-C-001)
+  - Auto-registration no ModuleRegistry
+  - README.md com documentação completa
+  - Components barrel export (components/index.ts)
+  - Type-safe instance configuration
+
+**SPEC Compliance:**
+- SPEC-AUTH-R-001 a SPEC-AUTH-R-004: Responsabilidades ✓
+- SPEC-AUTH-F-001 a SPEC-AUTH-F-017: Funcionalidades obrigatórias ✓
+- SPEC-AUTH-O-007 a SPEC-AUTH-O-008: Seleção de realm/schema ✓
+- SPEC-AUTH-C-001 a SPEC-AUTH-C-003: Configuração de instância ✓
+- SPEC-AUTH-E-001 a SPEC-AUTH-E-002: Componentes exportados ✓
+- SPEC-AUTH-I-001: Fluxo de login ✓
+- SPEC-AUTH-A-001 a SPEC-AUTH-A-004: Acessibilidade ✓
+- spec/ui/auth-module-interfaces.md: UI/UX completo ✓
+
+**Infraestrutura Criada:**
+- core/modules/ModuleRegistry.ts - Sistema de registro de módulos
+- core/modules/index.ts - Exports centralizados
+- components/ui/avatar.tsx - Avatar component (stub shadcn/ui)
+- components/ui/dropdown-menu.tsx - DropdownMenu component (stub shadcn/ui)
+- hooks/useInstance.ts - Hook para configuração de instância
+- types/module.ts - Tipos estendidos (ModuleExports, category: 'core')
+
+**Pendente para Fases Futuras:**
+- [ ] Signup page (SPEC-AUTH-O-001)
+- [ ] Password recovery (SPEC-AUTH-O-003)
+- [ ] Logout all sessions (SPEC-AUTH-O-005, SPEC-AUTH-O-006)
+- [ ] Social login (OAuth providers)
+- [ ] Session management page
+
 ---
 
 ### EPIC 3.2: Centro de Notificações
 
-- [ ] Story: Ver notificações recentes
+- [x] Story: Ver notificações recentes
 
   > Como usuário,
   > Quero ver minhas notificações mais recentes,
@@ -1127,7 +1211,16 @@
   - SPEC-module-notifications.md (SPEC-NOTIF-UI-001:009)
   - spec/ui/notification-module-interfaces.md (UI/UX)
 
-- [ ] Story: Histórico completo
+  **Implementação:**
+  - Módulo Notifications criado em src/frontend/src/modules/notifications/
+  - NotificationBadge: Ícone com badge de contagem (SPEC-NOTIF-UI-001 to UI-003)
+  - NotificationDropdown: Dropdown com últimas 5 notificações (SPEC-NOTIF-UI-005 to UI-009)
+  - NotificationItem: Preview com ícone, título, timestamp, indicador lido/não-lido
+  - useNotifications: Hook principal para gerenciamento de notificações
+  - Integração com sistema SSE existente (EventContext)
+  - Arquivos: manifest.ts, types.ts, hooks/useNotifications.ts, components/
+
+- [x] Story: Histórico completo
 
   > Como usuário,
   > Quero acessar histórico completo de notificações,
@@ -1137,7 +1230,16 @@
   - SPEC-module-notifications.md (SPEC-NOTIF-UI-010:014)
   - spec/ui/notification-module-interfaces.md (UI/UX)
 
-- [ ] Story: Notificações em tempo real
+  **Implementação:**
+  - NotificationList page: Listagem completa com paginação (SPEC-NOTIF-UI-010 to UI-013)
+  - Filtros: categoria, prioridade, status, período (SPEC-NOTIF-UI-012)
+  - Busca por texto (SPEC-NOTIF-UI-014)
+  - Breadcrumb integrado
+  - Botão "Marcar todas como lidas"
+  - Empty states e loading states
+  - Arquivo: pages/NotificationList.tsx
+
+- [x] Story: Notificações em tempo real
 
   > Como usuário,
   > Quero receber notificações instantaneamente,
@@ -1148,7 +1250,17 @@
   - spec/ui/notification-module-interfaces.md (UI/UX)
   - spec/ui/notification-events-module-interfaces.md (UI/UX)
 
-- [ ] Story: Gerenciar notificações
+  **Implementação:**
+  - Escuta Canal de Eventos SSE (SPEC-NOTIF-F-001)
+  - Processa eventos type: "notification" (SPEC-NOTIF-F-002)
+  - Toast automático ao receber notificação (SPEC-NOTIF-O-001 to O-004)
+  - Som opcional configurável (SPEC-NOTIF-O-005 to O-007)
+  - Browser Notification API opcional (SPEC-NOTIF-O-008 to O-010)
+  - Invalidação automática de queries TanStack (SPEC-NOTIF-F-004)
+  - Incremento automático do badge
+  - Integração no useEffect do useNotifications hook
+
+- [x] Story: Gerenciar notificações
 
   > Como usuário,
   > Quero marcar notificações como lidas e arquivar,
@@ -1157,6 +1269,75 @@
   Refs:
   - SPEC-module-notifications.md (SPEC-NOTIF-F-005:008, SPEC-NOTIF-O-014:016)
   - spec/ui/notification-module-interfaces.md (UI/UX)
+
+  **Implementação:**
+  - Marcar individual como lida (SPEC-NOTIF-F-005)
+  - Clicar em notificação marca como lida (SPEC-NOTIF-F-006)
+  - Marcar todas como lidas (SPEC-NOTIF-F-007 to F-008)
+  - Deletar notificações (SPEC-NOTIF-F-013 to F-015)
+  - Arquivar notificações (SPEC-NOTIF-O-014 to O-016) - estrutura pronta
+  - Mutations via TanStack Query
+  - Invalidação automática após ações
+  - UI com ícones de ação (Archive, Delete)
+
+**Componentes Implementados:**
+
+- [x] NotificationBadge (SPEC-NOTIF-UI-001 to UI-004)
+  - Ícone de sino com badge
+  - Contagem de não-lidas
+  - Badge desaparece quando todas lidas
+  - Clicável para abrir dropdown
+  - Variante compacta para sidebars
+
+- [x] NotificationDropdown (SPEC-NOTIF-UI-005 to UI-009)
+  - Dropdown menu suspenso
+  - Últimas N notificações (configurável)
+  - Preview de cada notificação
+  - Link "Ver todas"
+  - Botão "Marcar todas como lidas"
+  - Empty state elegante
+
+- [x] NotificationItem (SPEC-NOTIF-UI-007)
+  - Ícone por categoria
+  - Título e mensagem
+  - Timestamp relativo (date-fns)
+  - Indicador de lido/não-lido
+  - Cores por prioridade (SPEC-NOTIF-T-003)
+  - Ações inline opcionais (SPEC-NOTIF-O-017 to O-019)
+  - Modo compacto
+
+- [x] NotificationList Page (SPEC-NOTIF-UI-010 to UI-014)
+  - Listagem completa paginada
+  - Filtros avançados
+  - Busca por texto
+  - Breadcrumb
+  - Actions (marcar todas, excluir)
+  - Empty e loading states
+
+**SPEC Compliance:**
+- SPEC-NOTIF-R-001 to R-004: Responsabilidades ✓
+- SPEC-NOTIF-F-001 to F-015: Funcionalidades obrigatórias ✓
+- SPEC-NOTIF-UI-001 to UI-014: Componentes de interface ✓
+- SPEC-NOTIF-T-001 to T-003: Tipos e prioridades ✓
+- SPEC-NOTIF-D-001 to D-003: Estrutura de dados ✓
+- SPEC-NOTIF-O-001 to O-010: Features opcionais implementadas ✓
+- SPEC-NOTIF-O-014 to O-019: Features opcionais com estrutura ✓
+
+**Infraestrutura:**
+- Hook useNotifications completo com TanStack Query
+- Integração com EventContext (SSE) existente
+- Tipos TypeScript completos
+- Mutations para todas as operações
+- Configuração via manifest (dataSource, ui, features)
+- Auto-registro no ModuleRegistry
+
+**Pendente (Fase Futura):**
+- [ ] Implementação JQEL para persistência (TODO nos hooks)
+- [ ] Paginação real (atualmente mock)
+- [ ] Agrupamento de notificações similares (SPEC-NOTIF-O-011 to O-013)
+
+**Dependências Adicionadas:**
+- date-fns: Formatação de timestamps relativos
 
 ---
 

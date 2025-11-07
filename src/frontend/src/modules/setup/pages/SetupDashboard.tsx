@@ -4,8 +4,12 @@
 import { Link } from 'react-router-dom';
 import { Settings, Package, Layers, Activity, Globe } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageBreadcrumb } from '@/components/navigation';
+import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb';
 
 export function SetupDashboard() {
+  const breadcrumbItems = useSetupBreadcrumb();
+
   // TODO: Fetch real stats from JQEL
   const stats = {
     portals: { total: 2, active: 2 },
@@ -15,6 +19,9 @@ export function SetupDashboard() {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
+      {/* Breadcrumb */}
+      <PageBreadcrumb items={breadcrumbItems} />
+
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Setup Dashboard</h1>

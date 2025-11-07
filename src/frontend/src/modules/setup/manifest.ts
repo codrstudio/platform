@@ -4,6 +4,7 @@
 import type { ModuleManifest } from '@/types/module';
 
 export const setupManifest: ModuleManifest = {
+  id: 'setup',
   moduleId: 'setup',
   version: '1.0.0',
   name: 'Setup',

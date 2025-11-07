@@ -6,11 +6,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Plus, Settings, Trash2, Layers } from 'lucide-react';
+import { PageBreadcrumb } from '@/components/navigation';
+import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb';
 import { usePortals, useDeletePortal } from '@/hooks/useJQEL';
 
 export function PortalList() {
   const { data: portalsResult, isLoading } = usePortals();
   const deletePortalMutation = useDeletePortal();
+  const breadcrumbItems = useSetupBreadcrumb('Portais');
 
   const portals = portalsResult?.data || [];
 
@@ -38,6 +41,9 @@ export function PortalList() {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
+      {/* Breadcrumb */}
+      <PageBreadcrumb items={breadcrumbItems} />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

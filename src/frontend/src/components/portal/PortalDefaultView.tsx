@@ -1,17 +1,11 @@
-import { useNavigate, Link } from 'react-router-dom';
-import { Hash, Settings, Palette, Shield, Lock, PackageOpen, Home } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Hash, Settings, Palette, Shield, Lock, PackageOpen } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
+import { PageBreadcrumb } from '@/components/navigation';
+import { useBreadcrumb } from '@/hooks/useBreadcrumb';
 import { usePortalExists } from '@/hooks/usePortalExists';
 
 export interface PortalDefaultViewProps {
@@ -35,15 +29,25 @@ export function PortalDefaultView({
   // Verifica se o portal "setup" existe para mostrar link "Editar"
   const { data: setupExists } = usePortalExists('setup');
 
+  // Determina o nome exibido do portal
+  const displayName = portalName || portalId.charAt(0).toUpperCase() + portalId.slice(1);
+
+  // Gera breadcrumb items
+  const breadcrumbItems = useBreadcrumb({
+    portalId,
+    portalName: displayName,
+    customItems: setupExists && portalId !== 'setup' ? [
+      { label: displayName },
+      { label: 'Editar', href: `/setup/portals/${portalId}` }
+    ] : undefined
+  });
+
   // Subtítulo baseado no contexto do portal
   const getSubtitle = () => {
     if (portalId === 'main') return 'Seu espaço principal de trabalho';
     if (portalId === 'setup') return 'Centro de configuração da plataforma';
     return 'Ambiente isolado e personalizado';
   };
-
-  // Determina o nome exibido do portal
-  const displayName = portalName || portalId.charAt(0).toUpperCase() + portalId.slice(1);
 
   // Ação do botão baseada no portal
   const handleAction = () => {
@@ -65,40 +69,7 @@ export function PortalDefaultView({
       {/* Container principal com max-width */}
       <div className="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
         {/* Breadcrumb de navegação */}
-        <Breadcrumb className="mb-6">
-          <BreadcrumbList>
-            {/* Link para Home (sempre presente) */}
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link to="/" className="flex items-center gap-1.5">
-                  <Home className="h-4 w-4" aria-hidden="true" />
-                  <span>Home</span>
-                </Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-
-            <BreadcrumbSeparator />
-
-            {/* Portal atual (não clicável) */}
-            <BreadcrumbItem>
-              <BreadcrumbPage>{displayName}</BreadcrumbPage>
-            </BreadcrumbItem>
-
-            {/* Link "Editar" (condicional - só se setup existir e não for o próprio setup) */}
-            {setupExists && portalId !== 'setup' && (
-              <>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link to={`/setup/portals/${portalId}`}>
-                      Editar
-                    </Link>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-              </>
-            )}
-          </BreadcrumbList>
-        </Breadcrumb>
+        <PageBreadcrumb items={breadcrumbItems} />
 
         {/* Hero Section - Card Grande */}
         <Card className="mb-8 overflow-hidden border-2 transition-shadow duration-200 hover:shadow-lg">
