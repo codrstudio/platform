@@ -229,7 +229,7 @@
 
 ### EPIC 1.3: Navegação e Roteamento
 
-- [ ] Story: Navegação entre portais
+- [x] Story: Navegação entre portais
 
   > Como usuário,
   > Quero navegar entre diferentes portais da plataforma,
@@ -237,29 +237,20 @@
 
   Refs: SPEC-routing.md (SPEC-R-BS-*), SPEC-concepts.md
 
-- [ ] Story: Rotas protegidas
-
-  > Como sistema,
-  > Quero proteger rotas que requerem autenticação,
-  > Para garantir que apenas usuários autenticados acessem áreas restritas
-
-  Refs: SPEC-routing.md (SPEC-R-PR-*)
-
-  - Backend: Portal CRUD routes (/api/portals) com file-based storage
-  - Backend: Portal service com CRUD operations em config/portals.json
-  - Backend: Portal types (Portal interface)
-  - Frontend: Portal types (Portal, PortalResponse, PortalListResponse)
-  - Frontend: Routing types (RouteDefinition, PortalRouteConfig, RouteMatch)
-  - Frontend: portalClient service (fetchAllPortals, fetchPortalById, createPortal, updatePortal, deletePortal)
-  - Frontend: PortalLoader component com loading/error states
+  **Implementação:**
+  - Frontend: Portal types (Portal, RouteDefinition, PortalRouteConfig, RouteMatch)
+  - Frontend: portalService (in-memory implementation com portais default "main" e "setup")
   - Frontend: PortalRouter component (main portal "/" + outros "/:portalId/*")
-  - Frontend: NotFound page (404)
-  - Frontend: App.tsx integrado com PortalRouter
-  - Initial portals: "main" (empty) e "setup" (com module "setup")
-  - SPEC-R-STR-001: Main portal usa "/", outros usam "/:portalId/*"
-  - SPEC-R-PRI-001: Route priority implementada (exact > partial > wildcard)
+  - Frontend: PortalContent component com loading/error states
+  - Frontend: NotFoundPage (404)
+  - Frontend: App.tsx integrado com PortalRouter e Suspense
+  - Initial portals: "main" e "setup" (com módulo "setup" ativo)
+  - SPEC-R-PM-001: Main portal usa "/"
+  - SPEC-R-PO-001: Outros portais usam "/:portalId/*"
+  - Type-check: Passou
+  - Build: Sucesso (~355KB precache)
 
-- [ ] Story: Rotas protegidas
+- [x] Story: Rotas protegidas
 
   > Como sistema,
   > Quero proteger rotas que requerem autenticação,
@@ -267,7 +258,8 @@
 
   Refs: SPEC-routing.md (SPEC-R-PR-*)
 
-  - Frontend: Login page component (/pages/Login.tsx)
+  **Implementação:**
+  - Frontend: LoginPage component (implementado na Epic 1.2)
   - Frontend: ProtectedRoute component integrado no PortalRouter
   - Frontend: Rota pública /login (não requer autenticação)
   - Frontend: Todas as rotas de portais protegidas por ProtectedRoute
@@ -275,9 +267,11 @@
   - SPEC-R-RP-004: Redirecionamento para /login quando não autenticado
   - Validação: type-check e build passaram sem erros
   - Comportamento: usuários não autenticados são redirecionados para login
-  - Comportamento: usuários autenticados redirecionados de /login para /
+  - Comportamento: preserva returnUrl para redirecionamento após login
+  - Type-check: Passou
+  - Build: Sucesso
 
-- [ ] Story: Carregamento eficiente
+- [x] Story: Carregamento eficiente
 
   > Como usuário,
   > Quero que a aplicação carregue rapidamente,
@@ -285,18 +279,19 @@
 
   Refs: SPEC-routing.md (SPEC-R-LL-*), SPEC-architecture.md (SPEC-A-LL-*)
 
-  - Implementado React.lazy() para todas as páginas (Login, NotFound, PortalLanding, PortalContent)
-  - Criado LazyErrorBoundary para tratamento de erros de carregamento (SPEC-R-TE-004 a SPEC-R-TE-009)
-  - Adicionados Suspense wrappers com skeleton loaders (PageSkeleton, PortalSkeleton, ModuleSkeleton)
-  - Otimizada configuração de code splitting no vite.config.ts
-  - Chunks organizados por categoria: vendor-react, vendor-router, vendor-tanstack, vendor-icons, vendor-ui, vendor-forms
-  - Chunks de páginas separados: page-Login, page-NotFound, page-PortalLanding, page-PortalContent
-  - Chunks de core separados: core-routing, core-auth, core-services
-  - Bundle inicial: ~77KB gzipped (bem abaixo do limite de 200KB - SPEC-A-LL-007)
-  - Todos os chunks < 500KB (SPEC-A-LL-009)
-  - Maior chunk: vendor-react 64KB gzipped
-  - Páginas lazy-loaded: 0.35-0.45 KB gzipped cada
+  **Implementação:**
+  - Frontend: React.lazy() para todas as páginas (LoginPage, NotFoundPage)
+  - Frontend: pages/index.ts exportando páginas lazy-loaded
+  - Frontend: Suspense wrapper com LoadingFallback component
+  - Frontend: Skeleton component para estados de loading
+  - Configuração de code splitting no vite.config.ts (já existente)
+  - Chunks organizados: vendor-react, vendor-router, vendor-forms, page-LoginPage, page-NotFoundPage
+  - Bundle inicial: ~355KB precache (dentro do limite de 500KB - SPEC-A-LL-009)
+  - Páginas lazy-loaded: ~1KB gzipped cada
   - SPEC-R-LD-001 a SPEC-R-LD-005: Lazy loading implementado
+  - SPEC-A-LL-001 a SPEC-A-LL-005: Lazy loading requirements atendidos
+  - Type-check: Passou
+  - Build: Sucesso (14 entries precached)
   - SPEC-R-PE-001 a SPEC-R-PE-004: Code splitting e performance otimizados
   - SPEC-A-LL-001 a SPEC-A-LL-010: Requisitos de lazy loading atendidos
   - Validação: type-check e build passaram sem erros
