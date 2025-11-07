@@ -74,7 +74,7 @@ Variáveis de Sistema > .env.{environment} > .env
 ### Estrutura de Arquivos
 
 ```
-src/prototype-X/backend/
+src/backend/
 ├── .env                    # Configurações base + definição de ENVIRONMENT
 ├── .env.development        # Overrides para desenvolvimento local
 ├── .env.staging            # Overrides para staging
@@ -86,7 +86,7 @@ src/prototype-X/backend/
 
 ### Implementação: env.ts
 
-**File**: `src/prototype-X/backend/src/config/env.ts`
+**File**: `src/backend/src/config/env.ts`
 
 ```typescript
 import * as dotenv from 'dotenv';
@@ -187,7 +187,7 @@ export const config = {
 
 ### Uso no app.ts
 
-**File**: `src/prototype-X/backend/src/app.ts`
+**File**: `src/backend/src/app.ts`
 
 ```typescript
 import { loadEnvironment, validateEnvironment, config } from './config/env';
@@ -559,7 +559,7 @@ Criar especificação detalhada sobre:
 ### Phase 3: Documentação
 9. ☐ Criar `SPEC-environment.md` com especificação completa
 10. ☐ Atualizar `SPEC-architecture.md` (seção Backend - Environment Configuration)
-11. ☐ Adicionar seção ao README do prototype explicando configuração de ambiente
+11. ☐ Adicionar seção ao README explicando configuração de ambiente
 12. ☐ Documentar cenários de uso (local, Docker, production)
 
 ### Phase 4: Validação
@@ -582,7 +582,7 @@ Criar especificação detalhada sobre:
 ### Estrutura Final
 
 ```
-src/prototype-2/backend/
+src/backend/
 ├── .env.example                 # Template (commitado)
 ├── .env.development.example     # Template dev (commitado)
 ├── .env.production.example      # Template prod (commitado)

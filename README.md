@@ -8,7 +8,7 @@ A modular platform for building reusable, scalable web applications with isolate
 ┌─────────────────────────────────────────────┐
 │  FRONTEND (React 19 + Vite)                 │
 │  - UI rendering, routing, state management  │
-└─────────────────────────────────────────────┘
+└─────────────────────────────────────────────┘ 
                     ↓
 ┌─────────────────────────────────────────────┐
 │  BACKEND (Express + Node.js)                │

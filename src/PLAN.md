@@ -58,7 +58,9 @@
   > Quero ter um ambiente de desenvolvimento configurado,
   > Para começar a implementar features da plataforma
 
-  Refs: SPEC-architecture.md (SPEC-A-FE-*, SPEC-A-BE-*)
+  Refs:
+  - SPEC-architecture.md (SPEC-A-S-*, SPEC-A-L-*)
+  - SPEC-configuration.md (SPEC-CF-PS-*, SPEC-CF-VE-*)
 
 - [ ] Story: PWA funcional
 
@@ -566,8 +568,8 @@
   - SPEC-MS-MA-001: Setup module manifest conforme especificação
   - SPEC-MS-RO-001 a SPEC-MS-RO-003: Rotas do Setup module
   - Validação: type-check passou sem erros
-  - Arquivos criados em src/prototype-3/frontend/src/types/module.ts
-  - Arquivos criados em src/prototype-3/frontend/src/modules/setup/*
+  - Arquivos criados em src/frontend/src/types/module.ts
+  - Arquivos criados em src/frontend/src/modules/setup/*
 
 ---
 
@@ -599,7 +601,7 @@
   - Validation: type-check passed
   - Validation: build passed (bundle size: initial ~77KB gzipped)
   - Setup module auto-registers on import
-  - Arquivos criados em src/prototype-3/frontend/src/core/modules/*
+  - Arquivos criados em src/frontend/src/core/modules/*
 
 #### Story 2.1.2: Carregar módulos sob demanda
 
@@ -1223,3 +1225,4 @@
   > Para integrar com dados sem configuração manual
 
   Refs: SPEC-jqel-schema.md (SPEC-SDL-*)
+

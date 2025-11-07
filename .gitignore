@@ -246,3 +246,6 @@ storybook-static/
 *.pfx
 secrets/
 .secrets/
+
+worktrees/
+
