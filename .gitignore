@@ -247,5 +247,5 @@ storybook-static/
 secrets/
 .secrets/
 
-worktrees/
+.worktrees/
 
