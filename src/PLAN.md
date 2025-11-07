@@ -1343,7 +1343,7 @@
 
 ### EPIC 3.3: Tarefas Interativas
 
-- [ ] Story: Ver tarefas pendentes
+- [x] Story: Ver tarefas pendentes
 
   > Como usuário,
   > Quero ver todas as tarefas que requerem minha ação,
@@ -1353,7 +1353,14 @@
   - SPEC-module-tasks.md (SPEC-TASKS-UI-*)
   - spec/ui/task-module-interfaces.md (UI/UX)
 
-- [ ] Story: Responder tarefas
+  Implementado:
+  - TaskBadge: Badge com contador de pendentes
+  - TaskDropdown: Preview das últimas tarefas
+  - TaskList: Página completa com filtros e busca
+  - Agrupamento por status (pending, in_progress, completed, cancelled)
+  - Integração SSE para atualizações em tempo real
+
+- [x] Story: Responder tarefas
 
   > Como usuário,
   > Quero responder tarefas diretamente na interface,
@@ -1363,11 +1370,19 @@
   - SPEC-module-tasks.md (SPEC-TASKS-AC-*, SPEC-TASKS-S-*)
   - spec/ui/task-module-interfaces.md (UI/UX)
 
+  Implementado:
+  - TaskItem: Componente com ações inline
+  - Sistema de ações configurável via TaskAction[]
+  - Suporte a formulários de entrada (inputSchema)
+  - Optimistic updates para feedback imediato
+  - Toast notifications e alertas sonoros
+  - Tracking de status e histórico de ações
+
 ---
 
 ### EPIC 3.4: Busca Rápida
 
-- [ ] Story: Buscar em todo o sistema
+- [x] Story: Buscar em todo o sistema
 
   > Como usuário,
   > Quero buscar qualquer coisa no sistema rapidamente,
@@ -1375,7 +1390,15 @@
 
   Refs: SPEC-module-command-palette.md (SPEC-CP-M-*, SPEC-CP-S-*)
 
-- [ ] Story: Executar comandos rápidos
+  Implementado:
+  - CommandPaletteDialog: Interface suspensa com atalho Ctrl+K
+  - useCommandPalette: Hook com busca federada e histórico
+  - Navegação 100% por teclado (↑↓ navegar, Enter selecionar, Esc fechar)
+  - Agrupamento de resultados por categoria
+  - Debounce de busca (300ms configurável)
+  - Histórico com localStorage e ordenação por frequência
+
+- [x] Story: Executar comandos rápidos
 
   > Como usuário,
   > Quero executar ações comuns via atalhos,
@@ -1383,7 +1406,14 @@
 
   Refs: SPEC-module-command-palette.md (SPEC-CP-K-*, SPEC-CP-C-*)
 
-- [ ] Story: Invocar agentes
+  Implementado:
+  - Prefixo `/` para ativar modo de comandos
+  - Parser de parâmetros inline e interactive
+  - Execução de mutations via JQEL (placeholder)
+  - Suporte a comandos síncronos e assíncronos
+  - Toast de feedback para execução
+
+- [x] Story: Invocar agentes
 
   > Como usuário,
   > Quero invocar agentes de IA para me ajudar,
@@ -1391,11 +1421,18 @@
 
   Refs: SPEC-module-command-palette.md (SPEC-CP-AG-*)
 
+  Implementado:
+  - Prefixo `@` para ativar seleção de agentes
+  - Lista de agentes disponíveis
+  - Invocação de agentes com query
+  - Suporte a respostas inline e modal
+  - Integração com Canal de Agentes (placeholder)
+
 ---
 
 ### EPIC 3.5: Navegação Principal
 
-- [ ] Story: Menu lateral
+- [x] Story: Menu lateral
 
   > Como usuário,
   > Quero ter um menu lateral para navegar,
@@ -1405,17 +1442,39 @@
   - SPEC-module-sidebar.md (SPEC-SB-*)
   - spec/ui/menu-module-interfaces.md (UI/UX)
 
+  Implementado:
+  - Sidebar: Componente principal com 3 layouts (sidebar-left, sidebar-right, navbar-top)
+  - SidebarItem: Item de menu com suporte a ícones, badges e menu aninhado (3 níveis)
+  - Suporte a colapsar/expandir com persistência no localStorage
+  - Busca de itens do menu
+  - Responsividade completa (drawer em mobile, colapsável em tablet/desktop)
+  - Indicador de rota ativa
+  - Badges dinâmicos com variantes de cor
+  - Navegação via React Router
+  - Animações suaves de transição
+
 ---
 
 ### EPIC 3.6: Guias e Onboarding
 
-- [ ] Story: Jornada de onboarding
+- [x] Story: Jornada de onboarding
 
   > Como novo usuário,
   > Quero ser guiado pelos recursos da plataforma,
   > Para aprender a usar o sistema rapidamente
 
   Refs: SPEC-module-journey.md (SPEC-JO-*)
+
+  Implementado:
+  - JourneyGuide: Botão flutuante com indicador de progresso
+  - useJourney: Hook para gerenciamento de jornadas e progresso
+  - Índice de jornada com seções e etapas
+  - Tracking de progresso com localStorage (placeholder para JQEL)
+  - Indicadores visuais de status (pendente, ativa, concluída)
+  - Cálculo automático de progresso por seção e geral
+  - Modal de conclusão com CTA configurável
+  - Auto-complete de etapas baseado em navegação
+  - Marcar/desmarcar etapas manualmente
 
 ---
 

@@ -1,0 +1,109 @@
+```json
+{
+  "brandColors": {
+    "primary": {
+      "name": "Laranja Vibrante",
+      "hex": "#ff7f2a",
+      "rgb": "rgb(255, 127, 42)",
+      "hsl": "hsl(24, 100%, 58%)",
+      "usage": "Cor principal da marca, tema PWA, elementos de navegação"
+    },
+    "secondary": {
+      "name": "Marrom Rosado",
+      "hex": "#8b6a6a",
+      "rgb": "rgb(139, 106, 106)",
+      "hsl": "hsl(0, 14%, 48%)",
+      "usage": "Cor de acento, CTAs, links interativos"
+    },
+    "accent": {
+      "name": "Laranja Claro",
+      "hex": "#ffb27a",
+      "rgb": "rgb(255, 178, 122)",
+      "hsl": "hsl(24, 100%, 74%)",
+      "usage": "Destaques, notificações importantes"
+    }
+  },
+  "gradients": {
+    "orangeBrown": {
+      "name": "Gradiente Laranja → Marrom",
+      "start": "#ff7f2a",
+      "end": "#8b6a6a",
+      "css": "linear-gradient(to right, #ff7f2a, #8b6a6a)",
+      "usage": "Componente principal do logo, headers, backgrounds premium"
+    },
+    "warmGlow": {
+      "name": "Gradiente Laranja Claro → Laranja Escuro",
+      "start": "#ffb27a",
+      "end": "#ff7f2a",
+      "css": "linear-gradient(to right, #ffb27a, #ff7f2a)",
+      "usage": "Alertas, avisos, elementos de atenção"
+    },
+    "roseBronze": {
+      "name": "Gradiente Marrom Rosado → Laranja Claro",
+      "start": "#8b6a6a",
+      "end": "#ffb27a",
+      "css": "linear-gradient(to right, #8b6a6a, #ffb27a)",
+      "usage": "Erros, ações destrutivas, elementos críticos"
+    }
+  },
+  "palette": {
+    "orange": {
+      "name": "Laranja Vibrante",
+      "hex": "#ff7f2a",
+      "semantic": "primary"
+    },
+    "brown": {
+      "name": "Marrom Rosado",
+      "hex": "#8b6a6a",
+      "semantic": "secondary"
+    },
+    "lightOrange": {
+      "name": "Laranja Claro",
+      "hex": "#ffb27a",
+      "semantic": "accent"
+    },
+    "white": {
+      "name": "Branco",
+      "hex": "#ffffff",
+      "semantic": "base"
+    },
+    "black": {
+      "name": "Preto",
+      "hex": "#000000",
+      "semantic": "contrast"
+    }
+  },
+  "semanticColors": {
+    "success": {
+      "note": "Não presente no logo - usar verde padrão do sistema",
+      "recommended": "#10b981"
+    },
+    "info": {
+      "hex": "#8b6a6a",
+      "source": "secondary do logo"
+    },
+    "warning": {
+      "hex": "#ff7f2a",
+      "source": "primary do logo"
+    },
+    "error": {
+      "hex": "#8b6a6a",
+      "source": "secondary escuro"
+    }
+  },
+  "accessibility": {
+    "note": "Todas as cores devem passar no teste WCAG AA de contraste",
+    "recommendations": {
+      "darkText": "#8b6a6a para texto em fundos claros",
+      "lightText": "#ffffff para texto em fundos escuros",
+      "minContrast": "4.5:1 para texto normal, 3:1 para texto grande"
+    }
+  },
+  "metadata": {
+    "source": "assets/logo.svg",
+    "extractedAt": "2025-11-07",
+    "version": "1.0.0",
+    "specification": "spec/SPEC-theming.md"
+  }
+}
+```

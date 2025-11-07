@@ -29,10 +29,11 @@ export interface NotificationEvent extends BaseEvent {
 /**
  * Task Event
  * SPEC-EV-CO-009 to SPEC-EV-CO-013
+ * SPEC-TASKS-DEL-001: Support multiple assignees
  */
-export interface TaskEvent extends BaseEvent {
+export interface TaskEvent extends Omit<BaseEvent, 'userId'> {
   type: 'task'
-  userId: string
+  userId: string | string[] // Support single or multiple assignees
   status?: 'pending' | 'completed' | 'cancelled'
 }
 

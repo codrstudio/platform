@@ -2,7 +2,7 @@
 // Based on spec/ui/setup-module-interfaces.md Section 2
 
 import { Link } from 'react-router-dom';
-import { Settings, Package, Layers, Activity, Globe } from 'lucide-react';
+import { Settings, Package, Layers, Activity, Globe, Info } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageBreadcrumb } from '@/components/navigation';
 import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb';
@@ -124,6 +124,24 @@ export function SetupDashboard() {
                     <CardTitle>Platform Settings</CardTitle>
                     <CardDescription>
                       Visualizar variáveis e health checks
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link to="/setup/about">
+            <Card className="hover:shadow-lg transition-all hover:border-primary cursor-pointer">
+              <CardHeader>
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-primary/10 rounded-lg">
+                    <Info className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle>Sobre a Platform</CardTitle>
+                    <CardDescription>
+                      Informações sobre a plataforma e arquitetura
                     </CardDescription>
                   </div>
                 </div>

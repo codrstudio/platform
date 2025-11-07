@@ -152,14 +152,6 @@ $RECYCLE.BIN/
 .Trash-*
 
 # ============================================
-# PWA / Service Worker
-# ============================================
-# Generated service worker (should be built, not edited)
-**/frontend/public/sw.js
-**/frontend/public/workbox-*.js
-**/frontend/public/precache-manifest.*.js
-
-# ============================================
 # Package Manager Lock Files
 # ============================================
 # Keep lock files for consistency
@@ -207,9 +199,6 @@ out/
 
 # Nuxt.js (if added later)
 .nuxt/
-
-# Gatsby (if added later)
-public/
 
 # Storybook (if added later)
 storybook-static/
