@@ -719,13 +719,13 @@
       {
         "json": {
           "headers": {
-            "host": "n8n.cia.codr.studio",
+            "host": "n8n.codrstudio.dev",
             "user-agent": "curl/8.16.0",
             "content-length": "37",
             "accept": "*/*",
             "content-type": "application/json",
             "x-forwarded-for": "216.234.208.114",
-            "x-forwarded-host": "n8n.cia.codr.studio",
+            "x-forwarded-host": "n8n.codrstudio.dev",
             "x-forwarded-port": "443",
             "x-forwarded-proto": "https",
             "x-forwarded-server": "f03fd09cc87d",
@@ -738,7 +738,7 @@
             "schema": "platform",
             "select": "entity"
           },
-          "webhookUrl": "https://n8n.cia.codr.studio/webhook/api/1/request",
+          "webhookUrl": "https://n8n.codrstudio.dev/webhook/api/1/request",
           "executionMode": "production"
         }
       }

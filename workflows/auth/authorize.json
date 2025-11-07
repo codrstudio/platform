@@ -694,7 +694,7 @@
       {
         "json": {
           "headers": {
-            "host": "n8n.cia.codr.studio",
+            "host": "n8n.codrstudio.dev",
             "user-agent": "PostmanRuntime/7.49.0",
             "content-length": "25",
             "accept": "*/*",
@@ -703,7 +703,7 @@
             "cookie": "access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1YmJhMjQ5ZS01NmEwLTQ3Y2EtOTk4Zi01NWY0MzAxYTI0ZTEiLCJpc3MiOiJjaWFjdWlkYWRvcmVzIiwiYXVkIjoicHJpbWVjYXJlIiwiZXhwIjoxNzYxODYwODQyLCJpYXQiOjE3NjE3NzQ0NDIsImp0aSI6ImVhNjRkM2NlLTEzY2UtNDVkMS1hODk5LTIyNDFhNTk5YjZkYSIsInRlbmFudCI6WzEsMTgsMTksMTIsOCwxM10sInJvbGVzIjpbIkRvbm8gZGEgRnJhbnF1aWEiXSwibmFtZSI6IkdVR0EgQ09ERVIiLCJlbWFpbCI6Imd1Z2EuY29kZXJAZ21haWwuY29tIn0.7XmxDeU5KKE3baoGCoxr9k_8EkXMBDsSoXr6lGDj4ic",
             "postman-token": "11c18d82-40bb-40f1-93d3-cd04bf68fb00",
             "x-forwarded-for": "185.203.218.236",
-            "x-forwarded-host": "n8n.cia.codr.studio",
+            "x-forwarded-host": "n8n.codrstudio.dev",
             "x-forwarded-port": "443",
             "x-forwarded-proto": "https",
             "x-forwarded-server": "f03fd09cc87d",

@@ -40,7 +40,7 @@ node .tmp/backup-n8n-workflows.js
 ```
 
 O script irá:
-1. Conectar na API do n8n em `https://n8n.cia.codr.studio`
+1. Conectar na API do n8n em `https://n8n.codrstudio.dev`
 2. Listar todas as tags/pastas
 3. Baixar todos os workflows
 4. Organizar por pasta baseado nas tags
@@ -49,7 +49,7 @@ O script irá:
 ## Configuração
 
 As credenciais da API n8n estão em `mcp-tools/n8n/.env`:
-- **Base URL**: https://n8n.cia.codr.studio
+- **Base URL**: https://n8n.codrstudio.dev
 - **Auth**: API Key via header
 
 ## Formato dos arquivos

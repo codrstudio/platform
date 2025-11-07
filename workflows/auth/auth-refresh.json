@@ -891,7 +891,7 @@
       {
         "json": {
           "headers": {
-            "host": "n8n.cia.codr.studio",
+            "host": "n8n.codrstudio.dev",
             "user-agent": "PostmanRuntime/7.49.0",
             "content-length": "64",
             "accept": "*/*",
@@ -900,7 +900,7 @@
             "cookie": "refresh_token=041d0177538a3d77f90e57d463bad560e3ba7af9f07e42e65805309f30fe7b81;",
             "postman-token": "a9005b11-c0a2-46c9-aa1e-6ecaa8dedf1a",
             "x-forwarded-for": "185.203.218.239",
-            "x-forwarded-host": "n8n.cia.codr.studio",
+            "x-forwarded-host": "n8n.codrstudio.dev",
             "x-forwarded-port": "443",
             "x-forwarded-proto": "https",
             "x-forwarded-server": "f03fd09cc87d",
