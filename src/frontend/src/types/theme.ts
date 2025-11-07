@@ -33,12 +33,14 @@ export interface ThemeConfig {
 
 /**
  * Theme Context Value
+ * BREAKING CHANGE: settingsKey renamed to realmId (Realm System)
  */
 export interface ThemeContextValue {
   mode: ThemeMode
   resolvedTheme: ResolvedTheme
   brandColor: BrandColor
-  settingsKey: string
+  realmId: string
+  portalId: string
   setMode: (mode: ThemeMode) => void
   setBrandColor: (color: BrandColor) => void
   setBrandColorFromHex: (hex: string) => void

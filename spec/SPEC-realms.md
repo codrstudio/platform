@@ -325,23 +325,27 @@ Este documento define os requisitos do sistema de Reinos, que permite agrupar po
 
 **SPEC-RM-PS-005:** Frontend DEVE armazenar configurações em localStorage
 
-**SPEC-RM-PS-006:** Chaves de Reino: `{realmId}:{property}` (ex: `default:theme`)
+**SPEC-RM-PS-006:** Chaves de Reino: `realm:{realmId}:{property}` (ex: `realm:default:theme`)
 
-**SPEC-RM-PS-007:** Chaves de Portal: `{realmId}:{portalId}:{property}` (ex: `default:main:theme`)
+**SPEC-RM-PS-007:** Chaves de Portal: `portal:{portalId}:{property}` (ex: `portal:main:theme`)
 
-**SPEC-RM-PS-008:** Sincronização via storage events entre abas
+**SPEC-RM-PS-008:** Configurações customizadas por Portal DEVEM permanecer com ele mesmo se mudar de Reino
+
+**SPEC-RM-PS-009:** Chave de Portal NÃO inclui realmId, pois o portal mantém suas customizações independente do Reino
+
+**SPEC-RM-PS-010:** Sincronização via storage events entre abas
 
 ### Acesso via JQEL
 
-**SPEC-RM-PS-009:** Reinos DEVEM ser acessíveis via JQEL
+**SPEC-RM-PS-011:** Reinos DEVEM ser acessíveis via JQEL
 
-**SPEC-RM-PS-010:** Schema: `backend` ou `system`
+**SPEC-RM-PS-012:** Schema: `backend` ou `system`
 
-**SPEC-RM-PS-011:** Entity: `realm`
+**SPEC-RM-PS-013:** Entity: `realm`
 
-**SPEC-RM-PS-012:** Operações: `select`, `insert`, `update`, `delete`
+**SPEC-RM-PS-014:** Operações: `select`, `insert`, `update`, `delete`
 
-**SPEC-RM-PS-013:** Exemplo:
+**SPEC-RM-PS-015:** Exemplo:
 ```json
 {
   "schema": "backend",

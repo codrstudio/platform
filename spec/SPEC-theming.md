@@ -92,23 +92,27 @@ Este documento define os requisitos do sistema de temas da plataforma, incluindo
 
 ### Geração de Chaves (localStorage)
 
-**SPEC-TH-HC-020:** Chaves de Reino DEVEM usar formato `{realmId}:{config}`
+**SPEC-TH-HC-020:** Chaves de Reino DEVEM usar formato `realm:{realmId}:{config}`
 
-**SPEC-TH-HC-021:** Exemplo: `default:theme`, `default:brand-color`
+**SPEC-TH-HC-021:** Exemplo: `realm:default:theme`, `realm:default:brand-color`
 
-**SPEC-TH-HC-022:** Chaves de Portal DEVEM usar formato `{realmId}:{portalId}:{config}`
+**SPEC-TH-HC-022:** Chaves de Portal DEVEM usar formato `portal:{portalId}:{config}`
 
-**SPEC-TH-HC-023:** Exemplo: `default:main:theme`, `default:main:brand-color`
+**SPEC-TH-HC-023:** Exemplo: `portal:main:theme`, `portal:main:brand-color`
 
 **SPEC-TH-HC-024:** Frontend DEVE verificar chave de Portal primeiro, depois Reino, depois Sistema
 
+**SPEC-TH-HC-025:** Configurações customizadas por Portal DEVEM permanecer com o portal mesmo se mudar de Reino
+
+**SPEC-TH-HC-026:** Chave de Portal NÃO inclui realmId, pois o portal mantém suas customizações independente do Reino
+
 ### Sincronização
 
-**SPEC-TH-HC-025:** Mudança em Reino DEVE sincronizar localStorage de todos os portais do Reino
+**SPEC-TH-HC-027:** Mudança em Reino DEVE sincronizar localStorage de todos os portais do Reino
 
-**SPEC-TH-HC-026:** Mudança em Portal DEVE afetar apenas localStorage daquele portal
+**SPEC-TH-HC-028:** Mudança em Portal DEVE afetar apenas localStorage daquele portal
 
-**SPEC-TH-HC-027:** Sincronização DEVE usar storage events para atualizar abas abertas
+**SPEC-TH-HC-029:** Sincronização DEVE usar storage events para atualizar abas abertas
 
 ---
 

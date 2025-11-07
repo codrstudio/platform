@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Suspense } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { EventProvider } from './contexts/EventContext';
 import { ProtectedRoute } from './components/routing/ProtectedRoute';
@@ -54,53 +53,53 @@ function LoadingFallback() {
  * - AuthProvider: Global authentication state
  * - Suspense: Lazy loading fallback
  * - Routes: Application routing structure
+ * - ThemeProvider: Applied at portal level for realm-scoped theming
  *
  * SPEC-R-PM-001: Main portal uses "/"
  * SPEC-R-PO-001: Other portals use "/:portalId/*"
  * SPEC-DA-P-005: TanStack Query encapsulates JQEL
+ * SPEC-TH-HC-020 to HC-029: Theme resolution at realm+portal level
  */
 function App() {
   return (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <AuthProvider>
-            <EventProvider>
-              <Suspense fallback={<LoadingFallback />}>
-            {/* Global toast notifications - SPEC-ERR-UI-001 */}
-            <Toaster
-              position="bottom-right"
-              expand={false}
-              richColors
-              closeButton
-              duration={5000}
+        <AuthProvider>
+          <EventProvider>
+            <Suspense fallback={<LoadingFallback />}>
+          {/* Global toast notifications - SPEC-ERR-UI-001 */}
+          <Toaster
+            position="bottom-right"
+            expand={false}
+            richColors
+            closeButton
+            duration={5000}
+          />
+
+          {/* Event system UI components */}
+          <EventNotification />
+          <ConnectionStatus />
+
+          <Routes>
+            {/* Public route: Login */}
+            <Route path="/login" element={<LoginPage />} />
+
+            {/* Protected routes: Portal navigation */}
+            <Route
+              path="/*"
+              element={
+                <ProtectedRoute>
+                  <PortalRouter>
+                    {/* 404 fallback */}
+                    <Route path="*" element={<NotFoundPage />} />
+                  </PortalRouter>
+                </ProtectedRoute>
+              }
             />
-
-            {/* Event system UI components */}
-            <EventNotification />
-            <ConnectionStatus />
-
-            <Routes>
-              {/* Public route: Login */}
-              <Route path="/login" element={<LoginPage />} />
-
-              {/* Protected routes: Portal navigation */}
-              <Route
-                path="/*"
-                element={
-                  <ProtectedRoute>
-                    <PortalRouter>
-                      {/* 404 fallback */}
-                      <Route path="*" element={<NotFoundPage />} />
-                    </PortalRouter>
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </Suspense>
-            </EventProvider>
-          </AuthProvider>
-        </ThemeProvider>
+          </Routes>
+        </Suspense>
+          </EventProvider>
+        </AuthProvider>
       </QueryClientProvider>
     </BrowserRouter>
   );

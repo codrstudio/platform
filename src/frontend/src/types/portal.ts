@@ -4,12 +4,13 @@
 /**
  * Portal - Isolated sub-application within the platform
  * SPEC-C-P-001 to SPEC-C-P-028
+ * BREAKING CHANGE: settingsKey replaced with realmId (Realm System)
  */
 export interface Portal {
   portalId: string;           // Unique identifier
   name: string;               // Display name
   description?: string;       // Optional description
-  settingsKey?: string;       // Shared settings key (for theme, etc)
+  realmId: string;            // Realm this portal belongs to (default: "default")
   activeModules: string[];    // List of active module IDs
   removable: boolean;         // Can be deleted
   metadata?: Record<string, unknown>;

@@ -4,8 +4,8 @@
 import fs from 'fs/promises'
 import path from 'path'
 import { existsSync } from 'fs'
-import { PortalSchema, ModuleSchema, InstanceSchema } from '../types/config.types.js'
-import type { Portal, Module, Instance, ConfigType, ConfigData } from '../types/config.types.js'
+import { RealmSchema, PortalSchema, ModuleSchema, InstanceSchema } from '../types/config.types.js'
+import type { Realm, Portal, Module, Instance, ConfigType, ConfigData } from '../types/config.types.js'
 
 /**
  * Configuration Service
@@ -88,6 +88,93 @@ class ConfigService {
   }
 
   /**
+   * Load realms from file
+   * Realms are stored as an object, not array
+   * SPEC-RM-PS-001 to SPEC-RM-PS-004
+   */
+  private async loadRealms(): Promise<Realm[]> {
+    const filePath = this.getFilePath('realms')
+
+    try {
+      if (!existsSync(filePath)) {
+        // SPEC-RM-PS-003: Create file with default realm
+        await this.ensureDefaultRealm()
+      }
+
+      const content = await fs.readFile(filePath, 'utf-8')
+      const data = JSON.parse(content)
+
+      // Realms stored as object: { "realms": { "default": {...}, ... } }
+      const realmsObj = data.realms || {}
+      const realms = Object.values(realmsObj).map((item: unknown) => RealmSchema.parse(item))
+
+      return realms
+    } catch (error) {
+      console.error('Error loading realms config:', error)
+      // Fallback: return default realm
+      return [
+        {
+          realmId: 'default',
+          name: 'Padrão',
+          removable: false,
+          config: {},
+        },
+      ]
+    }
+  }
+
+  /**
+   * Save realms to file
+   * Convert array back to object format for storage
+   */
+  private async saveRealms(realms: Realm[]): Promise<void> {
+    await this.ensureConfigDir()
+
+    const filePath = this.getFilePath('realms')
+
+    try {
+      // Convert array to object: { "realms": { "default": {...}, ... } }
+      const realmsObj = realms.reduce(
+        (acc, realm) => {
+          acc[realm.realmId] = realm
+          return acc
+        },
+        {} as Record<string, Realm>
+      )
+
+      const content = JSON.stringify({ realms: realmsObj }, null, 2)
+      await fs.writeFile(filePath, content, 'utf-8')
+
+      // Invalidate cache
+      this.cache = null
+    } catch (error) {
+      console.error('Error saving realms config:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Ensure default realm exists
+   * SPEC-RM-DF-001 to SPEC-RM-DF-003
+   */
+  private async ensureDefaultRealm(): Promise<void> {
+    const defaultRealm: Realm = {
+      realmId: 'default',
+      name: 'Padrão',
+      description: 'Reino padrão da plataforma',
+      removable: false,
+      config: {
+        theme: {
+          mode: 'system',
+          brandColor: '221 83% 53%',
+        },
+      },
+    }
+
+    await this.saveRealms([defaultRealm])
+  }
+
+  /**
    * Load all configurations
    * SPEC-CF-AS-010: Lazy loading
    */
@@ -97,13 +184,14 @@ class ConfigService {
       return this.cache
     }
 
-    const [portals, modules, instances] = await Promise.all([
+    const [realms, portals, modules, instances] = await Promise.all([
+      this.loadRealms(),
       this.loadFile<Portal>('portals', PortalSchema),
       this.loadFile<Module>('modules', ModuleSchema),
       this.loadFile<Instance>('instances', InstanceSchema),
     ])
 
-    this.cache = { portals, modules, instances }
+    this.cache = { realms, portals, modules, instances }
     return this.cache
   }
 
@@ -190,6 +278,146 @@ class ConfigService {
    */
   clearCache(): void {
     this.cache = null
+  }
+
+  // ============================================================
+  // REALM METHODS
+  // SPEC-RM-CR-001 to SPEC-RM-CR-025
+  // ============================================================
+
+  /**
+   * Get all realms
+   * SPEC-RM-CR-001 to SPEC-RM-CR-004
+   */
+  async getRealms(): Promise<Realm[]> {
+    const config = await this.loadAll()
+    // SPEC-RM-CR-004: Order with "default" first, then alphabetical
+    return config.realms.sort((a, b) => {
+      if (a.realmId === 'default') return -1
+      if (b.realmId === 'default') return 1
+      return a.name.localeCompare(b.name)
+    })
+  }
+
+  /**
+   * Get realm by ID
+   * SPEC-RM-CR-005 to SPEC-RM-CR-007
+   */
+  async getRealmById(realmId: string): Promise<Realm | null> {
+    const realms = await this.getRealms()
+    return realms.find((r) => r.realmId === realmId) || null
+  }
+
+  /**
+   * Get portal count for realm
+   * Used for SPEC-RM-CR-007
+   */
+  async getRealmPortalCount(realmId: string): Promise<number> {
+    const portals = await this.getPortals()
+    return portals.filter((p) => p.realmId === realmId).length
+  }
+
+  /**
+   * Create new realm
+   * SPEC-RM-CR-008 to SPEC-RM-CR-014
+   */
+  async createRealm(realm: Realm): Promise<void> {
+    const realms = await this.getRealms()
+
+    // SPEC-RM-CR-011: Validate uniqueness
+    if (realms.some((r) => r.realmId === realm.realmId)) {
+      throw new Error(`Realm with ID "${realm.realmId}" already exists`)
+    }
+
+    // SPEC-RM-CR-014: Cannot create realm with ID "default"
+    if (realm.realmId === 'default') {
+      throw new Error('Cannot create realm with ID "default" (reserved)')
+    }
+
+    // SPEC-RM-CR-012: Validate format (already done by Zod schema)
+    // SPEC-RM-CR-013: removable defaults to true (handled by schema)
+
+    realms.push(realm)
+    await this.saveRealms(realms)
+  }
+
+  /**
+   * Update realm
+   * SPEC-RM-CR-015 to SPEC-RM-CR-019
+   */
+  async updateRealm(realmId: string, updates: Partial<Omit<Realm, 'realmId' | 'removable'>>): Promise<void> {
+    const realms = await this.getRealms()
+    const index = realms.findIndex((r) => r.realmId === realmId)
+
+    if (index === -1) {
+      throw new Error(`Realm "${realmId}" not found`)
+    }
+
+    // SPEC-RM-CR-017: Cannot update realmId or removable
+    // SPEC-RM-CR-018: Cannot rename default realm
+    if (realmId === 'default' && updates.name && updates.name !== realms[index].name) {
+      throw new Error('Cannot rename realm "default"')
+    }
+
+    // Merge updates
+    realms[index] = {
+      ...realms[index],
+      ...updates,
+      realmId, // Ensure realmId stays the same
+      removable: realms[index].removable, // Ensure removable stays the same
+    }
+
+    await this.saveRealms(realms)
+  }
+
+  /**
+   * Delete realm
+   * SPEC-RM-CR-020 to SPEC-RM-CR-025
+   */
+  async deleteRealm(realmId: string): Promise<void> {
+    const realms = await this.getRealms()
+    const realm = realms.find((r) => r.realmId === realmId)
+
+    if (!realm) {
+      throw new Error(`Realm "${realmId}" not found`)
+    }
+
+    // SPEC-RM-CR-021: Cannot delete non-removable realms
+    if (!realm.removable) {
+      throw new Error(`Realm "${realmId}" is not removable`)
+    }
+
+    // SPEC-RM-CR-022 to SPEC-RM-CR-025: Reassign portals to "default"
+    const portals = await this.getPortals()
+    const affectedPortals = portals.filter((p) => p.realmId === realmId)
+
+    if (affectedPortals.length > 0) {
+      affectedPortals.forEach((portal) => {
+        portal.realmId = 'default'
+      })
+      await this.savePortals(portals)
+    }
+
+    // Remove realm
+    const updatedRealms = realms.filter((r) => r.realmId !== realmId)
+    await this.saveRealms(updatedRealms)
+  }
+
+  /**
+   * Get realm configuration
+   * Used for theme resolution
+   */
+  async getRealmConfig(realmId: string): Promise<Realm['config'] | null> {
+    const realm = await this.getRealmById(realmId)
+    return realm?.config || null
+  }
+
+  /**
+   * Set realm configuration
+   * Updates only the config field
+   */
+  async setRealmConfig(realmId: string, config: Realm['config']): Promise<void> {
+    await this.updateRealm(realmId, { config })
   }
 }
 

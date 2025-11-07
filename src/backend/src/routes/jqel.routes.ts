@@ -7,6 +7,7 @@ import { n8nProxy } from '../services/n8nProxy.service.js'
 import { configService } from '../services/config.service.js'
 import type { Portal, Module, Instance } from '../types/config.types.js'
 import { executeJQELQuery, applyWhere } from '../utils/jqelProcessor.js'
+import { emitConfigChanged } from '../utils/event-emitter.js'
 
 const router = Router()
 
@@ -195,10 +196,28 @@ async function handleInsert(query: JQELQuery, entity: 'portal' | 'module' | 'ins
 
   switch (entity) {
     case 'portal': {
+      const portal = newItem as Portal
+
+      // Validate realmId exists (SPEC-RM-VAL-001)
+      if (portal.realmId) {
+        const realm = await configService.getRealmById(portal.realmId)
+        if (!realm) {
+          return res.status(400).json({
+            code: 400,
+            message: `Realm '${portal.realmId}' does not exist`,
+            data: null,
+          } as JResult)
+        }
+      }
+
       const portals = await configService.getPortals()
-      portals.push(newItem as Portal)
+      portals.push(portal)
       await configService.savePortals(portals)
-      data = [newItem]
+
+      // Emit config-changed event
+      await emitConfigChanged('portal', portal.portalId, 'create', portal)
+
+      data = [portal]
       break
     }
     case 'module': {
@@ -258,14 +277,31 @@ async function handleUpdate(query: JQELQuery, entity: 'portal' | 'module' | 'ins
 
   switch (entity) {
     case 'portal': {
+      const updates = query.values as Partial<Portal>
+
+      // Validate realmId if being updated (SPEC-RM-VAL-002)
+      if (updates.realmId) {
+        const realm = await configService.getRealmById(updates.realmId)
+        if (!realm) {
+          return res.status(400).json({
+            code: 400,
+            message: `Realm '${updates.realmId}' does not exist`,
+            data: null,
+          } as JResult)
+        }
+      }
+
       const portals = await configService.getPortals()
       const matchingPortals = applyWhere(portals, query.where)
 
       matchingPortals.forEach(match => {
         const index = portals.findIndex(p => p.portalId === match.portalId)
         if (index !== -1) {
-          portals[index] = { ...portals[index], ...query.values }
+          portals[index] = { ...portals[index], ...updates }
           updated++
+
+          // Emit config-changed event for each updated portal
+          emitConfigChanged('portal', match.portalId, 'update', updates)
         }
       })
 
@@ -339,6 +375,12 @@ async function handleDelete(query: JQELQuery, entity: 'portal' | 'module' | 'ins
       )
       deleted = portals.length - remaining.length
       await configService.savePortals(remaining)
+
+      // Emit config-changed event for each deleted portal
+      matchingPortals.forEach(portal => {
+        emitConfigChanged('portal', portal.portalId, 'delete')
+      })
+
       break
     }
     case 'module': {

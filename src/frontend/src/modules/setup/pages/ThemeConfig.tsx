@@ -1,49 +1,100 @@
-// Theme Config Page
-// Based on spec/ui/setup-module-interfaces.md Section 4.4
+// Theme Config Page with Tabs (Realm / Portal)
+// Based on SPEC-theming.md and Realm System
 
 import { useNavigate, useParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Save, Palette } from 'lucide-react';
-import { usePortal } from '@/hooks/useJQEL';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Save, Palette, Globe, Trash2 } from 'lucide-react';
+import { usePortal, useRealm } from '@/hooks/useJQEL';
+import {
+  getStoredBrandColor,
+  setStoredBrandColor,
+  setPortalBrandColor,
+  removePortalBrandColor,
+  hasPortalBrandColorOverride,
+  hexToHSL,
+  hslToHex
+} from '@/lib/theme';
 
 export function ThemeConfig() {
   const { portalId } = useParams<{ portalId: string }>();
   const navigate = useNavigate();
 
-  // Use JQEL hook to fetch portal
-  const { data: portalResult, isLoading, error } = usePortal(portalId || '');
+  const { data: portalResult, isLoading: portalLoading } = usePortal(portalId || '');
   const portal = portalResult?.data?.[0] || null;
 
-  const [brandColor, setBrandColor] = useState('#0ea5e9');
-  const [isSaving, setIsSaving] = useState(false);
+  const { data: realmResult, isLoading: realmLoading } = useRealm(portal?.realmId || '');
+  const realm = realmResult?.data;
 
-  // TODO: Load theme config from JQEL using settingsKey
-  // For now, use default color
+  const [realmBrandColor, setRealmBrandColorState] = useState('#0ea5e9');
+  const [portalBrandColor, setPortalBrandColorState] = useState('#0ea5e9');
+  const [hasPortalOverride, setHasPortalOverride] = useState(false);
 
-  const handleSave = async () => {
-    setIsSaving(true);
+  // Load current colors from localStorage
+  useEffect(() => {
+    if (portal && realm) {
+      // Load realm color
+      const realmColor = getStoredBrandColor(realm.realmId);
+      setRealmBrandColorState(hslToHex(realmColor));
 
-    try {
-      // TODO: Save theme config via JQEL
-      console.log('Saving theme config:', { brandColor });
+      // Check if portal has override
+      const hasOverride = hasPortalBrandColorOverride(portal.portalId);
+      setHasPortalOverride(hasOverride);
 
-      // Simulate save delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      navigate(`/setup/portals/${portalId}`);
-    } catch (error) {
-      console.error('Error saving theme:', error);
-    } finally {
-      setIsSaving(false);
+      if (hasOverride) {
+        // Load portal override color
+        const portalColor = getStoredBrandColor(realm.realmId, portal.portalId);
+        setPortalBrandColorState(hslToHex(portalColor));
+      } else {
+        // Use realm color
+        setPortalBrandColorState(hslToHex(realmColor));
+      }
     }
+  }, [portal, realm]);
+
+  const handleSaveRealmColor = () => {
+    if (!realm) return;
+
+    const hslColor = hexToHSL(realmBrandColor);
+    setStoredBrandColor(realm.realmId, hslColor);
+
+    alert('Cor do reino salva! Recarregue a página para ver as mudanças.');
   };
 
-  if (isLoading) {
+  const handleSavePortalColor = () => {
+    if (!portal) return;
+
+    const hslColor = hexToHSL(portalBrandColor);
+    setPortalBrandColor(portal.portalId, hslColor);
+    setHasPortalOverride(true);
+
+    alert('Cor do portal salva! Recarregue a página para ver as mudanças.');
+  };
+
+  const handleRemovePortalOverride = () => {
+    if (!portal || !realm) return;
+
+    if (!confirm('Tem certeza que deseja remover a customização do portal? Ele voltará a usar a cor do reino.')) {
+      return;
+    }
+
+    removePortalBrandColor(portal.portalId);
+    setHasPortalOverride(false);
+
+    // Reset to realm color
+    const realmColor = getStoredBrandColor(realm.realmId);
+    setPortalBrandColorState(hslToHex(realmColor));
+
+    alert('Customização removida! Recarregue a página para ver as mudanças.');
+  };
+
+  if (portalLoading || realmLoading) {
     return (
       <div className="container mx-auto p-6">
         <p>Carregando configurações de tema...</p>
@@ -51,11 +102,10 @@ export function ThemeConfig() {
     );
   }
 
-  if (error || !portal) {
+  if (!portal || !realm) {
     return (
       <div className="container mx-auto p-6">
-        <p>Portal não encontrado</p>
-        {error && <p className="text-sm text-muted-foreground mt-2">{String(error)}</p>}
+        <p>Portal ou Reino não encontrado</p>
       </div>
     );
   }
@@ -73,77 +123,209 @@ export function ThemeConfig() {
         </Button>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
-            Tema do Portal
+            Configuração de Tema
           </h1>
           <p className="text-muted-foreground mt-2">
-            {portal.name} - Configure cores e aparência personalizada
+            {portal.name} (Reino: {realm.name})
           </p>
         </div>
       </div>
 
-      {/* Brand Color */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Palette className="h-5 w-5 text-primary" />
-            <CardTitle>Cor da Marca</CardTitle>
-          </div>
-          <CardDescription>
-            Defina a cor principal do portal. A paleta completa será gerada automaticamente.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-center gap-4">
-              <div className="space-y-2 flex-1">
-                <Label htmlFor="brandColor">Cor Principal</Label>
-                <Input
-                  id="brandColor"
-                  type="color"
-                  value={brandColor}
-                  onChange={(e) => setBrandColor(e.target.value)}
-                  className="h-12 w-full cursor-pointer"
-                />
-              </div>
-              <div className="space-y-2 flex-1">
-                <Label>Valor Hexadecimal</Label>
-                <Input
-                  type="text"
-                  value={brandColor}
-                  onChange={(e) => setBrandColor(e.target.value)}
-                  placeholder="#0ea5e9"
-                  pattern="^#[0-9A-Fa-f]{6}$"
-                />
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Preview */}
-            <div className="space-y-2">
-              <Label>Preview da Paleta</Label>
-              <div className="grid grid-cols-5 gap-2">
-                {[50, 100, 200, 300, 400, 500, 600, 700, 800, 900].map((shade) => (
-                  <div key={shade} className="space-y-1">
-                    <div
-                      className="h-16 rounded border"
-                      style={{
-                        backgroundColor: brandColor,
-                        opacity: shade === 500 ? 1 : shade < 500 ? shade / 500 : (1000 - shade) / 500
-                      }}
-                    />
-                    <p className="text-xs text-center text-muted-foreground">{shade}</p>
-                  </div>
-                ))}
-              </div>
-              <p className="text-sm text-muted-foreground mt-4">
-                A paleta completa será gerada automaticamente com base na cor principal,
-                garantindo contraste WCAG AA.
+      {/* Info Card */}
+      <Card className="bg-muted/50">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <Globe className="h-5 w-5 text-primary mt-0.5" />
+            <div className="space-y-1">
+              <p className="text-sm font-medium">Sistema de Reinos</p>
+              <p className="text-sm text-muted-foreground">
+                A aba <strong>Reino</strong> define a cor padrão para todos os portais do reino "{realm.name}".
+                A aba <strong>Portal</strong> permite customizar apenas este portal, sobrescrevendo a cor do reino.
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Tabs */}
+      <Tabs defaultValue="realm" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="realm">
+            <Globe className="h-4 w-4 mr-2" />
+            Reino
+          </TabsTrigger>
+          <TabsTrigger value="portal">
+            <Palette className="h-4 w-4 mr-2" />
+            Portal
+            {hasPortalOverride && (
+              <Badge variant="secondary" className="ml-2 text-xs">
+                Custom
+              </Badge>
+            )}
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Realm Tab */}
+        <TabsContent value="realm" className="space-y-6 mt-6">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Globe className="h-5 w-5 text-primary" />
+                <CardTitle>Cor do Reino</CardTitle>
+              </div>
+              <CardDescription>
+                Define a cor padrão para todos os portais do reino "{realm.name}".
+                Esta mudança afetará todos os portais que não têm customização própria.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="space-y-2 flex-1">
+                    <Label htmlFor="realmBrandColor">Cor Principal</Label>
+                    <Input
+                      id="realmBrandColor"
+                      type="color"
+                      value={realmBrandColor}
+                      onChange={(e) => setRealmBrandColorState(e.target.value)}
+                      className="h-12 w-full cursor-pointer"
+                    />
+                  </div>
+                  <div className="space-y-2 flex-1">
+                    <Label>Valor Hexadecimal</Label>
+                    <Input
+                      type="text"
+                      value={realmBrandColor}
+                      onChange={(e) => setRealmBrandColorState(e.target.value)}
+                      placeholder="#0ea5e9"
+                      pattern="^#[0-9A-Fa-f]{6}$"
+                    />
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Preview */}
+                <div className="space-y-2">
+                  <Label>Preview da Paleta</Label>
+                  <div className="grid grid-cols-5 gap-2">
+                    {[50, 100, 200, 300, 400, 500, 600, 700, 800, 900].map((shade) => (
+                      <div key={shade} className="space-y-1">
+                        <div
+                          className="h-16 rounded border"
+                          style={{
+                            backgroundColor: realmBrandColor,
+                            opacity: shade === 500 ? 1 : shade < 500 ? shade / 500 : (1000 - shade) / 500
+                          }}
+                        />
+                        <p className="text-xs text-center text-muted-foreground">{shade}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-4">
+                    A paleta completa será gerada automaticamente com base na cor principal,
+                    garantindo contraste WCAG AA.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Button onClick={handleSaveRealmColor}>
+                  <Save className="h-4 w-4 mr-2" />
+                  Aplicar a Todos os Portais do Reino
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Portal Tab */}
+        <TabsContent value="portal" className="space-y-6 mt-6">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Palette className="h-5 w-5 text-primary" />
+                  <CardTitle>Cor do Portal</CardTitle>
+                </div>
+                {hasPortalOverride && (
+                  <Badge variant="secondary">Customizado</Badge>
+                )}
+              </div>
+              <CardDescription>
+                Customize a cor apenas para este portal.
+                {hasPortalOverride
+                  ? ' Este portal está usando uma cor personalizada.'
+                  : ' Este portal está usando a cor do reino.'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="space-y-2 flex-1">
+                    <Label htmlFor="portalBrandColor">Cor Principal</Label>
+                    <Input
+                      id="portalBrandColor"
+                      type="color"
+                      value={portalBrandColor}
+                      onChange={(e) => setPortalBrandColorState(e.target.value)}
+                      className="h-12 w-full cursor-pointer"
+                    />
+                  </div>
+                  <div className="space-y-2 flex-1">
+                    <Label>Valor Hexadecimal</Label>
+                    <Input
+                      type="text"
+                      value={portalBrandColor}
+                      onChange={(e) => setPortalBrandColorState(e.target.value)}
+                      placeholder="#0ea5e9"
+                      pattern="^#[0-9A-Fa-f]{6}$"
+                    />
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Preview */}
+                <div className="space-y-2">
+                  <Label>Preview da Paleta</Label>
+                  <div className="grid grid-cols-5 gap-2">
+                    {[50, 100, 200, 300, 400, 500, 600, 700, 800, 900].map((shade) => (
+                      <div key={shade} className="space-y-1">
+                        <div
+                          className="h-16 rounded border"
+                          style={{
+                            backgroundColor: portalBrandColor,
+                            opacity: shade === 500 ? 1 : shade < 500 ? shade / 500 : (1000 - shade) / 500
+                          }}
+                        />
+                        <p className="text-xs text-center text-muted-foreground">{shade}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2">
+                {hasPortalOverride && (
+                  <Button
+                    variant="outline"
+                    onClick={handleRemovePortalOverride}
+                    className="text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Remover Customização
+                  </Button>
+                )}
+                <Button onClick={handleSavePortalColor}>
+                  <Save className="h-4 w-4 mr-2" />
+                  Aplicar Somente a Este Portal
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Semantic Colors Info */}
       <Card>
@@ -178,20 +360,6 @@ export function ThemeConfig() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Actions */}
-      <div className="flex justify-end gap-4">
-        <Button
-          variant="outline"
-          onClick={() => navigate(`/setup/portals/${portalId}`)}
-        >
-          Cancelar
-        </Button>
-        <Button onClick={handleSave} disabled={isSaving}>
-          <Save className="h-4 w-4 mr-2" />
-          {isSaving ? 'Salvando...' : 'Salvar Tema'}
-        </Button>
-      </div>
     </div>
   );
 }

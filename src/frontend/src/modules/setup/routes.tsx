@@ -8,6 +8,8 @@ import type { ModuleRoute } from '@/types/module';
 // Lazy load pages
 const SetupDashboard = lazy(() => import('./pages/SetupDashboard').then(m => ({ default: m.SetupDashboard })));
 const PlatformSettings = lazy(() => import('./pages/PlatformSettings').then(m => ({ default: m.PlatformSettings })));
+const RealmList = lazy(() => import('./pages/RealmList').then(m => ({ default: m.RealmList })));
+const RealmForm = lazy(() => import('./pages/RealmForm').then(m => ({ default: m.RealmForm })));
 const PortalList = lazy(() => import('./pages/PortalList').then(m => ({ default: m.PortalList })));
 const PortalForm = lazy(() => import('./pages/PortalForm').then(m => ({ default: m.PortalForm })));
 const PortalModules = lazy(() => import('./pages/PortalModules').then(m => ({ default: m.PortalModules })));
@@ -23,6 +25,18 @@ export const setupRoutes: ModuleRoute[] = [
   {
     path: '/platform-settings',
     component: PlatformSettings
+  },
+  {
+    path: '/realms',
+    component: RealmList
+  },
+  {
+    path: '/realms/new',
+    component: RealmForm
+  },
+  {
+    path: '/realms/:realmId',
+    component: RealmForm
   },
   {
     path: '/portals',

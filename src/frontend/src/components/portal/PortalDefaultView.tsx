@@ -17,7 +17,7 @@ import { usePortalExists } from '@/hooks/usePortalExists';
 export interface PortalDefaultViewProps {
   portalId: string;
   portalName?: string;
-  settingsKey?: string;
+  realmId: string;
   removable: boolean;
   brandColor?: string;
   theme: 'light' | 'dark' | 'system';
@@ -26,7 +26,7 @@ export interface PortalDefaultViewProps {
 export function PortalDefaultView({
   portalId,
   portalName,
-  settingsKey,
+  realmId,
   removable,
   theme,
 }: PortalDefaultViewProps) {
@@ -141,20 +141,20 @@ export function PortalDefaultView({
             </CardContent>
           </Card>
 
-          {/* Card 2 - Configuração */}
+          {/* Card 2 - Reino */}
           <Card className="transition-shadow duration-200 hover:shadow-md">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Settings className="h-4 w-4" aria-hidden="true" />
-                <CardTitle className="text-sm font-medium">Settings Key</CardTitle>
+                <CardTitle className="text-sm font-medium">Reino</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
               <Badge variant="outline" className="text-sm">
-                {settingsKey || 'default'}
+                {realmId}
               </Badge>
               <p className="text-xs text-muted-foreground">
-                Compartilha tema com outros portais usando a mesma chave
+                Compartilha configurações com outros portais do mesmo reino
               </p>
             </CardContent>
           </Card>

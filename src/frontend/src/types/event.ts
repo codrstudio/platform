@@ -6,7 +6,7 @@
  * SPEC-EV-PL-001 to SPEC-EV-PL-008
  */
 export interface BaseEvent {
-  type: 'notification' | 'task' | 'job-completed' | 'job-failed' | 'job-progress'
+  type: 'notification' | 'task' | 'job-completed' | 'job-failed' | 'job-progress' | 'config-changed'
   id: string
   userId?: string
   userIds?: string[]
@@ -14,6 +14,7 @@ export interface BaseEvent {
   category?: string
   priority?: 'low' | 'normal' | 'high' | 'urgent'
   metadata?: Record<string, unknown>
+  data?: unknown
 }
 
 /**
@@ -53,9 +54,23 @@ export interface JobEvent extends BaseEvent {
 }
 
 /**
+ * Config Changed Event
+ * Emitted when realm or portal configuration changes
+ */
+export interface ConfigChangedEvent extends BaseEvent {
+  type: 'config-changed'
+  data: {
+    entity: 'realm' | 'portal'
+    entityId: string
+    action: 'create' | 'update' | 'delete'
+    changes?: Record<string, unknown>
+  }
+}
+
+/**
  * Union type for all events
  */
-export type PlatformEvent = NotificationEvent | TaskEvent | JobEvent
+export type PlatformEvent = NotificationEvent | TaskEvent | JobEvent | ConfigChangedEvent
 
 /**
  * Event Handler Type

@@ -1,0 +1,16 @@
+{
+  "realms": {
+    "default": {
+      "realmId": "default",
+      "name": "Padrão",
+      "description": "Reino padrão da plataforma",
+      "removable": false,
+      "config": {
+        "theme": {
+          "mode": "system",
+          "brandColor": "221 83% 53%"
+        }
+      }
+    }
+  }
+}

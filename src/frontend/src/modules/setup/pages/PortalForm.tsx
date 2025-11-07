@@ -8,8 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Save } from 'lucide-react';
-import { usePortal, useCreatePortal, useUpdatePortal } from '@/hooks/useJQEL';
+import { usePortal, useCreatePortal, useUpdatePortal, useRealms } from '@/hooks/useJQEL';
 
 export function PortalForm() {
   const { portalId } = useParams<{ portalId: string }>();
@@ -17,6 +18,7 @@ export function PortalForm() {
   const isEditing = portalId && portalId !== 'new';
 
   const { data: portalResult, isLoading } = usePortal(portalId || '');
+  const { data: realmsResult, isLoading: realmsLoading } = useRealms();
   const createPortalMutation = useCreatePortal();
   const updatePortalMutation = useUpdatePortal();
 
@@ -24,10 +26,12 @@ export function PortalForm() {
     portalId: '',
     name: '',
     description: '',
-    settingsKey: 'default',
+    realmId: 'default',
     removable: true,
     activeModules: [] as string[],
   });
+
+  const realms = realmsResult?.data || [];
 
   useEffect(() => {
     if (isEditing && portalResult?.data?.[0]) {
@@ -36,7 +40,7 @@ export function PortalForm() {
         portalId: portal.portalId,
         name: portal.name,
         description: portal.description || '',
-        settingsKey: portal.settingsKey || 'default',
+        realmId: portal.realmId || 'default',
         removable: portal.removable,
         activeModules: portal.activeModules || [],
       });
@@ -52,7 +56,7 @@ export function PortalForm() {
           values: {
             name: formData.name,
             description: formData.description,
-            settingsKey: formData.settingsKey,
+            realmId: formData.realmId,
             removable: formData.removable,
           },
           where: { portalId: { $eq: portalId! } },
@@ -63,7 +67,7 @@ export function PortalForm() {
             portalId: formData.portalId,
             name: formData.name,
             description: formData.description,
-            settingsKey: formData.settingsKey,
+            realmId: formData.realmId,
             removable: formData.removable,
             activeModules: [],
           },
@@ -174,17 +178,32 @@ export function PortalForm() {
 
             <Separator />
 
-            {/* Settings Key */}
+            {/* Realm ID */}
             <div className="space-y-2">
-              <Label htmlFor="settingsKey">Settings Key</Label>
-              <Input
-                id="settingsKey"
-                value={formData.settingsKey}
-                onChange={(e) => handleChange('settingsKey', e.target.value)}
-                placeholder="ex: portal-settings"
-              />
+              <Label htmlFor="realmId">Reino</Label>
+              <Select
+                value={formData.realmId}
+                onValueChange={(value) => handleChange('realmId', value)}
+                disabled={realmsLoading}
+              >
+                <SelectTrigger id="realmId">
+                  <SelectValue placeholder="Selecione um reino" />
+                </SelectTrigger>
+                <SelectContent>
+                  {realms.map((realm) => (
+                    <SelectItem key={realm.realmId} value={realm.realmId}>
+                      {realm.name}
+                      {realm.description && (
+                        <span className="text-xs text-muted-foreground ml-2">
+                          ({realm.description})
+                        </span>
+                      )}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <p className="text-sm text-muted-foreground">
-                Chave para armazenamento de configurações (opcional)
+                Reino ao qual este portal pertence (compartilha configurações como tema)
               </p>
             </div>
           </CardContent>

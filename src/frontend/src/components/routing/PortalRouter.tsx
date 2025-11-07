@@ -6,7 +6,7 @@ import { Suspense } from 'react';
 import { usePortal } from '@/hooks/useJQEL';
 import { Loader2 } from 'lucide-react';
 import { PortalDefaultView } from '@/components/portal/PortalDefaultView';
-import { useTheme } from '@/contexts/ThemeContext';
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { renderSetupRoutes } from '@/modules/setup';
 
 interface PortalRouterProps {
@@ -14,40 +14,11 @@ interface PortalRouterProps {
 }
 
 /**
- * Portal Content Component
- * Displays content for a specific portal
+ * Portal Content Inner Component
+ * Renders portal content with theme context available
  */
-function PortalContent({ portalId }: { portalId: string }) {
+function PortalContentInner({ portal }: { portal: any }) {
   const { mode } = useTheme();
-  const { data: portalResult, isLoading, error } = usePortal(portalId);
-
-  const portal = portalResult?.data?.[0] || null;
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-          <p className="text-sm text-muted-foreground">
-            Carregando portal...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !portal) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <h2 className="text-2xl font-bold">Portal não encontrado</h2>
-          <p className="text-muted-foreground">
-            {error instanceof Error ? error.message : 'O portal solicitado não existe.'}
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   // If portal has no active modules, show PortalDefaultView
   if (portal.activeModules.length === 0) {
@@ -55,7 +26,7 @@ function PortalContent({ portalId }: { portalId: string }) {
       <PortalDefaultView
         portalId={portal.portalId}
         portalName={portal.name}
-        settingsKey={portal.settingsKey}
+        realmId={portal.realmId}
         removable={portal.removable}
         theme={mode}
       />
@@ -105,14 +76,59 @@ function PortalContent({ portalId }: { portalId: string }) {
                 </dd>
               </div>
               <div>
-                <dt className="text-sm font-medium text-muted-foreground">Settings Key</dt>
-                <dd className="text-sm">{portal.settingsKey || 'N/A'}</dd>
+                <dt className="text-sm font-medium text-muted-foreground">Realm ID</dt>
+                <dd className="text-sm">{portal.realmId}</dd>
               </div>
             </dl>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Portal Content Component
+ * Displays content for a specific portal
+ * Wraps content with ThemeProvider scoped to portal's realm
+ */
+function PortalContent({ portalId }: { portalId: string }) {
+  const { data: portalResult, isLoading, error } = usePortal(portalId);
+
+  const portal = portalResult?.data?.[0] || null;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+          <p className="text-sm text-muted-foreground">
+            Carregando portal...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !portal) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <h2 className="text-2xl font-bold">Portal não encontrado</h2>
+          <p className="text-muted-foreground">
+            {error instanceof Error ? error.message : 'O portal solicitado não existe.'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Wrap content with ThemeProvider scoped to this portal's realm
+  // SPEC-TH-HC-020 to HC-029: 3-level theme resolution
+  return (
+    <ThemeProvider realmId={portal.realmId} portalId={portal.portalId}>
+      <PortalContentInner portal={portal} />
+    </ThemeProvider>
   );
 }
 

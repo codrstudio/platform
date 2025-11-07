@@ -4,14 +4,37 @@
 import { z } from 'zod'
 
 /**
+ * Realm Configuration Schema
+ * SPEC-RM-ST-001 to SPEC-RM-ST-015
+ * Sistema de Reinos para agrupamento de portais
+ */
+export const RealmSchema = z.object({
+  realmId: z.string().min(1).regex(/^[a-z0-9-]+$/, 'realmId deve ser alfanumérico com hífens (kebab-case)'),
+  name: z.string().min(1),
+  description: z.string().optional(),
+  removable: z.boolean().default(true), // SPEC-RM-ST-009: default realm tem false
+  config: z.object({
+    theme: z.object({
+      mode: z.enum(['light', 'dark', 'system']).optional(),
+      brandColor: z.string().optional(), // HSL format
+      radius: z.string().optional(),
+    }).optional(),
+  }).default({}),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+})
+
+export type Realm = z.infer<typeof RealmSchema>
+
+/**
  * Portal Configuration Schema
- * SPEC-C-P-001 to SPEC-C-P-011
+ * SPEC-C-P-001 to SPEC-C-P-018
+ * Atualizado para sistema de Reinos
  */
 export const PortalSchema = z.object({
   portalId: z.string().min(1),
   name: z.string().min(1),
   description: z.string().optional(),
-  settingsKey: z.string().default('default'), // SPEC-TH-SK-001
+  realmId: z.string().default('default'), // SPEC-C-P-015: Portal pertence a um Reino
   activeModules: z.array(z.string()).default([]),
   removable: z.boolean().default(true),
   metadata: z.record(z.string(), z.unknown()).optional(),
@@ -54,12 +77,13 @@ export type Instance = z.infer<typeof InstanceSchema>
 /**
  * Config Type Union
  */
-export type ConfigType = 'portals' | 'modules' | 'instances'
+export type ConfigType = 'realms' | 'portals' | 'modules' | 'instances'
 
 /**
  * Config Data Structure
  */
 export interface ConfigData {
+  realms: Realm[]
   portals: Portal[]
   modules: Module[]
   instances: Instance[]

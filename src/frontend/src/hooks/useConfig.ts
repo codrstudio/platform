@@ -4,11 +4,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
 
+// BREAKING CHANGE: settingsKey replaced with realmId (Realm System)
 interface Portal {
   portalId: string;
   name: string;
   activeModules: string[];
-  settingsKey: string;
+  realmId: string;
   removable: boolean;
 }
 
@@ -39,7 +40,7 @@ async function fetchPortal(portalId: string): Promise<Portal | null> {
         portalId,
         name: portalId,
         activeModules: [],
-        settingsKey: 'default',
+        realmId: 'default',
         removable: true,
       };
     }
@@ -55,7 +56,7 @@ async function fetchPortal(portalId: string): Promise<Portal | null> {
       portalId,
       name: portalId,
       activeModules: [],
-      settingsKey: 'default',
+      realmId: 'default',
       removable: true,
     };
   }

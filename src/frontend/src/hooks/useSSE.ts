@@ -39,6 +39,37 @@ export function useSSE(userId: string | null) {
         queryClient.invalidateQueries({
           queryKey: ['platform', 'jobs', event.data.jobId],
         })
+      } else if (event.type === 'config-changed' && 'data' in event) {
+        // Handle config-changed events (Realm System)
+        const eventData = event.data as {
+          entity: 'realm' | 'portal'
+          entityId: string
+          action: 'create' | 'update' | 'delete'
+        }
+        const { entity, entityId, action } = eventData
+
+        if (entity === 'realm') {
+          // Invalidate all realm queries
+          queryClient.invalidateQueries({ queryKey: ['realms'] })
+
+          // If specific realm, also invalidate its detail query
+          if (action !== 'create') {
+            queryClient.invalidateQueries({ queryKey: ['realm', entityId] })
+          }
+
+          // Realms affect portals, so invalidate portal queries too
+          queryClient.invalidateQueries({ queryKey: ['portals'] })
+        } else if (entity === 'portal') {
+          // Invalidate all portal queries
+          queryClient.invalidateQueries({ queryKey: ['portals'] })
+
+          // If specific portal, also invalidate its detail query
+          if (action !== 'create') {
+            queryClient.invalidateQueries({ queryKey: ['portal', entityId] })
+          }
+        }
+
+        console.log('[SSE] Config changed:', entity, entityId, action)
       }
 
       // Optional: Show visual notification

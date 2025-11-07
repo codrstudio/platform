@@ -2,7 +2,7 @@
 // Based on spec/ui/setup-module-interfaces.md Section 2
 
 import { Link } from 'react-router-dom';
-import { Settings, Package, Layers, Activity } from 'lucide-react';
+import { Settings, Package, Layers, Activity, Globe } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function SetupDashboard() {
@@ -70,6 +70,24 @@ export function SetupDashboard() {
         <h2 className="text-2xl font-semibold">Acesso Rápido</h2>
 
         <div className="grid gap-4 md:grid-cols-2">
+          <Link to="/setup/realms">
+            <Card className="hover:shadow-lg transition-all hover:border-primary cursor-pointer">
+              <CardHeader>
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-primary/10 rounded-lg">
+                    <Globe className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle>Gerenciar Reinos</CardTitle>
+                    <CardDescription>
+                      Configure reinos para agrupar portais
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+          </Link>
+
           <Link to="/setup/portals">
             <Card className="hover:shadow-lg transition-all hover:border-primary cursor-pointer">
               <CardHeader>

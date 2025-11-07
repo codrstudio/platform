@@ -3,7 +3,7 @@
     "portalId": "main",
     "name": "Portal Principal",
     "description": "Portal principal da plataforma",
-    "settingsKey": "default",
+    "realmId": "default",
     "activeModules": [],
     "removable": false,
     "metadata": {}
@@ -11,7 +11,7 @@
   {
     "portalId": "setup",
     "name": "Setup",
-    "settingsKey": "default",
+    "realmId": "default",
     "activeModules": [
       "setup"
     ],

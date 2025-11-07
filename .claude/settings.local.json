@@ -6,7 +6,8 @@
       "Bash(npm run dev:*)",
       "Bash(git worktree add:*)",
       "Bash(git worktree:*)",
-      "Bash(npm run type-check:*)"
+      "Bash(npm run type-check:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

@@ -18,7 +18,8 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
 
 interface ThemeProviderProps {
   children: ReactNode
-  settingsKey?: string
+  realmId?: string
+  portalId?: string
 }
 
 /**
@@ -26,14 +27,15 @@ interface ThemeProviderProps {
  *
  * Manages theme mode (light/dark/system) and brand color
  * SPEC-TH-CO-001 to SPEC-TH-CO-009
+ * BREAKING CHANGE: settingsKey replaced with realmId + portalId (Realm System)
  */
-export function ThemeProvider({ children, settingsKey = 'default' }: ThemeProviderProps) {
-  // SPEC-TH-LD-008: Get theme from localStorage
-  const [mode, setModeState] = useState<ThemeMode>(() => getStoredTheme(settingsKey))
+export function ThemeProvider({ children, realmId = 'default', portalId = '' }: ThemeProviderProps) {
+  // SPEC-TH-LD-008: Get theme from localStorage (realm level only)
+  const [mode, setModeState] = useState<ThemeMode>(() => getStoredTheme(realmId))
 
-  // SPEC-TH-BC-009: Get brand color from localStorage
+  // SPEC-TH-BC-009: Get brand color from localStorage (3-level resolution)
   const [brandColor, setBrandColorState] = useState<BrandColor>(() =>
-    getStoredBrandColor(settingsKey)
+    getStoredBrandColor(realmId, portalId || undefined)
   )
 
   // SPEC-TH-LD-014: Resolve "system" to actual theme
@@ -47,10 +49,11 @@ export function ThemeProvider({ children, settingsKey = 'default' }: ThemeProvid
   /**
    * Set theme mode
    * SPEC-TH-LD-004: Instant update without reload
+   * SPEC-TH-HC-020: Theme mode is realm-level only
    */
   const setMode = (newMode: ThemeMode) => {
     setModeState(newMode)
-    setStoredTheme(settingsKey, newMode) // SPEC-TH-LD-008
+    setStoredTheme(realmId, newMode) // SPEC-TH-LD-008
 
     // Resolve system theme
     if (newMode === 'system') {
@@ -61,12 +64,13 @@ export function ThemeProvider({ children, settingsKey = 'default' }: ThemeProvid
   }
 
   /**
-   * Set brand color
+   * Set brand color (realm level)
    * SPEC-TH-BC-020: Instant update
+   * SPEC-TH-HC-021: Applies to all portals in realm
    */
   const setBrandColor = (color: BrandColor) => {
     setBrandColorState(color)
-    setStoredBrandColor(settingsKey, color) // SPEC-TH-BC-009
+    setStoredBrandColor(realmId, color) // SPEC-TH-BC-009
     applyBrandColor(color)
   }
 
@@ -123,10 +127,12 @@ export function ThemeProvider({ children, settingsKey = 'default' }: ThemeProvid
   /**
    * Sync theme across tabs
    * SPEC-TH-LD-010
+   * SPEC-TH-HC-025: Portal customizations persist across realm changes
    */
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === `${settingsKey}:theme` && e.newValue) {
+      // Theme mode changed (realm level)
+      if (e.key === `realm:${realmId}:theme` && e.newValue) {
         const newMode = e.newValue as ThemeMode
         setModeState(newMode)
 
@@ -137,10 +143,25 @@ export function ThemeProvider({ children, settingsKey = 'default' }: ThemeProvid
         }
       }
 
-      if (e.key === `${settingsKey}:brand-color` && e.newValue) {
+      // Brand color changed (realm level)
+      if (e.key === `realm:${realmId}:brand-color` && e.newValue) {
         const hsl = hexToHSL(e.newValue)
         setBrandColorState(hsl)
         applyBrandColor(hsl)
+      }
+
+      // Portal brand color override changed
+      if (portalId && e.key === `portal:${portalId}:brand-color`) {
+        if (e.newValue) {
+          const hsl = hexToHSL(e.newValue)
+          setBrandColorState(hsl)
+          applyBrandColor(hsl)
+        } else {
+          // Portal override removed, fall back to realm color
+          const realmColor = getStoredBrandColor(realmId)
+          setBrandColorState(realmColor)
+          applyBrandColor(realmColor)
+        }
       }
     }
 
@@ -149,7 +170,7 @@ export function ThemeProvider({ children, settingsKey = 'default' }: ThemeProvid
     return () => {
       window.removeEventListener('storage', handleStorageChange)
     }
-  }, [settingsKey])
+  }, [realmId, portalId])
 
   return (
     <ThemeContext.Provider
@@ -157,7 +178,8 @@ export function ThemeProvider({ children, settingsKey = 'default' }: ThemeProvid
         mode,
         resolvedTheme,
         brandColor,
-        settingsKey,
+        realmId,
+        portalId,
         setMode,
         setBrandColor,
         setBrandColorFromHex,

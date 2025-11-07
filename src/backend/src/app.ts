@@ -7,6 +7,7 @@ import authRoutes from './routes/auth.routes.js'
 import jqelRoutes from './routes/jqel.routes.js'
 import eventsRoutes from './routes/events.routes.js'
 import configRoutes from './routes/config.routes.js'
+import realmRoutes from './routes/realm.routes.js'
 
 const app = express()
 
@@ -62,6 +63,9 @@ app.use('/api/events', eventsRoutes)
 
 // Configuration routes (SPEC-CF-AS-*)
 app.use('/api/config', configRoutes)
+
+// Realm routes (SPEC-RM-CR-*)
+app.use('/api/realms', realmRoutes)
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

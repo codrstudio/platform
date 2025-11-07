@@ -172,12 +172,30 @@ export function useJQELDelete<T = unknown>(
  * Domain-Specific Hooks for Backend Schema
  */
 
+// Realm Types
+// Realm System - grouped portals that share configuration
+export interface Realm {
+  realmId: string
+  name: string
+  description?: string
+  removable: boolean
+  config?: {
+    theme?: {
+      mode?: 'light' | 'dark' | 'system'
+      brandColor?: string
+      radius?: string
+    }
+  }
+  metadata?: Record<string, unknown>
+}
+
 // Portal Types
+// BREAKING CHANGE: settingsKey replaced with realmId (Realm System)
 export interface Portal {
   portalId: string
   name: string
   description?: string
-  settingsKey: string
+  realmId: string
   activeModules: string[]
   removable: boolean
   metadata?: Record<string, unknown>
@@ -321,4 +339,121 @@ export function useUpdateInstance() {
 
 export function useDeleteInstance() {
   return useJQELDelete<null>('backend', 'instance')
+}
+
+/**
+ * Realm Hooks
+ * Realm uses REST API (/api/realms), not JQEL
+ */
+
+const API_BASE_URL = 'http://localhost:3000'
+
+/**
+ * Get all realms
+ */
+export function useRealms() {
+  return useQuery<JResult<Realm[]>>({
+    queryKey: ['realms'],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/api/realms`)
+      if (!response.ok) {
+        throw new Error(`Failed to fetch realms: ${response.statusText}`)
+      }
+      return response.json()
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
+}
+
+/**
+ * Get realm by ID
+ */
+export function useRealm(realmId: string) {
+  return useQuery<JResult<Realm>>({
+    queryKey: ['realms', realmId],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/api/realms/${realmId}`)
+      if (!response.ok) {
+        throw new Error(`Failed to fetch realm: ${response.statusText}`)
+      }
+      return response.json()
+    },
+    enabled: !!realmId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
+}
+
+/**
+ * Create realm
+ */
+export function useCreateRealm() {
+  const queryClient = useQueryClient()
+
+  return useMutation<JResult<Realm>, Error, Partial<Realm>>({
+    mutationFn: async (realm) => {
+      const response = await fetch(`${API_BASE_URL}/api/realms`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(realm),
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Failed to create realm')
+      }
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['realms'] })
+    },
+  })
+}
+
+/**
+ * Update realm
+ */
+export function useUpdateRealm() {
+  const queryClient = useQueryClient()
+
+  return useMutation<JResult<Realm>, Error, { realmId: string; updates: Partial<Realm> }>({
+    mutationFn: async ({ realmId, updates }) => {
+      const response = await fetch(`${API_BASE_URL}/api/realms/${realmId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Failed to update realm')
+      }
+      return response.json()
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['realms'] })
+      queryClient.invalidateQueries({ queryKey: ['realms', variables.realmId] })
+    },
+  })
+}
+
+/**
+ * Delete realm
+ */
+export function useDeleteRealm() {
+  const queryClient = useQueryClient()
+
+  return useMutation<JResult<null>, Error, string>({
+    mutationFn: async (realmId) => {
+      const response = await fetch(`${API_BASE_URL}/api/realms/${realmId}`, {
+        method: 'DELETE',
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Failed to delete realm')
+      }
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['realms'] })
+      queryClient.invalidateQueries({ queryKey: ['portals'] }) // Portals may have changed
+    },
+  })
 }
