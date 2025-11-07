@@ -227,7 +227,6 @@ platform/
 ├── src/                  # Implementation code (EMPTY - to be implemented)
 │   └── PLAN.md           # Value-driven implementation plan
 ├── .claude/              # Claude Code configuration
-│   ├── agents/           # Custom agents (plan-task-executor)
 │   └── commands/         # Slash commands
 ├── .vscode/              # VS Code configuration
 ├── .tmp/                 # Temporary files (gitignored)

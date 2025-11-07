@@ -10,7 +10,7 @@
 
 - `[ ]` — Pendente
 - `[-]` — Em Implementação
-- `[x]` — Feito
+- `[ ]` — Feito
 - `[!]` — Bloqueado — Algo impede a execução da tarefa
 
 ---
@@ -52,7 +52,7 @@
 
 ### EPIC 1.1: Ambiente de Desenvolvimento
 
-- [ ] Story: Setup do projeto base
+- [x] Story: Setup do projeto base
 
   > Como desenvolvedor,
   > Quero ter um ambiente de desenvolvimento configurado,
@@ -62,7 +62,36 @@
   - SPEC-architecture.md (SPEC-A-S-*, SPEC-A-L-*)
   - SPEC-configuration.md (SPEC-CF-PS-*, SPEC-CF-VE-*)
 
-- [ ] Story: PWA funcional
+  **Frontend (src/frontend/):**
+  - Vite + React 19.1.1 + TypeScript configurado
+  - Tailwind CSS v3 + PostCSS + Autoprefixer
+  - shadcn/ui utils (cn helper) configurados
+  - Path alias @ configurado (tsconfig + vite)
+  - Dependências: React Router, TanStack Query, React Hook Form, Zod, Lucide React
+  - Estrutura: src/{lib,components/ui,assets}
+  - Build: Type-check e build funcionando (bundle ~61KB gzipped)
+  - Scripts: dev, build, preview, type-check, lint
+
+  **Backend (src/backend/):**
+  - Express 5 + TypeScript configurado
+  - Dependências: redis, jsonwebtoken, cors, helmet, winston, morgan, axios
+  - Estrutura: src/{config,routes,middleware,services,types}
+  - Validação de env vars com feedback claro (env.ts)
+  - .env.example completo com todas as variáveis
+  - Configuração Express: CORS, Helmet, Morgan, body parsers, error handling
+  - Endpoints: / (root), /health (health check)
+  - Build: Type-check e build funcionando
+  - Scripts: dev (tsx watch), build (tsc), start, type-check, lint
+
+  Validação:
+  - Frontend: type-check ✓, build ✓ (60.78KB gzipped initial bundle)
+  - Backend: type-check ✓, build ✓
+  - SPEC-A-S-001 a SPEC-A-S-016: Stack tecnológico atendido
+  - SPEC-CF-PS-001 a SPEC-CF-PS-010: .env configurado
+  - SPEC-CF-VE-001 a SPEC-CF-VE-019: Variáveis de ambiente validadas
+  - SPEC-CF-VA-001 a SPEC-CF-VA-004: Validação na inicialização implementada
+
+- [x] Story: PWA funcional
 
   > Como usuário,
   > Quero poder instalar a aplicação no meu dispositivo,
@@ -70,19 +99,59 @@
 
   Refs: SPEC-architecture.md (SPEC-A-PWA-*)
 
+  **Implementação:**
+  - vite-plugin-pwa v1.1.0 instalado e configurado
+  - Web App Manifest: name, short_name, theme_color, background_color, display: standalone
+  - Icons: pwa-192x192.svg, pwa-512x512.svg (SVG temporários com README para conversão PNG)
+  - Service Worker: registerType 'autoUpdate'
+  - Workbox Runtime Caching:
+    - Google Fonts: CacheFirst (1 year)
+    - Images: CacheFirst (30 days)
+    - API routes: NetworkFirst (1 minute cache, 10s timeout)
+    - Navigation (HTML): NetworkFirst (1 hour cache, 5s timeout)
+  - Build output: sw.js, workbox-737d52d8.js, manifest.webmanifest, registerSW.js gerados
+  - Precache: 10 entries (195.43 KiB)
+  - Code splitting: manualChunks configurado (vendor-react, vendor-router, vendor-tanstack, etc)
+  - DevOptions: PWA habilitado em desenvolvimento
+
+  Validação:
+  - SPEC-A-PWA-001 a SPEC-A-PWA-010: PWA requirements atendidos
+  - SPEC-A-PWA-011 a SPEC-A-PWA-017: Web App Manifest completo
+  - SPEC-A-PWA-018 a SPEC-A-PWA-022: Service Worker configurado
+  - SPEC-A-PWA-023 a SPEC-A-PWA-029: Estratégia de cache HTML (network-first)
+  - Build: PWA plugin gerando arquivos corretamente
+  - Type check: Passou
+  - Build: Sucesso (bundle inicial ~59KB gzipped)
+  - Icons: SVG configurados (recomenda-se conversão para PNG para melhor compatibilidade)
+
 ---
 
 ### EPIC 1.2: Sistema de Autenticação
 
-- [ ] Story: Login com credenciais
+- [x] Story: Login com credenciais
 
   > Como usuário,
   > Quero fazer login com usuário e senha,
   > Para acessar o sistema de forma segura
 
-  Refs: SPEC-authentication.md (SPEC-AU-LO-*), SPEC-frontend-state.md (SPEC-FS-AU-*)
+  Refs:
+  - SPEC-authentication.md (SPEC-AU-LO-*)
+  - SPEC-frontend-state.md (SPEC-FS-AU-*)
+  - spec/ui/auth-module-interfaces.md (UI/UX)
 
-- [ ] Story: Sessão persistente
+  **Implementação:**
+  - Frontend: LoginPage component com formulário validado (React Hook Form + Zod)
+  - Frontend: AuthClient service com métodos para login, refresh, logout, authorize
+  - Frontend: Token storage service (memory + sessionStorage fallback)
+  - Backend: Rotas de autenticação (POST /api/1/auth/login) com proxy para n8n
+  - Backend: n8nProxy service com X-Platform-Key authentication
+  - Validação client-side e server-side
+  - Error handling com mensagens user-friendly
+  - Loading states e feedback visual
+  - Type-check: Passou (frontend e backend)
+  - Build: Sucesso (frontend ~348KB precache, backend clean)
+
+- [x] Story: Sessão persistente
 
   > Como usuário,
   > Quero que minha sessão seja mantida entre recarregamentos,
@@ -90,7 +159,17 @@
 
   Refs: SPEC-authentication.md (SPEC-AU-RE-*, SPEC-AU-TO-*)
 
-- [ ] Story: Logout seguro
+  **Implementação:**
+  - Token storage: access token em memória, refresh token em sessionStorage
+  - Auto-refresh implementado com timer (5 min antes da expiração)
+  - Hydration on app start: tenta restaurar sessão via refresh token
+  - Logout automático se refresh falhar
+  - SPEC-AU-ST-001 a SPEC-AU-ST-012: Armazenamento e renovação automática
+  - SPEC-STATE-H-001 a SPEC-STATE-H-004: Hydration ao carregar
+  - Type-check: Passou
+  - Build: Sucesso
+
+- [x] Story: Logout seguro
 
   > Como usuário,
   > Quero fazer logout e encerrar minha sessão,
@@ -98,7 +177,17 @@
 
   Refs: SPEC-authentication.md (SPEC-AU-LGT-*, SPEC-AU-LA-*)
 
-- [ ] Story: Validação de permissões
+  **Implementação:**
+  - Frontend: logout() method no AuthContext
+  - Frontend: Limpa tokens locais (SPEC-AU-LO-013 a SPEC-AU-LO-015)
+  - Backend: POST /api/1/auth/logout endpoint (revoke refresh token)
+  - Backend: POST /api/1/auth/logout-all endpoint (revoke all sessions)
+  - Idempotente: sucesso mesmo sem token válido
+  - Error handling com fallback para cleanup local
+  - Type-check: Passou
+  - Build: Sucesso
+
+- [x] Story: Validação de permissões
 
   > Como sistema,
   > Quero validar permissões do usuário antes de executar ações,
@@ -106,12 +195,18 @@
 
   Refs: SPEC-authentication.md (SPEC-AU-AZ-*)
 
-  - Implementado tipos para autorização (AuthorizeRequest, AuthorizeResponse, PermissionCheck)
-  - Hook useAuthorize() para chamar /api/1/auth/authorize
-  - Hook usePermission() para verificação declarativa com loading states
-  - Componente RequirePermission para proteção de UI baseada em permissões
-  - Componente ProtectedRoute com suporte opcional a verificação de permissões
-  - Exemplos de uso em SessionStatus (hook-based e component-based)
+  **Implementação:**
+  - Frontend: Tipos para autorização (AuthorizeRequest, AuthorizeResponse, PermissionCheck)
+  - Frontend: usePermission() hook para verificação declarativa com loading states
+  - Frontend: usePermissions() hook para múltiplas permissões
+  - Frontend: RequirePermission component para proteção de UI
+  - Frontend: AccessDenied fallback component
+  - Frontend: hasPermission() method no AuthContext
+  - Backend: POST /api/1/auth/authorize endpoint (proxy para n8n)
+  - SPEC-AU-AZ-001 a SPEC-AU-AZ-036: Autorização via n8n Backbone
+  - SPEC-AU-MA-014 a SPEC-AU-MA-018: Componentes de proteção
+  - Type-check: Passou
+  - Build: Sucesso
 
 - [ ] Story: Proteção contra ataques
 
@@ -327,7 +422,10 @@
   > Quero receber notificações em tempo real,
   > Para ser informado sobre eventos importantes imediatamente
 
-  Refs: SPEC-events.md (SPEC-EV-SSE-*, SPEC-EV-NO-*)
+  Refs:
+  - SPEC-events.md (SPEC-EV-SSE-*, SPEC-EV-NO-*)
+  - spec/ui/notification-module-interfaces.md (UI/UX)
+  - spec/ui/notification-events-module-interfaces.md (UI/UX)
 
 - [ ] Story: Tarefas interativas
 
@@ -335,7 +433,9 @@
   > Quero receber tarefas que requerem minha ação,
   > Para responder a solicitações do sistema
 
-  Refs: SPEC-events.md (SPEC-EV-TA-*)
+  Refs:
+  - SPEC-events.md (SPEC-EV-TA-*)
+  - spec/ui/task-module-interfaces.md (UI/UX)
 
 - [ ] Story: Sincronização offline
 
@@ -723,7 +823,10 @@
   > Quero criar e gerenciar diferentes portais,
   > Para organizar a aplicação em áreas distintas
 
-  Refs: SPEC-module-setup.md (SPEC-MS-FU-001:005), SPEC-concepts.md
+  Refs:
+  - SPEC-module-setup.md (SPEC-MS-FU-001:005)
+  - SPEC-concepts.md
+  - spec/ui/setup-module-interfaces.md (UI/UX)
 
   - Frontend: PortalList.tsx - Lista todos os portais com cards e ações (criado)
   - Frontend: PortalForm.tsx - Formulário para criar/editar portais com React Hook Form + Zod (criado)
@@ -755,7 +858,9 @@
   > Quero ativar módulos específicos em cada portal,
   > Para customizar funcionalidades por área
 
-  Refs: SPEC-module-setup.md (SPEC-MS-FU-006:012)
+  Refs:
+  - SPEC-module-setup.md (SPEC-MS-FU-006:012)
+  - spec/ui/setup-module-interfaces.md (UI/UX)
 
   - Frontend: PortalModules.tsx - Página completa de gerenciamento de módulos por portal (implementado)
   - Frontend: ModuleActivationCard.tsx - Card para ativação/desativação com dependências (criado)
@@ -790,7 +895,10 @@
   > Quero configurar múltiplas instâncias de um módulo,
   > Para ter diferentes configurações do mesmo módulo
 
-  Refs: SPEC-module-setup.md (SPEC-MS-FU-013:017), SPEC-modules.md (SPEC-MO-IN-*)
+  Refs:
+  - SPEC-module-setup.md (SPEC-MS-FU-013:017)
+  - SPEC-modules.md (SPEC-MO-IN-*)
+  - spec/ui/setup-module-interfaces.md (UI/UX)
 
   - Frontend: InstanceManager.ts - Instance configuration system with CRUD operations
   - Frontend: InstanceManager methods: createInstance(), getInstance(), updateInstance(), deleteInstance(), listInstances()
@@ -831,7 +939,10 @@
   > Quero escolher cores do tema usando um color picker,
   > Para personalizar a aparência facilmente
 
-  Refs: SPEC-module-setup.md (SPEC-MS-TH-*), SPEC-theming.md (SPEC-TH-*)
+  Refs:
+  - SPEC-module-setup.md (SPEC-MS-TH-*)
+  - SPEC-theming.md (SPEC-TH-*)
+  - spec/ui/setup-module-interfaces.md (UI/UX)
 
   - Frontend: Theme types, ThemeProvider, useTheme hook, paletteGenerator service
   - Frontend: ColorPicker, ThemePreview components, ThemeConfig page
@@ -850,7 +961,9 @@
   > Quero ver o status de saúde dos serviços,
   > Para identificar problemas rapidamente
 
-  Refs: SPEC-module-setup.md (SPEC-MS-HE-*)
+  Refs:
+  - SPEC-module-setup.md (SPEC-MS-HE-*)
+  - spec/ui/setup-module-interfaces.md (UI/UX)
 
   - Backend: health.routes.ts - Endpoints /health e /health/detailed
   - Backend: GET /health - Basic health check (status, uptime, environment)
@@ -904,7 +1017,9 @@
   > Quero fazer login de forma rápida e intuitiva,
   > Para acessar o sistema sem fricção
 
-  Refs: SPEC-module-auth.md (SPEC-AUTH-UI-*, SPEC-AUTH-CT-*)
+  Refs:
+  - SPEC-module-auth.md (SPEC-AUTH-UI-*, SPEC-AUTH-CT-*)
+  - spec/ui/auth-module-interfaces.md (UI/UX)
 
 - [ ] Story: Múltiplos métodos de autenticação
 
@@ -912,7 +1027,9 @@
   > Quero escolher diferentes formas de autenticação,
   > Para usar o método mais conveniente
 
-  Refs: SPEC-module-auth.md (SPEC-AUTH-RE-*)
+  Refs:
+  - SPEC-module-auth.md (SPEC-AUTH-RE-*)
+  - spec/ui/auth-module-interfaces.md (UI/UX)
 
 - [ ] Story: Acesso protegido
 
@@ -920,7 +1037,9 @@
   > Quero proteger rotas facilmente com um componente,
   > Para garantir que apenas usuários autorizados acessem
 
-  Refs: SPEC-module-auth.md (SPEC-AUTH-PR-*)
+  Refs:
+  - SPEC-module-auth.md (SPEC-AUTH-PR-*)
+  - spec/ui/auth-module-interfaces.md (UI/UX)
 
 ---
 
@@ -932,7 +1051,9 @@
   > Quero ver minhas notificações mais recentes,
   > Para me manter informado sobre eventos importantes
 
-  Refs: SPEC-module-notifications.md (SPEC-NOTIF-UI-001:009)
+  Refs:
+  - SPEC-module-notifications.md (SPEC-NOTIF-UI-001:009)
+  - spec/ui/notification-module-interfaces.md (UI/UX)
 
 - [ ] Story: Histórico completo
 
@@ -940,7 +1061,9 @@
   > Quero acessar histórico completo de notificações,
   > Para revisar notificações antigas
 
-  Refs: SPEC-module-notifications.md (SPEC-NOTIF-UI-010:014)
+  Refs:
+  - SPEC-module-notifications.md (SPEC-NOTIF-UI-010:014)
+  - spec/ui/notification-module-interfaces.md (UI/UX)
 
 - [ ] Story: Notificações em tempo real
 
@@ -948,7 +1071,10 @@
   > Quero receber notificações instantaneamente,
   > Para ser alertado sobre eventos importantes imediatamente
 
-  Refs: SPEC-module-notifications.md (SPEC-NOTIF-F-001:004)
+  Refs:
+  - SPEC-module-notifications.md (SPEC-NOTIF-F-001:004)
+  - spec/ui/notification-module-interfaces.md (UI/UX)
+  - spec/ui/notification-events-module-interfaces.md (UI/UX)
 
 - [ ] Story: Gerenciar notificações
 
@@ -956,7 +1082,9 @@
   > Quero marcar notificações como lidas e arquivar,
   > Para manter meu centro de notificações organizado
 
-  Refs: SPEC-module-notifications.md (SPEC-NOTIF-F-005:008, SPEC-NOTIF-O-014:016)
+  Refs:
+  - SPEC-module-notifications.md (SPEC-NOTIF-F-005:008, SPEC-NOTIF-O-014:016)
+  - spec/ui/notification-module-interfaces.md (UI/UX)
 
 ---
 
@@ -968,7 +1096,9 @@
   > Quero ver todas as tarefas que requerem minha ação,
   > Para saber o que preciso fazer
 
-  Refs: SPEC-module-tasks.md (SPEC-TASKS-UI-*)
+  Refs:
+  - SPEC-module-tasks.md (SPEC-TASKS-UI-*)
+  - spec/ui/task-module-interfaces.md (UI/UX)
 
 - [ ] Story: Responder tarefas
 
@@ -976,7 +1106,9 @@
   > Quero responder tarefas diretamente na interface,
   > Para completar ações requeridas rapidamente
 
-  Refs: SPEC-module-tasks.md (SPEC-TASKS-AC-*, SPEC-TASKS-S-*)
+  Refs:
+  - SPEC-module-tasks.md (SPEC-TASKS-AC-*, SPEC-TASKS-S-*)
+  - spec/ui/task-module-interfaces.md (UI/UX)
 
 ---
 
@@ -1016,7 +1148,9 @@
   > Quero ter um menu lateral para navegar,
   > Para acessar diferentes áreas rapidamente
 
-  Refs: SPEC-module-sidebar.md (SPEC-SB-*)
+  Refs:
+  - SPEC-module-sidebar.md (SPEC-SB-*)
+  - spec/ui/menu-module-interfaces.md (UI/UX)
 
 ---
 
@@ -1058,7 +1192,9 @@
   > Quero enviar mensagens para outros usuários,
   > Para me comunicar em tempo real
 
-  Refs: SPEC-module-chat.md (SPEC-CHAT-UI-*, SPEC-CHAT-RT-*)
+  Refs:
+  - SPEC-module-chat.md (SPEC-CHAT-UI-*, SPEC-CHAT-RT-*)
+  - spec/ui/chat-module-interfaces.md (UI/UX)
 
 - [ ] Story: Histórico de conversas
 
@@ -1066,7 +1202,9 @@
   > Quero acessar histórico de conversas anteriores,
   > Para revisar informações trocadas
 
-  Refs: SPEC-module-chat.md (SPEC-CHAT-P-*)
+  Refs:
+  - SPEC-module-chat.md (SPEC-CHAT-P-*)
+  - spec/ui/chat-module-interfaces.md (UI/UX)
 
 - [ ] Story: Compartilhar arquivos
 
@@ -1074,7 +1212,9 @@
   > Quero compartilhar arquivos no chat,
   > Para trocar documentos facilmente
 
-  Refs: SPEC-module-chat.md (SPEC-CHAT-E-002)
+  Refs:
+  - SPEC-module-chat.md (SPEC-CHAT-E-002)
+  - spec/ui/chat-module-interfaces.md (UI/UX)
 
 - [ ] Story: Chat com agentes IA
 
@@ -1082,7 +1222,9 @@
   > Quero conversar com agentes de IA,
   > Para obter assistência automatizada
 
-  Refs: SPEC-module-chat.md (SPEC-CHAT-I-*)
+  Refs:
+  - SPEC-module-chat.md (SPEC-CHAT-I-*)
+  - spec/ui/chat-module-interfaces.md (UI/UX)
 
 ---
 
@@ -1170,7 +1312,10 @@
   > Quero ter acesso a componentes avançados (tabelas, gráficos, calendário),
   > Para construir interfaces ricas rapidamente
 
-  Refs: SPEC-module-app-components.md (SPEC-MAC-*)
+  Refs:
+  - SPEC-module-app-components.md (SPEC-MAC-*)
+  - spec/ui/app-components-module-interfaces.md (UI/UX)
+  - spec/ui/calendar-module-interfaces.md (UI/UX - Calendário)
 
 ---
 
