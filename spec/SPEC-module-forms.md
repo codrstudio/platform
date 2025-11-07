@@ -73,9 +73,11 @@ O módulo Forms PODE criar múltiplas instâncias (formulários diferentes)
 
 ### Obrigatórios
 
-**SPEC-FORMS-T-001:** Módulo DEVE suportar estes tipos básicos:
+**SPEC-FORMS-T-001:** Módulo DEVE suportar estes tipos básicos usando componentes shadcn/ui:
 
 #### text
+- **Componente**: `Input` do shadcn/ui
+- **Tipo HTML**: `type="text"`
 ```typescript
 {
   type: "text",
@@ -88,6 +90,8 @@ O módulo Forms PODE criar múltiplas instâncias (formulários diferentes)
 ```
 
 #### textarea
+- **Componente**: `Textarea` do shadcn/ui
+- **Features**: Auto-resize opcional, character counter
 ```typescript
 {
   type: "textarea",
@@ -99,6 +103,9 @@ O módulo Forms PODE criar múltiplas instâncias (formulários diferentes)
 ```
 
 #### email
+- **Componente**: `Input` do shadcn/ui
+- **Tipo HTML**: `type="email"`
+- **Validação**: Pattern de email built-in do browser
 ```typescript
 {
   type: "email",
@@ -109,6 +116,9 @@ O módulo Forms PODE criar múltiplas instâncias (formulários diferentes)
 ```
 
 #### number
+- **Componente**: `Input` do shadcn/ui
+- **Tipo HTML**: `type="number"`
+- **Features**: Step controls, min/max validation
 ```typescript
 {
   type: "number",
@@ -121,6 +131,8 @@ O módulo Forms PODE criar múltiplas instâncias (formulários diferentes)
 ```
 
 #### select
+- **Componente**: `Select` do shadcn/ui (NÃO Native Select)
+- **Features**: Searchable, keyboard navigation, customizável
 ```typescript
 {
   type: "select",
@@ -135,6 +147,8 @@ O módulo Forms PODE criar múltiplas instâncias (formulários diferentes)
 ```
 
 #### radio
+- **Componente**: `RadioGroup` + `RadioGroupItem` do shadcn/ui
+- **Layout**: Vertical ou horizontal
 ```typescript
 {
   type: "radio",
@@ -144,11 +158,14 @@ O módulo Forms PODE criar múltiplas instâncias (formulários diferentes)
       label: string;
     }>;
     allowOther?: boolean;
+    layout?: "vertical" | "horizontal";
   }
 }
 ```
 
 #### checkbox
+- **Componente**: `Checkbox` do shadcn/ui (múltiplos)
+- **Features**: Indeterminate state para "Select All"
 ```typescript
 {
   type: "checkbox",
@@ -164,6 +181,8 @@ O módulo Forms PODE criar múltiplas instâncias (formulários diferentes)
 ```
 
 #### date
+- **Componente**: `DatePicker` do shadcn/ui (integrado com `Calendar`)
+- **Features**: Range selection, disabled dates, locale support
 ```typescript
 {
   type: "date",
@@ -175,6 +194,8 @@ O módulo Forms PODE criar múltiplas instâncias (formulários diferentes)
 ```
 
 #### file
+- **Componente**: `Input` customizado com drag-and-drop
+- **Features**: Preview de imagens, progress bar de upload
 ```typescript
 {
   type: "file",
@@ -191,6 +212,8 @@ O módulo Forms PODE criar múltiplas instâncias (formulários diferentes)
 **SPEC-FORMS-T-002:** Módulo PODE suportar tipos avançados:
 
 #### phone
+- **Componente**: `Input` com máscara customizada
+- **Features**: Country code selector, auto-formatting
 ```typescript
 {
   type: "phone",
@@ -202,6 +225,9 @@ O módulo Forms PODE criar múltiplas instâncias (formulários diferentes)
 ```
 
 #### url
+- **Componente**: `Input` do shadcn/ui
+- **Tipo HTML**: `type="url"`
+- **Features**: Protocol validation
 ```typescript
 {
   type: "url",
@@ -212,17 +238,21 @@ O módulo Forms PODE criar múltiplas instâncias (formulários diferentes)
 ```
 
 #### rating
+- **Componente**: Componente customizado com ícones do Lucide
+- **Ícones**: Star, Heart, ThumbsUp (configurável)
 ```typescript
 {
   type: "rating",
   options: {
     max: number;          // Ex: 5 estrelas
-    icon?: string;        // lucide icon name
+    icon?: string;        // lucide icon name (default: "Star")
   }
 }
 ```
 
 #### slider
+- **Componente**: `Slider` do shadcn/ui
+- **Features**: Range slider (dois valores), marcações, tooltip de valor
 ```typescript
 {
   type: "slider",
@@ -235,13 +265,41 @@ O módulo Forms PODE criar múltiplas instâncias (formulários diferentes)
 }
 ```
 
+#### switch
+- **Componente**: `Switch` do shadcn/ui
+- **Usage**: Para opções booleanas (sim/não, ativar/desativar)
+```typescript
+{
+  type: "switch",
+  options: {
+    defaultValue?: boolean;
+  }
+}
+```
+
+#### combobox
+- **Componente**: `Combobox` do shadcn/ui
+- **Features**: Autocomplete, busca, create new option
+```typescript
+{
+  type: "combobox",
+  options: {
+    choices: Array<{ value: string; label: string }>;
+    allowCreate?: boolean;  // Permitir criar nova opção
+  }
+}
+```
+
 #### matrix
+- **Componente**: Tabela customizada com RadioGroup ou Checkbox
+- **Layout**: Grid responsivo
 ```typescript
 {
   type: "matrix",
   options: {
     rows: string[];       // Questões
     columns: string[];    // Opções
+    multipleChoice?: boolean;  // Checkbox vs Radio
   }
 }
 ```
@@ -437,27 +495,69 @@ await jqel.mutate({
 
 **SPEC-FORMS-E-001:** Módulo DEVE fornecer editor visual (drag-and-drop)
 
-**SPEC-FORMS-E-002:** Editor DEVE permitir:
-- Adicionar campos
-- Reordenar campos (drag-and-drop)
-- Editar propriedades de campos
-- Duplicar campos
-- Remover campos
-- Preview em tempo real
+**SPEC-FORMS-E-002:** Editor DEVE usar componentes shadcn/ui:
+- Layout principal: **Resizable** (sidebar de campos + canvas + propriedades)
+- Drag-and-drop: Biblioteca externa compatível (ex: dnd-kit)
+- Campos no canvas: **Card** componentes draggable
+- Sidebar de campos: **ScrollArea** com lista de tipos
+
+**SPEC-FORMS-E-003:** Editor DEVE permitir:
+- Adicionar campos (drag from sidebar ou botão)
+- Reordenar campos (drag-and-drop no canvas)
+- Editar propriedades de campos (painel lateral)
+- Duplicar campos (botão na toolbar do campo)
+- Remover campos (botão de delete)
+- Preview em tempo real (toggle via **Tabs**: Editor | Preview)
 
 ### Biblioteca de Campos
 
-**SPEC-FORMS-E-003:** Editor DEVE ter paleta com todos os tipos de campo
+**SPEC-FORMS-E-004:** Editor DEVE ter paleta com todos os tipos de campo
 
-**SPEC-FORMS-E-004:** Cada tipo DEVE ter ícone e descrição
+**SPEC-FORMS-E-005:** Cada tipo DEVE ter:
+- Ícone do Lucide representativo
+- Nome do tipo
+- Descrição curta
+- Categoria (Básico, Avançado, Layout)
+
+**SPEC-FORMS-E-006:** Paleta DEVE usar componente **Command** para busca rápida:
+```typescript
+<Command>
+  <CommandInput placeholder="Buscar campos..." />
+  <CommandList>
+    <CommandGroup heading="Básico">
+      <CommandItem onSelect={() => addField('text')}>
+        <Type className="mr-2 h-4 w-4" />
+        Texto
+      </CommandItem>
+      {/* ... */}
+    </CommandGroup>
+  </CommandList>
+</Command>
+```
 
 ### Configuração Visual
 
-**SPEC-FORMS-E-005:** Editor DEVE permitir configurar:
-- Título e descrição do formulário
-- Mensagem de confirmação
-- Configurações gerais (FormSettings)
-- Estilo visual (cores, fontes)
+**SPEC-FORMS-E-007:** Editor DEVE permitir configurar via painel de propriedades:
+- Título e descrição do formulário (Inputs)
+- Mensagem de confirmação (Textarea)
+- Configurações gerais usando **Switch** e **Select**
+- Estilo visual via color pickers customizados
+
+**SPEC-FORMS-E-008:** Painel de propriedades DEVE usar **Sheet** ou **Drawer** lateral
+
+**SPEC-FORMS-E-009:** Formulário de propriedades DEVE usar componente **Form** com validação
+
+### Toolbar e Ações
+
+**SPEC-FORMS-E-010:** Editor DEVE ter toolbar com:
+- **Button** "Salvar" (variante default)
+- **Button** "Preview" (variante outline)
+- **Button** "Publicar" (variante default)
+- **Dropdown Menu** com mais opções (duplicar, deletar, exportar)
+
+**SPEC-FORMS-E-011:** Mudanças não salvas DEVEM mostrar indicador visual (badge ou texto)
+
+**SPEC-FORMS-E-012:** Ao sair sem salvar, mostrar **Alert Dialog** de confirmação
 
 ---
 

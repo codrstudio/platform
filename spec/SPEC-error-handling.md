@@ -278,53 +278,194 @@ Erro ao carregar este componente.
 
 ### Toast Notifications
 
-**SPEC-ERR-UI-001:** Erros não-críticos DEVEM usar toast
+**SPEC-ERR-UI-001:** Erros não-críticos DEVEM usar toast via componente **Sonner**
 
 **SPEC-ERR-UI-002:** Toast DEVE ter:
-- Ícone indicando severidade (erro, aviso, sucesso)
-- Mensagem clara e concisa
+- Ícone indicando severidade (Lucide icons: XCircle, AlertTriangle, CheckCircle, Info)
+- Mensagem clara e concisa (máximo 2 linhas)
 - Duração automática (4-6 segundos)
-- Botão de fechar (X)
+- Botão de fechar (X) implícito
+- Ação opcional (botão inline)
 
 **SPEC-ERR-UI-003:** Toasts DEVEM empilhar (máximo 3 visíveis)
 
-**SPEC-ERR-UI-004:** Posição: Canto superior direito (padrão)
+**SPEC-ERR-UI-004:** Posição: Canto inferior direito (padrão shadcn/ui Sonner)
+
+**SPEC-ERR-UI-005:** Variantes de toast:
+- `toast.error()` - Erros (vermelho, ícone XCircle)
+- `toast.warning()` - Avisos (amarelo, ícone AlertTriangle)
+- `toast.success()` - Sucesso (verde, ícone CheckCircle)
+- `toast.info()` - Informação (azul, ícone Info)
+
+**SPEC-ERR-UI-006:** Exemplo de uso:
+```typescript
+toast.error("Erro ao salvar dados", {
+  description: "Verifique sua conexão e tente novamente",
+  action: {
+    label: "Tentar Novamente",
+    onClick: () => retry()
+  }
+});
+```
 
 ### Modal de Erro
 
-**SPEC-ERR-UI-005:** Erros críticos DEVEM usar modal
+**SPEC-ERR-UI-007:** Erros críticos DEVEM usar componente **Alert Dialog**
 
-**SPEC-ERR-UI-006:** Modal DEVE ter:
-- Título claro ("Erro", "Atenção", etc)
-- Descrição do erro
-- Ação primária ("OK", "Tentar Novamente", etc)
-- Ação secundária opcional ("Cancelar", "Voltar", etc)
+**SPEC-ERR-UI-008:** Alert Dialog DEVE ter:
+- **AlertDialogHeader** com título claro ("Erro", "Atenção", etc)
+- **AlertDialogDescription** com descrição do erro
+- **AlertDialogFooter** com ações:
+  - Ação primária via **AlertDialogAction** ("OK", "Tentar Novamente")
+  - Ação secundária opcional via **AlertDialogCancel** ("Cancelar", "Voltar")
 
-**SPEC-ERR-UI-007:** Modal DEVE bloquear interação com o resto da página
+**SPEC-ERR-UI-009:** Modal DEVE bloquear interação com o resto da página (overlay)
 
-### Inline Errors
+**SPEC-ERR-UI-010:** Exemplo de estrutura:
+```typescript
+<AlertDialog open={hasError}>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>Erro ao processar</AlertDialogTitle>
+      <AlertDialogDescription>
+        Não foi possível completar a operação. Verifique os dados e tente novamente.
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+      <AlertDialogAction onClick={retry}>Tentar Novamente</AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
+```
 
-**SPEC-ERR-UI-008:** Erros de formulário DEVEM ser inline
+### Inline Errors (Formulários)
 
-**SPEC-ERR-UI-009:** Erro DEVE aparecer abaixo do campo
+**SPEC-ERR-UI-011:** Erros de formulário DEVEM usar componente **Form** do shadcn/ui
 
-**SPEC-ERR-UI-010:** Campo com erro DEVE ter borda vermelha
+**SPEC-ERR-UI-012:** Campo com erro DEVE usar componente **Field** que inclui:
+- Label com indicação de campo obrigatório
+- Input com estado de erro (borda vermelha)
+- **FormMessage** com mensagem de erro abaixo do campo
 
-**SPEC-ERR-UI-011:** Ícone de erro DEVE aparecer no campo
+**SPEC-ERR-UI-013:** Ícone de erro PODE aparecer no campo via **Input** com prefix/suffix
+
+**SPEC-ERR-UI-014:** Exemplo de campo com erro:
+```typescript
+<FormField
+  control={form.control}
+  name="email"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Email</FormLabel>
+      <FormControl>
+        <Input placeholder="seu@email.com" {...field} />
+      </FormControl>
+      <FormMessage /> {/* Exibe erro automaticamente */}
+    </FormItem>
+  )}
+/>
+```
+
+### Alert Inline
+
+**SPEC-ERR-UI-015:** Para erros contextuais não relacionados a campos, usar componente **Alert**
+
+**SPEC-ERR-UI-016:** Alert DEVE ter variante `destructive` para erros
+
+**SPEC-ERR-UI-017:** Alert DEVE incluir:
+- Ícone via **AlertTriangle** do Lucide
+- **AlertTitle** com título conciso
+- **AlertDescription** com detalhes
+
+**SPEC-ERR-UI-018:** Exemplo:
+```typescript
+<Alert variant="destructive">
+  <AlertTriangle className="h-4 w-4" />
+  <AlertTitle>Erro ao carregar dados</AlertTitle>
+  <AlertDescription>
+    Não foi possível carregar os dados. Tente novamente.
+  </AlertDescription>
+</Alert>
+```
 
 ### Loading States com Erro
 
-**SPEC-ERR-UI-012:** Componente em loading que falha DEVE exibir:
+**SPEC-ERR-UI-019:** Componente em loading que falha DEVE usar componente **Card** com estado de erro
+
+**SPEC-ERR-UI-020:** Card de erro DEVE incluir:
+- Ícone de alerta (AlertTriangle)
+- Mensagem clara
+- Botão via **Button** variante "outline" ou "default"
+
+**SPEC-ERR-UI-021:** Exemplo:
+```typescript
+<Card>
+  <CardHeader>
+    <CardTitle className="flex items-center gap-2">
+      <AlertTriangle className="h-5 w-5 text-destructive" />
+      Erro ao carregar
+    </CardTitle>
+  </CardHeader>
+  <CardContent>
+    <p className="text-sm text-muted-foreground">
+      Não foi possível carregar os dados. Tente novamente.
+    </p>
+  </CardContent>
+  <CardFooter>
+    <Button onClick={retry} variant="outline">
+      Tentar Novamente
+    </Button>
+  </CardFooter>
+</Card>
 ```
-┌─────────────────────────────────────┐
-│  ⚠ Erro ao carregar                 │
-│                                     │
-│  Não foi possível carregar os      │
-│  dados. Tente novamente.           │
-│                                     │
-│  [Tentar Novamente]                 │
-└─────────────────────────────────────┘
+
+### Empty States
+
+**SPEC-ERR-UI-022:** Para estados vazios (não erro, mas relacionado), usar componente **Empty**
+
+**SPEC-ERR-UI-023:** Empty state DEVE ter:
+- Ícone ilustrativo do Lucide
+- Título descritivo
+- Descrição opcional
+- Ação primária (Button)
+
+### Loading States
+
+**SPEC-ERR-UI-024:** Durante carregamento, usar componente **Skeleton** para placeholders
+
+**SPEC-ERR-UI-025:** Skeleton DEVE imitar estrutura do conteúdo final:
+```typescript
+<Card>
+  <CardHeader>
+    <Skeleton className="h-4 w-[250px]" />
+    <Skeleton className="h-4 w-[200px]" />
+  </CardHeader>
+  <CardContent>
+    <Skeleton className="h-[200px] w-full" />
+  </CardContent>
+</Card>
 ```
+
+**SPEC-ERR-UI-026:** Para loading inline (botões, pequenos componentes), usar componente **Spinner**
+
+**SPEC-ERR-UI-027:** Spinner DEVE ter tamanhos: `sm`, `md`, `lg`
+
+**SPEC-ERR-UI-028:** Durante loading, botões DEVEM usar propriedade `disabled` e mostrar Spinner:
+```typescript
+<Button disabled={isLoading}>
+  {isLoading && <Spinner className="mr-2" />}
+  Salvar
+</Button>
+```
+
+### Progress Indicators
+
+**SPEC-ERR-UI-029:** Para operações longas com progresso conhecido, usar componente **Progress**
+
+**SPEC-ERR-UI-030:** Progress bar DEVE mostrar porcentagem quando relevante
+
+**SPEC-ERR-UI-031:** Para processos multi-step, PODE usar Steps/Stepper visual
 
 ---
 

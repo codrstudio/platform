@@ -48,13 +48,13 @@ Portal é uma sub-aplicação isolada dentro da plataforma, com suas próprias r
 
 **SPEC-C-P-014:** Cada portal DEVE declarar explicitamente quais módulos estão ativos
 
-**SPEC-C-P-015:** Cada portal DEVE ter uma configuração de tema (`settings-key`)
+**SPEC-C-P-015:** Cada portal DEVE pertencer a um Reino (`realmId`)
 
-**SPEC-C-P-016:** O `settings-key` padrão DEVE ser `"default"`
+**SPEC-C-P-016:** O `realmId` padrão DEVE ser `"default"`
 
-**SPEC-C-P-017:** Portais com mesmo `settings-key` DEVEM compartilhar configurações de tema
+**SPEC-C-P-017:** Portais com mesmo `realmId` DEVEM compartilhar configurações do Reino
 
-**SPEC-C-P-018:** Portais com `settings-key` diferente DEVEM ter configurações de tema independentes
+**SPEC-C-P-018:** Portais PODEM sobrescrever configurações do Reino com configurações específicas
 
 ### Requisitos de Remoção
 
@@ -82,7 +82,66 @@ Portal é uma sub-aplicação isolada dentro da plataforma, com suas próprias r
 
 ---
 
-## 2. Módulo
+## 2. Reino
+
+### Definição
+Reino é um agrupamento lógico de portais que compartilham configurações comuns, como tema, brand colors e outras propriedades compartilháveis.
+
+### Requisitos de Identificação
+
+**SPEC-C-R-001:** Todo Reino DEVE ter um identificador único (`realmId`)
+
+**SPEC-C-R-002:** O `realmId` DEVE ser uma string alfanumérica sem espaços, caracteres especiais ou acentuação
+
+**SPEC-C-R-003:** O `realmId` DEVE ser imutável após criação do Reino
+
+### Requisitos de Configuração
+
+**SPEC-C-R-004:** Cada Reino DEVE armazenar configurações compartilháveis
+
+**SPEC-C-R-005:** Configurações de Reino DEVEM incluir tema (mode, brandColor)
+
+**SPEC-C-R-006:** Configurações de Reino PODEM incluir outras propriedades (radius, fonts, etc)
+
+**SPEC-C-R-007:** Portais que pertencem ao Reino DEVEM herdar suas configurações
+
+**SPEC-C-R-008:** Portais PODEM sobrescrever configurações herdadas do Reino
+
+### Requisitos de Hierarquia
+
+**SPEC-C-R-009:** Sistema DEVE definir valores padrão (nível 1)
+
+**SPEC-C-R-010:** Reino PODE sobrescrever valores do sistema (nível 2)
+
+**SPEC-C-R-011:** Portal PODE sobrescrever valores do Reino (nível 3)
+
+**SPEC-C-R-012:** Resolução de configuração DEVE seguir ordem: Portal → Reino → Sistema
+
+### Requisitos de Remoção
+
+**SPEC-C-R-013:** Todo Reino DEVE ter uma propriedade `removable` (boolean)
+
+**SPEC-C-R-014:** O Reino "default" DEVE ter `removable=false`
+
+**SPEC-C-R-015:** Reinos com `removable=false` NÃO PODEM ser removidos
+
+**SPEC-C-R-016:** Reinos com `removable=true` PODEM ser removidos
+
+**SPEC-C-R-017:** Remoção de Reino DEVE reatribuir seus portais ao Reino "default"
+
+**SPEC-C-R-018:** Remoção de Reino NÃO DEVE remover portais
+
+### Reino Obrigatório
+
+**SPEC-C-R-019:** A plataforma DEVE inicializar com o Reino "default"
+
+**SPEC-C-R-020:** O Reino "default" DEVE ter `removable=false`
+
+**SPEC-C-R-021:** O Reino "default" DEVE ter configurações mínimas (theme mode = "system")
+
+---
+
+## 3. Módulo
 
 ### Definição
 Módulo é uma funcionalidade encapsulada e reutilizável que pode ser ativada em um ou mais portais.
@@ -161,7 +220,7 @@ Módulo é uma funcionalidade encapsulada e reutilizável que pode ser ativada e
 
 ---
 
-## 3. Instância
+## 4. Instância
 
 ### Definição
 Instância é uma configuração específica de um módulo ativado em um portal.
@@ -218,55 +277,67 @@ Instância é uma configuração específica de um módulo ativado em um portal.
 
 ---
 
-## 4. Relacionamentos
+## 5. Relacionamentos
 
 ### Hierarquia
 
-**SPEC-C-R-001:** A hierarquia DEVE ser: Plataforma → Portal → Módulo → Instância
+**SPEC-C-REL-001:** A hierarquia DEVE ser: Plataforma → Reino → Portal → Módulo → Instância
 
-**SPEC-C-R-002:** Um Portal pertence a uma Plataforma
+**SPEC-C-REL-002:** Um Reino pertence a uma Plataforma
 
-**SPEC-C-R-003:** Um Módulo ativo pertence a um ou mais Portais
+**SPEC-C-REL-003:** Um Portal pertence a um Reino
 
-**SPEC-C-R-004:** Uma Instância pertence a um Módulo ativo em um Portal específico
+**SPEC-C-REL-004:** Um Módulo ativo pertence a um ou mais Portais
+
+**SPEC-C-REL-005:** Uma Instância pertence a um Módulo ativo em um Portal específico
 
 ### Dependências em Cascata
 
-**SPEC-C-R-005:** Remoção de Portal DEVE desativar todos os seus módulos
+**SPEC-C-REL-006:** Remoção de Reino DEVE reatribuir portais ao Reino "default"
 
-**SPEC-C-R-006:** Desativação de Módulo DEVE remover todas as suas instâncias
+**SPEC-C-REL-007:** Remoção de Portal DEVE desativar todos os seus módulos
 
-**SPEC-C-R-007:** Remoção de Instância NÃO DEVE afetar o módulo ou outras instâncias
+**SPEC-C-REL-008:** Desativação de Módulo DEVE remover todas as suas instâncias
+
+**SPEC-C-REL-009:** Remoção de Instância NÃO DEVE afetar o módulo ou outras instâncias
 
 ### Independência
 
-**SPEC-C-R-008:** Portais DEVEM ser independentes entre si
+**SPEC-C-REL-010:** Reinos DEVEM ser independentes entre si
 
-**SPEC-C-R-009:** Módulos DEVEM ser independentes entre si (exceto dependências declaradas)
+**SPEC-C-REL-011:** Portais DEVEM ser independentes entre si (exceto herança de Reino)
 
-**SPEC-C-R-010:** Instâncias DEVEM ser independentes entre si
+**SPEC-C-REL-012:** Módulos DEVEM ser independentes entre si (exceto dependências declaradas)
+
+**SPEC-C-REL-013:** Instâncias DEVEM ser independentes entre si
 
 ---
 
-## 5. Estado Inicial
+## 6. Estado Inicial
 
 ### Requisitos de Instalação
 
-**SPEC-C-S-001:** A plataforma DEVE inicializar com exatamente 2 portais: "main" e "setup"
+**SPEC-C-S-001:** A plataforma DEVE inicializar com exatamente 1 Reino: "default"
 
-**SPEC-C-S-002:** O portal "main" DEVE estar vazio (sem módulos ativos)
+**SPEC-C-S-002:** A plataforma DEVE inicializar com exatamente 2 portais: "main" e "setup"
 
-**SPEC-C-S-003:** O portal "setup" DEVE ter o módulo "setup" pré-ativado
+**SPEC-C-S-003:** Ambos os portais DEVEM pertencer ao Reino "default"
 
-**SPEC-C-S-004:** O portal "setup" DEVE ter uma instância do módulo "setup" pré-criada
+**SPEC-C-S-004:** O portal "main" DEVE estar vazio (sem módulos ativos)
+
+**SPEC-C-S-005:** O portal "setup" DEVE ter o módulo "setup" pré-ativado
+
+**SPEC-C-S-006:** O portal "setup" DEVE ter uma instância do módulo "setup" pré-criada
 
 ### Requisitos de Funcionamento Mínimo
 
-**SPEC-C-S-005:** A plataforma DEVE funcionar com apenas o portal "main"
+**SPEC-C-S-007:** A plataforma DEVE funcionar com apenas o Reino "default"
 
-**SPEC-C-S-006:** A plataforma DEVE funcionar com zero módulos ativos
+**SPEC-C-S-008:** A plataforma DEVE funcionar com apenas o portal "main"
 
-**SPEC-C-S-007:** A plataforma DEVE funcionar com zero instâncias criadas
+**SPEC-C-S-009:** A plataforma DEVE funcionar com zero módulos ativos
+
+**SPEC-C-S-010:** A plataforma DEVE funcionar com zero instâncias criadas
 
 ---
 

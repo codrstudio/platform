@@ -10,7 +10,7 @@
 
 - `[ ]` — Pendente
 - `[-]` — Em Implementação
-- `[ ]` — Feito
+- `[x]` — Feito
 - `[!]` — Bloqueado — Algo impede a execução da tarefa
 
 ---
@@ -131,8 +131,8 @@
 - [x] Story: Login com credenciais
 
   > Como usuário,
-  > Quero fazer login com usuário e senha,
-  > Para acessar o sistema de forma segura
+  > Quero fazer login com usuário e senha quando eu ativar o modulo de auenticacao no portal e configurar rodas seguras,
+  > Para acessar o sistema de forma segura nas rotas protegidas mantendo públicas e de livre acesso as rotas não sensíveis.
 
   Refs:
   - SPEC-authentication.md (SPEC-AU-LO-*)
@@ -479,7 +479,7 @@
 
 ### EPIC 1.6: Personalização Visual
 
-- [ ] Story: Tema claro e escuro
+- [x] Story: Tema claro e escuro
 
   > Como usuário,
   > Quero escolher entre tema claro e escuro,
@@ -487,7 +487,20 @@
 
   Refs: SPEC-theming.md (SPEC-TH-MO-*, SPEC-TH-PR-*)
 
-- [ ] Story: Identidade visual customizada
+  Implementação:
+  - Frontend: theme.ts (types), theme.ts (lib utils), ThemeContext.tsx
+  - Frontend: ThemeToggle.tsx, ThemeToggleCompact.tsx components
+  - Frontend: CSS variables para light/dark em index.css
+  - Frontend: Tailwind config atualizado com semantic colors
+  - ThemeProvider com settingsKey support (SPEC-TH-SK-*)
+  - Detecção automática de tema do sistema (SPEC-TH-LD-016)
+  - Sincronização entre abas via storage events (SPEC-TH-LD-010)
+  - localStorage persistence (SPEC-TH-LD-008)
+  - Troca instantânea sem reload (SPEC-TH-LD-004)
+  - App.tsx integrado com ThemeProvider
+  - Validação: type-check ✓, build ✓
+
+- [x] Story: Identidade visual customizada
 
   > Como administrador,
   > Quero definir a cor da marca da aplicação,
@@ -495,7 +508,17 @@
 
   Refs: SPEC-theming.md (SPEC-TH-CO-*, SPEC-TH-SE-*)
 
-- [ ] Story: Tema compartilhado
+  Implementação:
+  - Frontend: BrandColorPicker.tsx component
+  - Frontend: hexToHSL(), hslToString() conversion utils (SPEC-TH-BC-007)
+  - Frontend: applyBrandColor() para CSS custom properties
+  - Brand color em formato HSL (SPEC-TH-BC-005)
+  - localStorage persistence com settingsKey (SPEC-TH-BC-009)
+  - Atualização instantânea (SPEC-TH-BC-020)
+  - Default brand color: blue 221 83% 53% (SPEC-TH-BC-022)
+  - CSS variables: --primary, --primary-foreground
+
+- [x] Story: Tema compartilhado
 
   > Como usuário,
   > Quero que minhas preferências de tema sejam compartilhadas entre portais,
@@ -503,7 +526,13 @@
 
   Refs: SPEC-theming.md (SPEC-TH-SK-*)
 
-- [ ] Story: Acessibilidade visual
+  Implementação:
+  - Settings-key support no ThemeProvider (SPEC-TH-SK-001)
+  - Chaves localStorage: {settingsKey}:theme, {settingsKey}:brand-color (SPEC-TH-SK-008)
+  - Portais com mesmo settingsKey compartilham tema (SPEC-TH-SK-005)
+  - Mudança em um portal afeta todos com mesmo key (SPEC-TH-SK-007)
+
+- [x] Story: Acessibilidade visual
 
   > Como usuário com deficiência visual,
   > Quero que o contraste de cores seja adequado,
@@ -511,11 +540,20 @@
 
   Refs: SPEC-theming.md (SPEC-TH-AC-*)
 
+  Implementação:
+  - calculateContrast() util para WCAG validation
+  - validateBrandColorContrast() com ajuste automático (SPEC-TH-AC-005)
+  - Contraste mínimo 4.5:1 para texto normal (SPEC-TH-AC-002)
+  - Focus visible em elementos interativos (ring utilities)
+  - Semantic colors em index.css: success, warning, error, info (SPEC-TH-CS-*)
+  - Cores diferentes para light/dark theme (SPEC-TH-CS-019)
+  - aria-label nos componentes de tema
+
 ---
 
 ### EPIC 1.7: Configuração da Plataforma
 
-- [ ] Story: Configurações persistentes
+- [x] Story: Configurações persistentes
 
   > Como administrador,
   > Quero que configurações da aplicação sejam salvas,
@@ -523,16 +561,22 @@
 
   Refs: SPEC-configuration.md (SPEC-CF-AS-*, SPEC-CF-PS-*)
 
-  - Backend: configService.ts - File-based configuration management (portals.json, modules.json, instances.json)
-  - Backend: Config validation with Zod schemas (Portal, Module, Instance schemas)
-  - Backend: File loading with validation and error handling
-  - Backend: Save methods for portals, modules, instances
-  - Backend: Config caching with invalidation on save
-  - SPEC-CF-AS-001: Application Settings stored in JSON files
-  - SPEC-CF-AS-002: Files in /config directory on Backend
-  - SPEC-CF-AS-004: Files are readable and editable manually (emergency access)
-  - Type check: Passou (backend e frontend)
-  - Build: Sucesso (backend e frontend)
+  Implementação:
+  - Backend: config.types.ts - Zod schemas (PortalSchema, ModuleSchema, InstanceSchema)
+  - Backend: config.service.ts - File-based config management
+  - Backend: config.routes.ts - API routes (GET, PUT) para portals, modules, instances
+  - Backend: config/*.json - Default configs (portals, modules, instances)
+  - Backend: Validation com Zod antes de salvar
+  - Backend: File loading com error handling e fallback
+  - Backend: Config caching com invalidação
+  - Backend: app.ts integrado com config routes
+  - SPEC-CF-AS-001: Application Settings em JSON files ✓
+  - SPEC-CF-AS-002: Files em /config directory ✓
+  - SPEC-CF-AS-004: Files human-readable e editáveis ✓
+  - SPEC-CF-AS-006: Validation com Zod schemas ✓
+  - SPEC-CF-AS-010: Lazy loading com cache ✓
+  - Type check: Passou (backend e frontend) ✓
+  - Build: Sucesso (backend e frontend) ✓
 
 - [ ] Story: Configuração sem restart
 
@@ -675,7 +719,7 @@
 
 ### Foundation: Module Type System & Setup Module Definition
 
-#### Story 2.0.1: Definir tipos e estrutura de módulo
+- [x] Story 2.0.1: Definir tipos e estrutura de módulo
 
   > Como desenvolvedor,
   > Quero ter tipos TypeScript claros para o sistema de módulos,
@@ -705,7 +749,7 @@
 
 ### EPIC 2.1: Gerenciamento de Módulos
 
-#### Story 2.1.1: Registrar módulo
+- [x] Story 2.1.1: Registrar módulo
 
   > Como sistema,
   > Quero registrar módulos disponíveis no sistema,
@@ -733,7 +777,7 @@
   - Setup module auto-registers on import
   - Arquivos criados em src/frontend/src/core/modules/*
 
-#### Story 2.1.2: Carregar módulos sob demanda
+- [x] Story 2.1.2: Carregar módulos sob demanda
 
   > Como sistema,
   > Quero carregar módulos apenas quando necessário,
@@ -768,7 +812,7 @@
   - Example patterns: Component, Hook, Imperative, Preloading, Caching
   - Files: ModuleLoader.ts, useModuleLoader.ts, ModuleLoader.tsx, ModuleLoadingExample.tsx
 
-#### Story 1.5.4: Gerenciar dependências
+- [x] Story 1.5.4: Gerenciar dependências
 
   > Como sistema,
   > Quero gerenciar dependências entre módulos automaticamente,
@@ -811,15 +855,13 @@
   - Examples: Automatic loading, cycle detection, load order, tree visualization, dependents
   - Files: DependencyManager.ts, useDependencies.ts, DependencyExample.tsx, test-module/*
 
-- [ ] Story: Ativar e desativar módulos
+- [x] Story: Ativar e desativar módulos
 
   > Como administrador,
   > Quero ativar e desativar módulos em tempo real,
   > Para controlar quais funcionalidades estão disponíveis
 
   Refs: SPEC-modules.md (SPEC-MO-LC-009:017), SPEC-module-loading.md (SPEC-LOAD-D-*)
-
----
   - Frontend: ActivationManager.ts - Module activation system with portal-scoped state
   - Frontend: ActivationManager methods: activateModule(), deactivateModule(), isActive(), getActiveModules()
   - Frontend: ActivationManager methods: validateActivation(), getActivation(), setActiveModules(), getActiveDependents()
@@ -847,7 +889,7 @@
 
 ### EPIC 2.2: Configuração Visual
 
-- [ ] Story: Gerenciar portais
+- [x] Story: Gerenciar portais
 
   > Como administrador,
   > Quero criar e gerenciar diferentes portais,
@@ -882,7 +924,7 @@
   - SPEC compliance: SPEC-C-P-001 a SPEC-C-P-028 (conceito de Portal)
   - Features: CRUD completo, loading/error states, cache invalidation, confirmação de deleção
 
-- [ ] Story: Ativar módulos por portal
+- [x] Story: Ativar módulos por portal
 
   > Como administrador,
   > Quero ativar módulos específicos em cada portal,
@@ -919,7 +961,7 @@
   - SPEC compliance: SPEC-MO-LC-009:017 (ativação/desativação runtime)
   - SPEC compliance: SPEC-MO-DE-005:011 (gerenciamento de dependências)
 
-- [ ] Story: Configurar instâncias de módulos
+- [x] Story: Configurar instâncias de módulos
 
   > Como administrador,
   > Quero configurar múltiplas instâncias de um módulo,
@@ -963,7 +1005,7 @@
   - Examples: Basic CRUD, Instance Selector, Compact Selector, Instance Form, Instance Isolation
   - Files: InstanceManager.ts, useInstance.ts, InstanceSelector.tsx, InstanceForm.tsx, InstanceExample.tsx
 
-- [ ] Story: Customizar tema visualmente
+- [x] Story: Customizar tema visualmente
 
   > Como administrador,
   > Quero escolher cores do tema usando um color picker,
@@ -985,7 +1027,7 @@
   - SPEC compliance: SPEC-TH-MO-*, SPEC-TH-LD-*, SPEC-TH-BC-*, SPEC-TH-SK-*, SPEC-TH-AC-*, SPEC-TH-CS-*, SPEC-TH-AP-*, SPEC-MS-TE-*
   - Type check: Passou - Build: Sucesso (bundle: ~471KB precache)
 
-- [ ] Story: Monitorar saúde do sistema
+- [x] Story: Monitorar saúde do sistema
 
   > Como administrador,
   > Quero ver o status de saúde dos serviços,

@@ -10,7 +10,6 @@ This is a **modular platform** project for building reusable, scalable web appli
 
 ### Key Characteristics
 
-- **Independent Project**: This platform project is independent from the parent project (CiaPrime API). Do NOT navigate to parent directories.
 - **Specification-Driven**: Implementation follows formal specifications in `spec/*.md` (33 SPEC files)
 - **Three-Layer Architecture**: Frontend (React) ↔ Backend (Express) ↔ Backbone (n8n)
 - **Current Phase**: Specification complete, implementation pending
@@ -127,7 +126,7 @@ See `spec/STACK.md` for the complete stack. Must use these exact technologies:
 ### Backbone (Already Built)
 - **n8n** workflows (see `workflows/` directory)
 - 13 active workflows for auth, chat, database access
-- Integration point: `https://n8n.cia.codr.studio`
+- Integration point: `https://n8n.codrstudio.dev`
 
 ### Custom Systems
 - **JQEL** (JSON Query Expression Language) - Platform's unified data access layer
@@ -572,7 +571,7 @@ When asked to use Playwright:
 - Located in `workflows/` directory
 - 13 active workflows for authentication and system operations
 - Backend will proxy to n8n via HTTP with mutual authentication
-- Integration endpoint: `https://n8n.cia.codr.studio`
+- Integration endpoint: `https://n8n.codrstudio.dev`
 
 ### Configuration Persistence
 - Portal/Module/Instance configs will be stored as JSON files on backend
@@ -631,7 +630,7 @@ npm run lint         # Run ESLint
 
 ### Required Services
 - Redis server must be running (default: localhost:6379)
-- n8n instance must be accessible at `https://n8n.cia.codr.studio`
+- n8n instance must be accessible at `https://n8n.codrstudio.dev`
 
 ## Common Issues & Solutions (Future Reference)
 
@@ -660,7 +659,7 @@ redis-server.exe
 ### n8n Connectivity
 ```bash
 # Verify n8n is accessible
-curl https://n8n.cia.codr.studio/webhook/health
+curl https://n8n.codrstudio.dev/webhook/health
 ```
 
 ## Summary
@@ -676,3 +675,4 @@ curl https://n8n.cia.codr.studio/webhook/health
 6. Update `src/PLAN.md` task status as you progress
 
 **Remember**: The specifications are the source of truth. All implementation decisions have already been made and documented. Your job is to bring them to life with quality code that follows the architectural boundaries and technology stack requirements.
+- **NÃO USE EMOJI** — A menos que solicitado explicitamente, não use emojis.

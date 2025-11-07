@@ -5,6 +5,13 @@
 ### Escopo
 Este documento define os requisitos do sistema de temas da plataforma, incluindo tema claro/escuro, brand colors, prefixos por portal e acessibilidade.
 
+### Referências
+- **shadcn/ui**: Consulte `spec/ui/REFERENCES.md` para ferramentas de pesquisa e seleção de cores
+  - Pesquisa de componentes: `https://ui.shadcn.com/api/search?query={term}`
+  - Estudo e seleção de cores: `https://ui.shadcn.com/colors`
+  - Temas disponíveis: `https://ui.shadcn.com/themes`
+  - Servidor MCP: `https://ui.shadcn.com/docs/mcp`
+
 ---
 
 ## 1. Conceitos Fundamentais
@@ -13,9 +20,9 @@ Este documento define os requisitos do sistema de temas da plataforma, incluindo
 
 **SPEC-TH-CO-001:** Sistema de temas gerencia aparência visual da plataforma
 
-**SPEC-TH-CO-002:** Temas DEVEM ser configuráveis por portal
+**SPEC-TH-CO-002:** Temas DEVEM ser configuráveis por Reino
 
-**SPEC-TH-CO-003:** Portais PODEM compartilhar tema usando mesmo `settings-key`
+**SPEC-TH-CO-003:** Portais PODEM sobrescrever tema do Reino com configurações específicas
 
 **SPEC-TH-CO-004:** Sistema DEVE suportar tema claro e escuro
 
@@ -33,43 +40,75 @@ Este documento define os requisitos do sistema de temas da plataforma, incluindo
 
 ---
 
-## 2. Settings Key
+## 2. Hierarquia de Configuração
 
-### Conceito
+### Três Níveis
 
-**SPEC-TH-SK-001:** Cada portal DEVE ter uma propriedade `settings-key`
+**SPEC-TH-HC-001:** Configuração de tema DEVE seguir hierarquia de 3 níveis
 
-**SPEC-TH-SK-002:** `settings-key` é uma string que prefixará chaves de configuração de tema
+**SPEC-TH-HC-002:** Nível 1 (Sistema): Valores padrão hardcoded
 
-**SPEC-TH-SK-003:** Valor padrão DEVE ser `"default"`
+**SPEC-TH-HC-003:** Nível 2 (Reino): Configurações compartilhadas por grupo de portais
 
-**SPEC-TH-SK-004:** `settings-key` DEVE ser configurável por portal
+**SPEC-TH-HC-004:** Nível 3 (Portal): Configurações específicas do portal
 
-### Compartilhamento de Tema
+### Resolução de Valores
 
-**SPEC-TH-SK-005:** Portais com mesmo `settings-key` DEVEM compartilhar configurações de tema
+**SPEC-TH-HC-005:** Resolução DEVE seguir ordem: Portal → Reino → Sistema
 
-**SPEC-TH-SK-006:** Portais com `settings-key` diferentes DEVEM ter temas independentes
+**SPEC-TH-HC-006:** Se portal tem override, usar valor do portal
 
-**SPEC-TH-SK-007:** Mudança de tema em um portal DEVE afetar todos os portais com mesmo `settings-key`
+**SPEC-TH-HC-007:** Senão, se Reino tem configuração, usar valor do Reino
 
-### Geração de Chaves
+**SPEC-TH-HC-008:** Senão, usar valor padrão do Sistema
 
-**SPEC-TH-SK-008:** Chaves de tema DEVEM usar formato `{settings-key}:{config}`
+### Defaults do Sistema (Nível 1)
 
-**SPEC-TH-SK-009:** Exemplo: portal com `settings-key="default"` gera chave `default:theme`
+**SPEC-TH-HC-009:** Theme mode padrão: `"system"`
 
-**SPEC-TH-SK-010:** Exemplo: portal com `settings-key="sac"` gera chave `sac:theme`
+**SPEC-TH-HC-010:** Brand color padrão: `hsl(221, 83%, 53%)` (azul)
 
-**SPEC-TH-SK-011:** Chaves diferentes resultam em valores independentes
+**SPEC-TH-HC-011:** Radius padrão: `0.5rem`
 
-### Chaves de Configuração
+**SPEC-TH-HC-012:** Defaults NÃO DEVEM ser armazenados, apenas aplicados quando não há override
 
-**SPEC-TH-SK-012:** DEVE existir chave `{settings-key}:theme` (valores: "light", "dark", "system")
+### Configuração de Reino (Nível 2)
 
-**SPEC-TH-SK-013:** DEVE existir chave `{settings-key}:brand-color` (valor: cor HEX)
+**SPEC-TH-HC-013:** Cada Reino PODE definir configurações de tema
 
-**SPEC-TH-SK-014:** PODE existir outras chaves: `{settings-key}:radius`, `{settings-key}:font`, etc
+**SPEC-TH-HC-014:** Portais do Reino DEVEM herdar configurações do Reino
+
+**SPEC-TH-HC-015:** Configuração de Reino DEVE ser armazenada em `config/realms.json`
+
+**SPEC-TH-HC-016:** Mudança no Reino DEVE afetar todos os portais sem override
+
+### Configuração de Portal (Nível 3)
+
+**SPEC-TH-HC-017:** Portal PODE sobrescrever configurações do Reino
+
+**SPEC-TH-HC-018:** Override de portal DEVE ser explícito (não vazio = override)
+
+**SPEC-TH-HC-019:** Remoção de override DEVE fazer portal voltar a herdar do Reino
+
+### Geração de Chaves (localStorage)
+
+**SPEC-TH-HC-020:** Chaves de Reino DEVEM usar formato `{realmId}:{config}`
+
+**SPEC-TH-HC-021:** Exemplo: `default:theme`, `default:brand-color`
+
+**SPEC-TH-HC-022:** Chaves de Portal DEVEM usar formato `{realmId}:{portalId}:{config}`
+
+**SPEC-TH-HC-023:** Exemplo: `default:main:theme`, `default:main:brand-color`
+
+**SPEC-TH-HC-024:** Frontend DEVE verificar chave de Portal primeiro, depois Reino, depois Sistema
+
+### Sincronização
+
+**SPEC-TH-HC-025:** Mudança em Reino DEVE sincronizar localStorage de todos os portais do Reino
+
+**SPEC-TH-HC-026:** Mudança em Portal DEVE afetar apenas localStorage daquele portal
+
+**SPEC-TH-HC-027:** Sincronização DEVE usar storage events para atualizar abas abertas
 
 ---
 
@@ -97,9 +136,9 @@ Este documento define os requisitos do sistema de temas da plataforma, incluindo
 
 **SPEC-TH-LD-008:** Preferência de tema DEVE ser armazenada em localStorage
 
-**SPEC-TH-LD-009:** Chave no localStorage DEVE ser `{settings-key}:theme`
+**SPEC-TH-LD-009:** Chave no localStorage DEVE seguir hierarquia (ver SPEC-TH-HC-020 a HC-023)
 
-**SPEC-TH-LD-010:** Valor DEVE ser sincronizado entre abas (BroadcastChannel ou storage event)
+**SPEC-TH-LD-010:** Valor DEVE ser sincronizado entre abas (storage event)
 
 **SPEC-TH-LD-011:** Preferência DEVE persistir entre sessões
 
@@ -135,6 +174,10 @@ Este documento define os requisitos do sistema de temas da plataforma, incluindo
 
 **SPEC-TH-BC-004:** Brand color DEVE funcionar em tema claro e escuro
 
+**SPEC-TH-BC-004a:** Para experimentar cores e temas, use a ferramenta oficial: `https://ui.shadcn.com/colors`
+
+**SPEC-TH-BC-004b:** Temas pré-definidos disponíveis (Default, Blue, Green, Orange, Red, Rose, Violet, Yellow): `https://ui.shadcn.com/themes`
+
 ### Formato
 
 **SPEC-TH-BC-005:** Brand color DEVE ser armazenada em formato HSL
@@ -149,7 +192,7 @@ Este documento define os requisitos do sistema de temas da plataforma, incluindo
 
 **SPEC-TH-BC-009:** Brand color DEVE ser armazenada em localStorage
 
-**SPEC-TH-BC-010:** Chave DEVE ser `{settings-key}:brand-color`
+**SPEC-TH-BC-010:** Chave DEVE seguir hierarquia (ver SPEC-TH-HC-020 a HC-023)
 
 **SPEC-TH-BC-011:** Valor DEVE ser string HSL
 
@@ -325,6 +368,16 @@ Este documento define os requisitos do sistema de temas da plataforma, incluindo
 
 **SPEC-TH-AC-015:** Seleção DEVE funcionar com Enter ou Space
 
+**SPEC-TH-AC-015a:** DEVE existir atalho de teclado para alternar tema rapidamente
+
+**SPEC-TH-AC-015b:** Atalho DEVE ser **Ctrl+Shift+D** (padrão da comunidade - "D" de Dark)
+
+**SPEC-TH-AC-015c:** Atalho alternativo PODE ser **Ctrl+Alt+T** ("T" de Theme)
+
+**SPEC-TH-AC-015d:** Atalho DEVE ciclar entre: light → dark → system → light
+
+**SPEC-TH-AC-015e:** Atalho DEVE funcionar em qualquer página do portal
+
 ### Leitores de Tela
 
 **SPEC-TH-AC-016:** Botão de troca de tema DEVE ter `aria-label` descritivo
@@ -346,6 +399,14 @@ Este documento define os requisitos do sistema de temas da plataforma, incluindo
 **SPEC-TH-SH-003:** Componentes NÃO DEVEM ter cores hardcoded
 
 **SPEC-TH-SH-004:** Customização DEVE ser via custom properties
+
+**SPEC-TH-SH-004a:** Para pesquisar componentes disponíveis, use a API: `https://ui.shadcn.com/api/search?query={term}`
+
+**SPEC-TH-SH-004b:** Consulte a documentação completa em `spec/ui/REFERENCES.md` para lista de todos os componentes, blocos e charts
+
+**SPEC-TH-SH-004c:** Use a ferramenta de cores do shadcn/ui para experimentar paletas: `https://ui.shadcn.com/colors`
+
+**SPEC-TH-SH-004d:** Temas pré-definidos disponíveis para referência: `https://ui.shadcn.com/themes`
 
 ### Propriedades Obrigatórias
 
@@ -369,13 +430,125 @@ Este documento define os requisitos do sistema de temas da plataforma, incluindo
 
 **SPEC-TH-SH-014:** DEVE existir `--radius` (border radius padrão)
 
+**SPEC-TH-SH-015:** DEVE existir `--card`, `--card-foreground` (backgrounds de cards)
+
+**SPEC-TH-SH-016:** DEVE existir `--popover`, `--popover-foreground` (menus flutuantes)
+
+**SPEC-TH-SH-017:** PODE existir `--chart-1` a `--chart-5` (cores de gráficos Recharts)
+
 ### Valores
 
-**SPEC-TH-SH-015:** Valores DEVEM ser HSL (sem `hsl()` wrapper)
+**SPEC-TH-SH-018:** Valores DEVEM ser HSL (sem `hsl()` wrapper)
 
-**SPEC-TH-SH-016:** Exemplo: `--primary: 221 83% 53%;` (não `hsl(221, 83%, 53%)`)
+**SPEC-TH-SH-019:** Exemplo: `--primary: 221 83% 53%;` (não `hsl(221, 83%, 53%)`)
 
-**SPEC-TH-SH-017:** Uso: `background-color: hsl(var(--primary))`
+**SPEC-TH-SH-020:** Uso: `background-color: hsl(var(--primary))`
+
+**SPEC-TH-SH-021:** Valores DEVEM funcionar com alpha transparency: `hsl(var(--primary) / 0.5)`
+
+### Border Radius
+
+**SPEC-TH-SH-022:** Variável `--radius` DEVE aceitar valores: `0rem`, `0.3rem`, `0.5rem`, `0.75rem`, `1.0rem`
+
+**SPEC-TH-SH-023:** Componentes DEVEM usar variantes: `rounded-sm`, `rounded-md`, `rounded-lg`
+
+**SPEC-TH-SH-024:** Radius PODE ser configurável por portal via `{settings-key}:radius`
+
+### Animações e Transições
+
+**SPEC-TH-SH-025:** Transições de cores DEVEM usar: `transition-colors duration-200`
+
+**SPEC-TH-SH-026:** Animações de entrada PODEM usar classes: `animate-in`, `fade-in`, `slide-in`
+
+**SPEC-TH-SH-027:** Animações de saída PODEM usar classes: `animate-out`, `fade-out`, `slide-out`
+
+**SPEC-TH-SH-028:** Duração padrão de animações DEVE ser 150-300ms
+
+---
+
+## 8A. Componentes Recomendados do shadcn/ui
+
+### Componentes de Feedback Visual
+
+**SPEC-TH-COMP-001:** Para notificações, usar componente **Sonner** (toast moderno com animações)
+
+**SPEC-TH-COMP-002:** Para alertas inline, usar componente **Alert** com variantes: default, destructive
+
+**SPEC-TH-COMP-003:** Para dialogs modais, usar componente **Dialog** ou **Alert Dialog**
+
+**SPEC-TH-COMP-004:** Para tooltips, usar componente **Tooltip** (informações contextuais)
+
+**SPEC-TH-COMP-005:** Para loading states, usar componentes **Skeleton** ou **Spinner**
+
+### Componentes de Navegação
+
+**SPEC-TH-COMP-006:** Para menus dropdown, usar componente **Dropdown Menu**
+
+**SPEC-TH-COMP-007:** Para navegação lateral, usar componente **Sidebar** (collapsible)
+
+**SPEC-TH-COMP-008:** Para tabs, usar componente **Tabs**
+
+**SPEC-TH-COMP-009:** Para breadcrumbs, usar componente **Breadcrumb**
+
+**SPEC-TH-COMP-010:** Para command palette, usar componente **Command**
+
+### Componentes de Formulário
+
+**SPEC-TH-COMP-011:** Para inputs, usar componente **Input** com variantes
+
+**SPEC-TH-COMP-012:** Para selects customizados, usar componente **Select** (não Native Select)
+
+**SPEC-TH-COMP-013:** Para checkboxes, usar componente **Checkbox**
+
+**SPEC-TH-COMP-014:** Para radio groups, usar componente **Radio Group**
+
+**SPEC-TH-COMP-015:** Para switches, usar componente **Switch**
+
+**SPEC-TH-COMP-016:** Para date pickers, usar componente **Date Picker** (integrado com Calendar)
+
+**SPEC-TH-COMP-017:** Para validação de formulários, usar componente **Form** com React Hook Form + Zod
+
+**SPEC-TH-COMP-018:** Para campos com label e erro, usar componente **Field**
+
+### Componentes de Layout
+
+**SPEC-TH-COMP-019:** Para cards, usar componente **Card** com CardHeader, CardContent, CardFooter
+
+**SPEC-TH-COMP-020:** Para separadores visuais, usar componente **Separator**
+
+**SPEC-TH-COMP-021:** Para scrollable areas, usar componente **Scroll Area**
+
+**SPEC-TH-COMP-022:** Para painéis redimensionáveis, usar componente **Resizable**
+
+**SPEC-TH-COMP-023:** Para sheets (painéis laterais), usar componente **Sheet** ou **Drawer**
+
+### Componentes de Dados
+
+**SPEC-TH-COMP-024:** Para tabelas, usar componente **Data Table** (integrado com TanStack Table)
+
+**SPEC-TH-COMP-025:** Para paginação, usar componente **Pagination**
+
+**SPEC-TH-COMP-026:** Para badges/tags, usar componente **Badge** com variantes
+
+**SPEC-TH-COMP-027:** Para avatares, usar componente **Avatar** com fallback
+
+### Componentes de Gráficos
+
+**SPEC-TH-COMP-028:** Para gráficos, usar componentes **Chart** (wrappers do Recharts)
+
+**SPEC-TH-COMP-029:** Tipos de gráficos disponíveis: Area, Bar, Line, Pie, Radar, Radial
+
+**SPEC-TH-COMP-030:** Para tooltips de gráficos, usar componente **Chart Tooltip**
+
+### Blocos Prontos
+
+**SPEC-TH-COMP-031:** Para dashboards, considerar blocos pré-construídos: Dashboard 01-07
+
+**SPEC-TH-COMP-032:** Para sidebars, considerar blocos pré-construídos: Sidebar 01-15
+
+**SPEC-TH-COMP-033:** Para autenticação, considerar blocos pré-construídos: Login 01-04, Signup
+
+**SPEC-TH-COMP-034:** Blocos DEVEM ser adaptados ao design system da plataforma
 
 ---
 
@@ -406,6 +579,14 @@ Este documento define os requisitos do sistema de temas da plataforma, incluindo
 **SPEC-TH-AP-010:** Mudança DEVE atualizar classe CSS imediatamente
 
 **SPEC-TH-AP-011:** Mudança DEVE sincronizar entre abas
+
+**SPEC-TH-AP-011a:** Usuário DEVE poder trocar tema via atalho de teclado **Ctrl+Shift+D**
+
+**SPEC-TH-AP-011b:** Atalho DEVE usar `event.preventDefault()` para não conflitar com funções do navegador
+
+**SPEC-TH-AP-011c:** Atalho DEVE ser registrado globalmente no portal (não por componente)
+
+**SPEC-TH-AP-011d:** Ao usar atalho, PODE exibir toast/feedback visual temporário indicando tema ativo
 
 ### Mudança de Brand Color
 

@@ -15,7 +15,7 @@ BACKEND_URL=http://localhost/3003
 # ---------------------------------
 # Backbone (n8n)
 # ---------------------------------
-BACKBONE_N8N_URL=https://n8n.cia.codr.studio/
+BACKBONE_N8N_URL=https://n8n.codrstudio.dev/
 BACKBONE_N8N_SHARED_SECRET=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzY2ExZjUyNy1lYmQ4LTQwMjgtOWNiZS1iODRkYjNjNDU2NzUiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzYyMDkzNTAxfQ.0YNEdzcs67cb0ncYKIYMRWHCjql_3uFEsH3ZTmcBXbU
 
 # ROUTES
