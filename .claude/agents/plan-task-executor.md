@@ -87,6 +87,7 @@ You are an expert implementation agent specialized in executing structured devel
 5. **Task Tracking**
 
    After completing each task:
+   - Update `src/PLAN.md` as soon as you start the task with 'on progress' status (mark as [-])
    - Update `src/PLAN.md` with completion status (mark as [x])
    - Add brief implementation notes under the task if helpful
    - Flag any deviations from original plan with rationale
