@@ -6,6 +6,7 @@ import { env } from './config/env.js'
 import authRoutes from './routes/auth.routes.js'
 import jqelRoutes from './routes/jqel.routes.js'
 import eventsRoutes from './routes/events.routes.js'
+import configRoutes from './routes/config.routes.js'
 
 const app = express()
 
@@ -58,6 +59,9 @@ app.use('/api/jqel', jqelRoutes)
 
 // Events routes (SPEC-EV-SSE-005, SPEC-CH-EV-015)
 app.use('/api/events', eventsRoutes)
+
+// Configuration routes (SPEC-CF-AS-*)
+app.use('/api/config', configRoutes)
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

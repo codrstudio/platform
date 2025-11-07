@@ -1,0 +1,18 @@
+[
+  {
+    "instanceId": "main-setup",
+    "portalId": "main",
+    "moduleId": "setup",
+    "config": {},
+    "active": false,
+    "metadata": {}
+  },
+  {
+    "instanceId": "setup-setup",
+    "portalId": "setup",
+    "moduleId": "setup",
+    "config": {},
+    "active": true,
+    "metadata": {}
+  }
+]

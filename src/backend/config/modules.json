@@ -1,0 +1,22 @@
+[
+  {
+    "moduleId": "setup",
+    "name": "Setup",
+    "description": "Módulo de configuração inicial da plataforma",
+    "type": "functionality",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "auth",
+    "name": "Autenticação",
+    "description": "Módulo de autenticação com login/logout",
+    "type": "functionality",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "metadata": {}
+  }
+]
