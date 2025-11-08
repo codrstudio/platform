@@ -2,14 +2,15 @@
 // Based on spec/ui/setup-module-interfaces.md Section 4.3
 
 import { useNavigate, useParams } from 'react-router-dom';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Package, Settings } from 'lucide-react';
+import { ArrowLeft, Package, Settings, Plus } from 'lucide-react';
 import { usePortal, useModules, useInstances, useUpdatePortal, type Module as ModuleType } from '@/hooks/useJQEL';
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
+import { ModuleBrowser } from '../components/ModuleBrowser';
 
 interface ModuleWithInstances extends ModuleType {
   instanceCount: number;
@@ -19,6 +20,7 @@ interface ModuleWithInstances extends ModuleType {
 export function PortalModules() {
   const { portalId } = useParams<{ portalId: string }>();
   const navigate = useNavigate();
+  const [showBrowser, setShowBrowser] = useState(false);
 
   const { data: portalResult, isLoading: isLoadingPortal } = usePortal(portalId!);
   const { data: modulesResult, isLoading: isLoadingModules } = useModules();
@@ -73,6 +75,21 @@ export function PortalModules() {
     }
   };
 
+  const handleAddModules = async (moduleIds: string[]) => {
+    if (!portal) return;
+
+    const newActiveModules = [...portal.activeModules, ...moduleIds];
+
+    try {
+      await updatePortalMutation.mutateAsync({
+        values: { activeModules: newActiveModules },
+        where: { portalId: { $eq: portalId! } },
+      });
+    } catch (error) {
+      console.error('Error adding modules:', error);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
@@ -117,6 +134,10 @@ export function PortalModules() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-semibold">Módulos Disponíveis</h2>
+          <Button variant="outline" onClick={() => setShowBrowser(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Adicionar Módulos
+          </Button>
         </div>
 
         <div className="grid gap-4">
@@ -192,6 +213,15 @@ export function PortalModules() {
           </Card>
         )}
       </div>
+
+      {/* Module Browser Dialog */}
+      {showBrowser && (
+        <ModuleBrowser
+          excludeModuleIds={portal.activeModules}
+          onAddModules={handleAddModules}
+          onClose={() => setShowBrowser(false)}
+        />
+      )}
     </div>
   );
 }
