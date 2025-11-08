@@ -4,6 +4,7 @@
 import type { JQELQuery, JResult } from '@/types/jqel';
 import { JQELError as JQELErrorClass } from '@/types/jqel';
 import { tokenStorage } from './tokenStorage';
+import { cacheValidator } from './cacheValidator';
 
 const JQEL_ENDPOINT = '/api/jqel';
 
@@ -21,6 +22,10 @@ class JQELClient {
    * SPEC-DA-W-005: POST to /api/jqel
    * SPEC-DA-W-006: Content-Type: application/json
    * SPEC-DA-W-007: Include JWT automatically if available
+   * 
+   * Cache Epoch Integration:
+   * - Extracts X-Cache-Epoch header from response
+   * - Updates cache validator automatically
    */
   async query<T = unknown>(queryObject: JQELQuery): Promise<JResult<T>> {
     const token = tokenStorage.getAccessToken();
@@ -35,6 +40,12 @@ class JQELClient {
         body: JSON.stringify(queryObject),
         credentials: 'include',
       });
+
+      // Extract and update cache epoch from response header
+      const cacheEpoch = response.headers.get('X-Cache-Epoch');
+      if (cacheEpoch) {
+        cacheValidator.updateEpoch(cacheEpoch);
+      }
 
       const result: JResult<T> = await response.json();
 

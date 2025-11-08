@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import { EventProvider } from './contexts/EventContext';
@@ -9,6 +9,7 @@ import { LoginPage, NotFoundPage } from './pages';
 import { EventNotification, ConnectionStatus } from './components/events';
 import { Loader2 } from 'lucide-react';
 import { Toaster } from '@/components/ui/sonner';
+import { cacheValidator } from './services/cacheValidator';
 
 /**
  * TanStack Query Client Configuration
@@ -45,6 +46,31 @@ function LoadingFallback() {
 }
 
 /**
+ * Cache Epoch Sync Component
+ * Fetches cache epoch from server on mount and syncs with local cache validator
+ */
+function CacheEpochSync() {
+  useEffect(() => {
+    const syncEpoch = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/cache/epoch`);
+        const result = await response.json();
+        
+        if (result.success && result.data?.epoch) {
+          cacheValidator.updateEpoch(result.data.epoch);
+        }
+      } catch (error) {
+        console.error('[CacheEpochSync] Failed to sync epoch:', error);
+      }
+    };
+
+    syncEpoch();
+  }, []);
+
+  return null;
+}
+
+/**
  * Main App Component
  *
  * Architecture:
@@ -66,6 +92,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <EventProvider>
+            <CacheEpochSync />
             <Suspense fallback={<LoadingFallback />}>
           {/* Global toast notifications - SPEC-ERR-UI-001 */}
           <Toaster

@@ -9,11 +9,16 @@ import eventsRoutes from './routes/events.routes.js'
 import configRoutes from './routes/config.routes.js'
 import realmRoutes from './routes/realm.routes.js'
 import adminRoutes from './routes/admin.routes.js'
+import cacheRoutes from './routes/cache.routes.js'
+import { cacheEpochMiddleware } from './middleware/cache-epoch.middleware.js'
 
 const app = express()
 
 // SPEC-A-S-015: Security headers via Helmet
 app.use(helmet())
+
+// Cache Epoch Middleware - adds X-Cache-Epoch header to all responses
+app.use(cacheEpochMiddleware)
 
 // SPEC-CF-VE-003: CORS configuration
 app.use(
@@ -70,6 +75,9 @@ app.use('/api/realms', realmRoutes)
 
 // Admin routes (BullBoard UI for queue management)
 app.use('/admin', adminRoutes)
+
+// Cache routes - epoch management
+app.use('/api/cache', cacheRoutes)
 
 // 404 handler
 app.use((_req: Request, res: Response) => {
