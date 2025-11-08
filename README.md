@@ -185,15 +185,9 @@ Este projeto está licenciado sob a licença ISC - veja o arquivo [LICENSE](LICE
 
 <div align="center">
   <p>Desenvolvido com ❤️ pela equipe CODR Studio</p>
-  <p>
-    <a href="https://github.com/codrstudio/platform">GitHub</a> •
-    <a href="https://platform.codr.studio/">Website</a> •
-    <a href="https://platform.codr.studio/docs">Documentação</a>
-  </p>
-</div>
-  <p>
-    <a href="https://github.com/seu-usuario/platform">GitHub</a> •
-    <a href="https://platform.dev">Website</a> •
-    <a href="https://docs.platform.dev">Documentação</a>
-  </p>
+  <ul>
+    <li><a href="https://github.com/codrstudio/platform">GitHub</a></li>
+    <li><a href="https://platform.codr.studio/">Website</a></li>
+    <li><a href="https://platform.codr.studio/docs">Documentação</a></li>
+  </ul>
 </div>
