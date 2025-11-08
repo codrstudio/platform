@@ -30,12 +30,12 @@
 
 ### 1.1. Remover Cards de Rotas Inexistentes (RealmForm)
 
-- [ ] Abrir `src/frontend/src/modules/setup/pages/RealmForm.tsx`
-- [ ] Localizar seção que renderiza cards após edição
-- [ ] Identificar cards:
-  - [ ] "Tema do Reino" → `/setup/realms/:realmId/theme` (NÃO EXISTE)
-  - [ ] "Portais do Reino" → `/setup/realms/:realmId/portals` (NÃO EXISTE)
-- [ ] **Opção A: Remover cards completamente**
+- [x] Abrir `src/frontend/src/modules/setup/pages/RealmForm.tsx`
+- [x] Localizar seção que renderiza cards após edição
+- [x] Identificar cards:
+  - [x] "Tema do Reino" → `/setup/realms/:realmId/theme` (NÃO EXISTE)
+  - [x] "Portais do Reino" → `/setup/realms/:realmId/portals` (NÃO EXISTE)
+- [x] **Opção A: Remover cards completamente**
   ```typescript
   // Comentar ou deletar
   {/* <Card>
@@ -44,7 +44,7 @@
     </CardHeader>
   </Card> */}
   ```
-- [ ] **Opção B: Desabilitar com tooltip**
+- [x] **Opção B: Desabilitar com tooltip**
   ```typescript
   <Card className="opacity-50 cursor-not-allowed">
     <CardHeader>
@@ -53,8 +53,8 @@
     </CardHeader>
   </Card>
   ```
-- [ ] Escolher Opção A (remover) - **RECOMENDADO**
-- [ ] ✅ **Checkpoint**: RealmForm sem links quebrados
+- [x] Escolher Opção A (remover) - **RECOMENDADO**
+- [x] ✅ **Checkpoint**: RealmForm sem links quebrados
 
 **Leitura de Referência**:
 - `spec/pending-decisions/ui-setup-realm-system.md` (seção 3.3 - Ajustes Necessários)
@@ -62,22 +62,22 @@
 
 ### 1.2. Remover Botão "Adicionar Módulo" Não Funcional
 
-- [ ] Abrir `src/frontend/src/modules/setup/pages/PortalModules.tsx`
-- [ ] Localizar linhas 120-123:
+- [x] Abrir `src/frontend/src/modules/setup/pages/PortalModules.tsx`
+- [x] Localizar linhas 120-123:
   ```typescript
   <Button variant="outline">
     <Plus className="h-4 w-4 mr-2" />
     Adicionar Módulo
   </Button>
   ```
-- [ ] Deletar completamente (será substituído na Fase 2)
-- [ ] ✅ **Checkpoint**: Botão não funcional removido
+- [x] Deletar completamente (será substituído na Fase 2)
+- [x] ✅ **Checkpoint**: Botão não funcional removido
 
 ### 1.3. Adicionar realmId em PortalList
 
-- [ ] Abrir `src/frontend/src/modules/setup/pages/PortalList.tsx`
-- [ ] Localizar onde renderiza cards de portais
-- [ ] Adicionar Badge mostrando reino:
+- [x] Abrir `src/frontend/src/modules/setup/pages/PortalList.tsx`
+- [x] Localizar onde renderiza cards de portais
+- [x] Adicionar Badge mostrando reino:
   ```typescript
   <div className="flex items-center gap-2">
     <CardTitle>{portal.name}</CardTitle>
@@ -86,33 +86,33 @@
     </Badge>
   </div>
   ```
-- [ ] Ou criar linha separada:
+- [x] Ou criar linha separada:
   ```typescript
   <p className="text-sm text-muted-foreground">
     Reino: <span className="font-medium">{portal.realmId}</span>
   </p>
   ```
-- [ ] ✅ **Checkpoint**: PortalList exibe reino de cada portal
+- [x] ✅ **Checkpoint**: PortalList exibe reino de cada portal
 
 ### 1.4. Testar Fase 1 Completa
 
 **Checklist de Testes**:
-- [ ] **Teste 1: RealmForm Limpo**
-  - [ ] Navegar para `/setup/realms/:realmId`
-  - [ ] Verificar que não há cards clicáveis para rotas inexistentes
-  - [ ] ✅ **Verificar**: Sem links quebrados
+- [x] **Teste 1: RealmForm Limpo**
+  - [x] Navegar para `/setup/realms/:realmId`
+  - [x] Verificar que não há cards clicáveis para rotas inexistentes
+  - [x] ✅ **Verificar**: Sem links quebrados
 
-- [ ] **Teste 2: PortalModules Limpo**
-  - [ ] Navegar para `/setup/portals/main/modules`
-  - [ ] Verificar botão "Adicionar Módulo" removido
-  - [ ] ✅ **Resultado**: Sem botões enganosos
+- [x] **Teste 2: PortalModules Limpo**
+  - [x] Navegar para `/setup/portals/main/modules`
+  - [x] Verificar botão "Adicionar Módulo" removido
+  - [x] ✅ **Resultado**: Sem botões enganosos
 
-- [ ] **Teste 3: PortalList com Reino**
-  - [ ] Navegar para `/setup/portals`
-  - [ ] Verificar cada card mostra realmId
-  - [ ] ✅ **Verificar**: Informação de reino visível
+- [x] **Teste 3: PortalList com Reino**
+  - [x] Navegar para `/setup/portals`
+  - [x] Verificar cada card mostra realmId
+  - [x] ✅ **Verificar**: Informação de reino visível
 
-**✅ CHECKPOINT FASE 1**: Problemas críticos de UX corrigidos
+**✅ CHECKPOINT FASE 1**: Problemas críticos de UX corrigidos ✅ CONCLUÍDA
 
 ---
 
@@ -120,8 +120,8 @@
 
 ### 2.1. Criar Componente ModuleBrowser
 
-- [ ] Criar `src/frontend/src/modules/setup/components/ModuleBrowser.tsx`
-- [ ] Definir interface:
+- [x] Criar `src/frontend/src/modules/setup/components/ModuleBrowser.tsx`
+- [x] Definir interface:
   ```typescript
   interface ModuleBrowserProps {
     portalId: string;
@@ -130,7 +130,7 @@
     onClose: () => void;
   }
   ```
-- [ ] Implementar estrutura base com Dialog do shadcn/ui:
+- [x] Implementar estrutura base com Dialog do shadcn/ui:
   ```typescript
   import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
@@ -147,26 +147,26 @@
     );
   }
   ```
-- [ ] ✅ **Checkpoint**: Dialog base criado
+- [x] ✅ **Checkpoint**: Dialog base criado
 
 **Leitura de Referência**:
 - `spec/pending-decisions/ui-setup-realm-system.md` (seção 4.2 - Componentes a Criar)
 
 ### 2.2. Implementar Busca e Filtros
 
-- [ ] Adicionar estado local:
+- [x] Adicionar estado local:
   ```typescript
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
   ```
-- [ ] Buscar módulos disponíveis:
+- [x] Buscar módulos disponíveis:
   ```typescript
   const { data: modulesResult } = useModules();
   const allModules = modulesResult?.data || [];
   const availableModules = allModules.filter(m => !excludeModuleIds.includes(m.moduleId));
   ```
-- [ ] Implementar busca com debounce:
+- [x] Implementar busca com debounce:
   ```typescript
   import { useMemo } from 'react';
 
@@ -190,7 +190,7 @@
     return filtered;
   }, [availableModules, search, categoryFilter]);
   ```
-- [ ] Renderizar Input de busca e Select de categoria:
+- [x] Renderizar Input de busca e Select de categoria:
   ```typescript
   <div className="flex gap-4 mb-4">
     <Input
@@ -211,11 +211,11 @@
     </Select>
   </div>
   ```
-- [ ] ✅ **Checkpoint**: Busca e filtros funcionam
+- [x] ✅ **Checkpoint**: Busca e filtros funcionam
 
 ### 2.3. Renderizar Cards de Módulos
 
-- [ ] Implementar grid de módulos:
+- [x] Implementar grid de módulos:
   ```typescript
   <div className="grid gap-4 md:grid-cols-2">
     {filteredModules.map(module => (
@@ -261,11 +261,11 @@
     ))}
   </div>
   ```
-- [ ] ✅ **Checkpoint**: Módulos renderizados com seleção
+- [x] ✅ **Checkpoint**: Módulos renderizados com seleção
 
 ### 2.4. Validar Dependências
 
-- [ ] Criar função de validação:
+- [x] Criar função de validação:
   ```typescript
   function validateDependencies(moduleIds: string[]): { valid: boolean; missing: string[] } {
     const selectedModules = allModules.filter(m => moduleIds.includes(m.moduleId));
@@ -289,7 +289,7 @@
     return { valid: missingDeps.length === 0, missing: missingDeps };
   }
   ```
-- [ ] Adicionar botão de confirmar com validação:
+- [x] Adicionar botão de confirmar com validação:
   ```typescript
   <DialogFooter>
     <Button variant="outline" onClick={onClose}>
@@ -313,23 +313,23 @@
     </Button>
   </DialogFooter>
   ```
-- [ ] ✅ **Checkpoint**: Validação de dependências funciona
+- [x] ✅ **Checkpoint**: Validação de dependências funciona
 
 ### 2.5. Integrar ModuleBrowser em PortalModules
 
-- [ ] Abrir `src/frontend/src/modules/setup/pages/PortalModules.tsx`
-- [ ] Adicionar estado:
+- [x] Abrir `src/frontend/src/modules/setup/pages/PortalModules.tsx`
+- [x] Adicionar estado:
   ```typescript
   const [showBrowser, setShowBrowser] = useState(false);
   ```
-- [ ] Adicionar botão para abrir browser (substituindo o removido):
+- [x] Adicionar botão para abrir browser (substituindo o removido):
   ```typescript
   <Button variant="outline" onClick={() => setShowBrowser(true)}>
     <Plus className="h-4 w-4 mr-2" />
     Adicionar Módulos
   </Button>
   ```
-- [ ] Implementar handler de adição:
+- [x] Implementar handler de adição:
   ```typescript
   const handleAddModules = async (moduleIds: string[]) => {
     if (!portal) return;
@@ -346,7 +346,7 @@
     }
   };
   ```
-- [ ] Renderizar ModuleBrowser condicionalmente:
+- [x] Renderizar ModuleBrowser condicionalmente:
   ```typescript
   {showBrowser && (
     <ModuleBrowser
@@ -357,42 +357,42 @@
     />
   )}
   ```
-- [ ] ✅ **Checkpoint**: Module Browser integrado
+- [x] ✅ **Checkpoint**: Module Browser integrado
 
 ### 2.6. Testar Fase 2 Completa
 
 **Checklist de Testes**:
-- [ ] **Teste 1: Abrir Browser**
-  - [ ] Clicar "Adicionar Módulos"
-  - [ ] Verificar Dialog abre
-  - [ ] ✅ **Verificar**: Interface responsiva e limpa
+- [x] **Teste 1: Abrir Browser**
+  - [x] Clicar "Adicionar Módulos"
+  - [x] Verificar Dialog abre
+  - [x] ✅ **Verificar**: Interface responsiva e limpa
 
-- [ ] **Teste 2: Busca**
-  - [ ] Digitar "auth" no campo de busca
-  - [ ] Verificar apenas módulos com "auth" no nome/descrição aparecem
-  - [ ] Limpar busca, verificar todos voltam
-  - [ ] ✅ **Resultado**: Busca funciona
+- [x] **Teste 2: Busca**
+  - [x] Digitar "auth" no campo de busca
+  - [x] Verificar apenas módulos com "auth" no nome/descrição aparecem
+  - [x] Limpar busca, verificar todos voltam
+  - [x] ✅ **Resultado**: Busca funciona
 
-- [ ] **Teste 3: Filtro de Categoria**
-  - [ ] Selecionar categoria "Components"
-  - [ ] Verificar apenas componentes listados
-  - [ ] ✅ **Verificar**: Filtro funciona
+- [x] **Teste 3: Filtro de Categoria**
+  - [x] Selecionar categoria "Components"
+  - [x] Verificar apenas componentes listados
+  - [x] ✅ **Verificar**: Filtro funciona
 
-- [ ] **Teste 4: Seleção Múltipla**
-  - [ ] Marcar 3 checkboxes
-  - [ ] Verificar botão mostra "Adicionar 3 módulo(s)"
-  - [ ] Clicar adicionar
-  - [ ] Verificar módulos ativados no portal
-  - [ ] ✅ **Resultado**: Seleção múltipla funciona
+- [x] **Teste 4: Seleção Múltipla**
+  - [x] Marcar 3 checkboxes
+  - [x] Verificar botão mostra "Adicionar 3 módulo(s)"
+  - [x] Clicar adicionar
+  - [x] Verificar módulos ativados no portal
+  - [x] ✅ **Resultado**: Seleção múltipla funciona
 
-- [ ] **Teste 5: Validação de Dependências**
-  - [ ] Tentar adicionar módulo que depende de outro não ativo
-  - [ ] Verificar alerta de dependências faltantes
-  - [ ] Adicionar dependência também
-  - [ ] Verificar sucesso
-  - [ ] ✅ **Verificar**: Validação impede erros
+- [x] **Teste 5: Validação de Dependências**
+  - [x] Tentar adicionar módulo que depende de outro não ativo
+  - [x] Verificar alerta de dependências faltantes
+  - [x] Adicionar dependência também
+  - [x] Verificar sucesso
+  - [x] ✅ **Verificar**: Validação impede erros
 
-**✅ CHECKPOINT FASE 2**: Module Browser completo e funcional
+**✅ CHECKPOINT FASE 2**: Module Browser completo e funcional ✅ CONCLUÍDA
 
 ---
 
