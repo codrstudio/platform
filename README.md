@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/brand.svg" alt="Platform Logo" width="200" />
+  <img src="assets/brand.svg" alt="Platform Logo" width="300" />
   
   **Uma plataforma modular para construir aplicações web reutilizáveis e escaláveis**
   
@@ -185,9 +185,11 @@ Este projeto está licenciado sob a licença ISC - veja o arquivo [LICENSE](LICE
 
 <div align="center">
   <p>Desenvolvido com ❤️ pela equipe CODR Studio</p>
-  <ul>
-    <li><a href="https://github.com/codrstudio/platform">GitHub</a></li>
-    <li><a href="https://platform.codr.studio/">Website</a></li>
-    <li><a href="https://platform.codr.studio/docs">Documentação</a></li>
-  </ul>
+  <p>
+    <a href="https://github.com/codrstudio/platform">GitHub</a>
+    •
+    <a href="https://platform.codr.studio/">• Website</a>
+    •
+    <a href="https://platform.codr.studio/docs">• Documentação</a>
+  </p>
 </div>
