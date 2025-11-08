@@ -1848,7 +1848,7 @@
 
 ### EPIC 6.3: Exportação de Documentos
 
-- [ ] Story: Exportar para PDF e Word
+- [x] Story: Exportar para PDF e Word
 
   > Como usuário,
   > Quero exportar dados para PDF e Word,
@@ -1856,17 +1856,83 @@
 
   Refs: SPEC-module-export-components.md (SPEC-EXPORT-*)
 
+  **Implementação:**
+  - Módulo export-components criado em src/frontend/src/modules/export-components/
+  - Exportação para PDF via pdfmake com suporte a:
+    - Tabelas formatadas (createTable)
+    - Seções e listas (createSection, createList)
+    - Layout customizado (tamanho, orientação, margens)
+    - Headers e footers dinâmicos
+    - Preview em nova aba (previewPDF)
+  - Exportação para DOCX via docx.js com suporte a:
+    - Títulos (Heading 1-3)
+    - Parágrafos com alinhamento
+    - Listas
+    - Tabelas formatadas (createDOCXTable)
+    - Metadata (author, subject, keywords)
+  - Exportação para CSV via Papa Parse com suporte a:
+    - UTF-8 com BOM (compatível com Excel)
+    - Delimitadores customizados
+    - Headers customizados
+    - Exportar de tabelas HTML (exportTableToCSV)
+    - Parse de CSV (parseCSV)
+  - PDFBuilder com fluent API para construção intuitiva:
+    - Métodos: setTitle, setSubtitle, setAuthor, addSection, addTable, addList
+    - Suporte a: addImage, addPageBreak, addSpace, addHorizontalLine
+    - Features avançadas: addCover, addTableOfContents
+    - Métodos: build() e download()
+  - Utilitários de formatação:
+    - formatCurrency (BRL, USD)
+    - formatDate (short, long, iso)
+    - formatNumber com locale pt-BR
+    - imageUrlToBase64
+    - objectToTableData (converter array de objetos para TableData)
+    - sanitizeFilename e generateFilename
+  - Bibliotecas instaladas:
+    - pdfmake ^0.2.10
+    - docx ^9.0.3
+    - papaparse ^5.4.1
+    - file-saver ^2.0.5
+  - Type check: Passou (todos os erros resolvidos)
+  - Bundle size: ~320KB gzipped (todas bibliotecas)
+  - Arquivos: manifest.json, README.md, pdf.ts, docx.ts, csv.ts, PDFBuilder.ts, utils.ts, index.ts
+
 ---
 
 ### EPIC 6.4: Componentes Base
 
-- [ ] Story: Componentes UI consistentes
+- [x] Story: Componentes UI consistentes
 
   > Como desenvolvedor,
   > Quero usar componentes UI base com tema aplicado,
   > Para manter consistência visual
 
   Refs: SPEC-module-components.md (SPEC-MC-*)
+
+  **Implementação:**
+  - Sistema de integração com tema via CSS custom properties (SPEC-MC-AP-024, SPEC-MC-AP-025, SPEC-MC-AP-026)
+  - Hook `useAppComponentsTheme()` para configuração imperativa (opcional)
+  - Componente `ComponentsShowcase` demonstrando todos os componentes com tema
+  - Componente `SimpleChart` com cores do tema
+  - Guia completo de integração (`THEME_GUIDE.md`)
+
+  **Componentes prontos:**
+  - App Components: DataTable, FileUpload, SimpleChart com tema aplicado
+  - Media Components: MarkdownRenderer, CodeBlock, PdfViewer, etc. com dark mode
+  - Export Components: PDF, DOCX, CSV com suporte a tema
+
+  **CSS Custom Properties integradas:**
+  - Cores base: background, foreground, card, popover
+  - Cores de ação: primary (brand color), secondary, accent, muted
+  - Cores semânticas: success, warning, destructive, info
+  - Cores de UI: border, input, ring
+  - Cores de gráficos: chart-1 a chart-5
+
+  **Arquivos criados:**
+  - `app-components/theme/index.ts` - Sistema de tema
+  - `app-components/components/SimpleChart.tsx` - Gráfico com tema
+  - `app-components/components/ComponentsShowcase.tsx` - Demonstração
+  - `app-components/THEME_GUIDE.md` - Guia completo
 
 ---
 
@@ -1878,11 +1944,58 @@
 
 ### EPIC 7.1: Schema Discovery
 
-- [ ] Story: Descobrir schemas dinamicamente
+- [x] Story: Descobrir schemas dinamicamente
 
   > Como desenvolvedor,
   > Quero descobrir schemas e suas capabilities automaticamente,
   > Para integrar com dados sem configuração manual
 
   Refs: SPEC-jqel-schema.md (SPEC-SDL-*)
+
+  **Implementação:**
+  - Sistema completo de Schema Discovery Layer (SDL)
+  - Tipos TypeScript para SDL (frontend e backend)
+  - Hook `useSchemaDiscovery()` e `useSearchableActions()`
+  - Serviço `SchemaDiscoveryService` com cache de 5 minutos
+  - Endpoints: `GET /api/jqel/schemas` e `POST /api/jqel/schemas/refresh`
+  - Documento SDL exemplo com schemas backend (portal, module, instance)
+  - Actions searchable para Command Palette
+
+  **Estrutura SDL implementada:**
+  - Schemas: platform, backend, system, frontend
+  - Entities: portal, module, instance (schema backend)
+  - Actions: select.* e mutate.* com supports e returns
+  - Searchable: configuração para Command Palette com params
+
+  **Frontend:**
+  - `types/sdl.ts` - Tipos completos SDL com helpers
+  - `hooks/useSchemaDiscovery.ts` - Hook com funções de busca
+  - Helper functions: getSchema, getEntity, getAction, etc.
+
+  **Backend:**
+  - `types/sdl.ts` - Tipos SDL
+  - `services/SchemaDiscoveryService.ts` - Serviço com cache
+  - `routes/jqel.routes.ts` - Rotas /api/jqel/schemas
+  - `schemas/schemas.json` - Documento SDL exemplo
+
+  **Features:**
+  - Cache automático (5 minutos)
+  - Validação de estrutura SDL
+  - Suporte a schemas reservados (platform, backend, system, frontend)
+  - Cross-schema references (format: "schema:entity")
+  - Params tipados (string, enum, select, boolean, array)
+  - Source dinâmica para selects (busca entidades)
+
+  **Conformidade:**
+  - ✅ SPEC-SDL-R-001 a SPEC-SDL-R-003: Documento SDL
+  - ✅ SPEC-SDL-S-001 a SPEC-SDL-S-007: Schemas
+  - ✅ SPEC-SDL-E-001 a SPEC-SDL-E-014: Entities
+  - ✅ SPEC-SDL-A-001 a SPEC-SDL-A-014: Actions
+  - ✅ SPEC-SDL-SUP-001 a SPEC-SDL-SUP-024: Supports
+  - ✅ SPEC-SDL-RET-001 a SPEC-SDL-RET-012: Returns
+  - ✅ SPEC-SDL-SEARCH-001 a SPEC-SDL-SEARCH-013: Searchable
+  - ✅ SPEC-SDL-CONV-001 a SPEC-SDL-CONV-006: Convenções
+  - ✅ SPEC-SDL-VAL-001 a SPEC-SDL-VAL-014: Validação
+
+  **Type check:** ✅ Zero erros (frontend e backend)
 
