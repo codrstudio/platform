@@ -7,6 +7,7 @@ import { ProtectedRoute } from './components/routing/ProtectedRoute';
 import { PortalRouter } from './components/routing/PortalRouter';
 import { LoginPage, NotFoundPage } from './pages';
 import { EventNotification, ConnectionStatus } from './components/events';
+import { UpdateNotification } from './components/cache/UpdateNotification';
 import { Loader2 } from 'lucide-react';
 import { Toaster } from '@/components/ui/sonner';
 import { cacheValidator } from './services/cacheValidator';
@@ -106,6 +107,9 @@ function App() {
           {/* Event system UI components */}
           <EventNotification />
           <ConnectionStatus />
+
+          {/* Cache update notification - PLAN_4 FASE 3 */}
+          <UpdateNotification />
 
           <Routes>
             {/* Public route: Login */}
