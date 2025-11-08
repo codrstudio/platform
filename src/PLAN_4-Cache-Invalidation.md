@@ -24,17 +24,17 @@
 
 ### 1.1. Backend - Geração e Exposição do Epoch
 
-- [ ] Criar serviço `CacheEpochService` em `src/backend/src/services/cache-epoch.service.ts`
-  - [ ] Gerar GUID na inicialização do servidor (usando `crypto.randomUUID()`)
-  - [ ] Armazenar epoch em memória (singleton)
-  - [ ] Método `getCurrentEpoch()` para consulta
-  - [ ] Método `refreshEpoch()` para forçar nova geração
-- [ ] Criar middleware `cacheEpochMiddleware` em `src/backend/src/middleware/cache-epoch.middleware.ts`
-  - [ ] Adicionar header `X-Cache-Epoch` em todos os responses
-  - [ ] Aplicar globalmente em `app.ts`
-- [ ] Criar endpoint `GET /api/cache/epoch` em `src/backend/src/routes/cache.routes.ts`
-  - [ ] Retornar `{ epoch: string }` no formato JResult
-- [ ] ✅ **Checkpoint**: Backend expõe epoch em header e endpoint
+- [x] Criar serviço `CacheEpochService` em `src/backend/src/services/cache-epoch.service.ts`
+  - [x] Gerar GUID na inicialização do servidor (usando `crypto.randomUUID()`)
+  - [x] Armazenar epoch em memória (singleton)
+  - [x] Método `getCurrentEpoch()` para consulta
+  - [x] Método `refreshEpoch()` para forçar nova geração
+- [x] Criar middleware `cacheEpochMiddleware` em `src/backend/src/middleware/cache-epoch.middleware.ts`
+  - [x] Adicionar header `X-Cache-Epoch` em todos os responses
+  - [x] Aplicar globalmente em `app.ts`
+- [x] Criar endpoint `GET /api/cache/epoch` em `src/backend/src/routes/cache.routes.ts`
+  - [x] Retornar `{ epoch: string }` no formato JResult
+- [x] ✅ **Checkpoint**: Backend expõe epoch em header e endpoint
 
 **Leitura de Referência**
 - Chrome DevRel: Removing buggy service workers (https://developer.chrome.com/docs/workbox/remove-buggy-service-workers)
@@ -72,16 +72,16 @@ export const cacheEpochService = new CacheEpochService();
 
 ### 1.2. Frontend - Cache Validator Service
 
-- [ ] Criar serviço `cacheValidator.ts` em `src/frontend/src/services/cacheValidator.ts`
-  - [ ] Armazenar epoch atual em memória e localStorage (`cache_epoch`)
-  - [ ] Método `getCurrentEpoch()` para consulta
-  - [ ] Método `updateEpoch(newEpoch)` para atualização
-  - [ ] Método `isValid(resourceEpoch)` para validação
-  - [ ] Método `invalidateAll()` para limpeza total
-- [ ] Criar hook `useCacheValidator` em `src/frontend/src/hooks/useCacheValidator.ts`
-  - [ ] Expor métodos do serviço via React hook
-  - [ ] Listener para mudanças de epoch
-- [ ] ✅ **Checkpoint**: Frontend consegue armazenar e validar epochs
+- [x] Criar serviço `cacheValidator.ts` em `src/frontend/src/services/cacheValidator.ts`
+  - [x] Armazenar epoch atual em memória e localStorage (`cache_epoch`)
+  - [x] Método `getCurrentEpoch()` para consulta
+  - [x] Método `updateEpoch(newEpoch)` para atualização
+  - [x] Método `isValid(resourceEpoch)` para validação
+  - [x] Método `invalidateAll()` para limpeza total
+- [x] Criar hook `useCacheValidator` em `src/frontend/src/hooks/useCacheValidator.ts`
+  - [x] Expor métodos do serviço via React hook
+  - [x] Listener para mudanças de epoch
+- [x] ✅ **Checkpoint**: Frontend consegue armazenar e validar epochs
 
 **Código de Referência**:
 ```typescript
@@ -128,13 +128,13 @@ export const cacheValidator = new CacheValidator();
 
 ### 1.3. Frontend - Epoch Sync na Inicialização
 
-- [ ] Adicionar lógica de sync em `src/frontend/src/App.tsx`
-  - [ ] Buscar epoch do servidor no mount (`/api/cache/epoch`)
-  - [ ] Comparar com epoch local
-  - [ ] Se diferente: chamar `invalidateAll()` e atualizar
-- [ ] Adicionar interceptor no `jqelClient.ts` para extrair `X-Cache-Epoch` header
-  - [ ] Atualizar epoch automaticamente em cada response
-- [ ] ✅ **Checkpoint**: Frontend sincroniza epoch automaticamente
+- [x] Adicionar lógica de sync em `src/frontend/src/App.tsx`
+  - [x] Buscar epoch do servidor no mount (`/api/cache/epoch`)
+  - [x] Comparar com epoch local
+  - [x] Se diferente: chamar `invalidateAll()` e atualizar
+- [x] Adicionar interceptor no `jqelClient.ts` para extrair `X-Cache-Epoch` header
+  - [x] Atualizar epoch automaticamente em cada response
+- [x] ✅ **Checkpoint**: Frontend sincroniza epoch automaticamente
 
 ---
 
