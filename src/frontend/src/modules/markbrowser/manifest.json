@@ -1,0 +1,127 @@
+{
+  "moduleId": "markbrowser",
+  "name": "MarkBrowser",
+  "description": "Navegação, visualização e edição de documentos Markdown",
+  "version": "1.0.0",
+  "type": "functionality",
+  "dependencies": [],
+  "exports": {
+    "routes": true,
+    "components": [
+      "DocumentTree",
+      "MarkdownViewer",
+      "TableOfContents",
+      "DocumentBreadcrumbs",
+      "DocumentSearch"
+    ],
+    "hooks": [
+      "useDocuments",
+      "useDocument",
+      "useDocumentMutations"
+    ],
+    "widgets": []
+  },
+  "permissions": [
+    "read.documents",
+    "write.documents"
+  ],
+  "config": {
+    "schema": {
+      "title": {
+        "type": "string",
+        "description": "Título da instância",
+        "optional": true
+      },
+      "rootPath": {
+        "type": "string",
+        "description": "Path raiz para filtrar documentos",
+        "optional": true
+      },
+      "dataSource": {
+        "type": "object",
+        "required": true,
+        "properties": {
+          "schema": {
+            "type": "string",
+            "description": "Schema JQEL",
+            "required": true
+          },
+          "documentsEntity": {
+            "type": "string",
+            "description": "Entity dos documentos",
+            "required": true
+          }
+        }
+      },
+      "navigation": {
+        "type": "object",
+        "properties": {
+          "showTree": {
+            "type": "boolean",
+            "default": true
+          },
+          "showBreadcrumbs": {
+            "type": "boolean",
+            "default": true
+          },
+          "showTOC": {
+            "type": "boolean",
+            "default": true
+          },
+          "expandDepth": {
+            "type": "number",
+            "default": 2
+          }
+        }
+      },
+      "features": {
+        "type": "object",
+        "properties": {
+          "enableSearch": {
+            "type": "boolean",
+            "default": true
+          },
+          "enableEdit": {
+            "type": "boolean",
+            "default": false
+          },
+          "enableCreate": {
+            "type": "boolean",
+            "default": false
+          },
+          "enableDelete": {
+            "type": "boolean",
+            "default": false
+          },
+          "enableExport": {
+            "type": "boolean",
+            "default": false
+          },
+          "enableFavorites": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "rendering": {
+        "type": "object",
+        "properties": {
+          "theme": {
+            "type": "string",
+            "enum": ["light", "dark"],
+            "default": "light"
+          },
+          "syntaxTheme": {
+            "type": "string",
+            "default": "oneDark"
+          },
+          "linkTarget": {
+            "type": "string",
+            "enum": ["_self", "_blank"],
+            "default": "_self"
+          }
+        }
+      }
+    }
+  }
+}

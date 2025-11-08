@@ -1,0 +1,101 @@
+{
+  "moduleId": "app-components",
+  "name": "App Components",
+  "version": "1.0.0",
+  "type": "components",
+  "description": "Componentes especializados para construção de aplicativos robustos (dashboards, CRUDs, helpdesks, kanbans)",
+  "author": "Platform Team",
+  "license": "MIT",
+  "dependencies": [],
+  "exports": {
+    "recharts": {
+      "description": "Gráficos e visualizações de dados",
+      "components": [
+        "AreaChart",
+        "BarChart",
+        "LineChart",
+        "PieChart",
+        "RadarChart"
+      ]
+    },
+    "table": {
+      "description": "Tabelas com sorting, filtering, pagination",
+      "components": [
+        "useReactTable",
+        "DataTable"
+      ]
+    },
+    "calendar": {
+      "description": "Calendários e agendamentos",
+      "components": [
+        "Calendar"
+      ]
+    },
+    "dnd": {
+      "description": "Drag and drop (kanbans, reordenação)",
+      "components": [
+        "DndContext",
+        "useDraggable",
+        "useDroppable",
+        "useSortable"
+      ]
+    },
+    "tiptap": {
+      "description": "Rich text editor",
+      "components": [
+        "useEditor",
+        "EditorContent"
+      ]
+    },
+    "dropzone": {
+      "description": "Upload de arquivos e imagens",
+      "components": [
+        "useDropzone",
+        "FileUpload"
+      ]
+    },
+    "virtual": {
+      "description": "Virtualização para listas grandes",
+      "components": [
+        "useVirtualizer"
+      ]
+    },
+    "colorful": {
+      "description": "Color picker",
+      "components": [
+        "HexColorPicker",
+        "RgbColorPicker"
+      ]
+    },
+    "components": {
+      "description": "Componentes pré-construídos",
+      "components": [
+        "DataTable",
+        "FileUpload"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "bundleSize": {
+    "recharts": "120KB",
+    "table": "45KB",
+    "calendar": "180KB",
+    "dnd": "35KB",
+    "tiptap": "250KB",
+    "dropzone": "15KB",
+    "virtual": "8KB",
+    "colorful": "12KB",
+    "total": "665KB"
+  },
+  "features": [
+    "Code splitting por biblioteca",
+    "Tree shaking automático",
+    "Integração com tema da plataforma",
+    "Suporte a light/dark mode",
+    "Componentes responsivos",
+    "TypeScript support"
+  ]
+}

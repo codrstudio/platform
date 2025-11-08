@@ -7,6 +7,16 @@
   [![React](https://img.shields.io/badge/React-19-blue.svg)](https://react.dev/)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue.svg)](https://www.typescriptlang.org/)
   [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+  
+  ---
+  
+  ### 🚧 Status: Fase de Especificação
+  
+  **33 especificações completas** • **13 workflows n8n prontos** • **Implementação em progresso**
+  
+  Este projeto possui arquitetura e especificações completas. A implementação de frontend e backend está seguindo o plano em `src/PLAN.md`.
+  
+  ---
 </div>
 
 ---
@@ -82,59 +92,42 @@ platform/
 └── README.md             # Este arquivo
 ```
 
-## 🚀 Começando
+## 🚀 Como Começar
 
-### Pré-requisitos
+### Para Desenvolvedores
+
+Este projeto está em fase de **implementação ativa**. Para contribuir:
+
+1. **Leia a documentação essencial:**
+   - [`CLAUDE.md`](CLAUDE.md) - Guia completo do projeto
+   - [`src/PLAN.md`](src/PLAN.md) - Roadmap de implementação
+   - [`MANIFESTO.md`](MANIFESTO.md) - Filosofia do projeto
+
+2. **Explore as especificações:**
+   - [`spec/SPEC-concepts.md`](spec/SPEC-concepts.md) - Portal, Módulo, Instância
+   - [`spec/SPEC-architecture.md`](spec/SPEC-architecture.md) - Arquitetura de 3 camadas
+   - [`spec/STACK.md`](spec/STACK.md) - Stack tecnológica obrigatória
+
+3. **Verifique o que já existe:**
+   - ✅ 33 especificações formais em `spec/`
+   - ✅ 10 especificações de UI/UX em `spec/ui/`
+   - ✅ 13 workflows n8n em `workflows/`
+   - ✅ Plano de implementação estruturado
+
+### Pré-requisitos para Desenvolvimento
+
+Quando a implementação estiver pronta, você precisará:
 
 - Node.js 18+ instalado
-- Redis server rodando (para funcionalidades de produção)
-- Instância n8n rodando (para integração backend)
+- Redis server (para funcionalidades de produção)
+- Instância n8n (já configurada em `workflows/`)
 
-### Instalação
+### Roadmap de Implementação
 
-#### 1. Clone o repositório
-```bash
-git clone https://github.com/seu-usuario/platform.git
-cd platform
-```
-
-#### 2. Configure o Frontend
-```bash
-cd src/frontend
-npm install
-cp .env.example .env
-npm run dev
-```
-Frontend disponível em: http://localhost:5173
-
-#### 3. Configure o Backend
-```bash
-cd src/backend
-npm install
-cp .env.example .env
-npm run dev
-```
-Backend disponível em: http://localhost:3000
-
-## 💻 Desenvolvimento
-
-### Frontend
-```bash
-cd src/frontend
-npm run dev          # Servidor de desenvolvimento
-npm run build        # Build para produção
-npm run preview      # Preview da build
-npm run lint         # Linting do código
-```
-
-### Backend
-```bash
-cd src/backend
-npm run dev          # Desenvolvimento com hot-reload
-npm run build        # Compilar TypeScript
-npm start            # Executar código compilado
-npm run lint         # Linting do código
-```
+Confira [`src/PLAN.md`](src/PLAN.md) para ver:
+- **7 Initiatives** organizadas por valor de negócio
+- **Epics e Stories** detalhadas
+- **Ordem de prioridade** para desenvolvimento
 
 ## 🔑 Conceitos Fundamentais
 
@@ -147,29 +140,57 @@ Funcionalidade encapsulada e reutilizável. Módulos podem ser ativados/desativa
 ### Instância
 Configuração específica de um módulo dentro de um portal. Permite múltiplas versões do mesmo módulo com configurações diferentes.
 
-## 🔧 Variáveis de Ambiente
+## 🔧 Configuração
 
-Veja os arquivos de exemplo:
-- `src/frontend/.env.example` - Configuração do Frontend
-- `src/backend/.env.example` - Configuração do Backend
+Variáveis de ambiente serão necessárias quando a implementação estiver pronta. As configurações seguirão o padrão definido em `spec/SPEC-configuration.md`.
 
 ## 📚 Documentação
 
+### Documentação Principal
 - **[MANIFESTO.md](MANIFESTO.md)** - Filosofia e visão do Platform
-- **[CLAUDE.md](CLAUDE.md)** - Instruções completas do projeto
-- **[spec/](spec/)** - 30+ arquivos de especificação formal
-- **[REALM-SYSTEM-IMPLEMENTATION.md](REALM-SYSTEM-IMPLEMENTATION.md)** - Sistema de Realms
+- **[CLAUDE.md](CLAUDE.md)** - Guia completo para desenvolvimento
+- **[src/PLAN.md](src/PLAN.md)** - Roadmap de implementação
+
+### Especificações Técnicas
+- **[spec/](spec/)** - 33 arquivos de especificação formal
+- **[spec/ui/](spec/ui/)** - 10 especificações de interface
+- **[spec/STACK.md](spec/STACK.md)** - Stack tecnológica obrigatória
+- **[workflows/](workflows/)** - 13 workflows n8n (Backbone)
+
+### Especificações Essenciais
+- **[SPEC-concepts.md](spec/SPEC-concepts.md)** - Conceitos fundamentais
+- **[SPEC-architecture.md](spec/SPEC-architecture.md)** - Arquitetura de 3 camadas
+- **[SPEC-modules.md](spec/SPEC-modules.md)** - Sistema de módulos
+- **[SPEC-jqel-syntax.md](spec/SPEC-jqel-syntax.md)** - Linguagem de query JQEL
 
 ## 📊 Status do Projeto
 
-### ✅ Wave 1: Base do Projeto - COMPLETO
-- Estrutura Frontend criada (React 19 + Vite)
-- Estrutura Backend criada (Express + Node.js)
-- Tailwind CSS configurado
-- shadcn/ui configurado
-- Servidores de desenvolvimento funcionando
+### ✅ Fase 1: Especificação - COMPLETO
+- ✅ 33 especificações técnicas formais
+- ✅ 10 especificações de UI/UX com wireframes
+- ✅ 13 workflows n8n (Backbone) implementados
+- ✅ Plano de implementação estruturado
+- ✅ Stack tecnológica definida
 
-Contribuições são bem-vindas! Por favor, leia nosso guia de contribuição antes de submeter PRs.
+### 🚧 Fase 2: Implementação - EM PROGRESSO
+- 🔄 Setup inicial do projeto
+- 🔄 Implementação do Backend
+- 🔄 Implementação do Frontend
+- ⏳ Sistema de Portais
+- ⏳ Sistema de Módulos
+- ⏳ Sistema JQEL
+
+Veja o progresso detalhado em [`src/PLAN.md`](src/PLAN.md).
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Para contribuir:
+
+1. Leia [`CLAUDE.md`](CLAUDE.md) para entender o projeto
+2. Verifique [`src/PLAN.md`](src/PLAN.md) para tarefas pendentes
+3. Consulte as especificações relevantes em `spec/`
+4. Siga o stack tecnológico obrigatório em `spec/STACK.md`
+5. Todas as mudanças devem seguir as especificações existentes
 
 ## 📄 Licença
 
@@ -179,11 +200,5 @@ Este projeto está licenciado sob a licença ISC - veja o arquivo [LICENSE](LICE
 
 <div align="center">
   <p>Desenvolvido com ❤️ pela equipe CODR Studio</p>
-  <p>
-    <a href="https://github.com/codrstudio/platform">GitHub</a>
-    •
-    <a href="https://platform.codr.studio/">Website</a>
-    •
-    <a href="https://platform.codr.studio/docs">Documentação</a>
-  </p>
+  <p><strong>🚧 Projeto em desenvolvimento ativo - Especificações completas, implementação em progresso</strong></p>
 </div>

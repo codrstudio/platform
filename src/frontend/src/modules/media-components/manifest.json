@@ -1,0 +1,77 @@
+{
+  "moduleId": "media-components",
+  "name": "Media Components",
+  "version": "1.0.0",
+  "type": "components",
+  "description": "Componentes para visualização de conteúdo rico: Markdown, PDF, diagramas, código, vídeo, áudio, CSV",
+  "author": "Platform Team",
+  "license": "MIT",
+  "dependencies": [],
+  "exports": {
+    "markdown": {
+      "description": "Renderização de Markdown com GFM",
+      "components": ["MarkdownRenderer"]
+    },
+    "pdf": {
+      "description": "Visualização de arquivos PDF",
+      "components": ["PdfViewer"]
+    },
+    "diagrams": {
+      "description": "Renderização de diagramas Mermaid",
+      "components": ["MermaidDiagram"]
+    },
+    "code": {
+      "description": "Syntax highlighting para código",
+      "components": ["CodeBlock", "InlineCode"]
+    },
+    "video": {
+      "description": "Player de vídeo universal",
+      "components": ["VideoPlayer"]
+    },
+    "audio": {
+      "description": "Player de áudio com waveform",
+      "components": ["AudioPlayer"]
+    },
+    "csv": {
+      "description": "Visualizador de arquivos CSV",
+      "components": ["CsvViewer"]
+    }
+  },
+  "libraries": {
+    "react-markdown": "^10.0.0",
+    "remark-gfm": "^4.0.0",
+    "remark-math": "^6.0.0",
+    "rehype-katex": "^7.0.0",
+    "rehype-raw": "^7.0.0",
+    "react-pdf": "^9.1.2",
+    "pdfjs-dist": "^4.10.38",
+    "mermaid": "^11.4.1",
+    "react-syntax-highlighter": "^15.6.3",
+    "react-player": "^2.16.0",
+    "wavesurfer.js": "^7.8.14",
+    "papaparse": "^5.4.1"
+  },
+  "bundleSize": {
+    "markdown": "80KB",
+    "pdf": "150KB",
+    "mermaid": "120KB",
+    "code": "60KB",
+    "video": "40KB",
+    "audio": "35KB",
+    "csv": "15KB",
+    "total": "~500KB"
+  },
+  "features": [
+    "Renderização de múltiplos formatos de mídia",
+    "Integração automática com tema light/dark",
+    "Syntax highlighting para código",
+    "Suporte a GFM (GitHub Flavored Markdown)",
+    "Diagramas Mermaid (flowchart, sequence, class, etc)",
+    "Player de vídeo universal (YouTube, Vimeo, local, streaming)",
+    "Player de áudio com visualização de waveform",
+    "Visualizador de CSV com ordenação e filtros",
+    "Error handling graceful",
+    "Lazy loading de componentes pesados",
+    "TypeScript totalmente tipado"
+  ]
+}

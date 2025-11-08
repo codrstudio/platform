@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { ArrowUpDown, ArrowUp, ArrowDown, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { TableConfig } from '../types';
-import { format } from 'date-fns';
+import { format as formatDate } from 'date-fns';
 
 export interface TableWidgetProps {
   title: string;
@@ -41,7 +41,7 @@ export function TableWidget({ title, data, config, isLoading, className }: Table
 
       if (aVal === bVal) return 0;
 
-      const comparison = aVal > bVal ? 1 : -1;
+      const comparison = (aVal as number | string) > (bVal as number | string) ? 1 : -1;
       return sortDirection === 'asc' ? comparison : -comparison;
     });
   }, [data, sortColumn, sortDirection]);
@@ -99,7 +99,7 @@ export function TableWidget({ title, data, config, isLoading, className }: Table
         return new Intl.NumberFormat('pt-BR').format(Number(value));
       case 'date':
         try {
-          return format(new Date(String(value)), 'dd/MM/yyyy');
+          return formatDate(new Date(String(value)), 'dd/MM/yyyy');
         } catch {
           return String(value);
         }

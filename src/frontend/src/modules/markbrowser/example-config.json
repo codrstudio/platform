@@ -1,0 +1,120 @@
+{
+  "$schema": "Exemplo de configuração de instância do módulo MarkBrowser",
+  "examples": [
+    {
+      "name": "Documentação Read-Only",
+      "description": "Instância para visualização de documentação, sem edição",
+      "config": {
+        "instanceId": "docs-platform",
+        "moduleId": "markbrowser",
+        "config": {
+          "title": "Platform Documentation",
+          "dataSource": {
+            "schema": "docs",
+            "documentsEntity": "markdown_file"
+          },
+          "rootPath": "/docs/platform",
+          "navigation": {
+            "showTree": true,
+            "showBreadcrumbs": true,
+            "showTOC": true,
+            "expandDepth": 2
+          },
+          "features": {
+            "enableSearch": true,
+            "enableEdit": false,
+            "enableCreate": false,
+            "enableDelete": false,
+            "enableExport": true,
+            "enableFavorites": true
+          },
+          "rendering": {
+            "theme": "light",
+            "syntaxTheme": "oneDark",
+            "linkTarget": "_self"
+          }
+        }
+      }
+    },
+    {
+      "name": "Wiki Interno com Edição",
+      "description": "Instância para wiki interno com permissões de edição",
+      "config": {
+        "instanceId": "wiki-internal",
+        "moduleId": "markbrowser",
+        "config": {
+          "title": "Internal Wiki",
+          "dataSource": {
+            "schema": "internal",
+            "documentsEntity": "wiki_page"
+          },
+          "navigation": {
+            "showTree": true,
+            "showBreadcrumbs": true,
+            "showTOC": true,
+            "expandDepth": 1
+          },
+          "features": {
+            "enableSearch": true,
+            "enableEdit": true,
+            "enableCreate": true,
+            "enableDelete": true,
+            "enableExport": true,
+            "enableFavorites": true
+          },
+          "editor": {
+            "autosave": true,
+            "autosaveInterval": 30000,
+            "showPreview": true,
+            "previewMode": "side"
+          },
+          "rendering": {
+            "theme": "dark",
+            "syntaxTheme": "oneDark",
+            "linkTarget": "_self"
+          },
+          "permissions": {
+            "canView": "read.wiki",
+            "canEdit": "write.wiki",
+            "canManage": "manage.wiki"
+          }
+        }
+      }
+    },
+    {
+      "name": "Base de Conhecimento",
+      "description": "Base de conhecimento pública, somente leitura",
+      "config": {
+        "instanceId": "knowledge-base",
+        "moduleId": "markbrowser",
+        "config": {
+          "title": "Knowledge Base",
+          "dataSource": {
+            "schema": "public",
+            "documentsEntity": "kb_article"
+          },
+          "rootPath": "/kb",
+          "navigation": {
+            "showTree": true,
+            "showBreadcrumbs": true,
+            "showTOC": true,
+            "expandDepth": 3
+          },
+          "features": {
+            "enableSearch": true,
+            "enableEdit": false,
+            "enableCreate": false,
+            "enableDelete": false,
+            "enableExport": true,
+            "enableFavorites": true
+          },
+          "rendering": {
+            "theme": "light",
+            "syntaxTheme": "oneLight",
+            "linkTarget": "_blank"
+          }
+        }
+      }
+    }
+  ]
+}
