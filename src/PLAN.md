@@ -1480,13 +1480,26 @@
 
 ### EPIC 3.7: Estados de Carregamento
 
-- [ ] Story: Feedback visual de carregamento
+- [x] Story: Feedback visual de carregamento
 
   > Como usuário,
   > Quero ver indicadores claros quando algo está carregando,
   > Para saber que o sistema está processando
 
   Refs: SPEC-module-loading.md (SPEC-LOAD-SK-*, SPEC-LOAD-SP-*)
+
+  Implementado:
+  - Skeleton: Placeholders animados com variants (text, circular, rectangular, rounded)
+  - SkeletonPresets: Layouts pré-definidos (Card, ListItem, TableRow, Form)
+  - Spinner: Indicador circular de carregamento com tamanhos (xs, sm, md, lg, xl)
+  - SpinnerCentered e SpinnerInline: Variações de spinner para diferentes contextos
+  - LoadingOverlay: Overlay fullscreen ou container-level com backdrop
+  - PageLoader e SectionLoader: Variações especializadas de overlay
+  - useLoading: Hook para gerenciar estados de loading com helper withLoading()
+  - Configurações: defaultSkeletonAnimation, defaultSpinnerSize, defaultSpinnerVariant
+  - Baseado em shadcn/ui Skeleton e Lucide Loader2 icon
+  - Suporte a animações: pulse, wave, none
+  - Variants de spinner: default, primary, secondary, accent
 
 ---
 
