@@ -1,8 +1,6 @@
 <div align="center">
   <img src="assets/brand.svg" alt="Platform Logo" width="200" />
   
-  # Platform
-  
   **Uma plataforma modular para construir aplicações web reutilizáveis e escaláveis**
   
   [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
