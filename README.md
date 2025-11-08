@@ -173,12 +173,6 @@ Contribuições são bem-vindas! Por favor, leia nosso guia de contribuição an
 
 ## 📄 Licença
 
-Este projeto está licenciado sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
-
-Contribuições são bem-vindas! Por favor, leia nosso guia de contribuição antes de submeter PRs.
-
-## 📄 Licença
-
 Este projeto está licenciado sob a licença ISC - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
 ---
@@ -188,8 +182,8 @@ Este projeto está licenciado sob a licença ISC - veja o arquivo [LICENSE](LICE
   <p>
     <a href="https://github.com/codrstudio/platform">GitHub</a>
     •
-    <a href="https://platform.codr.studio/">• Website</a>
+    <a href="https://platform.codr.studio/">Website</a>
     •
-    <a href="https://platform.codr.studio/docs">• Documentação</a>
+    <a href="https://platform.codr.studio/docs">Documentação</a>
   </p>
 </div>
