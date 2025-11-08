@@ -80,6 +80,7 @@ export interface CacheInvalidateEvent extends BaseEvent {
     oldEpoch: string
     newEpoch: string
     scope: 'global' | 'favicon' | 'manifest' | 'assets'
+    timestamp: string
   }
 }
 

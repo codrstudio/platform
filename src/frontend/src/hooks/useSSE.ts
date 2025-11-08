@@ -31,7 +31,7 @@ export function useSSE() {
    * SPEC-EV-FR-002: Fetch data via JQEL (handled by TanStack Query)
    */
   const handleEvent = useCallback(
-    (event: PlatformEvent) => {
+    async (event: PlatformEvent) => {
       setLastEvent(event)
 
       // SPEC-EV-FR-001: Invalidate related queries based on event type
@@ -47,7 +47,7 @@ export function useSSE() {
         queryClient.invalidateQueries({
           queryKey: ['platform', 'jobs', event.data.jobId],
         })
-      } else if (event.type === 'config-changed' && 'data' in event) {
+      } else if (event.type === 'config-changed') {
         // Handle config-changed events (Realm System)
         const eventData = event.data as {
           entity: 'realm' | 'portal'
@@ -75,6 +75,30 @@ export function useSSE() {
           if (action !== 'create') {
             queryClient.invalidateQueries({ queryKey: ['portal', entityId] })
           }
+        }
+      } else if (event.type === 'cache-invalidate') {
+        // Handle cache-invalidate events (Cache Epoch System)
+        const eventData = event.data as {
+          newEpoch: string
+          oldEpoch?: string
+          scope: 'global' | 'favicon' | 'manifest' | 'assets'
+          timestamp: string
+        }
+        const { newEpoch, scope } = eventData
+
+        console.log('[SSE] Cache invalidation received:', scope, newEpoch)
+
+        // Import cacheValidator and swUpdateHandler dynamically to avoid circular dependencies
+        const { cacheValidator } = await import('@/services/cacheValidator')
+        const { swUpdateHandler } = await import('@/services/swUpdateHandler')
+
+        // Update epoch (will invalidate caches if changed)
+        cacheValidator.updateEpoch(newEpoch)
+
+        // For global scope, force immediate reload
+        if (scope === 'global' && swUpdateHandler) {
+          console.log('[SSE] Global cache invalidation - forcing reload')
+          swUpdateHandler.forceReload()
         }
       }
     },

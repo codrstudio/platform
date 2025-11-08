@@ -1,7 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { cacheEpochService } from '../services/cache-epoch.service';
 import { JResult } from '../types/jqel.types';
-import { publishEvent } from '../services/sse.service';
 
 const router = Router();
 
@@ -42,20 +41,9 @@ router.get('/epoch', (_req: Request, res: Response) => {
  */
 router.post('/invalidate', async (_req: Request, res: Response) => {
   const oldEpoch = cacheEpochService.getCurrentEpoch();
-  const newEpoch = cacheEpochService.refreshEpoch();
 
-  // Publicar evento SSE para todos os clientes conectados
-  await publishEvent({
-    type: 'cache-invalidate',
-    id: `cache-invalidate-${Date.now()}`,
-    timestamp: new Date().toISOString(),
-    target: 'global',
-    data: {
-      oldEpoch,
-      newEpoch,
-      scope: 'global',
-    },
-  });
+  // refreshEpoch agora publica o evento SSE automaticamente
+  const newEpoch = await cacheEpochService.refreshEpoch('global');
 
   const result: JResult<{
     oldEpoch: string;

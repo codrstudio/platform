@@ -319,43 +319,10 @@ export function AboutPage() {
         </CardContent>
       </Card>
 
-      {/* Links e Referências */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ExternalLink className="h-5 w-5 text-primary" />
-            Documentação e Referências
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <h4 className="font-semibold text-sm">Especificações</h4>
-              <ul className="space-y-1 text-sm text-muted-foreground">
-                <li>• spec/SPEC-concepts.md - Conceitos fundamentais</li>
-                <li>• spec/SPEC-architecture.md - Arquitetura da plataforma</li>
-                <li>• spec/SPEC-modules.md - Sistema de módulos</li>
-                <li>• spec/SPEC-realms.md - Sistema de reinos</li>
-                <li>• spec/SPEC-theming.md - Sistema de temas</li>
-              </ul>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold text-sm">Implementação</h4>
-              <ul className="space-y-1 text-sm text-muted-foreground">
-                <li>• src/PLAN.md - Roadmap de implementação</li>
-                <li>• MANIFESTO.md - Filosofia e visão</li>
-                <li>• CLAUDE.md - Guia de desenvolvimento</li>
-                <li>• spec/STACK.md - Stack tecnológico</li>
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Footer */}
       <div className="text-center text-sm text-muted-foreground">
         <p>Platform - Build once, reuse infinitely.</p>
-        <p className="mt-1">© 2025 Codr.Studio</p>
+        <p className="mt-1">© 2025 CODR Studio</p>
       </div>
     </div>
   )

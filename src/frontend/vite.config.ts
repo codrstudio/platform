@@ -27,7 +27,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'pwa-192x192.svg', 'pwa-512x512.svg'],
+      includeAssets: ['pwa-192x192.svg', 'pwa-512x512.svg'],
       manifest: {
         name: 'Platform - Modular Application Framework',
         short_name: 'Platform',
@@ -58,6 +58,20 @@ export default defineConfig({
       workbox: {
         // Runtime caching strategies
         runtimeCaching: [
+          // Critical assets (favicon, manifest) - Network First
+          // Always try to fetch from network when online, fallback to cache when offline
+          {
+            urlPattern: /\/(favicon\.ico|manifest\.webmanifest)$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'critical-assets',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 // 24 hours
+              },
+              networkTimeoutSeconds: 3
+            }
+          },
           // Google Fonts - Cache First (1 year)
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
