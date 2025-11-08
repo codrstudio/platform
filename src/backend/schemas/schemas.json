@@ -1,0 +1,395 @@
+{
+  "schemas": [
+    {
+      "name": "platform"
+    },
+    {
+      "name": "backend"
+    },
+    {
+      "name": "system"
+    },
+    {
+      "name": "frontend"
+    }
+  ],
+  "entities": [
+    {
+      "name": "portal",
+      "schema": "backend",
+      "properties": {
+        "portalId": {
+          "type": "string",
+          "description": "Identificador único do portal"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome do portal"
+        },
+        "description": {
+          "type": "string",
+          "description": "Descrição do portal"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Ícone lucide-react"
+        },
+        "active": {
+          "type": "boolean",
+          "description": "Se o portal está ativo"
+        },
+        "path": {
+          "type": "string",
+          "description": "Path do portal (ex: '/' para main)"
+        }
+      },
+      "required": ["portalId", "name"]
+    },
+    {
+      "name": "module",
+      "schema": "backend",
+      "properties": {
+        "moduleId": {
+          "type": "string",
+          "description": "Identificador único do módulo"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome do módulo"
+        },
+        "version": {
+          "type": "string",
+          "description": "Versão do módulo"
+        },
+        "type": {
+          "type": "string",
+          "description": "Tipo do módulo (functionality ou components)"
+        },
+        "category": {
+          "type": "string",
+          "description": "Categoria do módulo"
+        },
+        "description": {
+          "type": "string",
+          "description": "Descrição do módulo"
+        },
+        "dependencies": {
+          "type": "array",
+          "description": "Módulos dependentes",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["moduleId", "name", "version", "type"]
+    },
+    {
+      "name": "instance",
+      "schema": "backend",
+      "properties": {
+        "instanceId": {
+          "type": "string",
+          "description": "ID da instância"
+        },
+        "portalId": {
+          "type": "string",
+          "description": "Portal ao qual pertence"
+        },
+        "moduleId": {
+          "type": "string",
+          "description": "Módulo instanciado"
+        },
+        "active": {
+          "type": "boolean",
+          "description": "Se a instância está ativa"
+        },
+        "config": {
+          "type": "object",
+          "description": "Configuração da instância"
+        }
+      },
+      "required": ["instanceId", "portalId", "moduleId"]
+    }
+  ],
+  "actions": [
+    {
+      "name": "select.portal",
+      "schema": "backend",
+      "operation": "select",
+      "entity": "portal",
+      "supports": {
+        "limit": true,
+        "orderBy": ["portalId", "name"],
+        "output": true,
+        "except": true
+      },
+      "returns": {
+        "type": "array",
+        "items": {
+          "ref": "portal"
+        }
+      },
+      "searchable": {
+        "enabled": true,
+        "title": "Portais",
+        "description": "Buscar portais configurados na plataforma",
+        "keywords": ["portal", "app", "aplicação"],
+        "category": "configuração",
+        "icon": "layout-dashboard",
+        "searchFields": ["portalId", "name", "description"],
+        "searchOperator": "LIKE"
+      }
+    },
+    {
+      "name": "select.module",
+      "schema": "backend",
+      "operation": "select",
+      "entity": "module",
+      "supports": {
+        "limit": true,
+        "orderBy": ["moduleId", "name", "category"],
+        "output": true,
+        "except": true
+      },
+      "returns": {
+        "type": "array",
+        "items": {
+          "ref": "module"
+        }
+      },
+      "searchable": {
+        "enabled": true,
+        "title": "Módulos",
+        "description": "Buscar módulos disponíveis na plataforma",
+        "keywords": ["module", "módulo", "plugin"],
+        "category": "configuração",
+        "icon": "package",
+        "searchFields": ["moduleId", "name", "description", "category"],
+        "searchOperator": "LIKE"
+      }
+    },
+    {
+      "name": "select.instance",
+      "schema": "backend",
+      "operation": "select",
+      "entity": "instance",
+      "supports": {
+        "limit": true,
+        "orderBy": ["instanceId", "portalId", "moduleId"],
+        "output": true,
+        "except": true
+      },
+      "returns": {
+        "type": "array",
+        "items": {
+          "ref": "instance"
+        }
+      },
+      "searchable": {
+        "enabled": true,
+        "title": "Instâncias",
+        "description": "Buscar instâncias de módulos em portais",
+        "keywords": ["instance", "instância", "ativação"],
+        "category": "configuração",
+        "icon": "boxes",
+        "searchFields": ["instanceId", "portalId", "moduleId"],
+        "searchOperator": "LIKE"
+      }
+    },
+    {
+      "name": "mutate.portal.insert",
+      "schema": "backend",
+      "operation": "mutate",
+      "entity": "portal",
+      "action": "insert",
+      "supports": {
+        "values": ["portalId", "name", "description", "icon", "active", "path"]
+      },
+      "returns": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "description": "Número de registros criados"
+          }
+        }
+      },
+      "searchable": {
+        "enabled": true,
+        "title": "Criar Portal",
+        "description": "Criar um novo portal na plataforma",
+        "category": "ações",
+        "icon": "plus-circle",
+        "trigger": "/criar-portal",
+        "params": [
+          {
+            "name": "portalId",
+            "type": "string",
+            "required": true,
+            "description": "ID único do portal",
+            "placeholder": "ex: sac, app, admin"
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "required": true,
+            "description": "Nome do portal",
+            "placeholder": "ex: SAC, Aplicação Principal"
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "required": false,
+            "description": "Descrição do portal"
+          },
+          {
+            "name": "icon",
+            "type": "string",
+            "required": false,
+            "description": "Ícone lucide-react",
+            "placeholder": "ex: layout-dashboard"
+          },
+          {
+            "name": "path",
+            "type": "string",
+            "required": false,
+            "description": "Path do portal",
+            "placeholder": "ex: /sac"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mutate.portal.update",
+      "schema": "backend",
+      "operation": "mutate",
+      "entity": "portal",
+      "action": "update",
+      "supports": {
+        "values": ["name", "description", "icon", "active", "path"]
+      },
+      "returns": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "description": "Número de registros atualizados"
+          }
+        }
+      }
+    },
+    {
+      "name": "mutate.portal.delete",
+      "schema": "backend",
+      "operation": "mutate",
+      "entity": "portal",
+      "action": "delete",
+      "supports": {},
+      "returns": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "description": "Número de registros deletados"
+          }
+        }
+      }
+    },
+    {
+      "name": "mutate.instance.insert",
+      "schema": "backend",
+      "operation": "mutate",
+      "entity": "instance",
+      "action": "insert",
+      "supports": {
+        "values": ["instanceId", "portalId", "moduleId", "active", "config"]
+      },
+      "returns": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "description": "Número de registros criados"
+          }
+        }
+      },
+      "searchable": {
+        "enabled": true,
+        "title": "Ativar Módulo",
+        "description": "Ativar um módulo em um portal",
+        "category": "ações",
+        "icon": "toggle-right",
+        "trigger": "/ativar-modulo",
+        "params": [
+          {
+            "name": "portalId",
+            "type": "select",
+            "required": true,
+            "description": "Portal onde ativar o módulo",
+            "source": {
+              "schema": "backend",
+              "entity": "portal",
+              "labelField": "name",
+              "valueField": "portalId"
+            }
+          },
+          {
+            "name": "moduleId",
+            "type": "select",
+            "required": true,
+            "description": "Módulo a ser ativado",
+            "source": {
+              "schema": "backend",
+              "entity": "module",
+              "labelField": "name",
+              "valueField": "moduleId"
+            }
+          },
+          {
+            "name": "instanceId",
+            "type": "string",
+            "required": true,
+            "description": "ID único da instância",
+            "placeholder": "ex: default, principal"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mutate.instance.update",
+      "schema": "backend",
+      "operation": "mutate",
+      "entity": "instance",
+      "action": "update",
+      "supports": {
+        "values": ["active", "config"]
+      },
+      "returns": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "description": "Número de registros atualizados"
+          }
+        }
+      }
+    },
+    {
+      "name": "mutate.instance.delete",
+      "schema": "backend",
+      "operation": "mutate",
+      "entity": "instance",
+      "action": "delete",
+      "supports": {},
+      "returns": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "description": "Número de registros deletados"
+          }
+        }
+      }
+    }
+  ]
+}
