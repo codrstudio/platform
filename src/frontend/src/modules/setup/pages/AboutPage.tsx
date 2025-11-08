@@ -14,10 +14,9 @@ export function AboutPage() {
         <img
           src="/brand.svg"
           alt="Platform"
-          className="h-24 w-auto"
+          className="h-24 mt-8 w-auto"
         />
         <div>
-          <h1 className="text-4xl font-bold tracking-tight">Platform</h1>
           <p className="text-xl text-muted-foreground mt-2">
             Plataforma Modular para Aplicações Web Escaláveis
           </p>
