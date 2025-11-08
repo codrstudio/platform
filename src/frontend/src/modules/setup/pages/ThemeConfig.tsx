@@ -2,7 +2,7 @@
 // Based on SPEC-theming.md and Realm System
 
 import { useNavigate, useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,7 @@ import {
   hexToHSL,
   hslToHex
 } from '@/lib/theme';
+import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 
 export function ThemeConfig() {
   const { portalId } = useParams<{ portalId: string }>();
@@ -31,6 +32,18 @@ export function ThemeConfig() {
 
   const { data: realmResult, isLoading: realmLoading } = useRealm(portal?.realmId || '');
   const realm = realmResult?.data;
+
+  // Breadcrumb dinâmico
+  const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => {
+    const portalName = portal?.name || 'Portal';
+    return [
+      { label: 'Home', href: '/' },
+      { label: 'Setup', href: '/setup' },
+      { label: 'Portais', href: '/setup/portals' },
+      { label: portalName, href: `/setup/portals/${portalId}` },
+      { label: 'Tema' }
+    ];
+  }, [portal?.name, portalId]);
 
   const [realmBrandColor, setRealmBrandColorState] = useState('#0ea5e9');
   const [portalBrandColor, setPortalBrandColorState] = useState('#0ea5e9');
@@ -112,6 +125,9 @@ export function ThemeConfig() {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
+      {/* Breadcrumb */}
+      <PageBreadcrumb items={breadcrumbItems} />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button

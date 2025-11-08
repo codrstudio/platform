@@ -2,7 +2,7 @@
 // Realm System - Formulário de criação/edição de Reino
 
 import { useNavigate, useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Save } from 'lucide-react';
 import { useRealm, useCreateRealm, useUpdateRealm } from '@/hooks/useJQEL';
+import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 
 export function RealmForm() {
   const { realmId } = useParams<{ realmId: string }>();
@@ -19,6 +20,17 @@ export function RealmForm() {
   const { data: realmResult, isLoading } = useRealm(realmId || '');
   const createRealmMutation = useCreateRealm();
   const updateRealmMutation = useUpdateRealm();
+
+  // Breadcrumb dinâmico
+  const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => {
+    const realmName = realmResult?.data?.name || 'Novo Reino';
+    return [
+      { label: 'Home', href: '/' },
+      { label: 'Setup', href: '/setup' },
+      { label: 'Reinos', href: '/setup/realms' },
+      { label: isEditing ? realmName : 'Novo Reino' }
+    ];
+  }, [isEditing, realmResult?.data?.name]);
 
   const [formData, setFormData] = useState({
     realmId: '',
@@ -81,6 +93,9 @@ export function RealmForm() {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
+      {/* Breadcrumb */}
+      <PageBreadcrumb items={breadcrumbItems} />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button

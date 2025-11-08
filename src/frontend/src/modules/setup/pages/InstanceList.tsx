@@ -2,12 +2,14 @@
 // Based on spec/ui/setup-module-interfaces.md Section 4.5
 
 import { useNavigate, useParams } from 'react-router-dom';
+import { useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Plus, Settings, Trash2, Layers } from 'lucide-react';
-import { usePortal, useInstances, useUpdateInstance, useDeleteInstance } from '@/hooks/useJQEL';
+import { usePortal, useInstances, useUpdateInstance, useDeleteInstance, useModule } from '@/hooks/useJQEL';
+import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 
 export function InstanceList() {
   const { portalId, moduleId } = useParams<{ portalId: string; moduleId: string }>();
@@ -15,12 +17,29 @@ export function InstanceList() {
 
   const { data: portalResult, isLoading: isLoadingPortal } = usePortal(portalId!);
   const { data: instancesResult, isLoading: isLoadingInstances } = useInstances(portalId, moduleId);
+  const { data: moduleResult, isLoading: isLoadingModule } = useModule(moduleId!);
   const updateInstanceMutation = useUpdateInstance();
   const deleteInstanceMutation = useDeleteInstance();
 
   const portal = portalResult?.data?.[0];
+  const module = moduleResult?.data?.[0]; // Fix: module is an array
   const instances = instancesResult?.data || [];
-  const isLoading = isLoadingPortal || isLoadingInstances;
+  const isLoading = isLoadingPortal || isLoadingInstances || isLoadingModule;
+
+  // Breadcrumb dinâmico
+  const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => {
+    const portalName = portal?.name || 'Portal';
+    const moduleName = module?.name || moduleId || 'Módulo';
+    return [
+      { label: 'Home', href: '/' },
+      { label: 'Setup', href: '/setup' },
+      { label: 'Portais', href: '/setup/portals' },
+      { label: portalName, href: `/setup/portals/${portalId}` },
+      { label: 'Módulos', href: `/setup/portals/${portalId}/modules` },
+      { label: moduleName },
+      { label: 'Instâncias' }
+    ];
+  }, [portal?.name, portalId, module?.name, moduleId]);
 
   const toggleInstance = async (instanceId: string) => {
     const instance = instances.find(i => i.instanceId === instanceId);
@@ -74,6 +93,9 @@ export function InstanceList() {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
+      {/* Breadcrumb */}
+      <PageBreadcrumb items={breadcrumbItems} />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button

@@ -8,8 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Plus, Settings, Trash2, Globe } from 'lucide-react';
 import { useRealms, useDeleteRealm, usePortals } from '@/hooks/useJQEL';
 import { useMemo } from 'react';
+import { PageBreadcrumb } from '@/components/navigation';
+import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb';
 
 export function RealmList() {
+  const breadcrumbItems = useSetupBreadcrumb('Reinos');
   const { data: realmsResult, isLoading: realmsLoading } = useRealms();
   const { data: portalsResult } = usePortals();
   const deleteRealmMutation = useDeleteRealm();
@@ -54,6 +57,9 @@ export function RealmList() {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
+      {/* Breadcrumb */}
+      <PageBreadcrumb items={breadcrumbItems} />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

@@ -2,7 +2,7 @@
 // Based on spec/ui/setup-module-interfaces.md Section 4.2
 
 import { useNavigate, useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Save } from 'lucide-react';
 import { usePortal, useCreatePortal, useUpdatePortal, useRealms } from '@/hooks/useJQEL';
+import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 
 export function PortalForm() {
   const { portalId } = useParams<{ portalId: string }>();
@@ -21,6 +22,17 @@ export function PortalForm() {
   const { data: realmsResult, isLoading: realmsLoading } = useRealms();
   const createPortalMutation = useCreatePortal();
   const updatePortalMutation = useUpdatePortal();
+
+  // Breadcrumb dinâmico
+  const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => {
+    const portalName = portalResult?.data?.[0]?.name || 'Novo Portal';
+    return [
+      { label: 'Home', href: '/' },
+      { label: 'Setup', href: '/setup' },
+      { label: 'Portais', href: '/setup/portals' },
+      { label: isEditing ? portalName : 'Novo Portal' }
+    ];
+  }, [isEditing, portalResult?.data]);
 
   const [formData, setFormData] = useState({
     portalId: '',
@@ -96,6 +108,9 @@ export function PortalForm() {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
+      {/* Breadcrumb */}
+      <PageBreadcrumb items={breadcrumbItems} />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button

@@ -2,12 +2,14 @@
 // Based on spec/ui/setup-module-interfaces.md Section 4.3
 
 import { useNavigate, useParams } from 'react-router-dom';
+import { useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Package, Plus, Settings } from 'lucide-react';
 import { usePortal, useModules, useInstances, useUpdatePortal, type Module as ModuleType } from '@/hooks/useJQEL';
+import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 
 interface ModuleWithInstances extends ModuleType {
   instanceCount: number;
@@ -24,6 +26,18 @@ export function PortalModules() {
   const updatePortalMutation = useUpdatePortal();
 
   const portal = portalResult?.data?.[0];
+
+  // Breadcrumb dinâmico
+  const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => {
+    const portalName = portal?.name || 'Portal';
+    return [
+      { label: 'Home', href: '/' },
+      { label: 'Setup', href: '/setup' },
+      { label: 'Portais', href: '/setup/portals' },
+      { label: portalName, href: `/setup/portals/${portalId}` },
+      { label: 'Módulos' }
+    ];
+  }, [portal?.name, portalId]);
   const allModules = modulesResult?.data || [];
   const instances = instancesResult?.data || [];
 
@@ -77,6 +91,9 @@ export function PortalModules() {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
+      {/* Breadcrumb */}
+      <PageBreadcrumb items={breadcrumbItems} />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button

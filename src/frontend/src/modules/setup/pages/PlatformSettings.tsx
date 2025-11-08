@@ -5,8 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Server, Database, Activity, Info } from 'lucide-react';
+import { PageBreadcrumb } from '@/components/navigation';
+import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb';
 
 export function PlatformSettings() {
+  const breadcrumbItems = useSetupBreadcrumb('Configurações');
   // TODO: Fetch real data from JQEL
   const systemInfo = {
     version: '1.0.0',
@@ -41,6 +44,9 @@ export function PlatformSettings() {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
+      {/* Breadcrumb */}
+      <PageBreadcrumb items={breadcrumbItems} />
+
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Platform Settings</h1>
