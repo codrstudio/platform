@@ -275,3 +275,18 @@ class SSEService {
 
 // Singleton instance
 export const sseService = new SSEService()
+
+/**
+ * Helper function to publish event to Redis Pub/Sub
+ * This is a convenience wrapper around redisService.publish
+ * for use in route handlers that need to trigger SSE events
+ *
+ * @param event - Platform event to publish
+ * @param channel - Optional channel (defaults to 'platform:events')
+ */
+export async function publishEvent(
+  event: PlatformEvent,
+  channel = 'platform:events'
+): Promise<void> {
+  await redisService.publish(channel, event)
+}

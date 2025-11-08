@@ -4,24 +4,53 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Server, Database, Activity, Info } from 'lucide-react';
+import { Server, Database, Activity, Info, Loader2 } from 'lucide-react';
 import { PageBreadcrumb } from '@/components/navigation';
 import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb';
+import { usePortals } from '@/hooks/useJQEL';
+
+function useSystemHealth() {
+  // Test backend connectivity by querying portals
+  const { isLoading, isError } = usePortals();
+
+  return {
+    backendStatus: isLoading ? 'checking' : isError ? 'error' : 'healthy',
+    isLoading
+  };
+}
 
 export function PlatformSettings() {
   const breadcrumbItems = useSetupBreadcrumb('Configurações');
-  // TODO: Fetch real data from JQEL
+  const { backendStatus, isLoading: healthLoading } = useSystemHealth();
+
   const systemInfo = {
     version: '1.0.0',
-    environment: 'development',
-    uptime: '2h 15m',
-    status: 'healthy'
+    environment: import.meta.env.MODE || 'development',
+    uptime: 'N/A',
+    status: backendStatus
   };
 
   const services = [
-    { name: 'Backend', status: 'running', port: 3001, health: 'healthy' },
-    { name: 'Redis', status: 'running', port: 6379, health: 'healthy' },
-    { name: 'n8n Backbone', status: 'running', url: 'https://n8n.codrstudio.dev', health: 'healthy' }
+    {
+      name: 'Backend API',
+      status: healthLoading ? 'checking' : backendStatus === 'healthy' ? 'running' : 'stopped',
+      port: 3001,
+      health: backendStatus
+    },
+    {
+      name: 'Redis',
+      status: 'unknown',
+      port: 6379,
+      health: 'unknown',
+      note: 'Verificação via backend necessária'
+    },
+    {
+      name: 'n8n Backbone',
+      status: 'unknown',
+      url: 'https://n8n.codrstudio.dev',
+      health: 'unknown',
+      note: 'Verificação via backend necessária'
+    }
   ];
 
   const envVariables = [
@@ -37,9 +66,20 @@ export function PlatformSettings() {
       'running': 'default',
       'healthy': 'default',
       'stopped': 'destructive',
-      'warning': 'secondary'
+      'error': 'destructive',
+      'warning': 'secondary',
+      'checking': 'secondary',
+      'unknown': 'outline'
     };
-    return <Badge variant={variants[status] || 'outline'}>{status}</Badge>;
+
+    const icon = status === 'checking' ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null;
+
+    return (
+      <Badge variant={variants[status] || 'outline'}>
+        {icon}
+        {status}
+      </Badge>
+    );
   };
 
   return (
@@ -105,13 +145,18 @@ export function PlatformSettings() {
               <div key={service.name}>
                 {index > 0 && <Separator className="mb-4" />}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-1">
                     <Server className="h-5 w-5 text-muted-foreground" />
-                    <div>
+                    <div className="flex-1">
                       <p className="font-medium">{service.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {service.port ? `Port: ${service.port}` : service.url}
+                        {(service as any).port ? `Port: ${(service as any).port}` : (service as any).url}
                       </p>
+                      {(service as any).note && (
+                        <p className="text-xs text-muted-foreground italic mt-1">
+                          {(service as any).note}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="flex gap-2">

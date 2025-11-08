@@ -6,7 +6,7 @@
  * SPEC-EV-PL-001 to SPEC-EV-PL-008
  */
 export interface BaseEvent {
-  type: 'notification' | 'task' | 'job-completed' | 'job-failed' | 'job-progress' | 'config-changed'
+  type: 'notification' | 'task' | 'job-completed' | 'job-failed' | 'job-progress' | 'config-changed' | 'cache-invalidate'
   id: string
   userId?: string
   userIds?: string[]
@@ -70,9 +70,23 @@ export interface ConfigChangedEvent extends BaseEvent {
 }
 
 /**
+ * Cache Invalidate Event
+ * Emitted when cache epoch changes, forcing clients to invalidate their caches
+ * Used for PWA cache invalidation system (PLAN_4-Cache-Invalidation.md)
+ */
+export interface CacheInvalidateEvent extends BaseEvent {
+  type: 'cache-invalidate'
+  data: {
+    oldEpoch: string
+    newEpoch: string
+    scope: 'global' | 'favicon' | 'manifest' | 'assets'
+  }
+}
+
+/**
  * Union type for all events
  */
-export type PlatformEvent = NotificationEvent | TaskEvent | JobEvent | ConfigChangedEvent
+export type PlatformEvent = NotificationEvent | TaskEvent | JobEvent | ConfigChangedEvent | CacheInvalidateEvent
 
 /**
  * SSE Client Connection

@@ -11,6 +11,7 @@ import realmRoutes from './routes/realm.routes.js'
 import adminRoutes from './routes/admin.routes.js'
 import cacheRoutes from './routes/cache.routes.js'
 import { cacheEpochMiddleware } from './middleware/cache-epoch.middleware.js'
+import { clearSiteDataMiddleware } from './middleware/clear-site-data.middleware.js'
 
 const app = express()
 
@@ -19,6 +20,9 @@ app.use(helmet())
 
 // Cache Epoch Middleware - adds X-Cache-Epoch header to all responses
 app.use(cacheEpochMiddleware)
+
+// Clear-Site-Data Middleware - force cache clear when FORCE_CACHE_CLEAR=true
+app.use(clearSiteDataMiddleware)
 
 // SPEC-CF-VE-003: CORS configuration
 app.use(

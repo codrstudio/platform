@@ -6,16 +6,30 @@ import { Settings, Package, Layers, Activity, Globe, Info } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageBreadcrumb } from '@/components/navigation';
 import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb';
+import { useRealms, usePortals, useModules } from '@/hooks/useJQEL';
+
+function useSetupStats() {
+  const { data: realmsResult } = useRealms();
+  const { data: portalsResult } = usePortals();
+  const { data: modulesResult } = useModules();
+
+  const realms = realmsResult?.data || [];
+  const portals = portalsResult?.data || [];
+  const modules = modulesResult?.data || [];
+
+  const activeModulesCount = portals.reduce((sum, p) => sum + (p.activeModules?.length || 0), 0);
+
+  return {
+    realmsCount: realms.length,
+    portalsCount: portals.length,
+    modulesCount: modules.length,
+    activeModulesCount,
+  };
+}
 
 export function SetupDashboard() {
   const breadcrumbItems = useSetupBreadcrumb();
-
-  // TODO: Fetch real stats from JQEL
-  const stats = {
-    portals: { total: 2, active: 2 },
-    modules: { total: 1, active: 1 },
-    instances: { total: 0, portal: 'setup' }
-  };
+  const stats = useSetupStats();
 
   return (
     <div className="container mx-auto p-6 space-y-8">
@@ -31,16 +45,29 @@ export function SetupDashboard() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-4">
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Reinos</CardTitle>
+            <Globe className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.realmsCount}</div>
+            <p className="text-xs text-muted-foreground">
+              Total de reinos
+            </p>
+          </CardContent>
+        </Card>
+
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Portais</CardTitle>
             <Settings className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.portals.total}</div>
+            <div className="text-2xl font-bold">{stats.portalsCount}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.portals.active} ativos
+              Total de portais
             </p>
           </CardContent>
         </Card>
@@ -51,22 +78,22 @@ export function SetupDashboard() {
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.modules.total}</div>
+            <div className="text-2xl font-bold">{stats.modulesCount}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.modules.active} ativos
+              Disponíveis
             </p>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Instâncias</CardTitle>
+            <CardTitle className="text-sm font-medium">Módulos Ativos</CardTitle>
             <Layers className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.instances.total}</div>
+            <div className="text-2xl font-bold">{stats.activeModulesCount}</div>
             <p className="text-xs text-muted-foreground">
-              Portal {stats.instances.portal}
+              Em todos os portais
             </p>
           </CardContent>
         </Card>

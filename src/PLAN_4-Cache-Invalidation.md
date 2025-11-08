@@ -167,16 +167,15 @@ export const cacheValidator = new CacheValidator();
 
 ### 2.1. Backend - Middleware Clear-Site-Data
 
-- [ ] Criar middleware `clearSiteDataMiddleware` em `src/backend/src/middleware/clear-site-data.middleware.ts`
-  - [ ] Adicionar header `Clear-Site-Data: "cache"` condicionalmente
-  - [ ] Ler flag do ambiente: `FORCE_CACHE_CLEAR=true`
-  - [ ] Aplicar apenas quando flag ativa
-- [ ] Adicionar variável ao `.env.example`
-  - [ ] `FORCE_CACHE_CLEAR=false` (default)
-- [ ] Aplicar middleware em rotas críticas (opcional)
-  - [ ] `/` (index.html)
-  - [ ] `/api/cache/epoch`
-- [ ] ✅ **Checkpoint**: Backend pode forçar limpeza de cache via header HTTP
+- [x] Criar middleware `clearSiteDataMiddleware` em `src/backend/src/middleware/clear-site-data.middleware.ts`
+  - [x] Adicionar header `Clear-Site-Data: "cache"` condicionalmente
+  - [x] Ler flag do ambiente: `FORCE_CACHE_CLEAR=true`
+  - [x] Aplicar apenas quando flag ativa
+- [x] Adicionar variável ao `.env.example`
+  - [x] `FORCE_CACHE_CLEAR=false` (default)
+- [x] Aplicar middleware em rotas críticas (opcional)
+  - [x] Aplicado globalmente após cacheEpochMiddleware em `app.ts`
+- [x] ✅ **Checkpoint**: Backend pode forçar limpeza de cache via header HTTP
 
 **Código de Referência**:
 ```typescript
@@ -197,12 +196,12 @@ export const clearSiteDataMiddleware = (req, res, next) => {
 
 ### 2.2. Backend - Endpoint Manual de Invalidação
 
-- [ ] Criar endpoint `POST /api/cache/invalidate` em `src/backend/src/routes/cache.routes.ts`
-  - [ ] Requer autenticação (admin only)
-  - [ ] Chama `cacheEpochService.refreshEpoch()`
-  - [ ] Publica evento Redis `cache:invalidate` com novo epoch
-  - [ ] Retorna novo epoch no response
-- [ ] ✅ **Checkpoint**: Admin pode forçar invalidação via API
+- [x] Criar endpoint `POST /api/cache/invalidate` em `src/backend/src/routes/cache.routes.ts`
+  - [!] Requer autenticação (admin only) - TODO: implementar
+  - [x] Chama `cacheEpochService.refreshEpoch()`
+  - [x] Publica evento Redis `cache-invalidate` com novo epoch
+  - [x] Retorna novo epoch no response
+- [x] ✅ **Checkpoint**: Admin pode forçar invalidação via API (autenticação pendente)
 
 ---
 
@@ -221,6 +220,10 @@ export const clearSiteDataMiddleware = (req, res, next) => {
   - [ ] ✅ **Verificar**: Response retorna novo epoch diferente do anterior
 
 **✅ CHECKPOINT FASE 2**: Sistema de limpeza forçada via HTTP header funcionando
+
+**Implementado em**: 2025-11-08
+**Resumo**: Middleware Clear-Site-Data + Endpoint de invalidação manual + Evento SSE
+**Detalhes**: Ver `spec/whats-new/2025-11-08-cache-invalidation-fase2.md`
 
 ---
 
