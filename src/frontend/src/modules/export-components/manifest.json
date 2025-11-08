@@ -1,0 +1,92 @@
+{
+  "moduleId": "export-components",
+  "name": "Export Components",
+  "version": "1.0.0",
+  "type": "components",
+  "description": "Capacidades de exportação de conteúdo para PDF, DOCX e CSV diretamente no frontend",
+  "author": "Platform Team",
+  "license": "MIT",
+  "dependencies": [],
+  "exports": {
+    "pdf": {
+      "description": "Geração de PDFs com pdfmake",
+      "functions": [
+        "exportToPDF",
+        "createTable",
+        "createSection",
+        "createList",
+        "previewPDF",
+        "PDFBuilder"
+      ]
+    },
+    "docx": {
+      "description": "Geração de arquivos DOCX",
+      "functions": [
+        "exportToDOCX",
+        "createDOCXTable"
+      ]
+    },
+    "csv": {
+      "description": "Geração e parse de CSV",
+      "functions": [
+        "exportToCSV",
+        "dataToCSV",
+        "parseCSV",
+        "exportTableToCSV",
+        "formatDataForCSV"
+      ]
+    },
+    "utils": {
+      "description": "Utilitários de formatação",
+      "functions": [
+        "formatCurrency",
+        "formatDate",
+        "formatNumber",
+        "imageUrlToBase64",
+        "objectToTableData",
+        "sanitizeFilename",
+        "generateFilename"
+      ]
+    }
+  },
+  "libraries": {
+    "pdfmake": "^0.2.10",
+    "docx": "^9.0.3",
+    "papaparse": "^5.4.1",
+    "file-saver": "^2.0.5"
+  },
+  "bundleSize": {
+    "pdfmake": "180KB",
+    "docx": "120KB",
+    "papaparse": "15KB",
+    "file-saver": "5KB",
+    "total": "~320KB"
+  },
+  "features": [
+    "Geração de PDF no frontend (sem backend)",
+    "Geração de DOCX compatível com Word e LibreOffice",
+    "Exportação de CSV com UTF-8 BOM (Excel)",
+    "PDFBuilder com fluent API",
+    "Controle total de layout em PDF",
+    "Tabelas formatadas",
+    "Headers e footers",
+    "Imagens (base64, URLs)",
+    "Índice automático",
+    "Preview de PDF antes de baixar",
+    "Utilitários de formatação (moeda, data, número)",
+    "TypeScript totalmente tipado"
+  ],
+  "useCases": [
+    "Exportar conversas de chat para PDF/DOCX",
+    "Exportar dados de tabelas para CSV",
+    "Gerar relatórios formatados em PDF",
+    "Exportar respostas de formulários",
+    "Exportar listas de tarefas",
+    "Gerar documentação em DOCX"
+  ],
+  "limitations": [
+    "Arquivos limitados pela memória do navegador",
+    "PDFs sem funcionalidades avançadas (formulários, assinaturas)",
+    "DOCX com formatação limitada comparado ao Word nativo"
+  ]
+}
