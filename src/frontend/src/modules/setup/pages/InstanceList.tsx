@@ -113,7 +113,7 @@ export function InstanceList() {
             {portal.name} - {moduleId}
           </p>
         </div>
-        <Button>
+        <Button onClick={() => navigate(`/setup/portals/${portalId}/modules/${moduleId}/instances/new`)}>
           <Plus className="h-4 w-4 mr-2" />
           Nova Instância
         </Button>
@@ -171,6 +171,7 @@ export function InstanceList() {
                   <Button
                     variant="outline"
                     size="sm"
+                    onClick={() => navigate(`/setup/portals/${portalId}/modules/${moduleId}/instances/${instance.instanceId}`)}
                   >
                     <Settings className="h-4 w-4 mr-2" />
                     Configurar
@@ -202,7 +203,7 @@ export function InstanceList() {
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Layers className="h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-muted-foreground mb-4">Nenhuma instância encontrada</p>
-            <Button>
+            <Button onClick={() => navigate(`/setup/portals/${portalId}/modules/${moduleId}/instances/new`)}>
               <Plus className="h-4 w-4 mr-2" />
               Criar Primeira Instância
             </Button>

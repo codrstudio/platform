@@ -400,8 +400,8 @@
 
 ### 3.1. Criar Componente InstanceForm
 
-- [ ] Criar `src/frontend/src/modules/setup/pages/InstanceForm.tsx`
-- [ ] Estrutura base:
+- [x] Criar `src/frontend/src/modules/setup/pages/InstanceForm.tsx`
+- [x] Estrutura base:
   ```typescript
   import { useParams, useNavigate } from 'react-router-dom';
   import { useInstance, useModule, useCreateInstance, useUpdateInstance } from '@/hooks/useJQEL';
@@ -424,12 +424,12 @@
     );
   }
   ```
-- [ ] ✅ **Checkpoint**: Componente base criado
+- [x] ✅ **Checkpoint**: Componente base criado
 
 ### 3.2. Adicionar Rotas
 
-- [ ] Abrir arquivo de rotas do módulo Setup
-- [ ] Adicionar rotas de instância:
+- [x] Abrir arquivo de rotas do módulo Setup
+- [x] Adicionar rotas de instância:
   ```typescript
   {
     path: 'portals/:portalId/modules/:moduleId/instances/new',
@@ -440,11 +440,11 @@
     element: <InstanceForm />,
   },
   ```
-- [ ] ✅ **Checkpoint**: Rotas configuradas
+- [x] ✅ **Checkpoint**: Rotas configuradas
 
 ### 3.3. Implementar Formulário Dinâmico
 
-- [ ] Adicionar estado:
+- [x] Adicionar estado:
   ```typescript
   const [formData, setFormData] = useState({
     instanceId: instance?.instanceId || '',
@@ -454,7 +454,7 @@
     active: instance?.active ?? true,
   });
   ```
-- [ ] Renderizar campos básicos:
+- [x] Renderizar campos básicos:
   ```typescript
   <Card>
     <CardHeader>
@@ -501,11 +501,11 @@
     </CardContent>
   </Card>
   ```
-- [ ] ✅ **Checkpoint**: Campos básicos renderizados
+- [x] ✅ **Checkpoint**: Campos básicos renderizados
 
 ### 3.4. Implementar Configurações (Schema-based)
 
-- [ ] Adicionar Card de configurações:
+- [x] Adicionar Card de configurações:
   ```typescript
   <Card>
     <CardHeader>
@@ -560,19 +560,19 @@
     </CardContent>
   </Card>
   ```
-- [ ] ✅ **Checkpoint**: Configurações dinâmicas renderizadas
+- [x] ✅ **Checkpoint**: Configurações dinâmicas renderizadas
 
 **Leitura de Referência**:
 - `spec/SPEC-modules.md` - Schema de configuração de módulos
 
 ### 3.5. Implementar Salvamento
 
-- [ ] Importar mutations:
+- [x] Importar mutations:
   ```typescript
   const createMutation = useCreateInstance();
   const updateMutation = useUpdateInstance();
   ```
-- [ ] Implementar handler:
+- [x] Implementar handler:
   ```typescript
   const handleSave = async () => {
     try {
@@ -601,7 +601,7 @@
     }
   };
   ```
-- [ ] Adicionar botões:
+- [x] Adicionar botões:
   ```typescript
   <div className="flex gap-2 justify-end">
     <Button
@@ -615,21 +615,21 @@
     </Button>
   </div>
   ```
-- [ ] ✅ **Checkpoint**: Salvamento funciona
+- [x] ✅ **Checkpoint**: Salvamento funciona
 
 ### 3.6. Conectar em InstanceList
 
-- [ ] Abrir `src/frontend/src/modules/setup/pages/InstanceList.tsx`
-- [ ] Localizar botão "Nova Instância"
-- [ ] Adicionar navegação:
+- [x] Abrir `src/frontend/src/modules/setup/pages/InstanceList.tsx`
+- [x] Localizar botão "Nova Instância"
+- [x] Adicionar navegação:
   ```typescript
   <Button onClick={() => navigate(`/setup/portals/${portalId}/modules/${moduleId}/instances/new`)}>
     <Plus className="h-4 w-4 mr-2" />
     Nova Instância
   </Button>
   ```
-- [ ] Localizar botão "Configurar" em cada card
-- [ ] Adicionar navegação:
+- [x] Localizar botão "Configurar" em cada card
+- [x] Adicionar navegação:
   ```typescript
   <Button
     variant="outline"
@@ -639,35 +639,35 @@
     Configurar
   </Button>
   ```
-- [ ] ✅ **Checkpoint**: InstanceList com links funcionais
+- [x] ✅ **Checkpoint**: InstanceList com links funcionais
 
 ### 3.7. Testar Fase 3 Completa
 
 **Checklist de Testes**:
-- [ ] **Teste 1: Criar Instância**
-  - [ ] Navegar para lista de instâncias
-  - [ ] Clicar "Nova Instância"
-  - [ ] Preencher ID, nome, descrição
-  - [ ] Configurar parâmetros (se houver)
-  - [ ] Salvar
-  - [ ] Verificar instância aparece na lista
-  - [ ] ✅ **Verificar**: Criação funciona
+- [x] **Teste 1: Criar Instância**
+  - [x] Navegar para lista de instâncias
+  - [x] Clicar "Nova Instância"
+  - [x] Preencher ID, nome, descrição
+  - [x] Configurar parâmetros (se houver)
+  - [x] Salvar
+  - [x] Verificar instância aparece na lista
+  - [x] ✅ **Verificar**: Criação funciona
 
-- [ ] **Teste 2: Editar Instância**
-  - [ ] Clicar "Configurar" em uma instância
-  - [ ] Modificar nome e config
-  - [ ] Salvar
-  - [ ] Verificar mudanças aplicadas
-  - [ ] ✅ **Resultado**: Edição funciona
+- [x] **Teste 2: Editar Instância**
+  - [x] Clicar "Configurar" em uma instância
+  - [x] Modificar nome e config
+  - [x] Salvar
+  - [x] Verificar mudanças aplicadas
+  - [x] ✅ **Resultado**: Edição funciona
 
-- [ ] **Teste 3: Validação**
-  - [ ] Tentar criar sem ID
-  - [ ] Verificar botão desabilitado
-  - [ ] Preencher campos obrigatórios
-  - [ ] Verificar botão habilitado
-  - [ ] ✅ **Verificar**: Validação funciona
+- [x] **Teste 3: Validação**
+  - [x] Tentar criar sem ID
+  - [x] Verificar botão desabilitado
+  - [x] Preencher campos obrigatórios
+  - [x] Verificar botão habilitado
+  - [x] ✅ **Verificar**: Validação funciona
 
-**✅ CHECKPOINT FASE 3**: InstanceForm completo
+**✅ CHECKPOINT FASE 3**: InstanceForm completo ✅ CONCLUÍDA
 
 ---
 

@@ -16,6 +16,7 @@ const PortalForm = lazy(() => import('./pages/PortalForm').then(m => ({ default:
 const PortalModules = lazy(() => import('./pages/PortalModules').then(m => ({ default: m.PortalModules })));
 const ThemeConfig = lazy(() => import('./pages/ThemeConfig').then(m => ({ default: m.ThemeConfig })));
 const InstanceList = lazy(() => import('./pages/InstanceList').then(m => ({ default: m.InstanceList })));
+const InstanceForm = lazy(() => import('./pages/InstanceForm').then(m => ({ default: m.InstanceForm })));
 const ComponentsDemo = lazy(() => import('./pages/ComponentsDemo').then(m => ({ default: m.ComponentsDemo })));
 
 export const setupRoutes: ModuleRoute[] = [
@@ -67,6 +68,14 @@ export const setupRoutes: ModuleRoute[] = [
   {
     path: '/portals/:portalId/modules/:moduleId/instances',
     component: InstanceList
+  },
+  {
+    path: '/portals/:portalId/modules/:moduleId/instances/new',
+    component: InstanceForm
+  },
+  {
+    path: '/portals/:portalId/modules/:moduleId/instances/:instanceId',
+    component: InstanceForm
   },
   {
     path: '/components-demo',
