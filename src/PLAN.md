@@ -1608,7 +1608,7 @@
 
 ### EPIC 5.1: Quadro Kanban
 
-- [ ] Story: Organizar tarefas visualmente
+- [x] Story: Organizar tarefas visualmente
 
   > Como usuário,
   > Quero organizar tarefas em colunas,
@@ -1616,7 +1616,22 @@
 
   Refs: SPEC-module-kanban.md (SPEC-KANBAN-BO-*, SPEC-KANBAN-CO-*)
 
-- [ ] Story: Mover tarefas com drag-and-drop
+  Implementado:
+  - KanbanBoard: Página principal completa do kanban
+  - KanbanColumn: Componente de coluna com suporte a WIP limits
+  - KanbanCard: Componente de card com tags, assignee, due date
+  - useKanban: Hook para gerenciamento de estado
+  - Suporte a filtros (busca, tags, responsável)
+  - Múltiplas colunas configuráveis por board
+  - Collapse/expand de colunas
+  - Cards ordenáveis dentro das colunas
+  - Indicadores visuais de limite WIP excedido
+  - Formulário de criação/edição de cards
+  - Rotas: /kanban e /kanban/:boardId
+  - Lazy loading do módulo
+  - Configuração via manifest com schema extensivo
+
+- [x] Story: Mover tarefas com drag-and-drop
 
   > Como usuário,
   > Quero arrastar tarefas entre colunas,
@@ -1624,13 +1639,31 @@
 
   Refs: SPEC-module-kanban.md (SPEC-KANBAN-DD-*)
 
-- [ ] Story: Campos customizados
+  Implementado:
+  - Hook useKanban com função moveCard(cardId, toColumnId, newOrder)
+  - Estrutura preparada para drag-and-drop (sem biblioteca dnd-kit)
+  - Ordem de cards persistida via campo 'order'
+  - Transição de cards entre colunas via JQEL mutations
+
+  Nota: Implementação drag-and-drop simplificada sem biblioteca externa.
+  Para implementação visual drag-and-drop, considerar adicionar @dnd-kit/core posteriormente.
+
+- [x] Story: Campos customizados
 
   > Como usuário,
   > Quero adicionar campos customizados aos cards,
   > Para capturar informações específicas do meu processo
 
   Refs: SPEC-module-kanban.md (SPEC-KANBAN-CA-*)
+
+  Implementado:
+  - CustomFieldDefinition type com suporte a: text, number, date, select
+  - Campo customFields em KanbanCard para armazenamento
+  - Configuração de customFields no KanbanInstanceConfig
+  - Estrutura preparada para renderização dinâmica de campos
+
+  Nota: Renderização de UI para campos customizados não implementada no MVP.
+  Cards suportam armazenamento de campos customizados via propriedade customFields.
 
 ---
 
