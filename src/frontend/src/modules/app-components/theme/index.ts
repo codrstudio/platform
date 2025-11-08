@@ -80,29 +80,66 @@ function applyTipTapTheme(_config: AppComponentsThemeConfig): void {
 /**
  * Hook para auto-configurar app components baseado no tema atual
  *
- * Nota: Este hook deve ser chamado no componente raiz da aplicação
- * quando o sistema de temas estiver implementado.
+ * Integra com o ThemeContext da plataforma (SPEC-MC-AP-024, SPEC-MC-CF-005)
+ *
+ * Nota: Este hook é opcional. Os componentes usam CSS custom properties
+ * automaticamente. Use apenas se precisar de configuração imperativa.
  */
 export function useAppComponentsTheme(): void {
   useEffect(() => {
-    // TODO: Integrar com useTheme quando o sistema de temas estiver implementado
-    // Por enquanto, configurar com valores padrão
+    // Ler tema e brand color do DOM (CSS custom properties)
+    const root = document.documentElement;
+    const isDark = root.classList.contains('dark');
+    const theme = isDark ? 'dark' : 'light';
+
+    // Configurar app components
     configureAppComponents({
-      theme: 'light',
-      brandColor: 'hsl(var(--primary))',
+      theme,
+      brandColor: getComputedStyle(root).getPropertyValue('--primary').trim(),
       tokens: {
-        primary: 'hsl(var(--primary))',
-        secondary: 'hsl(var(--secondary))',
-        success: 'hsl(var(--success))',
-        warning: 'hsl(var(--warning))',
-        destructive: 'hsl(var(--destructive))',
-        info: 'hsl(var(--info))',
-        muted: 'hsl(var(--muted))',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
-        border: 'hsl(var(--border))',
-        ring: 'hsl(var(--ring))',
+        primary: getComputedStyle(root).getPropertyValue('--primary').trim(),
+        secondary: getComputedStyle(root).getPropertyValue('--secondary').trim(),
+        success: getComputedStyle(root).getPropertyValue('--success').trim(),
+        warning: getComputedStyle(root).getPropertyValue('--warning').trim(),
+        destructive: getComputedStyle(root).getPropertyValue('--destructive').trim(),
+        info: getComputedStyle(root).getPropertyValue('--info').trim(),
+        muted: getComputedStyle(root).getPropertyValue('--muted').trim(),
+        background: getComputedStyle(root).getPropertyValue('--background').trim(),
+        foreground: getComputedStyle(root).getPropertyValue('--foreground').trim(),
+        border: getComputedStyle(root).getPropertyValue('--border').trim(),
+        ring: getComputedStyle(root).getPropertyValue('--ring').trim(),
       },
     });
+
+    // Observar mudanças no tema (classe 'dark')
+    const observer = new MutationObserver(() => {
+      const isDark = root.classList.contains('dark');
+      const theme = isDark ? 'dark' : 'light';
+
+      configureAppComponents({
+        theme,
+        brandColor: getComputedStyle(root).getPropertyValue('--primary').trim(),
+        tokens: {
+          primary: getComputedStyle(root).getPropertyValue('--primary').trim(),
+          secondary: getComputedStyle(root).getPropertyValue('--secondary').trim(),
+          success: getComputedStyle(root).getPropertyValue('--success').trim(),
+          warning: getComputedStyle(root).getPropertyValue('--warning').trim(),
+          destructive: getComputedStyle(root).getPropertyValue('--destructive').trim(),
+          info: getComputedStyle(root).getPropertyValue('--info').trim(),
+          muted: getComputedStyle(root).getPropertyValue('--muted').trim(),
+          background: getComputedStyle(root).getPropertyValue('--background').trim(),
+          foreground: getComputedStyle(root).getPropertyValue('--foreground').trim(),
+          border: getComputedStyle(root).getPropertyValue('--border').trim(),
+          ring: getComputedStyle(root).getPropertyValue('--ring').trim(),
+        },
+      });
+    });
+
+    observer.observe(root, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => observer.disconnect();
   }, []);
 }
