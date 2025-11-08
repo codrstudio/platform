@@ -507,7 +507,109 @@ Este documento define os requisitos do sistema de autenticação da plataforma, 
 
 ---
 
-## 11. SSO e 2FA (Futuro)
+## 11. Guest Authentication
+
+### Objetivo
+
+**SPEC-AU-GUEST-001:** Sistema DEVE suportar autenticação de usuários anônimos
+
+**SPEC-AU-GUEST-002:** Usuários anônimos DEVEM poder acessar SSE e recursos públicos
+
+**SPEC-AU-GUEST-003:** Guest JWT DEVE ser temporário e limitado
+
+### Rota de Guest Authentication
+
+**SPEC-AU-GUEST-004:** DEVE existir `/api/1/auth/guest`
+
+**SPEC-AU-GUEST-005:** Rota DEVE usar método POST
+
+**SPEC-AU-GUEST-006:** Rota NÃO DEVE exigir autenticação prévia
+
+**SPEC-AU-GUEST-007:** Rota DEVE ser acessível sem credenciais
+
+### Processamento
+
+**SPEC-AU-GUEST-008:** Backend DEVE gerar `guestId` único
+
+**SPEC-AU-GUEST-009:** `guestId` DEVE usar formato `guest_<uuid>`
+
+**SPEC-AU-GUEST-010:** Backend DEVE gerar JWT com payload mínimo
+
+**SPEC-AU-GUEST-011:** Backend NÃO DEVE armazenar guest user em banco de dados
+
+### JWT Payload
+
+**SPEC-AU-GUEST-012:** Payload DEVE incluir `sub` com valor `guestId`
+
+**SPEC-AU-GUEST-013:** Payload DEVE incluir claim `guest: true`
+
+**SPEC-AU-GUEST-014:** Payload DEVE incluir `iat` (issued at)
+
+**SPEC-AU-GUEST-015:** Payload DEVE incluir `exp` (expiration)
+
+**SPEC-AU-GUEST-016:** Payload DEVE incluir `iss` (issuer)
+
+### Expiração
+
+**SPEC-AU-GUEST-017:** Guest JWT DEVE expirar em 1 hora
+
+**SPEC-AU-GUEST-018:** Expiração PODE ser configurável via `.env`
+
+**SPEC-AU-GUEST-019:** Após expiração, novo guest JWT DEVE ser gerado
+
+**SPEC-AU-GUEST-020:** Frontend PODE renovar guest JWT automaticamente
+
+### Saída (Sucesso)
+
+**SPEC-AU-GUEST-021:** DEVE retornar HTTP 200
+
+**SPEC-AU-GUEST-022:** DEVE retornar campo `code` (string, "success")
+
+**SPEC-AU-GUEST-023:** DEVE retornar campo `access_token` (string, JWT)
+
+**SPEC-AU-GUEST-024:** DEVE retornar campo `token_type` (string, "Bearer")
+
+**SPEC-AU-GUEST-025:** DEVE retornar campo `expires_in` (number, 3600)
+
+**SPEC-AU-GUEST-026:** NÃO DEVE retornar `refresh_token`
+
+### Limitações
+
+**SPEC-AU-GUEST-027:** Guest users NÃO PODEM acessar recursos autenticados
+
+**SPEC-AU-GUEST-028:** Guest users PODEM acessar SSE para eventos públicos
+
+**SPEC-AU-GUEST-029:** Guest users PODEM acessar landing pages e recursos públicos
+
+**SPEC-AU-GUEST-030:** Guest users NÃO PODEM executar operações de escrita
+
+### Conversão para Usuário Autenticado
+
+**SPEC-AU-GUEST-031:** Guest user DEVE poder fazer login
+
+**SPEC-AU-GUEST-032:** Após login, guest JWT DEVE ser descartado
+
+**SPEC-AU-GUEST-033:** Frontend DEVE trocar guest JWT por user JWT
+
+**SPEC-AU-GUEST-034:** SSE DEVE reconectar com novo user JWT
+
+**SPEC-AU-GUEST-035:** Estado de sessão PODE ser preservado durante conversão
+
+### Segurança
+
+**SPEC-AU-GUEST-036:** Guest JWT NÃO DEVE ter permissões elevadas
+
+**SPEC-AU-GUEST-037:** Guest JWT DEVE ter permissões somente leitura
+
+**SPEC-AU-GUEST-038:** Backend DEVE validar claim `guest: true` em rotas protegidas
+
+**SPEC-AU-GUEST-039:** Recursos sensíveis DEVEM rejeitar guest JWT
+
+**SPEC-AU-GUEST-040:** Rate limiting DEVE aplicar-se a guest users
+
+---
+
+## 12. SSO e 2FA (Futuro)
 
 ### Single Sign-On
 

@@ -199,30 +199,6 @@ export function RealmForm() {
         </div>
       </form>
 
-      {/* Additional Actions (only when editing) */}
-      {isEditing && (
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow"
-                onClick={() => navigate(`/setup/realms/${realmId}/theme`)}>
-            <CardHeader>
-              <CardTitle>Tema do Reino</CardTitle>
-              <CardDescription>
-                Configure cores e aparência padrão para todos os portais deste reino
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow"
-                onClick={() => navigate(`/setup/realms/${realmId}/portals`)}>
-            <CardHeader>
-              <CardTitle>Portais do Reino</CardTitle>
-              <CardDescription>
-                Visualize e gerencie portais que pertencem a este reino
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
-      )}
     </div>
   );
 }

@@ -6,7 +6,6 @@
  */
 
 import { isRetryableError } from './errors';
-import { logger } from './logger';
 
 export interface RetryOptions {
   maxAttempts?: number;
@@ -97,8 +96,6 @@ export async function retryWithBackoff<T>(
     signal
   } = options;
 
-  const retryLogger = logger.getLogger('retry');
-
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       // Check if aborted before attempting
@@ -111,7 +108,7 @@ export async function retryWithBackoff<T>(
 
       // Success - return result
       if (attempt > 1) {
-        retryLogger.debug('Operation succeeded after retry', {
+        console.debug('[Retry] Operation succeeded after retry', {
           attempt,
           totalAttempts: maxAttempts
         });
@@ -121,7 +118,7 @@ export async function retryWithBackoff<T>(
     } catch (error) {
       // Check if this was the last attempt
       if (attempt === maxAttempts) {
-        retryLogger.error('Operation failed after all retry attempts', error as Error, {
+        console.error('[Retry] Operation failed after all retry attempts', error, {
           totalAttempts: maxAttempts
         });
         throw error;
@@ -129,7 +126,7 @@ export async function retryWithBackoff<T>(
 
       // Check if we should retry this error
       if (!shouldRetry(error, attempt)) {
-        retryLogger.debug('Error is not retryable', {
+        console.debug('[Retry] Error is not retryable', {
           attempt,
           errorCode: (error as any)?.code,
           statusCode: (error as any)?.response?.status
@@ -140,7 +137,7 @@ export async function retryWithBackoff<T>(
       // Calculate delay for next attempt
       const delay = calculateBackoffDelay(attempt, initialDelay, maxDelay, backoffMultiplier);
 
-      retryLogger.warn(`Operation failed, retrying in ${delay}ms`, {
+      console.warn(`[Retry] Operation failed, retrying in ${delay}ms`, {
         attempt,
         maxAttempts,
         delay,

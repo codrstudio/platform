@@ -15,6 +15,9 @@ export interface BaseEvent {
   priority?: 'low' | 'normal' | 'high' | 'urgent'
   metadata?: Record<string, unknown>
   data?: unknown
+  // Channel Hierarchy (Fase 2)
+  target?: 'global' | 'portal' | 'user'
+  portalId?: string
 }
 
 /**

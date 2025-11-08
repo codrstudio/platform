@@ -1,5 +1,6 @@
 import app from './app.js'
 import { env } from './config/env.js'
+import './workers/index.js'
 
 const server = app.listen(env.PORT, () => {
   console.log(`🚀 Backend running on ${env.BACKEND_URL}`)

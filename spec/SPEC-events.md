@@ -165,6 +165,12 @@ Este documento define os requisitos do sistema de eventos da plataforma, incluin
 
 **SPEC-EV-SSE-006:** Conexão DEVE incluir autenticação (JWT)
 
+**SPEC-EV-SSE-006a:** JWT PODE ser JWT de usuário autenticado OU guest JWT
+
+**SPEC-EV-SSE-006b:** Guest JWT DEVE ter claim `guest: true`
+
+**SPEC-EV-SSE-006c:** Guest JWT permite acesso a eventos públicos/globais
+
 **SPEC-EV-SSE-007:** JWT PODE estar em header `Authorization`, query param ou cookie
 
 **SPEC-EV-SSE-008:** Backend DEVE validar JWT antes de aceitar conexão
@@ -216,6 +222,30 @@ Este documento define os requisitos do sistema de eventos da plataforma, incluin
 **SPEC-EV-SSE-027:** Ao reconectar, Frontend DEVE buscar eventos perdidos via JQEL
 
 **SPEC-EV-SSE-028:** Frontend DEVE armazenar timestamp do último evento recebido
+
+### Recovery de Eventos Perdidos
+
+**SPEC-EV-SSE-029:** SSE DEVE aceitar query param `?lastEventId=...`
+
+**SPEC-EV-SSE-030:** Backend DEVE enviar eventos perdidos do Stream antes de abrir conexão SSE
+
+**SPEC-EV-SSE-031:** Eventos perdidos DEVEM ser buscados usando `lastEventId` como referência
+
+**SPEC-EV-SSE-032:** Frontend DEVE armazenar `lastEventId` em localStorage
+
+**SPEC-EV-SSE-033:** `lastEventId` DEVE ser o Stream ID do Redis (ex: "1762580506155-0")
+
+**SPEC-EV-SSE-034:** Ao reconectar, Frontend DEVE enviar `lastEventId` na query string
+
+### Heartbeat
+
+**SPEC-EV-SSE-035:** Heartbeat DEVE usar formato `:keepalive\n\n`
+
+**SPEC-EV-SSE-036:** Heartbeat DEVE ser enviado a cada 30 segundos
+
+**SPEC-EV-SSE-037:** Heartbeat NÃO conta como evento de dados
+
+**SPEC-EV-SSE-038:** Frontend NÃO DEVE processar heartbeat como evento
 
 ---
 

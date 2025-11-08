@@ -5,7 +5,6 @@
  * SPEC-ERR-JQEL-001 a SPEC-ERR-JQEL-006: Mensagens específicas para erros JQEL
  */
 
-import { Logger } from './logger';
 import { toast } from 'sonner';
 
 // SPEC-ERR-UTIL-002: Classes de erro customizadas
@@ -231,9 +230,6 @@ export function handleError(
     retryAction
   } = options;
 
-  // Get appropriate logger
-  const loggerInstance = Logger.getInstance(category);
-
   // Determine error message
   let message = 'Ocorreu um erro inesperado.';
   let description: string | undefined;
@@ -277,16 +273,17 @@ export function handleError(
     }
 
     // Log the error
+    const logPrefix = `[${category}]`;
     if (logLevel === 'ERROR') {
-      loggerInstance.error(message, error, context);
+      console.error(logPrefix, message, error, context);
     } else if (logLevel === 'WARN') {
-      loggerInstance.warn(message, context);
+      console.warn(logPrefix, message, context);
     } else {
-      loggerInstance.info(message, context);
+      console.info(logPrefix, message, context);
     }
   } else {
     // Non-Error object
-    loggerInstance.error('Unknown error type', undefined, { error, ...context });
+    console.error(`[${category}]`, 'Unknown error type', error, context);
   }
 
   // Show toast notification if requested

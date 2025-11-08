@@ -283,6 +283,26 @@ Este documento define os canais de comunicação entre Frontend e Backend, seus 
 
 **SPEC-CH-EV-020:** Backend DEVE limpar recursos ao fechar conexão
 
+### Channel Hierarchy (Redis Pub/Sub)
+
+**SPEC-CH-EV-020a:** Sistema DEVE suportar hierarquia de canais Redis
+
+**SPEC-CH-EV-020b:** DEVE existir canal `platform:events` para broadcast global
+
+**SPEC-CH-EV-020c:** DEVE existir canal `platform:events:portal:<portalId>` para eventos de portal
+
+**SPEC-CH-EV-020d:** DEVE existir canal `platform:events:user:<userId>` para eventos user-specific
+
+**SPEC-CH-EV-020e:** Backend DEVE usar PSUBSCRIBE para pattern matching
+
+**SPEC-CH-EV-020f:** Backend DEVE se inscrever em padrões `platform:events` e `platform:events:*`
+
+**SPEC-CH-EV-020g:** Eventos globais DEVEM ser enviados para todos os usuários conectados
+
+**SPEC-CH-EV-020h:** Eventos portal-scoped DEVEM ser enviados apenas para usuários do portal
+
+**SPEC-CH-EV-020i:** Eventos user-specific DEVEM ser enviados apenas para o usuário alvo
+
 ### Payload de Eventos
 
 **SPEC-CH-EV-021:** Eventos DEVEM conter apenas metadados mínimos
@@ -292,6 +312,10 @@ Este documento define os canais de comunicação entre Frontend e Backend, seus 
 **SPEC-CH-EV-023:** Evento DEVE incluir `id` único
 
 **SPEC-CH-EV-024:** Evento DEVE incluir `userId` ou lista de usuários
+
+**SPEC-CH-EV-024a:** Evento PODE incluir campo `target` (valores: "global", "portal", "user")
+
+**SPEC-CH-EV-024b:** Evento PODE incluir campo `portalId` (quando target="portal")
 
 **SPEC-CH-EV-025:** Evento PODE incluir `category` ou outros metadados
 

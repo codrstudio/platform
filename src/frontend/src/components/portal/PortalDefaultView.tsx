@@ -93,8 +93,6 @@ export function PortalDefaultView({
           </CardHeader>
         </Card>
 
-        <Separator className="my-8" />
-
         {/* Grid de Cards - Propriedades */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Card 1 - Identificação */}
@@ -171,8 +169,6 @@ export function PortalDefaultView({
             </CardContent>
           </Card>
         </div>
-
-        <Separator className="my-8" />
 
         {/* Empty State */}
         <Card className="border-dashed">

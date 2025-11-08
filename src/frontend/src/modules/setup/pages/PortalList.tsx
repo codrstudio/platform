@@ -91,6 +91,12 @@ export function PortalList() {
                   </code>
                 </div>
                 <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Reino:</span>
+                  <Badge variant="outline" className="text-xs">
+                    {portal.realmId}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Módulos Ativos:</span>
                   <Badge variant="outline">
                     <Layers className="h-3 w-3 mr-1" />

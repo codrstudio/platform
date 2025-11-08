@@ -2,7 +2,10 @@
 // Based on SPEC-authentication.md
 
 import { Router, Request, Response } from 'express';
+import { randomUUID } from 'crypto';
+import jwt from 'jsonwebtoken';
 import { n8nProxy } from '../services/n8nProxy.service.js';
+import { env } from '../config/env.js';
 
 const router = Router();
 
@@ -28,6 +31,60 @@ function handleN8nError(error: any, res: Response, defaultMessage: string) {
 
   return res.status(status).json(data);
 }
+
+/**
+ * POST /api/1/auth/guest
+ *
+ * Generate Guest JWT for anonymous users
+ * This allows SSE connections and platform access before authentication
+ *
+ * Guest JWT characteristics:
+ * - sub: 'guest_<uuid>' (SPEC-AU-JWT-005)
+ * - guest: true (custom claim to identify guest sessions)
+ * - iat: issued at timestamp (SPEC-AU-JWT-006)
+ * - exp: 1 year expiration (symbolic - not validated by backend)
+ * - iss: platform issuer (SPEC-AU-JWT-008)
+ *
+ * IMPORTANT: Guest tokens do NOT have expiration validation in backend
+ * This ensures 0% of 401 errors for anonymous users in public sites
+ *
+ * After real login, Guest JWT should be replaced with user JWT
+ */
+router.post('/guest', async (_req: Request, res: Response) => {
+  try {
+    // Generate unique guest ID (SPEC-C-I-002, SPEC-C-I-003)
+    const guestId = `guest_${randomUUID()}`;
+
+    // Create JWT payload (SPEC-AU-JWT-005 to SPEC-AU-JWT-013)
+    const now = Math.floor(Date.now() / 1000);
+    const oneYear = 365 * 24 * 60 * 60; // 1 year in seconds
+    const payload = {
+      sub: guestId,           // SPEC-AU-JWT-005: subject (userId)
+      guest: true,            // Custom claim to identify guest sessions
+      iat: now,               // SPEC-AU-JWT-006: issued at
+      exp: now + oneYear,     // 1 year expiration (symbolic - not validated)
+      iss: 'platform',        // SPEC-AU-JWT-008: issuer
+    };
+
+    // Sign JWT with platform secret (SPEC-AU-JWT-001 to SPEC-AU-JWT-004, SPEC-AU-JWT-018 to SPEC-AU-JWT-021)
+    const token = jwt.sign(payload, env.JWT_SECRET, { algorithm: 'HS256' });
+
+    // Return in JResult format (matching login response structure)
+    // SPEC-AU-LI-012 to SPEC-AU-LI-017
+    return res.status(200).json({
+      code: 'success',
+      access_token: token,
+      token_type: 'Bearer',
+      expires_in: oneYear, // 1 year in seconds
+    });
+  } catch (error: any) {
+    console.error('[Auth] Guest JWT Error:', error);
+    return res.status(500).json({
+      code: 'internal_error',
+      message: 'Failed to generate guest token',
+    });
+  }
+});
 
 /**
  * POST /api/1/auth/login

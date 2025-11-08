@@ -165,6 +165,8 @@ class RedisService {
   /**
    * Get events from stream since timestamp
    * SPEC-EV-ST-013 to SPEC-EV-ST-016
+   *
+   * Returns events with streamId added to metadata for recovery tracking
    */
   async getStreamEvents(
     streamKey: string,
@@ -191,7 +193,13 @@ class RedisService {
         for (const message of stream.messages) {
           const eventJson = message.message.event
           if (eventJson) {
-            events.push(JSON.parse(eventJson as string))
+            const event = JSON.parse(eventJson as string) as PlatformEvent
+
+            // Add stream ID to metadata for recovery
+            event.metadata = event.metadata || {}
+            event.metadata.streamId = message.id
+
+            events.push(event)
           }
         }
       }
@@ -256,6 +264,76 @@ class RedisService {
     }
 
     await this.client.del(key)
+  }
+
+  /**
+   * Publish event to global channel
+   * Channel Hierarchy (Fase 2) - Global broadcasts
+   */
+  async publishGlobal(event: PlatformEvent): Promise<void> {
+    await this.publish('platform:events', event)
+  }
+
+  /**
+   * Publish event to portal-specific channel
+   * Channel Hierarchy (Fase 2) - Portal-scoped events
+   */
+  async publishToPortal(portalId: string, event: PlatformEvent): Promise<void> {
+    const channel = `platform:events:portal:${portalId}`
+    await this.publish(channel, event)
+  }
+
+  /**
+   * Publish event to user-specific channel
+   * Channel Hierarchy (Fase 2) - User-specific events
+   */
+  async publishToUser(userId: string, event: PlatformEvent): Promise<void> {
+    const channel = `platform:events:user:${userId}`
+    await this.publish(channel, event)
+  }
+
+  /**
+   * Subscribe to multiple channels using pattern matching (PSUBSCRIBE)
+   * Used for Channel Hierarchy to listen to global, portal, and user events
+   */
+  async psubscribe(
+    patterns: string[],
+    callback: (message: string, channel: string) => void
+  ): Promise<void> {
+    if (!this.isConnected) {
+      await this.connect()
+    }
+
+    // Graceful failure: If still not connected, skip subscription
+    if (!this.isConnected) {
+      console.warn(`[Redis] Cannot psubscribe to patterns - Redis unavailable`)
+      return
+    }
+
+    await this.subscriber.pSubscribe(patterns, (message, channel) => {
+      callback(message, channel)
+    })
+  }
+
+  /**
+   * Check if Redis is available
+   * Returns true if Redis is connected and ready to use
+   */
+  isAvailable(): boolean {
+    return this.isConnected
+  }
+
+  /**
+   * Get Redis client for external use (e.g., BullMQ)
+   * Returns connection configuration compatible with BullMQ
+   */
+  getClient(): { host: string; port: number; password?: string; db: number } {
+    return {
+      host: env.REDIS_HOST,
+      port: env.REDIS_PORT,
+      ...(env.REDIS_PASSWORD && { password: env.REDIS_PASSWORD }),
+      db: env.REDIS_DB,
+    }
   }
 
   /**

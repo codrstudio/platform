@@ -8,6 +8,7 @@ import jqelRoutes from './routes/jqel.routes.js'
 import eventsRoutes from './routes/events.routes.js'
 import configRoutes from './routes/config.routes.js'
 import realmRoutes from './routes/realm.routes.js'
+import adminRoutes from './routes/admin.routes.js'
 
 const app = express()
 
@@ -66,6 +67,9 @@ app.use('/api/config', configRoutes)
 
 // Realm routes (SPEC-RM-CR-*)
 app.use('/api/realms', realmRoutes)
+
+// Admin routes (BullBoard UI for queue management)
+app.use('/admin', adminRoutes)
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

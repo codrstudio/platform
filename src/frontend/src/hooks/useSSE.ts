@@ -1,21 +1,29 @@
 // useSSE Hook
 // Based on SPEC-events.md (SPEC-EV-FR-*)
+// Simplified implementation using singleton pattern with stable references
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { sseClient } from '@/services/sseClient'
 import type { PlatformEvent, EventHandler, SSEConnectionState } from '@/types/event'
+import { toastError, toastSuccess } from '@/lib/toast'
 
 /**
  * useSSE Hook
  *
- * Connects to SSE stream and handles events
+ * Simplified implementation that:
+ * - Connects once and maintains stable connection
+ * - Uses useRef to avoid useEffect dependency issues
+ * - Doesn't disconnect on unmount (connection persists)
+ * - Only shows toasts for real connection state changes
+ *
  * SPEC-EV-FR-001 to SPEC-EV-FR-006
  */
-export function useSSE(userId: string | null) {
+export function useSSE() {
   const queryClient = useQueryClient()
   const [connectionState, setConnectionState] = useState<SSEConnectionState>('disconnected')
   const [lastEvent, setLastEvent] = useState<PlatformEvent | null>(null)
+  const prevConnectionStateRef = useRef<SSEConnectionState>('disconnected')
 
   /**
    * Handle incoming event
@@ -68,69 +76,89 @@ export function useSSE(userId: string | null) {
             queryClient.invalidateQueries({ queryKey: ['portal', entityId] })
           }
         }
-
-        console.log('[SSE] Config changed:', entity, entityId, action)
       }
-
-      // Optional: Show visual notification
-      // SPEC-EV-FR-003: Display notification visual
-      console.log('Event received:', event)
     },
     [queryClient]
   )
 
-  /**
-   * Fetch missed events on reconnect
-   * SPEC-EV-FR-004 to SPEC-EV-FR-006
-   */
-  const fetchMissedEvents = useCallback(async () => {
-    if (!userId) return
-
-    const lastEventId = sseClient.getLastEventId()
-    const missedEvents = await sseClient.fetchMissedEvents(userId, lastEventId)
-
-    // SPEC-EV-FR-006: Process missed events as new events
-    for (const event of missedEvents) {
-      handleEvent(event)
-    }
-  }, [userId, handleEvent])
+  // Store handler in ref so we can update it without re-running effect
+  const handleEventRef = useRef(handleEvent)
+  handleEventRef.current = handleEvent
 
   /**
-   * Connect to SSE on mount and handle reconnections
+   * Connect to SSE on mount and setup handlers
+   * Uses empty dependency array to run only once
+   * Connection persists across component unmounts
    */
   useEffect(() => {
-    if (!userId) {
-      sseClient.disconnect()
-      setConnectionState('disconnected')
-      return
+    // Create wrapper that calls the current handler from ref
+    // This wrapper reference never changes, solving the dependency issue
+    const stableEventHandler: EventHandler = (event) => {
+      handleEventRef.current(event)
     }
 
-    // Connect to SSE
-    sseClient.connect(userId)
+    // Connect to SSE (will skip if already connected)
+    sseClient.connect()
 
-    // Register event handler
-    sseClient.on(handleEvent)
-
-    // Fetch missed events on connect
-    fetchMissedEvents()
+    // Register stable event handler
+    sseClient.on(stableEventHandler)
 
     // Update connection state periodically
     const stateInterval = setInterval(() => {
-      setConnectionState(sseClient.getConnectionState())
-    }, 1000)
+      const currentState = sseClient.getConnectionState()
+      setConnectionState(currentState)
+    }, 500) // Check state every 500ms
 
-    // Cleanup on unmount
+    // Cleanup: Only remove handler and interval, DON'T disconnect
     return () => {
-      sseClient.off(handleEvent)
+      sseClient.off(stableEventHandler)
       clearInterval(stateInterval)
-      // Keep connection open (don't disconnect on unmount unless user logs out)
+      // NOTE: We intentionally don't disconnect here
+      // Connection should persist across navigation
     }
-  }, [userId, handleEvent, fetchMissedEvents])
+  }, []) // Empty dependency array - run once on mount
+
+  /**
+   * Show toast notifications on connection state changes
+   * Only show when transitioning between meaningful states
+   */
+  useEffect(() => {
+    const prevState = prevConnectionStateRef.current
+
+    // Only show toasts for meaningful transitions
+    if (prevState !== connectionState) {
+      // Lost connection
+      if (prevState === 'connected' && connectionState === 'reconnecting') {
+        toastError('Conexão perdida', {
+          description: 'Tentando reconectar automaticamente...',
+        })
+      }
+
+      // Reconnected successfully
+      if (prevState === 'reconnecting' && connectionState === 'connected') {
+        toastSuccess('Reconectado', {
+          description: 'Conexão restabelecida com sucesso',
+        })
+      }
+
+      // Failed after max attempts
+      if (prevState === 'reconnecting' && connectionState === 'disconnected') {
+        toastError('Conexão falhou', {
+          description: 'Não foi possível restabelecer a conexão',
+        })
+      }
+    }
+
+    // Update ref for next comparison
+    prevConnectionStateRef.current = connectionState
+  }, [connectionState])
 
   return {
     connectionState,
     lastEvent,
     isConnected: connectionState === 'connected',
+    reconnectAttempts: sseClient.getReconnectAttempts(),
+    maxReconnectAttempts: sseClient.getMaxReconnectAttempts(),
   }
 }
 
@@ -138,13 +166,22 @@ export function useSSE(userId: string | null) {
  * useEventListener Hook
  *
  * Listen to specific event types
+ * Uses stable reference pattern to avoid re-registration
  */
 export function useEventListener(handler: EventHandler) {
+  const handlerRef = useRef(handler)
+  handlerRef.current = handler
+
   useEffect(() => {
-    sseClient.on(handler)
+    // Create stable wrapper
+    const stableHandler: EventHandler = (event) => {
+      handlerRef.current(event)
+    }
+
+    sseClient.on(stableHandler)
 
     return () => {
-      sseClient.off(handler)
+      sseClient.off(stableHandler)
     }
-  }, [handler])
+  }, []) // Empty deps - register once
 }

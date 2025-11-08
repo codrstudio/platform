@@ -12,6 +12,14 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3003',
         changeOrigin: true,
+        timeout: 0, // SSE precisa de timeout infinito
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            if (req.url?.includes('/events/stream')) {
+              proxyReq.setHeader('Connection', 'keep-alive')
+            }
+          })
+        },
       },
     },
   },
@@ -95,8 +103,11 @@ export default defineConfig({
             }
           },
           // API routes - Network First (1 minute cache)
+          // Exclude SSE streams from caching
           {
-            urlPattern: /\/api\/.*/i,
+            urlPattern: ({ url }) =>
+              url.pathname.startsWith('/api/') &&
+              !url.pathname.includes('/events/stream'),
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',

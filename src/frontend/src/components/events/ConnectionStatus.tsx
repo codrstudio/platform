@@ -3,6 +3,7 @@
 
 import { Wifi, WifiOff, Loader2 } from 'lucide-react'
 import { useEvents } from '@/contexts/EventContext'
+import { sseClient } from '@/services/sseClient'
 
 /**
  * ConnectionStatus Component
@@ -11,6 +12,10 @@ import { useEvents } from '@/contexts/EventContext'
  */
 export function ConnectionStatus() {
   const { connectionState, isConnected } = useEvents()
+
+  // Get reconnect attempt info
+  const reconnectAttempts = sseClient.getReconnectAttempts()
+  const maxReconnectAttempts = sseClient.getMaxReconnectAttempts()
 
   const getStatusIcon = () => {
     switch (connectionState) {
@@ -33,9 +38,11 @@ export function ConnectionStatus() {
       case 'connecting':
         return 'Conectando...'
       case 'reconnecting':
-        return 'Reconectando...'
+        return `Reconectando (${reconnectAttempts}/${maxReconnectAttempts})...`
       case 'disconnected':
-        return 'Desconectado'
+        return reconnectAttempts >= maxReconnectAttempts
+          ? `Desconectado (${maxReconnectAttempts} tentativas)`
+          : 'Desconectado'
       default:
         return 'Desconhecido'
     }
@@ -60,9 +67,17 @@ export function ConnectionStatus() {
     return null
   }
 
+  // Increase size and contrast when disconnected for better visibility
+  const sizeClass =
+    connectionState === 'disconnected' ? 'px-4 py-2.5' : 'px-3 py-2'
+  const borderClass =
+    connectionState === 'disconnected'
+      ? 'border-2 border-red-500 dark:border-red-400'
+      : 'border'
+
   return (
     <div
-      className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-2 rounded-lg border shadow-sm bg-white dark:bg-gray-800 ${getStatusColor()}`}
+      className={`fixed top-4 right-4 z-50 flex items-center gap-2 ${sizeClass} rounded-lg ${borderClass} shadow-sm bg-white dark:bg-gray-800 ${getStatusColor()}`}
     >
       {getStatusIcon()}
       <span className="text-sm font-medium">{getStatusText()}</span>

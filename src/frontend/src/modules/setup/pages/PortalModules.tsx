@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Package, Plus, Settings } from 'lucide-react';
+import { ArrowLeft, Package, Settings } from 'lucide-react';
 import { usePortal, useModules, useInstances, useUpdatePortal, type Module as ModuleType } from '@/hooks/useJQEL';
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 
@@ -117,10 +117,6 @@ export function PortalModules() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-semibold">Módulos Disponíveis</h2>
-          <Button variant="outline">
-            <Plus className="h-4 w-4 mr-2" />
-            Adicionar Módulo
-          </Button>
         </div>
 
         <div className="grid gap-4">
@@ -191,11 +187,7 @@ export function PortalModules() {
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Package className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground mb-4">Nenhum módulo disponível</p>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Adicionar Primeiro Módulo
-              </Button>
+              <p className="text-muted-foreground">Nenhum módulo disponível</p>
             </CardContent>
           </Card>
         )}

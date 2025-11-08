@@ -1,23 +1,30 @@
 // Event Context
 // Global SSE connection management
 
-import { createContext, useContext, type ReactNode } from 'react'
+import { createContext, useContext, useCallback, type ReactNode } from 'react'
 import { useSSE } from '@/hooks/useSSE'
-import { useAuth } from '@/contexts/AuthContext'
+import { sseClient } from '@/services/sseClient'
 import type { PlatformEvent, SSEConnectionState } from '@/types/event'
 
 interface EventContextValue {
   connectionState: SSEConnectionState
   lastEvent: PlatformEvent | null
   isConnected: boolean
+  reconnectAfterLogin: (newToken: string) => void
 }
 
 const EventContext = createContext<EventContextValue | undefined>(undefined)
 
 export function EventProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth()
-  const userId = user?.id ? String(user.id) : null
-  const { connectionState, lastEvent, isConnected } = useSSE(userId)
+  const { connectionState, lastEvent, isConnected } = useSSE()
+
+  /**
+   * Reconnect SSE after user login
+   * Replaces guest JWT with user JWT
+   */
+  const reconnectAfterLogin = useCallback((newToken: string) => {
+    sseClient.reconnectAfterLogin(newToken)
+  }, [])
 
   return (
     <EventContext.Provider
@@ -25,6 +32,7 @@ export function EventProvider({ children }: { children: ReactNode }) {
         connectionState,
         lastEvent,
         isConnected,
+        reconnectAfterLogin,
       }}
     >
       {children}
