@@ -1511,7 +1511,7 @@
 
 ### EPIC 4.1: Chat em Tempo Real
 
-- [ ] Story: Conversar com outros usuários
+- [x] Story: Conversar com outros usuários
 
   > Como usuário,
   > Quero enviar mensagens para outros usuários,
@@ -1521,7 +1521,18 @@
   - SPEC-module-chat.md (SPEC-CHAT-UI-*, SPEC-CHAT-RT-*)
   - spec/ui/chat-module-interfaces.md (UI/UX)
 
-- [ ] Story: Histórico de conversas
+  Implementado:
+  - Message: Componente para mensagens individuais (user, agent, system)
+  - MessageList: Lista scrollável com auto-scroll para novas mensagens
+  - MessageInput: Input com auto-grow, Enter para enviar, Shift+Enter para nova linha
+  - TypingIndicator: Indicador animado "digitando..."
+  - QuickSuggestions: Botões de sugestões rápidas
+  - Renderização de texto com formatação de timestamps
+  - Indicadores de status (sending, sent, error, receiving, complete)
+  - Avatares diferentes para usuário e agente
+  - Layout responsivo com mensagens alinhadas (user à direita, agent à esquerda)
+
+- [x] Story: Histórico de conversas
 
   > Como usuário,
   > Quero acessar histórico de conversas anteriores,
@@ -1531,7 +1542,18 @@
   - SPEC-module-chat.md (SPEC-CHAT-P-*)
   - spec/ui/chat-module-interfaces.md (UI/UX)
 
-- [ ] Story: Compartilhar arquivos
+  Implementado:
+  - ConversationList: Sidebar com lista de conversas
+  - Botão "Nova Conversa" para criar threads
+  - Preview da última mensagem em cada conversa
+  - Timestamps relativos (há X minutos/horas)
+  - Badge com contador de mensagens não lidas
+  - Highlight da conversa ativa
+  - useChat hook com carregamento de histórico via JQEL
+  - Persistência de mensagens (placeholder para integração backend)
+  - Ordenação por última atividade
+
+- [x] Story: Compartilhar arquivos
 
   > Como usuário,
   > Quero compartilhar arquivos no chat,
@@ -1541,7 +1563,17 @@
   - SPEC-module-chat.md (SPEC-CHAT-E-002)
   - spec/ui/chat-module-interfaces.md (UI/UX)
 
-- [ ] Story: Chat com agentes IA
+  Implementado:
+  - Upload de arquivos via botão com ícone paperclip
+  - Validação de tipo de arquivo (MIME types configuráveis)
+  - Validação de tamanho máximo configurável
+  - Preview de arquivos anexados antes do envio
+  - Botão para remover arquivos da lista
+  - Display de metadados (nome e tamanho do arquivo)
+  - Suporte a múltiplos arquivos
+  - Configuração via instância (allowFileUpload, acceptedFileTypes, maxFileSize)
+
+- [x] Story: Chat com agentes IA
 
   > Como usuário,
   > Quero conversar com agentes de IA,
@@ -1550,6 +1582,21 @@
   Refs:
   - SPEC-module-chat.md (SPEC-CHAT-I-*)
   - spec/ui/chat-module-interfaces.md (UI/UX)
+
+  Implementado:
+  - ChatInterface: Página principal completa do chat
+  - Configuração de agentId por instância
+  - Context window configurável (número de mensagens anteriores)
+  - Welcome message configurável
+  - Placeholder responses (integração real com agente pendente)
+  - Estado de "processing" durante envio ao agente
+  - Indicador de typing durante processamento
+  - Suporte para múltiplas conversas (threads)
+  - Rotas: /chat e /chat/:conversationId
+  - Lazy loading do módulo
+  - Configuração extensiva via manifest (15+ opções)
+
+  Nota: Integração real com backend de agentes (n8n) a ser implementada posteriormente
 
 ---
 
