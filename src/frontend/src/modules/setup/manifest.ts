@@ -37,6 +37,9 @@ export const setupManifest: ModuleManifest = {
     },
     {
       path: '/platform-settings',
+    },
+    {
+      path: '/components-demo',
     }
   ],
   widgets: [],
