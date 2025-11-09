@@ -1,0 +1,25 @@
+{
+  "name": "mysql-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP Server for MySQL database operations with SSH tunnel support",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.6.0",
+    "mysql2": "^3.6.5",
+    "ssh2": "^1.15.0",
+    "dotenv": "^16.3.1"
+  },
+  "keywords": [
+    "mcp",
+    "mysql",
+    "database",
+    "ssh-tunnel"
+  ],
+  "author": "CODR Studio",
+  "license": "MIT"
+}

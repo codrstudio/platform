@@ -1,0 +1,52 @@
+{
+  "description": "Workflow operations schema",
+  "endpoints": {
+    "list": {
+      "method": "GET",
+      "path": "/api/v1/workflows",
+      "parameters": {
+        "limit": "number",
+        "active": "boolean",
+        "tags": "string",
+        "workflowIds": "string"
+      },
+      "response": {
+        "type": "array",
+        "items": {
+          "id": "string",
+          "name": "string",
+          "active": "boolean",
+          "createdAt": "string",
+          "updatedAt": "string",
+          "nodes": "array",
+          "connections": "object",
+          "settings": "object",
+          "tags": "array",
+          "versionId": "string"
+        }
+      },
+      "projectable_fields": ["id", "name", "active", "createdAt", "updatedAt", "tags", "versionId"]
+    },
+    "get": {
+      "method": "GET",
+      "path": "/api/v1/workflows/{id}",
+      "parameters": {
+        "id": "string"
+      },
+      "response": {
+        "id": "string",
+        "name": "string",
+        "active": "boolean",
+        "createdAt": "string",
+        "updatedAt": "string",
+        "nodes": "array",
+        "connections": "object",
+        "settings": "object",
+        "tags": "array",
+        "versionId": "string",
+        "staticData": "object"
+      },
+      "projectable_fields": ["id", "name", "active", "createdAt", "updatedAt", "nodes", "connections", "settings", "tags", "versionId", "staticData"]
+    }
+  }
+}

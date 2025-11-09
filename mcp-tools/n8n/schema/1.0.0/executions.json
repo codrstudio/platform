@@ -1,0 +1,54 @@
+{
+  "description": "Execution operations schema",
+  "endpoints": {
+    "list": {
+      "method": "GET",
+      "path": "/api/v1/executions",
+      "parameters": {
+        "limit": "number",
+        "status": "string",
+        "workflowId": "string"
+      },
+      "response": {
+        "type": "array",
+        "items": {
+          "id": "string",
+          "finished": "boolean",
+          "mode": "string",
+          "retryOf": "string",
+          "retrySuccessId": "string",
+          "startedAt": "string",
+          "stoppedAt": "string",
+          "workflowId": "string",
+          "workflowName": "string",
+          "status": "string",
+          "data": "object"
+        }
+      },
+      "projectable_fields": ["id", "finished", "mode", "startedAt", "stoppedAt", "workflowId", "workflowName", "status"]
+    },
+    "get": {
+      "method": "GET",
+      "path": "/api/v1/executions/{id}",
+      "parameters": {
+        "id": "string",
+        "includeData": "boolean"
+      },
+      "response": {
+        "id": "string",
+        "finished": "boolean",
+        "mode": "string",
+        "retryOf": "string",
+        "retrySuccessId": "string",
+        "startedAt": "string",
+        "stoppedAt": "string",
+        "workflowId": "string",
+        "workflowName": "string",
+        "status": "string",
+        "data": "object",
+        "executionData": "object"
+      },
+      "projectable_fields": ["id", "finished", "mode", "startedAt", "stoppedAt", "workflowId", "workflowName", "status", "data", "executionData"]
+    }
+  }
+}

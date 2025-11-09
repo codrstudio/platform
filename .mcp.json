@@ -1,12 +1,35 @@
 {
   "mcpServers": {
-    "shadcn": {
+    "mysql": {
       "command": "cmd",
       "args": [
         "/c",
-        "npx",
-        "shadcn@latest",
-        "mcp"
+        "node",
+        "mcp-tools\\mysql\\index.js"
+      ]
+    },
+    "mssql": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "node",
+        "mcp-tools\\mssql\\index.js"
+      ]
+    },
+    "n8n": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "node",
+        "mcp-tools\\n8n\\server.js"
+      ]
+    },
+    "postman": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "node",
+        "mcp-tools\\postman\\server.js"
       ]
     }
   }
