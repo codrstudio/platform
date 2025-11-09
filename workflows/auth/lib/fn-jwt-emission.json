@@ -1,6 +1,6 @@
 {
+  "updatedAt": "2025-11-09T01:54:28.000Z",
   "createdAt": "2025-10-28T23:53:44.669Z",
-  "updatedAt": "2025-10-29T13:49:54.000Z",
   "id": "6qequ6xLeaaSwaAu",
   "name": "fn-jwt-emission",
   "active": false,
@@ -375,14 +375,14 @@
   "triggerCount": 1,
   "shared": [
     {
-      "createdAt": "2025-10-28T23:53:44.675Z",
       "updatedAt": "2025-10-28T23:53:44.675Z",
+      "createdAt": "2025-10-28T23:53:44.675Z",
       "role": "workflow:owner",
       "workflowId": "6qequ6xLeaaSwaAu",
       "projectId": "IA9oo7szBC1GndRN",
       "project": {
-        "createdAt": "2025-10-05T13:15:26.895Z",
         "updatedAt": "2025-10-05T13:15:53.136Z",
+        "createdAt": "2025-10-05T13:15:26.895Z",
         "id": "IA9oo7szBC1GndRN",
         "name": "Guga Coder <guga.coder@gmail.com>",
         "type": "personal",
@@ -390,13 +390,13 @@
         "description": null,
         "projectRelations": [
           {
-            "createdAt": "2025-10-05T13:15:26.896Z",
             "updatedAt": "2025-10-05T13:15:26.896Z",
+            "createdAt": "2025-10-05T13:15:26.896Z",
             "userId": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
             "projectId": "IA9oo7szBC1GndRN",
             "user": {
+              "updatedAt": "2025-11-09T01:49:33.000Z",
               "createdAt": "2025-10-05T13:15:26.419Z",
-              "updatedAt": "2025-10-29T03:00:01.000Z",
               "id": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
               "email": "guga.coder@gmail.com",
               "firstName": "Guga",
@@ -423,7 +423,7 @@
               },
               "disabled": false,
               "mfaEnabled": false,
-              "lastActiveAt": "2025-10-29",
+              "lastActiveAt": "2025-11-08",
               "isPending": false
             }
           }

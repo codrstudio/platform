@@ -1,6 +1,6 @@
 {
+  "updatedAt": "2025-10-30T12:03:22.000Z",
   "createdAt": "2025-10-28T21:15:12.310Z",
-  "updatedAt": "2025-10-29T03:43:45.000Z",
   "id": "VWi1AIpgkrkBJ8ob",
   "name": "auth-refresh",
   "active": true,
@@ -64,8 +64,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -1264,
-        272
+        -1504,
+        496
       ],
       "id": "23ccbff9-6552-4e1f-bce7-8fff8b2c5fd9",
       "name": "Token Extraído?"
@@ -81,9 +81,9 @@
           },
           "conditions": [
             {
-              "id": "cond-reuse",
+              "id": "40438b60-420a-4f54-89b1-3ca845bbd2bb",
               "leftValue": "={{ $json.consumed_at }}",
-              "rightValue": 403,
+              "rightValue": "",
               "operator": {
                 "type": "dateTime",
                 "operation": "exists",
@@ -91,7 +91,7 @@
               }
             },
             {
-              "id": "40438b60-420a-4f54-89b1-3ca845bbd2bb",
+              "id": "877ee632-55bc-4a9c-b404-3025dceffd37",
               "leftValue": "={{ $json.revoked }}",
               "rightValue": "",
               "operator": {
@@ -108,8 +108,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -800,
-        128
+        -960,
+        256
       ],
       "id": "cfb108aa-b2af-4184-a044-75a70d9e3ccb",
       "name": "Reuso Detectado?"
@@ -147,8 +147,8 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1,
       "position": [
-        -1056,
-        208
+        -1232,
+        432
       ],
       "id": "643338cb-aca0-4d29-9077-946bc0bdcabf",
       "name": "Ler Cache",
@@ -254,8 +254,8 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1,
       "position": [
-        -528,
-        16
+        -960,
+        432
       ],
       "id": "31a7d9a4-4e2d-4260-86e7-b476f6b22914",
       "name": "Revogar Família de Tokens",
@@ -360,8 +360,8 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1,
       "position": [
-        528,
-        0
+        -384,
+        608
       ],
       "id": "6c661cce-64b7-4c86-a675-a8c51e901412",
       "name": "Marca Token Usado",
@@ -386,8 +386,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        -336,
-        240
+        -656,
+        528
       ],
       "id": "bf2c2ff5-0ba7-44b1-9773-c826d9b50439",
       "name": "find-user",
@@ -415,8 +415,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        144,
-        128
+        -384,
+        432
       ],
       "id": "f92e71b8-4569-40e1-bcde-f9cd13df62d3",
       "name": "emit-jwt",
@@ -521,8 +521,8 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1,
       "position": [
-        528,
-        192
+        -96,
+        352
       ],
       "id": "f56dc693-62f2-4c28-a43f-95b55dbbd06e",
       "name": "Upsert Token",
@@ -535,8 +535,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -288,
-        -96
+        -960,
+        608
       ],
       "id": "8a6795b6-ec15-4f86-adbd-cbd794510c9f",
       "name": "Notificar Reuso"
@@ -558,8 +558,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -544,
-        240
+        -656,
+        368
       ],
       "id": "1797f741-a3ef-4536-ad00-c732d1c44dea",
       "name": "Destacar ID"
@@ -571,8 +571,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        832,
-        464
+        176,
+        -16
       ],
       "id": "1ec038d1-6ace-44f7-a4f5-0fe859a82b69",
       "name": "Erro  6"
@@ -584,8 +584,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        784,
-        96
+        -96,
+        512
       ],
       "id": "f3638738-3543-4873-8268-d929df699972",
       "name": "Notificar Token"
@@ -597,8 +597,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.4,
       "position": [
-        1008,
-        -224
+        384,
+        112
       ],
       "id": "3da035d0-6499-4b5f-88ac-0f1973bdcac3",
       "name": "Respond to Webhook"
@@ -630,8 +630,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -128,
-        240
+        -384,
+        256
       ],
       "id": "60b1587d-4554-499e-90d1-4fb4b850f217",
       "name": "Usuário Encontrado?"
@@ -891,7 +891,7 @@
       {
         "json": {
           "headers": {
-            "host": "n8n.codrstudio.dev",
+            "host": "n8n.cia.codr.studio",
             "user-agent": "PostmanRuntime/7.49.0",
             "content-length": "64",
             "accept": "*/*",
@@ -900,7 +900,7 @@
             "cookie": "refresh_token=041d0177538a3d77f90e57d463bad560e3ba7af9f07e42e65805309f30fe7b81;",
             "postman-token": "a9005b11-c0a2-46c9-aa1e-6ecaa8dedf1a",
             "x-forwarded-for": "185.203.218.239",
-            "x-forwarded-host": "n8n.codrstudio.dev",
+            "x-forwarded-host": "n8n.cia.codr.studio",
             "x-forwarded-port": "443",
             "x-forwarded-proto": "https",
             "x-forwarded-server": "f03fd09cc87d",
@@ -909,7 +909,7 @@
           "params": {},
           "query": {},
           "body": {
-            "username": "admin@ciacuidadores.com.br",
+            "username": "admin@processa.com",
             "password": "admin"
           },
           "webhookUrl": "https://n8n.codrstudio.dev/webhook/api/1/auth/refresh",
@@ -918,18 +918,18 @@
       }
     ]
   },
-  "versionId": "3e6fac54-2f54-4d7f-8377-b1280d056e8e",
+  "versionId": "4f07b59b-2c3a-4da8-a260-7ce06205be02",
   "triggerCount": 1,
   "shared": [
     {
-      "createdAt": "2025-10-28T21:15:12.315Z",
       "updatedAt": "2025-10-28T21:15:12.315Z",
+      "createdAt": "2025-10-28T21:15:12.315Z",
       "role": "workflow:owner",
       "workflowId": "VWi1AIpgkrkBJ8ob",
       "projectId": "IA9oo7szBC1GndRN",
       "project": {
-        "createdAt": "2025-10-05T13:15:26.895Z",
         "updatedAt": "2025-10-05T13:15:53.136Z",
+        "createdAt": "2025-10-05T13:15:26.895Z",
         "id": "IA9oo7szBC1GndRN",
         "name": "Guga Coder <guga.coder@gmail.com>",
         "type": "personal",
@@ -937,13 +937,13 @@
         "description": null,
         "projectRelations": [
           {
-            "createdAt": "2025-10-05T13:15:26.896Z",
             "updatedAt": "2025-10-05T13:15:26.896Z",
+            "createdAt": "2025-10-05T13:15:26.896Z",
             "userId": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
             "projectId": "IA9oo7szBC1GndRN",
             "user": {
+              "updatedAt": "2025-11-09T01:49:33.000Z",
               "createdAt": "2025-10-05T13:15:26.419Z",
-              "updatedAt": "2025-10-29T03:00:01.000Z",
               "id": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
               "email": "guga.coder@gmail.com",
               "firstName": "Guga",
@@ -970,7 +970,7 @@
               },
               "disabled": false,
               "mfaEnabled": false,
-              "lastActiveAt": "2025-10-29",
+              "lastActiveAt": "2025-11-08",
               "isPending": false
             }
           }

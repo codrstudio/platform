@@ -1,6 +1,6 @@
 {
-  "createdAt": "2025-10-28T21:14:56.443Z",
   "updatedAt": "2025-10-29T03:46:23.000Z",
+  "createdAt": "2025-10-28T21:14:56.443Z",
   "id": "BykJxfJtRw3lEJYr",
   "name": "auth-logout",
   "active": true,
@@ -456,7 +456,7 @@
       {
         "json": {
           "headers": {
-            "host": "n8n.codrstudio.dev",
+            "host": "n8n.cia.codr.studio",
             "user-agent": "PostmanRuntime/7.49.0",
             "content-length": "64",
             "accept": "*/*",
@@ -465,7 +465,7 @@
             "cookie": "refresh_token=9875d77ec93c0fc240aef704674ed94d8c09dad3e9d4a6001e7e7ae8870d97ce",
             "postman-token": "4ecef250-cbf5-41ed-8c61-2d45a0f7608f",
             "x-forwarded-for": "185.203.218.239",
-            "x-forwarded-host": "n8n.codrstudio.dev",
+            "x-forwarded-host": "n8n.cia.codr.studio",
             "x-forwarded-port": "443",
             "x-forwarded-proto": "https",
             "x-forwarded-server": "f03fd09cc87d",
@@ -474,7 +474,7 @@
           "params": {},
           "query": {},
           "body": {
-            "username": "admin@ciacuidadores.com.br",
+            "username": "admin@processa.com",
             "password": "admin"
           },
           "webhookUrl": "https://n8n.codrstudio.dev/webhook/api/1/auth/logout",
@@ -487,14 +487,14 @@
   "triggerCount": 1,
   "shared": [
     {
-      "createdAt": "2025-10-28T21:14:56.451Z",
       "updatedAt": "2025-10-28T21:14:56.451Z",
+      "createdAt": "2025-10-28T21:14:56.451Z",
       "role": "workflow:owner",
       "workflowId": "BykJxfJtRw3lEJYr",
       "projectId": "IA9oo7szBC1GndRN",
       "project": {
-        "createdAt": "2025-10-05T13:15:26.895Z",
         "updatedAt": "2025-10-05T13:15:53.136Z",
+        "createdAt": "2025-10-05T13:15:26.895Z",
         "id": "IA9oo7szBC1GndRN",
         "name": "Guga Coder <guga.coder@gmail.com>",
         "type": "personal",
@@ -502,13 +502,13 @@
         "description": null,
         "projectRelations": [
           {
-            "createdAt": "2025-10-05T13:15:26.896Z",
             "updatedAt": "2025-10-05T13:15:26.896Z",
+            "createdAt": "2025-10-05T13:15:26.896Z",
             "userId": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
             "projectId": "IA9oo7szBC1GndRN",
             "user": {
+              "updatedAt": "2025-11-09T01:49:33.000Z",
               "createdAt": "2025-10-05T13:15:26.419Z",
-              "updatedAt": "2025-10-29T03:00:01.000Z",
               "id": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
               "email": "guga.coder@gmail.com",
               "firstName": "Guga",
@@ -535,7 +535,7 @@
               },
               "disabled": false,
               "mfaEnabled": false,
-              "lastActiveAt": "2025-10-29",
+              "lastActiveAt": "2025-11-08",
               "isPending": false
             }
           }

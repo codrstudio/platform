@@ -1,9 +1,9 @@
 {
-  "updatedAt": "2025-11-04T16:21:54.000Z",
-  "createdAt": "2025-10-27T14:27:36.810Z",
-  "id": "oX72lSsHNGa0gSzQ",
-  "name": "auth-login",
-  "active": true,
+  "updatedAt": "2025-11-09T01:54:32.000Z",
+  "createdAt": "2025-11-04T16:33:03.361Z",
+  "id": "aWcHAEYeomTcpSNU",
+  "name": "fn-login",
+  "active": false,
   "isArchived": false,
   "nodes": [
     {
@@ -13,16 +13,16 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.4,
       "position": [
-        1168,
-        128
+        1712,
+        848
       ],
-      "id": "375b99bd-7534-47d9-bc41-7d2e3e784a87",
+      "id": "ea7571e1-7004-4e34-85aa-88ea8cfaa5b8",
       "name": "Resposta Web"
     },
     {
       "parameters": {
         "content": "### Response (Sucesso - 200)\n```json\n{\n  \"code\": 200,\n  \"data\": {\n    \"access_token\": \"eyJhbGci...\",\n    \"refresh_token\": \"hex_string\",\n    \"token_type\": \"bearer\",\n    \"expires_in\": 1800,\n    \"payload\": {\n      \"sub\": 3,\n      \"iss\": \"ciacuidadores\",\n      \"aud\": \"primecare\",\n      \"exp\": 1759498719,\n      \"iat\": 1759412319,\n      \"jti\": \"uuid-v4\",\n      \"tenant\": [1, 2, 3],\n      \"roles\": [\"admin\"],\n      \"name\": \"Nome Usuário\",\n      \"email\": \"email@exemplo.com\"\n    }\n  }\n}\n```\n\n### Response (Erro)\n```json\n{\n  \"code\": 400,\n  \"field\": \"username\",\n  \"message\": \"Email inválido\"\n}\n```",
-        "height": 928,
+        "height": 992,
         "width": 560,
         "color": 4
       },
@@ -32,7 +32,7 @@
         -560
       ],
       "typeVersion": 1,
-      "id": "41b95862-f006-40bb-9698-9f4e41723dc9",
+      "id": "43929f05-d3e7-4659-a2c8-0984c20de9be",
       "name": "Documentação"
     },
     {
@@ -47,11 +47,12 @@
           "conditions": [
             {
               "id": "1fa846bc-ccfd-4bd6-af05-8a5dcfa2e655",
-              "leftValue": "={{ $json.code }}",
+              "leftValue": "={{ $json.username }}",
               "rightValue": 200,
               "operator": {
-                "type": "number",
-                "operation": "equals"
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
               }
             }
           ],
@@ -62,42 +63,25 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -400,
-        48
+        -544,
+        704
       ],
-      "id": "612645c6-60cd-4066-be20-9570b9268d5a",
+      "id": "882266ca-2844-40b7-bbdd-2dd6e21ad649",
       "name": "Se Credencial Válida"
     },
     {
       "parameters": {
-        "inputSource": "passthrough"
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"username\": \"\",\n  \"password_hash\": \"\"\n}"
       },
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        -768,
-        -64
+        -784,
+        784
       ],
-      "id": "e269eb32-d880-4b20-b422-3e4f6af07aa9",
+      "id": "81883169-5e42-43d0-89b3-d2d993b9758d",
       "name": "Autenticação via Workflow"
-    },
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "api/1/auth/login",
-        "responseMode": "responseNode",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2.1,
-      "position": [
-        -768,
-        112
-      ],
-      "id": "6880f452-4d5a-48cb-ac10-ecbc1e752364",
-      "name": "Autenticação via HTTP",
-      "webhookId": "0d8af890-896f-48e6-b4bb-dda2f5053a6f",
-      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -106,53 +90,22 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        848,
-        208
+        1456,
+        1024
       ],
-      "id": "cc29329d-7841-4652-a3f8-ec13a2e3605d",
+      "id": "647bd632-ff2e-4345-b221-a64812d54a8e",
       "name": "Formata Erro"
-    },
-    {
-      "parameters": {
-        "jsCode": "// ==========================================\n// Extrai e Valida Credenciais\n// ==========================================\n// Valida formato e presença de username/password\n// Normaliza email (lowercase + trim)\n\nconst json = $input.first().json;\nconst { username, password } = (json.body || json);\n\n// Validação de username\nif (!username) {\n  return { code: 400, field: 'username', message: 'Usuário não informado' };\n}\n\n// Validação de formato de email\nif (!username.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/)) {\n  return { code: 400, field: 'username', message: 'Email inválido' };\n}\n\n// Validação de password\nif (!password) {\n  return { code: 400, field: 'password', message: 'Senha não informada' };\n}\n\n// Retorna credenciais normalizadas\nreturn {\n  code: 200,\n  data: {\n    username: username.toLowerCase().trim(),\n    password\n  }\n};"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -400,
-        -112
-      ],
-      "id": "8414e1da-698a-41d4-bcbd-368a550b73a3",
-      "name": "Extrai a Credencial",
-      "notesInFlow": false,
-      "onError": "continueErrorOutput"
     },
     {
       "parameters": {},
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -768,
-        -240
+        -784,
+        592
       ],
-      "id": "668047ea-47d1-4e1b-96ea-1e150801ec39",
+      "id": "ae8d6a29-f413-488e-a758-e7e140bc4992",
       "name": "Teste Manual"
-    },
-    {
-      "parameters": {
-        "operation": "compare",
-        "password": "={{ $('Extrai a Credencial').item.json.data.password }}",
-        "hashToCompare": "={{ $json.data.senha_hash }}"
-      },
-      "type": "n8n-nodes-bcrypt.hashNode",
-      "typeVersion": 1,
-      "position": [
-        240,
-        -208
-      ],
-      "id": "d1174e2e-383d-43b9-bf1d-99e91e5ef02b",
-      "name": "Compara Senha",
-      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -167,7 +120,7 @@
         -560
       ],
       "typeVersion": 1,
-      "id": "15cdb4d2-6064-4ad0-89ea-4b2a48fbe26d",
+      "id": "3146b3c4-fdf9-4b51-8f16-8a20245f5584",
       "name": "Sticky Note2"
     },
     {
@@ -183,7 +136,7 @@
         -560
       ],
       "typeVersion": 1,
-      "id": "fca266f0-7d9d-4096-86b6-2c02f228e2ab",
+      "id": "95faf7ec-4e1c-439a-b6d6-b73e82b2f16a",
       "name": "Sticky Note3"
     },
     {
@@ -199,7 +152,7 @@
         -560
       ],
       "typeVersion": 1,
-      "id": "5a7be078-6330-4358-9b27-d339ba6ac3f7",
+      "id": "614f706a-d820-4eeb-8462-4b468ec9212f",
       "name": "Sticky Note4"
     },
     {
@@ -215,7 +168,7 @@
         -560
       ],
       "typeVersion": 1,
-      "id": "437aa80c-20ea-410c-ae4d-af28048b46d4",
+      "id": "8e740d73-ace3-4893-81e6-a2774b4fd67f",
       "name": "Sticky Note5"
     },
     {
@@ -231,7 +184,7 @@
         -704
       ],
       "typeVersion": 1,
-      "id": "3c96a3c3-1926-43c2-8721-65081bca59ae",
+      "id": "cd70493f-1155-4edf-8e2d-c4953b7b7b8c",
       "name": "Documentação2"
     },
     {
@@ -247,70 +200,8 @@
         -560
       ],
       "typeVersion": 1,
-      "id": "b7538156-9a9f-4c0e-b64b-b35eb95e2d84",
+      "id": "09611715-851f-4bb1-ab01-ad83c21396dd",
       "name": "Sticky Note"
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "pBahnvlT1MXPqxjE",
-          "mode": "list",
-          "cachedResultUrl": "/workflow/pBahnvlT1MXPqxjE",
-          "cachedResultName": "find-user"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {}
-        },
-        "mode": "each",
-        "options": {
-          "waitForSubWorkflow": true
-        }
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.3,
-      "position": [
-        -80,
-        -112
-      ],
-      "id": "6c2b0bd4-f8fb-45be-b01c-0e2204802ae4",
-      "name": "Call 'find-user'",
-      "onError": "continueErrorOutput"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "98c3365c-1792-4cdd-90db-8264033d91ec",
-              "leftValue": "={{ $json.passwordMatches }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        240,
-        -48
-      ],
-      "id": "83991d5e-1b84-4d52-94bf-e16b15e71eb0",
-      "name": "If"
     },
     {
       "parameters": {
@@ -319,10 +210,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        240,
-        112
+        864,
+        848
       ],
-      "id": "dac47601-54a7-4ee4-9cca-5617a0c81818",
+      "id": "d0deec0a-1070-450a-ab1b-8238742743c0",
       "name": "Login Incorreto"
     },
     {
@@ -332,10 +223,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        560,
-        112
+        1264,
+        576
       ],
-      "id": "50f58c16-f569-47af-b793-3f188574eeac",
+      "id": "24ceb103-dc77-4384-8ab4-3058513138bd",
       "name": "Formata Resposta Final",
       "onError": "continueErrorOutput"
     },
@@ -438,10 +329,10 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1,
       "position": [
-        560,
-        -48
+        1072,
+        576
       ],
-      "id": "2da27135-e41c-4420-9bd2-b0329bfc6271",
+      "id": "5c06a609-9c65-4e11-91d5-788e8cac3714",
       "name": "Upsert Token",
       "onError": "continueErrorOutput"
     },
@@ -470,10 +361,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        560,
-        -208
+        864,
+        576
       ],
-      "id": "17a344fa-1cc1-475b-b71b-d762722bd763",
+      "id": "787728a2-a983-454d-90cf-7a0c762dd635",
       "name": "emit-jwt",
       "onError": "continueErrorOutput"
     },
@@ -484,11 +375,125 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        928,
-        64
+        1456,
+        576
       ],
-      "id": "724f00aa-4f64-4d21-abba-07f3eac24014",
+      "id": "813ab89d-1c89-4e62-8c86-ecd856ba49a3",
       "name": "Formata Sucesso"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "pBahnvlT1MXPqxjE",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/pBahnvlT1MXPqxjE",
+          "cachedResultName": "fn-find-user"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        944
+      ],
+      "id": "8b8dfbde-f4a7-48b8-a00d-6e19559ae883",
+      "name": "find-user",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "07a4c6f0-f5ab-4c72-9065-37d22faa3a98",
+              "name": "stored_password_hash",
+              "value": "={{ $json.data.senha_hash }}",
+              "type": "string"
+            },
+            {
+              "id": "8711d952-593f-454e-ac58-4825b0d13e53",
+              "name": "user_payload",
+              "value": "={{ $json.data.payload }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -144,
+        944
+      ],
+      "id": "74139a77-28ed-4836-b286-eb61b8fcfe96",
+      "name": "Destacar User Info"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        96,
+        720
+      ],
+      "id": "48dad9f9-6d90-4d36-8d04-102d4766eb88",
+      "name": "Aguardar"
+    },
+    {
+      "parameters": {
+        "jsCode": "let result = {};\nfor (const item of $input.all()) {\n  result = { ...result, ...item.json };\n}\nreturn result;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        272,
+        720
+      ],
+      "id": "79f6bce9-6719-498d-8c58-5fe14c1feff1",
+      "name": "Combinar"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "98c3365c-1792-4cdd-90db-8264033d91ec",
+              "leftValue": "={{ $json.password_hash }}",
+              "rightValue": "={{ $json.stored_password_hash }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        720
+      ],
+      "id": "967751b9-1cac-4015-bb74-c238a2869647",
+      "name": "Se Senhas Conferem"
     }
   ],
   "connections": {
@@ -496,7 +501,12 @@
       "main": [
         [
           {
-            "node": "Call 'find-user'",
+            "node": "find-user",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Aguardar",
             "type": "main",
             "index": 0
           }
@@ -514,25 +524,7 @@
       "main": [
         [
           {
-            "node": "Extrai a Credencial",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Autenticação via HTTP": {
-      "main": [
-        [
-          {
-            "node": "Extrai a Credencial",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Formata Erro",
+            "node": "Se Credencial Válida",
             "type": "main",
             "index": 0
           }
@@ -550,83 +542,11 @@
         ]
       ]
     },
-    "Extrai a Credencial": {
-      "main": [
-        [
-          {
-            "node": "Se Credencial Válida",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Formata Erro",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Teste Manual": {
       "main": [
         [
           {
-            "node": "Extrai a Credencial",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Compara Senha": {
-      "main": [
-        [
-          {
-            "node": "If",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Formata Erro",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Call 'find-user'": {
-      "main": [
-        [
-          {
-            "node": "Compara Senha",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Formata Erro",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If": {
-      "main": [
-        [
-          {
-            "node": "emit-jwt",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Login Incorreto",
+            "node": "Se Credencial Válida",
             "type": "main",
             "index": 0
           }
@@ -708,6 +628,75 @@
           }
         ]
       ]
+    },
+    "find-user": {
+      "main": [
+        [
+          {
+            "node": "Destacar User Info",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Destacar User Info": {
+      "main": [
+        [
+          {
+            "node": "Aguardar",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Aguardar": {
+      "main": [
+        [
+          {
+            "node": "Combinar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combinar": {
+      "main": [
+        [
+          {
+            "node": "Se Senhas Conferem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Se Senhas Conferem": {
+      "main": [
+        [
+          {
+            "node": "emit-jwt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Login Incorreto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -722,19 +711,19 @@
       {
         "json": {
           "username": "00claudio.henrique@gmail.com",
-          "password": "forax@2024"
+          "password_hash": "$2b$10$tSYdhF.VnV/U4rmWQshyFu68e96cJh/gn9p/h0m9H3dMnPssSOlLq"
         }
       }
     ]
   },
-  "versionId": "bc96263d-8736-4551-9466-64399343193e",
+  "versionId": "46d0566a-d8d5-4335-8033-630130231b7a",
   "triggerCount": 1,
   "shared": [
     {
-      "updatedAt": "2025-10-27T14:27:36.817Z",
-      "createdAt": "2025-10-27T14:27:36.817Z",
+      "updatedAt": "2025-11-04T16:33:03.372Z",
+      "createdAt": "2025-11-04T16:33:03.372Z",
       "role": "workflow:owner",
-      "workflowId": "oX72lSsHNGa0gSzQ",
+      "workflowId": "aWcHAEYeomTcpSNU",
       "projectId": "IA9oo7szBC1GndRN",
       "project": {
         "updatedAt": "2025-10-05T13:15:53.136Z",
