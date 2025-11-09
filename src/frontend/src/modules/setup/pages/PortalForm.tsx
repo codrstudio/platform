@@ -195,14 +195,14 @@ export function PortalForm() {
 
             {/* Realm ID */}
             <div className="space-y-2">
-              <Label htmlFor="realmId">Reino</Label>
+              <Label htmlFor="realmId">Ambiente</Label>
               <Select
                 value={formData.realmId}
                 onValueChange={(value) => handleChange('realmId', value)}
                 disabled={realmsLoading}
               >
                 <SelectTrigger id="realmId">
-                  <SelectValue placeholder="Selecione um reino" />
+                  <SelectValue placeholder="Selecione um ambiente" />
                 </SelectTrigger>
                 <SelectContent>
                   {realms.map((realm) => (
@@ -218,7 +218,7 @@ export function PortalForm() {
                 </SelectContent>
               </Select>
               <p className="text-sm text-muted-foreground">
-                Reino ao qual este portal pertence (compartilha configurações como tema)
+                Ambiente ao qual este portal pertence (compartilha configurações como tema)
               </p>
             </div>
           </CardContent>
@@ -244,7 +244,7 @@ export function PortalForm() {
       {isEditing && (
         <div className="grid gap-6 md:grid-cols-2">
           <Card className="cursor-pointer hover:shadow-lg transition-shadow"
-                onClick={() => navigate(`/setup/portals/${portalId}/theme`)}>
+            onClick={() => navigate(`/setup/portals/${portalId}/theme`)}>
             <CardHeader>
               <CardTitle>Tema do Portal</CardTitle>
               <CardDescription>
@@ -254,7 +254,7 @@ export function PortalForm() {
           </Card>
 
           <Card className="cursor-pointer hover:shadow-lg transition-shadow"
-                onClick={() => navigate(`/setup/portals/${portalId}/modules`)}>
+            onClick={() => navigate(`/setup/portals/${portalId}/modules`)}>
             <CardHeader>
               <CardTitle>Módulos Ativos</CardTitle>
               <CardDescription>

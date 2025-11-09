@@ -13,7 +13,7 @@ O sistema de Realms foi implementado em 07/11/2025 (ver `spec/whats-new/2025-11-
 
 **Problema identificado:** A especificação de UI (`spec/ui/setup-module-interfaces.md`) foi escrita ANTES da implementação de Realms e não reflete:
 - Hierarquia com Realms
-- Páginas de gerenciamento de Reinos
+- Páginas de gerenciamento de Ambientes
 - Sistema de tema em 3 níveis (Sistema → Realm → Portal)
 - Browser de módulos com busca/filtros
 
@@ -32,29 +32,29 @@ Sistema → Portal → Módulo → Instância
 
 **Realidade com Realms:**
 - **Hierarquia real (navegação):** Sistema → Portal → Módulo → Instância
-- **Agrupamento lateral:** Reino ← conecta → [Portal A, Portal B, Portal C]
+- **Agrupamento lateral:** Ambiente ← conecta → [Portal A, Portal B, Portal C]
 
-**Reino NÃO é pai hierárquico dos portais**, é um **agrupador** que permite compartilhar configurações (tema, etc.).
+**Ambiente NÃO é pai hierárquico dos portais**, é um **agrupador** que permite compartilhar configurações (tema, etc.).
 
 ### 2.2 Páginas Faltantes na Spec
 
 **Implementado mas não especificado:**
-- `/setup/realms` - Lista de reinos
-- `/setup/realms/new` - Criar reino
-- `/setup/realms/:realmId` - Editar reino
-- `/setup/realms/:realmId/theme` - Tema do reino (FALTA IMPLEMENTAR)
+- `/setup/realms` - Lista de ambientes
+- `/setup/realms/new` - Criar ambiente
+- `/setup/realms/:realmId` - Editar ambiente
+- `/setup/realms/:realmId/theme` - Tema do ambiente (FALTA IMPLEMENTAR)
 - `/setup/about` - Sobre a plataforma
 
 ### 2.3 ThemeConfig - Abordagem Diferente
 
-**Spec original:** 2 abas (Reino/Portal) lado a lado
+**Spec original:** 2 abas (Ambiente/Portal) lado a lado
 
 **UX Melhorada Proposta:**
 - **Estado único** que muda baseado em override
-- **Estado 1 (usando reino):** Color picker com cadeado 🔒 (readonly)
-  - Botões: "Usar Cor Diferente do Reino" | "Editar Cor do Reino →"
+- **Estado 1 (usando ambiente):** Color picker com cadeado 🔒 (readonly)
+  - Botões: "Usar Cor Diferente do Ambiente" | "Editar Cor do Ambiente →"
 - **Estado 2 (customizado):** Color picker editável
-  - Botão: "Usar Tema do Reino"
+  - Botão: "Usar Tema do Ambiente"
 
 **Vantagem:** Mais claro para o user (vê só um tema por vez, não dois)
 
@@ -103,17 +103,17 @@ Sistema → Portal → Módulo → Instância
 **RealmForm.tsx:**
 - Campos: realmId, name, description
 - ID imutável após criação
-- Cards para "Tema do Reino" e "Portais do Reino" (rotas não implementadas)
+- Cards para "Tema do Ambiente" e "Portais do Ambiente" (rotas não implementadas)
 
 **ThemeConfig.tsx (2 abas):**
-- Aba Reino: configura cor para todos os portais
+- Aba Ambiente: configura cor para todos os portais
 - Aba Portal: override específico com badge "Custom"
 - Funções localStorage corretas
 - Sistema de 3 níveis funciona
 
 **PortalForm.tsx:**
 - Select de Realm funcional
-- Mostra nome + descrição de cada reino
+- Mostra nome + descrição de cada ambiente
 - Validação que realmId existe
 
 #### Hooks JQEL - Todos Implementados ✅
@@ -152,9 +152,9 @@ useInstances, useInstance, useCreateInstance, useUpdateInstance, useDeleteInstan
 #### Prioridade 1 - CRÍTICA
 
 1. **Remover cards para rotas inexistentes em RealmForm:**
-   - "Tema do Reino" → `/setup/realms/:realmId/theme` (NÃO EXISTE)
-   - "Portais do Reino" → `/setup/realms/:realmId/portais` (NÃO EXISTE)
-   - **Ação:** Criar rota de tema do reino ou remover cards
+   - "Tema do Ambiente" → `/setup/realms/:realmId/theme` (NÃO EXISTE)
+   - "Portais do Ambiente" → `/setup/realms/:realmId/portais` (NÃO EXISTE)
+   - **Ação:** Criar rota de tema do ambiente ou remover cards
 
 2. **Remover botão "Adicionar Módulo" não funcional:**
    - PortalModules.tsx linha 120-123
@@ -167,7 +167,7 @@ useInstances, useInstance, useCreateInstance, useUpdateInstance, useDeleteInstan
 #### Prioridade 2 - ALTA
 
 4. **Mostrar realmId em PortalList:**
-   - Adicionar badge ou linha mostrando reino do portal
+   - Adicionar badge ou linha mostrando ambiente do portal
 
 5. **Substituir dados hardcoded:**
    - SetupDashboard: estatísticas mockadas
@@ -200,11 +200,11 @@ useInstances, useInstance, useCreateInstance, useUpdateInstance, useDeleteInstan
 - Clarificar Realm como agrupador (não pai hierárquico)
 - Atualizar hierarquia de conceitos
 
-#### Nova Seção 3: Lista de Reinos
+#### Nova Seção 3: Lista de Ambientes
 ```
 Wireframe:
-- Header: "Gerenciar Reinos" + botão "+ Novo Reino"
-- Cards de reino:
+- Header: "Gerenciar Ambientes" + botão "+ Novo Ambiente"
+- Cards de ambiente:
   - Nome, descrição, realmId
   - Badge "Sistema" se não removível
   - Contador de portais
@@ -214,18 +214,18 @@ Wireframe:
 - Busca/filtros (futuro)
 ```
 
-#### Nova Seção 4: Criar/Editar Reino
+#### Nova Seção 4: Criar/Editar Ambiente
 ```
 Wireframe:
 - Breadcrumb dinâmico
 - Formulário: realmId, name, description
 - Validação com Zod (ou useState simples)
 - Cards após editar:
-  - "Tema do Reino" (implementar rota)
-  - Remover "Portais do Reino"
+  - "Tema do Ambiente" (implementar rota)
+  - Remover "Portais do Ambiente"
 ```
 
-#### Nova Seção 4.5: Tema do Reino
+#### Nova Seção 4.5: Tema do Ambiente
 ```
 Rota: /setup/realms/:realmId/theme
 
@@ -234,13 +234,13 @@ Componente reutilizável ThemePicker:
 - Preview paleta (10 shades)
 - Card cores semânticas
 
-Aviso: "Afetará X portais do reino"
-Botão: "Aplicar a Todos os Portais do Reino"
+Aviso: "Afetará X portais do ambiente"
+Botão: "Aplicar a Todos os Portais do Ambiente"
 ```
 
 #### Seção 5: Criar/Editar Portal (atualizar)
-- Campo "Settings Key" → "Reino" (Select dropdown)
-- Mostra lista de reinos com nome + descrição
+- Campo "Settings Key" → "Ambiente" (Select dropdown)
+- Mostra lista de ambientes com nome + descrição
 - Validação que realmId existe
 
 #### Seção 6: Módulos do Portal (reescrever)
@@ -278,14 +278,14 @@ Seção 2: Browser de Módulos (Dialog)
 **UX com Estados:**
 
 ```
-Estado 1: Usando Tema do Reino
+Estado 1: Usando Tema do Ambiente
 ┌────────────────────────────────────┐
 │ Cor Principal    Valor Hexadecimal │
 │ [● #0ea5e9 🔒]   [#0ea5e9]        │
 │ (readonly)        (disabled)       │
 │                                    │
-│ [Usar Cor Diferente do Reino]     │
-│ [Editar Cor do Reino →]           │
+│ [Usar Cor Diferente do Ambiente]     │
+│ [Editar Cor do Ambiente →]           │
 └────────────────────────────────────┘
 
 Estado 2: Tema Customizado
@@ -294,12 +294,12 @@ Estado 2: Tema Customizado
 │ [● #ef4444]      [#ef4444]        │
 │ (editável)        (editável)       │
 │                                    │
-│ [Usar Tema do Reino]               │
+│ [Usar Tema do Ambiente]               │
 └────────────────────────────────────┘
 ```
 
 **Decisão:** Campo `portal.customBrandColor`
-- `null` → usando tema do reino (cadeado)
+- `null` → usando tema do ambiente (cadeado)
 - `string` → tema customizado (editável)
 
 **localStorage:** Apenas cache, backend é fonte da verdade
@@ -321,7 +321,7 @@ interface ThemePickerProps {
 
 **Usado em:**
 - ThemeConfig (portal)
-- RealmTheme (reino)
+- RealmTheme (ambiente)
 
 #### ModuleBrowser.tsx (Dialog)
 ```typescript
@@ -423,7 +423,7 @@ interface ModuleBrowserProps {
 
 **Componentes já usados:**
 - Card, Button, Badge, Input, Label, Separator
-- Select (reino no PortalForm)
+- Select (ambiente no PortalForm)
 - Tabs (ThemeConfig atual)
 
 **Componentes necessários:**

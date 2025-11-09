@@ -16,7 +16,7 @@ Durante a análise da implementação do módulo Setup, identificamos que:
    - Sem biblioteca de state management (Zustand, Redux, Jotai, etc.)
 
 2. **Problema identificado:**
-   - Configurações (portais, reinos, temas) carregadas repetidamente
+   - Configurações (portais, ambientes, temas) carregadas repetidamente
    - localStorage fragmentado com chaves dispersas
    - Sem sincronização automática entre abas
    - Risco de cache desatualizado vs backend
@@ -74,7 +74,7 @@ const { data: portalResult } = usePortal(portalId!);
 
 **Chaves encontradas (atuais):**
 - `theme-mode` - Modo do tema global
-- `realm:{realmId}:brand-color` - Cor do reino
+- `realm:{realmId}:brand-color` - Cor do ambiente
 - `portal:{portalId}:brand-color` - Cor customizada do portal (sem realmId)
 
 **Problema:**

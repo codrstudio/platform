@@ -48,13 +48,13 @@ export function SetupDashboard() {
       <div className="grid gap-6 md:grid-cols-4">
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Reinos</CardTitle>
+            <CardTitle className="text-sm font-medium">Ambientes</CardTitle>
             <Globe className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.realmsCount}</div>
             <p className="text-xs text-muted-foreground">
-              Total de reinos
+              Total de ambientes
             </p>
           </CardContent>
         </Card>
@@ -104,24 +104,6 @@ export function SetupDashboard() {
         <h2 className="text-2xl font-semibold">Acesso Rápido</h2>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <Link to="/setup/realms">
-            <Card className="hover:shadow-lg transition-all hover:border-primary cursor-pointer">
-              <CardHeader>
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-primary/10 rounded-lg">
-                    <Globe className="h-6 w-6 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <CardTitle>Gerenciar Reinos</CardTitle>
-                    <CardDescription>
-                      Configure reinos para agrupar portais
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
-          </Link>
-
           <Link to="/setup/portals">
             <Card className="hover:shadow-lg transition-all hover:border-primary cursor-pointer">
               <CardHeader>
@@ -151,6 +133,24 @@ export function SetupDashboard() {
                     <CardTitle>Platform Settings</CardTitle>
                     <CardDescription>
                       Visualizar variáveis e health checks
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link to="/setup/realms">
+            <Card className="hover:shadow-lg transition-all hover:border-primary cursor-pointer">
+              <CardHeader>
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-primary/10 rounded-lg">
+                    <Globe className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle>Gerenciar Ambientes</CardTitle>
+                    <CardDescription>
+                      Configure ambientes para agrupar portais
                     </CardDescription>
                   </div>
                 </div>

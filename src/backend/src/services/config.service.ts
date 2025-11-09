@@ -161,7 +161,7 @@ class ConfigService {
     const defaultRealm: Realm = {
       realmId: 'default',
       name: 'Padrão',
-      description: 'Reino padrão da plataforma',
+      description: 'Ambiente padrão da plataforma',
       removable: false,
       config: {
         theme: {

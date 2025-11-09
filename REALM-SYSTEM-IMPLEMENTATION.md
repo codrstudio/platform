@@ -5,13 +5,13 @@
 
 ## Visão Geral
 
-O Sistema de Reinos (Realm System) foi completamente implementado, introduzindo uma hierarquia de 3 níveis para gerenciamento de configurações da plataforma:
+O Sistema de Ambientes (Realm System) foi completamente implementado, introduzindo uma hierarquia de 3 níveis para gerenciamento de configurações da plataforma:
 
 ```
 Sistema → Realm → Portal
 ```
 
-Cada portal pertence a um reino, e reinos podem compartilhar configurações (como tema) entre todos os seus portais. Portais podem opcionalmente sobrescrever configurações do reino.
+Cada portal pertence a um ambiente, e ambientes podem compartilhar configurações (como tema) entre todos os seus portais. Portais podem opcionalmente sobrescrever configurações do ambiente.
 
 ## Implementação Completa
 
@@ -26,13 +26,13 @@ Cada portal pertence a um reino, e reinos podem compartilhar configurações (co
 7. **Fase 3.2**: Portal Validation (realmId)
 8. **Fase 4.1**: Types & Hooks JQEL para Realm
 9. **Fase 4.2**: Realm Management Pages (List, Form)
-10. **Fase 4.3**: ThemeConfig com Tabs (Reino/Portal)
+10. **Fase 4.3**: ThemeConfig com Tabs (Ambiente/Portal)
 11. **Fase 5.1**: Backend SSE Events (config-changed)
 12. **Fase 5.2**: Frontend Event Handlers
 
 ## Funcionalidades Principais
 
-### 1. Gerenciamento de Reinos
+### 1. Gerenciamento de Ambientes
 
 - ✅ Lista de realms com contador de portais
 - ✅ Criar/Editar/Deletar realms
@@ -42,7 +42,7 @@ Cada portal pertence a um reino, e reinos podem compartilhar configurações (co
 
 ### 2. Sistema de Tema Hierárquico
 
-- ✅ Configurar cor do reino (afeta todos os portais)
+- ✅ Configurar cor do ambiente (afeta todos os portais)
 - ✅ Customizar cor por portal (override opcional)
 - ✅ Preview de paleta de cores (10 tons)
 - ✅ Remover customização de portal
@@ -125,7 +125,7 @@ POST   /api/events/publish      # Publica evento
 /setup/realms                   # Lista de realms
 /setup/realms/new               # Criar novo realm
 /setup/realms/:realmId          # Editar realm
-/setup/portals/:portalId/theme  # Configurar tema (Tabs: Reino/Portal)
+/setup/portals/:portalId/theme  # Configurar tema (Tabs: Ambiente/Portal)
 ```
 
 ## localStorage Keys
@@ -139,7 +139,7 @@ POST   /api/events/publish      # Publica evento
 'portal:{portalId}:brand-color'   // 'H S% L%' (SEM realmId!)
 ```
 
-**IMPORTANTE:** Chaves de portal NÃO incluem realmId → customizações persistem mesmo se portal mudar de reino.
+**IMPORTANTE:** Chaves de portal NÃO incluem realmId → customizações persistem mesmo se portal mudar de ambiente.
 
 ## Fluxo de Resolução de Tema
 
@@ -206,12 +206,12 @@ await deleteRealm.mutateAsync(realmId)
 
 ## Interface ThemeConfig
 
-### Aba "Reino"
-- Configura cor do reino
-- Afeta todos os portais do reino
+### Aba "Ambiente"
+- Configura cor do ambiente
+- Afeta todos os portais do ambiente
 - Color picker + input hexadecimal
 - Preview de paleta (10 tons)
-- Botão: "Aplicar a Todos os Portais do Reino"
+- Botão: "Aplicar a Todos os Portais do Ambiente"
 
 ### Aba "Portal"
 - Customiza cor apenas do portal
@@ -267,9 +267,9 @@ await deleteRealm.mutateAsync(realmId)
 ### 2. Configurar Tema do Realm
 ```
 → Vá em /setup/portals/:id/theme
-→ Aba "Reino" → Escolha verde
+→ Aba "Ambiente" → Escolha verde
 → Salve e recarregue
-→ Todos os portais do reino devem usar verde
+→ Todos os portais do ambiente devem usar verde
 ```
 
 ### 3. Customizar Tema do Portal
@@ -286,7 +286,7 @@ await deleteRealm.mutateAsync(realmId)
 → Clique "Remover Customização"
 → Confirme
 → Recarregue
-→ Portal volta à cor do reino (verde)
+→ Portal volta à cor do ambiente (verde)
 ```
 
 ### 5. Real-time Sync
@@ -345,7 +345,7 @@ Funcionalidades que podem ser adicionadas no futuro:
 
 - **Especificação completa:** `spec/SPEC-realms.md`
 - **Mudanças:** `spec/whats-new/2025-11-07-realm-system.md`
-- **Conceitos atualizados:** `spec/SPEC-concepts.md` (seção 2: Reino)
+- **Conceitos atualizados:** `spec/SPEC-concepts.md` (seção 2: Ambiente)
 - **Tema atualizado:** `spec/SPEC-theming.md` (seção 2: Hierarquia)
 
 ---

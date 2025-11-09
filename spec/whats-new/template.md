@@ -38,7 +38,7 @@ Descrição geral da nova especificação:
 
 2. **Título com data e tema claro**: `# YYYY-MM-DD: Descrição do que mudou`
    - Seja específico sobre o impacto
-   - Exemplo: `# 2025-11-07: Sistema de Reinos para Agrupamento de Portais`
+   - Exemplo: `# 2025-11-07: Sistema de Ambientes para Agrupamento de Portais`
 
 3. **Organize em duas seções principais**:
    - "Especificações Modificadas" - SPECs que foram alterados
@@ -89,9 +89,9 @@ Descrição geral da nova especificação:
 4. **Não inclua código-fonte ou implementação**:
    - What's New documenta SPECS, não implementação
    - ✗ "Criar src/backend/src/services/realm.service.ts"
-   - ✗ "Implementar tipos TypeScript para Reino"
+   - ✗ "Implementar tipos TypeScript para Ambiente"
    - ✗ "Atualizar ThemeProvider para resolver hierarquia"
-   - ✓ "SPEC-RM-CR-001 a CR-025: CRUD de Reinos especificado"
+   - ✓ "SPEC-RM-CR-001 a CR-025: CRUD de Ambientes especificado"
 
 5. **Não inclua seções de "Próximos Passos" ou "Impacto na Implementação"**:
    - What's New NÃO é roadmap
@@ -105,7 +105,7 @@ Descrição geral da nova especificação:
    - What's New é descritivo, não prescritivo
    - ✗ "Backend deve criar service para..."
    - ✗ "Frontend precisa atualizar..."
-   - ✓ "SPEC-RM-PS-001: Reinos devem ser armazenados em config/realms.json"
+   - ✓ "SPEC-RM-PS-001: Ambientes devem ser armazenados em config/realms.json"
 
 7. **Não use linguagem vaga**:
    - ✗ "Melhoramos o sistema de temas"
@@ -125,7 +125,7 @@ Descrição geral da nova especificação:
 
 11. **Não explique motivação ou problemas resolvidos em excesso**:
     - Uma breve menção ao contexto é OK
-    - ✓ "Sistema de Reinos substitui settings-key para permitir agrupamento de portais"
+    - ✓ "Sistema de Ambientes substitui settings-key para permitir agrupamento de portais"
     - ✗ Múltiplos parágrafos explicando problema original e solução detalhada
 
 12. **Não inclua benefícios ou análise de valor**:

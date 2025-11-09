@@ -33,14 +33,14 @@
 - [x] Abrir `src/frontend/src/modules/setup/pages/RealmForm.tsx`
 - [x] Localizar seção que renderiza cards após edição
 - [x] Identificar cards:
-  - [x] "Tema do Reino" → `/setup/realms/:realmId/theme` (NÃO EXISTE)
-  - [x] "Portais do Reino" → `/setup/realms/:realmId/portals` (NÃO EXISTE)
+  - [x] "Tema do Ambiente" → `/setup/realms/:realmId/theme` (NÃO EXISTE)
+  - [x] "Portais do Ambiente" → `/setup/realms/:realmId/portals` (NÃO EXISTE)
 - [x] **Opção A: Remover cards completamente**
   ```typescript
   // Comentar ou deletar
   {/* <Card>
     <CardHeader>
-      <CardTitle>Tema do Reino</CardTitle>
+      <CardTitle>Tema do Ambiente</CardTitle>
     </CardHeader>
   </Card> */}
   ```
@@ -48,7 +48,7 @@
   ```typescript
   <Card className="opacity-50 cursor-not-allowed">
     <CardHeader>
-      <CardTitle>Tema do Reino (Em breve)</CardTitle>
+      <CardTitle>Tema do Ambiente (Em breve)</CardTitle>
       <CardDescription>Funcionalidade será implementada em versão futura</CardDescription>
     </CardHeader>
   </Card>
@@ -77,22 +77,22 @@
 
 - [x] Abrir `src/frontend/src/modules/setup/pages/PortalList.tsx`
 - [x] Localizar onde renderiza cards de portais
-- [x] Adicionar Badge mostrando reino:
+- [x] Adicionar Badge mostrando ambiente:
   ```typescript
   <div className="flex items-center gap-2">
     <CardTitle>{portal.name}</CardTitle>
     <Badge variant="outline" className="text-xs">
-      Reino: {portal.realmId}
+      Ambiente: {portal.realmId}
     </Badge>
   </div>
   ```
 - [x] Ou criar linha separada:
   ```typescript
   <p className="text-sm text-muted-foreground">
-    Reino: <span className="font-medium">{portal.realmId}</span>
+    Ambiente: <span className="font-medium">{portal.realmId}</span>
   </p>
   ```
-- [x] ✅ **Checkpoint**: PortalList exibe reino de cada portal
+- [x] ✅ **Checkpoint**: PortalList exibe ambiente de cada portal
 
 ### 1.4. Testar Fase 1 Completa
 
@@ -107,10 +107,10 @@
   - [x] Verificar botão "Adicionar Módulo" removido
   - [x] ✅ **Resultado**: Sem botões enganosos
 
-- [x] **Teste 3: PortalList com Reino**
+- [x] **Teste 3: PortalList com Ambiente**
   - [x] Navegar para `/setup/portals`
   - [x] Verificar cada card mostra realmId
-  - [x] ✅ **Verificar**: Informação de reino visível
+  - [x] ✅ **Verificar**: Informação de ambiente visível
 
 **✅ CHECKPOINT FASE 1**: Problemas críticos de UX corrigidos ✅ CONCLUÍDA
 
@@ -703,7 +703,7 @@
     <CardContent className="grid grid-cols-2 gap-4">
       <div>
         <p className="text-2xl font-bold">{stats.realmsCount}</p>
-        <p className="text-sm text-muted-foreground">Reinos</p>
+        <p className="text-sm text-muted-foreground">Ambientes</p>
       </div>
       <div>
         <p className="text-2xl font-bold">{stats.portalsCount}</p>

@@ -1,42 +1,42 @@
-# 2025-11-07: Sistema de Reinos para Agrupamento de Portais
+# 2025-11-07: Sistema de Ambientes para Agrupamento de Portais
 
 ## Especificações Modificadas
 
 ### SPEC-concepts.md
 - **Seção 1 (Portal)**: Atualizado requisitos de configuração
   - SPEC-C-P-015 a P-018: Substituído `settings-key` por `realmId`
-  - Portais agora pertencem a um Reino
-  - Portais podem sobrescrever configurações do Reino
-- **Nova seção 2 (Reino)**: Conceito de Reino adicionado
+  - Portais agora pertencem a um Ambiente
+  - Portais podem sobrescrever configurações do Ambiente
+- **Nova seção 2 (Ambiente)**: Conceito de Ambiente adicionado
   - 21 requisitos (SPEC-C-R-001 a R-021)
   - Definição: agrupamento lógico de portais
-  - Hierarquia de 3 níveis: Sistema → Reino → Portal
-  - Reino "default" obrigatório e não-removível
+  - Hierarquia de 3 níveis: Sistema → Ambiente → Portal
+  - Ambiente "default" obrigatório e não-removível
 - **Seção 5 (Relacionamentos)**: Atualizada hierarquia
-  - SPEC-C-REL-001 a REL-013: Hierarquia agora inclui Reino
-  - Ordem: Plataforma → Reino → Portal → Módulo → Instância
-  - Remoção de Reino reatribui portais ao "default"
+  - SPEC-C-REL-001 a REL-013: Hierarquia agora inclui Ambiente
+  - Ordem: Plataforma → Ambiente → Portal → Módulo → Instância
+  - Remoção de Ambiente reatribui portais ao "default"
 - **Seção 6 (Estado Inicial)**: Requisitos de instalação expandidos
-  - SPEC-C-S-001 a S-010: Plataforma inicia com Reino "default"
-  - Portais "main" e "setup" pertencem ao Reino "default"
-  - Funcionamento mínimo inclui Reino "default"
+  - SPEC-C-S-001 a S-010: Plataforma inicia com Ambiente "default"
+  - Portais "main" e "setup" pertencem ao Ambiente "default"
+  - Funcionamento mínimo inclui Ambiente "default"
 
 ### SPEC-theming.md
-- **Seção 1 (Conceitos Fundamentais)**: Temas configuráveis por Reino
-  - SPEC-TH-CO-002: Temas configuráveis por Reino (não mais por portal)
-  - SPEC-TH-CO-003: Portais podem sobrescrever tema do Reino
+- **Seção 1 (Conceitos Fundamentais)**: Temas configuráveis por Ambiente
+  - SPEC-TH-CO-002: Temas configuráveis por Ambiente (não mais por portal)
+  - SPEC-TH-CO-003: Portais podem sobrescrever tema do Ambiente
 - **Seção 2 completamente reescrita**: Hierarquia de Configuração
   - Substituiu seção "Settings Key"
   - 29 requisitos (SPEC-TH-HC-001 a HC-029)
-  - Três níveis: Sistema → Reino → Portal
-  - Resolução em cascata: Portal → Reino → Sistema
+  - Três níveis: Sistema → Ambiente → Portal
+  - Resolução em cascata: Portal → Ambiente → Sistema
   - Defaults do Sistema: theme mode "system", brand color azul
-  - Configuração de Reino em `config/realms.json`
+  - Configuração de Ambiente em `config/realms.json`
   - Chaves localStorage com prefixos:
-    - Reino: `realm:{realmId}:{config}` (ex: `realm:default:theme`)
+    - Ambiente: `realm:{realmId}:{config}` (ex: `realm:default:theme`)
     - Portal: `portal:{portalId}:{config}` (ex: `portal:main:theme`)
-  - **IMPORTANTE:** Configurações customizadas por portal permanecem com ele mesmo se mudar de Reino
-  - Chave de portal NÃO inclui realmId - portal mantém customizações independente do Reino
+  - **IMPORTANTE:** Configurações customizadas por portal permanecem com ele mesmo se mudar de Ambiente
+  - Chave de portal NÃO inclui realmId - portal mantém customizações independente do Ambiente
   - Sincronização via storage events
 - **Seção 3 (Tema Claro e Escuro)**: Armazenamento atualizado
   - SPEC-TH-LD-009: Chave agora segue hierarquia (referência a SPEC-TH-HC)
@@ -46,12 +46,12 @@
 ## Especificações Criadas
 
 ### SPEC-realms.md (NOVO)
-Especificação completa do sistema de Reinos:
+Especificação completa do sistema de Ambientes:
 - **Seção 1**: Definição e propósito (8 requisitos)
-- **Seção 2**: Estrutura de Reino (identificação, metadados, config) (15 requisitos)
-- **Seção 3**: Reino "default" obrigatório (9 requisitos)
+- **Seção 2**: Estrutura de Ambiente (identificação, metadados, config) (15 requisitos)
+- **Seção 3**: Ambiente "default" obrigatório (9 requisitos)
 - **Seção 4**: Hierarquia de configuração em 3 níveis (11 requisitos)
-- **Seção 5**: CRUD de Reinos - listar, buscar, criar, atualizar, deletar (25 requisitos)
+- **Seção 5**: CRUD de Ambientes - listar, buscar, criar, atualizar, deletar (25 requisitos)
 - **Seção 6**: Relacionamento com Portais (15 requisitos)
 - **Seção 7**: Persistência - backend (realms.json), frontend (localStorage), JQEL (13 requisitos)
 - **Seção 8**: Interface de Gerenciamento no módulo Setup (23 requisitos)
@@ -63,7 +63,7 @@ Especificação completa do sistema de Reinos:
 
 ## Contexto
 
-Sistema de Reinos aprimora o conceito de `settings-key` para permitir agrupamento lógico de portais que compartilham configurações. Introduz hierarquia de 3 níveis: Sistema → Reino → Portal.
+Sistema de Ambientes aprimora o conceito de `settings-key` para permitir agrupamento lógico de portais que compartilham configurações. Introduz hierarquia de 3 níveis: Sistema → Ambiente → Portal.
 
 ---
 
@@ -95,8 +95,8 @@ Todas as 12 fases do plano de implementação foram concluídas com sucesso. O R
 - ✅ **2.1**: Refatoração do Theme System
   - `src/frontend/src/lib/theme.ts` - Funções auxiliares atualizadas
   - localStorage com chaves hierárquicas:
-    - `realm:{realmId}:theme` - Modo claro/escuro do reino
-    - `realm:{realmId}:brand-color` - Cor principal do reino
+    - `realm:{realmId}:theme` - Modo claro/escuro do ambiente
+    - `realm:{realmId}:brand-color` - Cor principal do ambiente
     - `portal:{portalId}:brand-color` - Override de cor do portal
   - Funções: getStoredTheme, setStoredTheme, getStoredBrandColor, setStoredBrandColor
   - Novas funções: setPortalBrandColor, removePortalBrandColor, hasPortalBrandColorOverride
@@ -140,26 +140,26 @@ Todas as 12 fases do plano de implementação foram concluídas com sucesso. O R
     - Campos: realmId, name, description
     - realmId desabilitado ao editar
     - Validação de campos obrigatórios
-    - Cards de ação: "Tema do Reino" e "Portais do Reino"
-  - `src/frontend/src/modules/setup/pages/SetupDashboard.tsx` - Card "Gerenciar Reinos"
+    - Cards de ação: "Tema do Ambiente" e "Portais do Ambiente"
+  - `src/frontend/src/modules/setup/pages/SetupDashboard.tsx` - Card "Gerenciar Ambientes"
   - `src/frontend/src/modules/setup/routes.tsx` - Rotas de realm
 - ✅ **4.3**: ThemeConfig com Tabs
   - `src/frontend/src/modules/setup/pages/ThemeConfig.tsx` - Refatoração completa
-  - Interface com 2 abas: Reino e Portal
+  - Interface com 2 abas: Ambiente e Portal
   - Tabs component do shadcn/ui instalado
-  - **Aba Reino**:
-    - Configura cor do reino (afeta todos os portais)
+  - **Aba Ambiente**:
+    - Configura cor do ambiente (afeta todos os portais)
     - Color picker + input hexadecimal
     - Preview da paleta com 10 tons
-    - Botão "Aplicar a Todos os Portais do Reino"
+    - Botão "Aplicar a Todos os Portais do Ambiente"
   - **Aba Portal**:
     - Customiza cor apenas do portal
     - Badge "Custom" quando tem override
     - Color picker + input hexadecimal
     - Preview da paleta
-    - Botão "Remover Customização" (volta à cor do reino)
+    - Botão "Remover Customização" (volta à cor do ambiente)
     - Botão "Aplicar Somente a Este Portal"
-  - Info card explicando o sistema de reinos
+  - Info card explicando o sistema de ambientes
   - Card de cores semânticas (success, warning, error, info)
 
 #### **Fase 5: Real-time Events**
@@ -230,7 +230,7 @@ Todas as 12 fases do plano de implementação foram concluídas com sucesso. O R
 
 ### Funcionalidades Implementadas
 
-1. **Gerenciamento de Reinos**
+1. **Gerenciamento de Ambientes**
    - ✅ Listar todos os realms com contador de portais
    - ✅ Criar novo realm (validação de ID único)
    - ✅ Editar realm (nome e descrição)
@@ -239,7 +239,7 @@ Todas as 12 fases do plano de implementação foram concluídas com sucesso. O R
    - ✅ Validação de formato de realmId (kebab-case)
 
 2. **Tema por Realm**
-   - ✅ Configurar cor do reino (afeta todos os portais)
+   - ✅ Configurar cor do ambiente (afeta todos os portais)
    - ✅ Preview de paleta de cores (10 tons)
    - ✅ Conversão entre HEX e HSL
    - ✅ Armazenamento em localStorage com chaves hierárquicas
@@ -248,8 +248,8 @@ Todas as 12 fases do plano de implementação foram concluídas com sucesso. O R
 3. **Tema por Portal (Override)**
    - ✅ Customizar cor apenas do portal específico
    - ✅ Badge "Custom" indicando override ativo
-   - ✅ Remover customização (volta à cor do reino)
-   - ✅ Persistência independente do reino (portal mantém cor se mudar de reino)
+   - ✅ Remover customização (volta à cor do ambiente)
+   - ✅ Persistência independente do ambiente (portal mantém cor se mudar de ambiente)
 
 4. **Associação Portal-Realm**
    - ✅ Select de Realm ao criar/editar portal
@@ -267,19 +267,19 @@ Todas as 12 fases do plano de implementação foram concluídas com sucesso. O R
 ### localStorage Keys Implementadas
 
 ```
-realm:{realmId}:theme           - Modo claro/escuro do reino
-realm:{realmId}:brand-color     - Cor principal do reino
+realm:{realmId}:theme           - Modo claro/escuro do ambiente
+realm:{realmId}:brand-color     - Cor principal do ambiente
 portal:{portalId}:brand-color   - Override de cor do portal (sem realmId!)
 ```
 
-**IMPORTANTE:** As chaves de portal NÃO incluem o realmId, permitindo que as customizações persistam mesmo quando o portal muda de reino.
+**IMPORTANTE:** As chaves de portal NÃO incluem o realmId, permitindo que as customizações persistam mesmo quando o portal muda de ambiente.
 
 ### Fluxo de Resolução de Tema
 
 ```
 1. Busca override do portal: portal:{portalId}:brand-color
    ↓ (se não encontrado)
-2. Busca config do reino: realm:{realmId}:brand-color
+2. Busca config do ambiente: realm:{realmId}:brand-color
    ↓ (se não encontrado)
 3. Usa default do sistema: HSL(199, 89%, 48%) - #0ea5e9
 ```
@@ -303,7 +303,7 @@ POST   /api/events/publish      - Publica evento (já existente)
 /setup/realms                   - Lista de realms
 /setup/realms/new               - Criar novo realm
 /setup/realms/:realmId          - Editar realm
-/setup/portals/:portalId/theme  - Configurar tema (Tabs: Reino/Portal)
+/setup/portals/:portalId/theme  - Configurar tema (Tabs: Ambiente/Portal)
 ```
 
 ### Testes Recomendados
@@ -318,9 +318,9 @@ Para validar a implementação:
 2. **Configurar Tema do Realm**
    - Acesse um portal
    - Vá em Configurações → Tema
-   - Na aba "Reino", escolha uma cor (ex: verde)
+   - Na aba "Ambiente", escolha uma cor (ex: verde)
    - Salve e recarregue
-   - Verifique que todos os portais do reino usam a nova cor
+   - Verifique que todos os portais do ambiente usam a nova cor
 
 3. **Customizar Tema do Portal**
    - Na mesma página de tema
@@ -334,7 +334,7 @@ Para validar a implementação:
    - Clique em "Remover Customização"
    - Confirme
    - Recarregue a página
-   - Portal deve voltar a usar a cor do reino (verde)
+   - Portal deve voltar a usar a cor do ambiente (verde)
 
 5. **Real-time Sync**
    - Abra dois navegadores
@@ -388,4 +388,4 @@ Funcionalidades adicionais que podem ser implementadas no futuro:
 
 ## Conclusão
 
-O Sistema de Reinos foi implementado com sucesso em todas as suas 12 fases, fornecendo uma solução robusta e escalável para agrupamento e gerenciamento de portais. A hierarquia de 3 níveis (Sistema → Realm → Portal) permite flexibilidade máxima, enquanto os eventos SSE garantem sincronização em tempo real entre todos os usuários conectados.
+O Sistema de Ambientes foi implementado com sucesso em todas as suas 12 fases, fornecendo uma solução robusta e escalável para agrupamento e gerenciamento de portais. A hierarquia de 3 níveis (Sistema → Realm → Portal) permite flexibilidade máxima, enquanto os eventos SSE garantem sincronização em tempo real entre todos os usuários conectados.

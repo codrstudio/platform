@@ -77,7 +77,7 @@ export function ThemeConfig() {
     const hslColor = hexToHSL(realmBrandColor);
     setStoredBrandColor(realm.realmId, hslColor);
 
-    alert('Cor do reino salva! Recarregue a página para ver as mudanças.');
+    alert('Cor do ambiente salva! Recarregue a página para ver as mudanças.');
   };
 
   const handleSavePortalColor = () => {
@@ -93,7 +93,7 @@ export function ThemeConfig() {
   const handleRemovePortalOverride = () => {
     if (!portal || !realm) return;
 
-    if (!confirm('Tem certeza que deseja remover a customização do portal? Ele voltará a usar a cor do reino.')) {
+    if (!confirm('Tem certeza que deseja remover a customização do portal? Ele voltará a usar a cor do ambiente.')) {
       return;
     }
 
@@ -118,7 +118,7 @@ export function ThemeConfig() {
   if (!portal || !realm) {
     return (
       <div className="container mx-auto p-6">
-        <p>Portal ou Reino não encontrado</p>
+        <p>Portal ou Ambiente não encontrado</p>
       </div>
     );
   }
@@ -142,7 +142,7 @@ export function ThemeConfig() {
             Configuração de Tema
           </h1>
           <p className="text-muted-foreground mt-2">
-            {portal.name} (Reino: {realm.name})
+            {portal.name} (Ambiente: {realm.name})
           </p>
         </div>
       </div>
@@ -153,10 +153,10 @@ export function ThemeConfig() {
           <div className="flex items-start gap-3">
             <Globe className="h-5 w-5 text-primary mt-0.5" />
             <div className="space-y-1">
-              <p className="text-sm font-medium">Sistema de Reinos</p>
+              <p className="text-sm font-medium">Sistema de Ambientes</p>
               <p className="text-sm text-muted-foreground">
-                A aba <strong>Reino</strong> define a cor padrão para todos os portais do reino "{realm.name}".
-                A aba <strong>Portal</strong> permite customizar apenas este portal, sobrescrevendo a cor do reino.
+                A aba <strong>Ambiente</strong> define a cor padrão para todos os portais do ambiente "{realm.name}".
+                A aba <strong>Portal</strong> permite customizar apenas este portal, sobrescrevendo a cor do ambiente.
               </p>
             </div>
           </div>
@@ -168,7 +168,7 @@ export function ThemeConfig() {
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="realm">
             <Globe className="h-4 w-4 mr-2" />
-            Reino
+            Ambiente
           </TabsTrigger>
           <TabsTrigger value="portal">
             <Palette className="h-4 w-4 mr-2" />
@@ -187,10 +187,10 @@ export function ThemeConfig() {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Globe className="h-5 w-5 text-primary" />
-                <CardTitle>Cor do Reino</CardTitle>
+                <CardTitle>Cor do Ambiente</CardTitle>
               </div>
               <CardDescription>
-                Define a cor padrão para todos os portais do reino "{realm.name}".
+                Define a cor padrão para todos os portais do ambiente "{realm.name}".
                 Esta mudança afetará todos os portais que não têm customização própria.
               </CardDescription>
             </CardHeader>
@@ -248,7 +248,7 @@ export function ThemeConfig() {
               <div className="flex justify-end">
                 <Button onClick={handleSaveRealmColor}>
                   <Save className="h-4 w-4 mr-2" />
-                  Aplicar a Todos os Portais do Reino
+                  Aplicar a Todos os Portais do Ambiente
                 </Button>
               </div>
             </CardContent>
@@ -272,7 +272,7 @@ export function ThemeConfig() {
                 Customize a cor apenas para este portal.
                 {hasPortalOverride
                   ? ' Este portal está usando uma cor personalizada.'
-                  : ' Este portal está usando a cor do reino.'}
+                  : ' Este portal está usando a cor do ambiente.'}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">

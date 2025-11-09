@@ -20,9 +20,9 @@ Este documento define os requisitos do sistema de temas da plataforma, incluindo
 
 **SPEC-TH-CO-001:** Sistema de temas gerencia aparência visual da plataforma
 
-**SPEC-TH-CO-002:** Temas DEVEM ser configuráveis por Reino
+**SPEC-TH-CO-002:** Temas DEVEM ser configuráveis por Ambiente
 
-**SPEC-TH-CO-003:** Portais PODEM sobrescrever tema do Reino com configurações específicas
+**SPEC-TH-CO-003:** Portais PODEM sobrescrever tema do Ambiente com configurações específicas
 
 **SPEC-TH-CO-004:** Sistema DEVE suportar tema claro e escuro
 
@@ -48,17 +48,17 @@ Este documento define os requisitos do sistema de temas da plataforma, incluindo
 
 **SPEC-TH-HC-002:** Nível 1 (Sistema): Valores padrão hardcoded
 
-**SPEC-TH-HC-003:** Nível 2 (Reino): Configurações compartilhadas por grupo de portais
+**SPEC-TH-HC-003:** Nível 2 (Ambiente): Configurações compartilhadas por grupo de portais
 
 **SPEC-TH-HC-004:** Nível 3 (Portal): Configurações específicas do portal
 
 ### Resolução de Valores
 
-**SPEC-TH-HC-005:** Resolução DEVE seguir ordem: Portal → Reino → Sistema
+**SPEC-TH-HC-005:** Resolução DEVE seguir ordem: Portal → Ambiente → Sistema
 
 **SPEC-TH-HC-006:** Se portal tem override, usar valor do portal
 
-**SPEC-TH-HC-007:** Senão, se Reino tem configuração, usar valor do Reino
+**SPEC-TH-HC-007:** Senão, se Ambiente tem configuração, usar valor do Ambiente
 
 **SPEC-TH-HC-008:** Senão, usar valor padrão do Sistema
 
@@ -72,27 +72,27 @@ Este documento define os requisitos do sistema de temas da plataforma, incluindo
 
 **SPEC-TH-HC-012:** Defaults NÃO DEVEM ser armazenados, apenas aplicados quando não há override
 
-### Configuração de Reino (Nível 2)
+### Configuração de Ambiente (Nível 2)
 
-**SPEC-TH-HC-013:** Cada Reino PODE definir configurações de tema
+**SPEC-TH-HC-013:** Cada Ambiente PODE definir configurações de tema
 
-**SPEC-TH-HC-014:** Portais do Reino DEVEM herdar configurações do Reino
+**SPEC-TH-HC-014:** Portais do Ambiente DEVEM herdar configurações do Ambiente
 
-**SPEC-TH-HC-015:** Configuração de Reino DEVE ser armazenada em `config/realms.json`
+**SPEC-TH-HC-015:** Configuração de Ambiente DEVE ser armazenada em `config/realms.json`
 
-**SPEC-TH-HC-016:** Mudança no Reino DEVE afetar todos os portais sem override
+**SPEC-TH-HC-016:** Mudança no Ambiente DEVE afetar todos os portais sem override
 
 ### Configuração de Portal (Nível 3)
 
-**SPEC-TH-HC-017:** Portal PODE sobrescrever configurações do Reino
+**SPEC-TH-HC-017:** Portal PODE sobrescrever configurações do Ambiente
 
 **SPEC-TH-HC-018:** Override de portal DEVE ser explícito (não vazio = override)
 
-**SPEC-TH-HC-019:** Remoção de override DEVE fazer portal voltar a herdar do Reino
+**SPEC-TH-HC-019:** Remoção de override DEVE fazer portal voltar a herdar do Ambiente
 
 ### Geração de Chaves (localStorage)
 
-**SPEC-TH-HC-020:** Chaves de Reino DEVEM usar formato `realm:{realmId}:{config}`
+**SPEC-TH-HC-020:** Chaves de Ambiente DEVEM usar formato `realm:{realmId}:{config}`
 
 **SPEC-TH-HC-021:** Exemplo: `realm:default:theme`, `realm:default:brand-color`
 
@@ -100,15 +100,15 @@ Este documento define os requisitos do sistema de temas da plataforma, incluindo
 
 **SPEC-TH-HC-023:** Exemplo: `portal:main:theme`, `portal:main:brand-color`
 
-**SPEC-TH-HC-024:** Frontend DEVE verificar chave de Portal primeiro, depois Reino, depois Sistema
+**SPEC-TH-HC-024:** Frontend DEVE verificar chave de Portal primeiro, depois Ambiente, depois Sistema
 
-**SPEC-TH-HC-025:** Configurações customizadas por Portal DEVEM permanecer com o portal mesmo se mudar de Reino
+**SPEC-TH-HC-025:** Configurações customizadas por Portal DEVEM permanecer com o portal mesmo se mudar de Ambiente
 
-**SPEC-TH-HC-026:** Chave de Portal NÃO inclui realmId, pois o portal mantém suas customizações independente do Reino
+**SPEC-TH-HC-026:** Chave de Portal NÃO inclui realmId, pois o portal mantém suas customizações independente do Ambiente
 
 ### Sincronização
 
-**SPEC-TH-HC-027:** Mudança em Reino DEVE sincronizar localStorage de todos os portais do Reino
+**SPEC-TH-HC-027:** Mudança em Ambiente DEVE sincronizar localStorage de todos os portais do Ambiente
 
 **SPEC-TH-HC-028:** Mudança em Portal DEVE afetar apenas localStorage daquele portal
 

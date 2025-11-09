@@ -110,12 +110,12 @@ export function PortalDefaultView({
             </CardContent>
           </Card>
 
-          {/* Card 2 - Reino */}
+          {/* Card 2 - Ambiente */}
           <Card className="transition-shadow duration-200 hover:shadow-md">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Settings className="h-4 w-4" aria-hidden="true" />
-                <CardTitle className="text-sm font-medium">Reino</CardTitle>
+                <CardTitle className="text-sm font-medium">Ambiente</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
@@ -123,7 +123,7 @@ export function PortalDefaultView({
                 {realmId}
               </Badge>
               <p className="text-xs text-muted-foreground">
-                Compartilha configurações com outros portais do mesmo reino
+                Compartilha configurações com outros portais do mesmo ambiente
               </p>
             </CardContent>
           </Card>

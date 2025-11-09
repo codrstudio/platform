@@ -1,5 +1,5 @@
 // Realm Form Page
-// Realm System - Formulário de criação/edição de Reino
+// Realm System - Formulário de criação/edição de Ambiente
 
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
@@ -23,12 +23,12 @@ export function RealmForm() {
 
   // Breadcrumb dinâmico
   const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => {
-    const realmName = realmResult?.data?.name || 'Novo Reino';
+    const realmName = realmResult?.data?.name || 'Novo Ambiente';
     return [
       { label: 'Home', href: '/' },
       { label: 'Setup', href: '/setup' },
-      { label: 'Reinos', href: '/setup/realms' },
-      { label: isEditing ? realmName : 'Novo Reino' }
+      { label: 'Ambientes', href: '/setup/realms' },
+      { label: isEditing ? realmName : 'Novo Ambiente' }
     ];
   }, [isEditing, realmResult?.data?.name]);
 
@@ -73,7 +73,7 @@ export function RealmForm() {
       navigate('/setup/realms');
     } catch (error) {
       console.error('Error saving realm:', error);
-      alert('Erro ao salvar reino. Verifique o console para mais detalhes.');
+      alert('Erro ao salvar ambiente. Verifique o console para mais detalhes.');
     }
   };
 
@@ -86,7 +86,7 @@ export function RealmForm() {
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
-        <p>Carregando reino...</p>
+        <p>Carregando ambiente...</p>
       </div>
     );
   }
@@ -107,12 +107,12 @@ export function RealmForm() {
         </Button>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
-            {isEditing ? 'Editar Reino' : 'Novo Reino'}
+            {isEditing ? 'Editar Ambiente' : 'Novo Ambiente'}
           </h1>
           <p className="text-muted-foreground mt-2">
             {isEditing
-              ? 'Atualize as configurações do reino'
-              : 'Crie um novo reino para agrupar portais'}
+              ? 'Atualize as configurações do ambiente'
+              : 'Crie um novo ambiente para agrupar portais'}
           </p>
         </div>
       </div>
@@ -123,7 +123,7 @@ export function RealmForm() {
           <CardHeader>
             <CardTitle>Informações Básicas</CardTitle>
             <CardDescription>
-              Configure as informações principais do reino
+              Configure as informações principais do ambiente
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -135,15 +135,15 @@ export function RealmForm() {
                 value={formData.realmId}
                 onChange={(e) => handleChange('realmId', e.target.value)}
                 disabled={!!isEditing}
-                placeholder="ex: meu-reino"
+                placeholder="ex: meu-ambiente"
                 required
               />
               <p className="text-sm text-muted-foreground">
-                Identificador único do reino (apenas letras minúsculas, números e hífen)
+                Identificador único do ambiente (apenas letras minúsculas, números e hífen)
               </p>
               {isEditing && (
                 <p className="text-sm text-amber-600">
-                  O ID do reino não pode ser alterado após a criação
+                  O ID do ambiente não pode ser alterado após a criação
                 </p>
               )}
             </div>
@@ -157,11 +157,11 @@ export function RealmForm() {
                 id="name"
                 value={formData.name}
                 onChange={(e) => handleChange('name', e.target.value)}
-                placeholder="ex: Meu Reino"
+                placeholder="ex: Meu Ambiente"
                 required
               />
               <p className="text-sm text-muted-foreground">
-                Nome exibido do reino
+                Nome exibido do ambiente
               </p>
             </div>
 
@@ -174,10 +174,10 @@ export function RealmForm() {
                 id="description"
                 value={formData.description}
                 onChange={(e) => handleChange('description', e.target.value)}
-                placeholder="Descrição do reino"
+                placeholder="Descrição do ambiente"
               />
               <p className="text-sm text-muted-foreground">
-                Breve descrição sobre o propósito do reino (opcional)
+                Breve descrição sobre o propósito do ambiente (opcional)
               </p>
             </div>
           </CardContent>
@@ -194,7 +194,7 @@ export function RealmForm() {
           </Button>
           <Button type="submit" disabled={isSaving}>
             <Save className="h-4 w-4 mr-2" />
-            {isSaving ? 'Salvando...' : 'Salvar Reino'}
+            {isSaving ? 'Salvando...' : 'Salvar Ambiente'}
           </Button>
         </div>
       </form>

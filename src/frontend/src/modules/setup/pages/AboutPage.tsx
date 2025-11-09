@@ -51,7 +51,7 @@ export function AboutPage() {
             <strong> Módulos</strong> e <strong>Instâncias</strong>.
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Com o conceito de <strong>Reinos (Realms)</strong>, a plataforma permite agrupar portais
+            Com o conceito de <strong>Ambientes (Realms)</strong>, a plataforma permite agrupar portais
             que compartilham configurações, tornando possível gerenciar múltiplas aplicações
             de forma centralizada e eficiente.
           </p>
@@ -123,7 +123,7 @@ export function AboutPage() {
           <CardContent className="space-y-4">
             <div className="space-y-3">
               <div>
-                <h4 className="font-semibold text-sm mb-1">1. Reino (Realm)</h4>
+                <h4 className="font-semibold text-sm mb-1">1. Ambiente (Realm)</h4>
                 <p className="text-sm text-muted-foreground">
                   Agrupamento lógico de portais que compartilham configurações como tema,
                   permissões e políticas.
@@ -171,7 +171,7 @@ export function AboutPage() {
                   <span className="text-xs text-primary">✓</span>
                 </div>
                 <span>
-                  <strong>Sistema de Reinos:</strong> Agrupe portais e compartilhe configurações
+                  <strong>Sistema de Ambientes:</strong> Agrupe portais e compartilhe configurações
                 </span>
               </li>
               <li className="flex items-start gap-2">
@@ -244,9 +244,9 @@ export function AboutPage() {
             <div className="flex items-start gap-3">
               <Badge variant="outline" className="mt-1">2</Badge>
               <div className="flex-1">
-                <p className="text-sm font-medium">Configuração do Reino</p>
+                <p className="text-sm font-medium">Configuração do Ambiente</p>
                 <p className="text-xs text-muted-foreground">
-                  Cor compartilhada por todos os portais do reino
+                  Cor compartilhada por todos os portais do ambiente
                 </p>
               </div>
             </div>

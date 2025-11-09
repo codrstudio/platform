@@ -1,5 +1,5 @@
 // Realm List Page
-// Realm System - Gerenciamento de Reinos
+// Realm System - Gerenciamento de Ambientes
 
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +12,7 @@ import { PageBreadcrumb } from '@/components/navigation';
 import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb';
 
 export function RealmList() {
-  const breadcrumbItems = useSetupBreadcrumb('Reinos');
+  const breadcrumbItems = useSetupBreadcrumb('Ambientes');
   const { data: realmsResult, isLoading: realmsLoading } = useRealms();
   const { data: portalsResult } = usePortals();
   const deleteRealmMutation = useDeleteRealm();
@@ -32,8 +32,8 @@ export function RealmList() {
   const handleDeleteRealm = async (realmId: string, realmName: string) => {
     const portalCount = realmPortalCounts[realmId] || 0;
     const message = portalCount > 0
-      ? `Tem certeza que deseja excluir o reino "${realmName}"?\n\n${portalCount} portal(is) será(ão) movido(s) para o reino "default".`
-      : `Tem certeza que deseja excluir o reino "${realmName}"?`;
+      ? `Tem certeza que deseja excluir o ambiente "${realmName}"?\n\n${portalCount} portal(is) será(ão) movido(s) para o ambiente "default".`
+      : `Tem certeza que deseja excluir o ambiente "${realmName}"?`;
 
     if (!confirm(message)) {
       return;
@@ -43,14 +43,14 @@ export function RealmList() {
       await deleteRealmMutation.mutateAsync(realmId);
     } catch (error) {
       console.error('Error deleting realm:', error);
-      alert('Erro ao excluir reino. Verifique o console para mais detalhes.');
+      alert('Erro ao excluir ambiente. Verifique o console para mais detalhes.');
     }
   };
 
   if (realmsLoading) {
     return (
       <div className="container mx-auto p-6">
-        <p>Carregando reinos...</p>
+        <p>Carregando ambientes...</p>
       </div>
     );
   }
@@ -63,15 +63,15 @@ export function RealmList() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gerenciar Reinos</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Gerenciar Ambientes</h1>
           <p className="text-muted-foreground mt-2">
-            Configure reinos para agrupar portais e compartilhar configurações
+            Configure ambientes para agrupar portais e compartilhar configurações
           </p>
         </div>
         <Link to="/setup/realms/new">
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            Novo Reino
+            Novo Ambiente
           </Button>
         </Link>
       </div>
@@ -159,11 +159,11 @@ export function RealmList() {
       {realms.length === 0 && (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <p className="text-muted-foreground mb-4">Nenhum reino encontrado</p>
+            <p className="text-muted-foreground mb-4">Nenhum ambiente encontrado</p>
             <Link to="/setup/realms/new">
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
-                Criar Primeiro Reino
+                Criar Primeiro Ambiente
               </Button>
             </Link>
           </CardContent>

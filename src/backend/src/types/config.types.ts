@@ -6,7 +6,7 @@ import { z } from 'zod'
 /**
  * Realm Configuration Schema
  * SPEC-RM-ST-001 to SPEC-RM-ST-015
- * Sistema de Reinos para agrupamento de portais
+ * Sistema de Ambientes para agrupamento de portais
  */
 export const RealmSchema = z.object({
   realmId: z.string().min(1).regex(/^[a-z0-9-]+$/, 'realmId deve ser alfanumérico com hífens (kebab-case)'),
@@ -28,13 +28,13 @@ export type Realm = z.infer<typeof RealmSchema>
 /**
  * Portal Configuration Schema
  * SPEC-C-P-001 to SPEC-C-P-018
- * Atualizado para sistema de Reinos
+ * Atualizado para sistema de Ambientes
  */
 export const PortalSchema = z.object({
   portalId: z.string().min(1),
   name: z.string().min(1),
   description: z.string().optional(),
-  realmId: z.string().default('default'), // SPEC-C-P-015: Portal pertence a um Reino
+  realmId: z.string().default('default'), // SPEC-C-P-015: Portal pertence a um Ambiente
   activeModules: z.array(z.string()).default([]),
   removable: z.boolean().default(true),
   metadata: z.record(z.string(), z.unknown()).optional(),
