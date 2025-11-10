@@ -8,10 +8,7 @@
 2. Interprete as instruções fornecidas no arquivo PLAN.md
 3. Execute as tarefas interpretadas conforme especificado no arquivo PLAN.md
 4. Verifique se todas as tarefas foram concluídas com sucesso
-
-## UI/UX
-
-Use e abuse do MCP 
+5. Marque as tarefas concluídas no arquivo PLAN.md a medida em que as resolve
 
 ## Observações
 

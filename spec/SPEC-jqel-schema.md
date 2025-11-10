@@ -16,140 +16,132 @@ SDL descreve formalmente quais queries e mutations são permitidas no sistema, s
 - Inspirado em W3C JSON Schema
 - Simplificado para descrever operações JQEL
 - Autodescritivo e validável
-- Usado pelo Command Palette para descoberta
+- Usado para descoberta e apresentação de objetos
 
 ---
 
-## 2. Estrutura Raiz
+## 2. Estrutura
 
-### Documento SDL
+**SPEC-SDL-STR-001:** SDL é composto por três estruturas isoladas e independentes
 
-**SPEC-SDL-R-001:** Documento SDL DEVE ser objeto JSON
-
-**SPEC-SDL-R-002:** Documento SDL DEVE conter três seções principais:
+**SPEC-SDL-STR-002:** Cada estrutura é um array de objetos:
 ```json
-{
-  "schemas": [...],
-  "entities": [...],
-  "actions": [...]
-}
+// schemas.json
+[ { "name": "app1" }, { "name": "app2" } ]
+
+// entities.json
+[ { "name": "usuario", "schema": "app1", ... } ]
+
+// actions.json
+[ { "name": "select.usuario", "schema": "app1", "entity": "usuario", ... } ]
 ```
 
-**SPEC-SDL-R-003:** Todas as seções são obrigatórias (podem ser arrays vazios)
+**SPEC-SDL-STR-003:** Cada arquivo pode ser processado independentemente
+
+**SPEC-SDL-STR-004:** Actions referenciam entity e schema por nome (não aninhadas)
 
 ---
 
-## 3. Seção: Schemas
+## 2.1. Convenção de Nomenclatura
 
-### Definição
+**SPEC-SDL-NOM-001:** Todos os nomes (schemas, entities, actions) DEVEM usar snake_case
 
-**SPEC-SDL-S-001:** Seção `schemas` lista todos os schemas disponíveis no sistema
+**SPEC-SDL-NOM-002:** Válido:
+- `nome_da_acao`
+- `nome_da_entidade`
+- `app_principal`
+- `select_usuarios_ativos`
 
-**SPEC-SDL-S-002:** Formato:
+**SPEC-SDL-NOM-003:** Inválido:
+- `nomeDaAcao` (camelCase)
+- `nome-da-acao` (kebab-case)
+- `NomeDaEntidade` (PascalCase)
+
+**SPEC-SDL-NOM-004:** Justificativa: Maximiza compatibilidade com diferentes data sources e target use cases, utilizando apenas minúsculas e sublinha que são amplamente suportados
+
+---
+
+## 3. Schemas
+
+**SPEC-SDL-SCH-001:** Schemas definem domínios ou aplicações no sistema
+
+**SPEC-SDL-SCH-002:** Formato:
 ```json
-{
-  "schemas": [
-    { "name": "cia" },
-    { "name": "sac" },
-    { "name": "crm" }
-  ]
-}
+[
+  { "name": "app1" },
+  { "name": "app2" }
+]
 ```
 
-### Propriedades de Schema
-
-**SPEC-SDL-S-003:** Cada schema DEVE ter:
+**SPEC-SDL-SCH-003:** Cada schema DEVE ter:
 | Campo | Tipo | Obrigatório | Descrição |
 |-------|------|-------------|-----------|
-| `name` | string | Sim | Nome único do schema |
-
-**SPEC-SDL-S-004:** Nome do schema DEVE ser:
-- Minúsculas
-- Sem espaços
-- Alfanumérico (pode ter `-` ou `_`)
-
-**SPEC-SDL-S-005:** Nome do schema DEVE ser único no documento
-
-### Schemas Reservados
-
-**SPEC-SDL-S-006:** Schemas reservados pela plataforma:
-- `platform` - Processado pelo Backbone (configuração)
-- `backend` - Processado pelo Backend (operações locais)
-- `system` - Processado conforme configuração
-- `frontend` - Bounce back (processado pelo próprio frontend)
-
-**SPEC-SDL-S-007:** Schemas não-reservados são considerados schemas de aplicação
+| `name` | string | Sim | Nome único do schema (snake_case) |
 
 ---
 
-## 4. Seção: Entities
+## 4. Entities
 
-### Definição
+**SPEC-SDL-ENT-001:** Entities definem estruturas de dados (tabelas, collections, etc)
 
-**SPEC-SDL-E-001:** Seção `entities` define estruturas de dados disponíveis
-
-**SPEC-SDL-E-002:** Formato:
+**SPEC-SDL-ENT-002:** Formato:
 ```json
-{
-  "entities": [
-    {
-      "name": "role",
-      "schema": "cia",
-      "properties": { ... },
-      "required": [...]
-    }
-  ]
-}
+[
+  {
+    "name": "usuario",
+    "schema": "app1",
+    "properties": { ... },
+    "required": [...],
+    "sqlMapping": { ... },
+    "metadata": { ... }
+  }
+]
 ```
 
-### Propriedades de Entity
-
-**SPEC-SDL-E-003:** Cada entity DEVE ter:
+**SPEC-SDL-ENT-003:** Cada entity DEVE ter:
 | Campo | Tipo | Obrigatório | Descrição |
 |-------|------|-------------|-----------|
-| `name` | string | Sim | Nome único da entidade no schema |
+| `name` | string | Sim | Nome único da entidade (singular, snake_case) |
 | `schema` | string | Sim | Schema ao qual pertence |
-| `properties` | object | Sim | Definição dos campos (JSON Schema) |
-| `required` | array | Não | Lista de campos obrigatórios |
+| `properties` | object | Sim | Campos (JSON Schema standard) |
 
-**SPEC-SDL-E-004:** Nome da entity DEVE ser:
-- Singular
-- Minúsculas
-- snake_case
+**SPEC-SDL-ENT-004:** Campos opcionais:
+- `required` - Array de campos obrigatórios
+- `sqlMapping` - Mapeamento SQL (ver SPEC-jqel-schema-sql.md)
+- `metadata` - Informações de apresentação
 
-**SPEC-SDL-E-005:** Schema referenciado DEVE existir na seção `schemas`
+**SPEC-SDL-ENT-005:** Combinação `schema + name` DEVE ser única
 
-**SPEC-SDL-E-006:** Combinação `schema + name` DEVE ser única
+---
 
-### Properties (Campos da Entity)
+## 5. Properties (Campos da Entity)
 
-**SPEC-SDL-E-007:** `properties` DEVE seguir JSON Schema standard
+**SPEC-SDL-PRP-001:** `properties` DEVE seguir JSON Schema standard
 
-**SPEC-SDL-E-008:** Tipos suportados:
-- `integer`
-- `string`
-- `boolean`
-- `array`
-- `object`
+**SPEC-SDL-PRP-002:** Tipos suportados:
+| Tipo | Descrição |
+|------|-----------|
+| `integer` | Número inteiro |
+| `string` | Texto |
+| `boolean` | Verdadeiro/Falso |
+| `array` | Lista de elementos |
+| `object` | Objeto estruturado |
 
-**SPEC-SDL-E-009:** Formato de property:
+**SPEC-SDL-PRP-003:** Exemplo:
 ```json
 {
   "properties": {
     "id": {
       "type": "integer",
-      "description": "Identificador único"
+      "description": "ID único"
     },
     "nome": {
       "type": "string",
       "description": "Nome completo"
     },
-    "ativo": {
-      "type": "boolean"
-    },
-    "tags": {
-      "type": "array",
-      "items": { "type": "string" }
+    "email": {
+      "type": "string",
+      "format": "email"
     },
     "criado_em": {
       "type": "string",
@@ -159,240 +151,298 @@ SDL descreve formalmente quais queries e mutations são permitidas no sistema, s
 }
 ```
 
-**SPEC-SDL-E-010:** Campo `description` é opcional mas recomendado
+**SPEC-SDL-PRP-004:** Campo `required` lista campos obrigatórios (separado de properties):
+```json
+{
+  "required": ["id", "nome", "email"]
+}
+```
 
-**SPEC-SDL-E-011:** Campos com `format` específico DEVEM seguir padrões:
-- `date-time` - ISO 8601
-- `email` - RFC 5322
-- `uri` - RFC 3986
+### Formatos Suportados
 
-### Required Fields
+**SPEC-SDL-FMT-001:** Campo `format` em properties especifica formato do dado
 
-**SPEC-SDL-E-012:** `required` é array de strings
+**SPEC-SDL-FMT-002:** Formatos JSON Schema standard:
+| Format | Descrição |
+|--------|-----------|
+| `email` | RFC 5322 |
+| `uri` | RFC 3986 |
+| `url` | Alias para uri |
+| `date` | ISO 8601 (YYYY-MM-DD) |
+| `date-time` | ISO 8601 (YYYY-MM-DDTHH:MM:SSZ) |
+| `time` | ISO 8601 (HH:MM:SS) |
+| `uuid` | UUID v4 |
 
-**SPEC-SDL-E-013:** Strings em `required` DEVEM corresponder a campos em `properties`
+**SPEC-SDL-FMT-003:** Formatos adicionais:
+| Format | Descrição |
+|--------|-----------|
+| `phone` | Telefone (formato variável por país) |
+| `ipv4` | Endereço IPv4 |
+| `ipv6` | Endereço IPv6 |
+| `hex-color` | Cor em hexadecimal (#RRGGBB) |
+| `json` | String contendo JSON válido |
 
-**SPEC-SDL-E-014:** Exemplo:
+**SPEC-SDL-FMT-004:** Formatos de documentos brasileiros:
+| Format | Descrição |
+|--------|-----------|
+| `cpf` | CPF (formato XXX.XXX.XXX-XX) |
+| `cnpj` | CNPJ (formato XX.XXX.XXX/XXXX-XX) |
+| `rg` | RG (formato estadual variável) |
+| `cep` | CEP (formato XXXXX-XXX) |
+| `document` | Documento genérico (validator decide) |
+
+**SPEC-SDL-FMT-005:** Exemplo com formatos:
 ```json
 {
   "properties": {
-    "id": { "type": "integer" },
-    "nome": { "type": "string" },
-    "email": { "type": "string" }
-  },
-  "required": ["id", "nome"]
-}
-```
-
----
-
-## 5. Seção: Actions
-
-### Definição
-
-**SPEC-SDL-A-001:** Seção `actions` define operações disponíveis
-
-**SPEC-SDL-A-002:** Actions representam queries (SELECT) e mutations (MUTATE)
-
-**SPEC-SDL-A-003:** Formato:
-```json
-{
-  "actions": [
-    {
-      "name": "select.permission",
-      "schema": "cia",
-      "operation": "select",
-      "entity": "permission",
-      "supports": { ... },
-      "returns": { ... }
-    }
-  ]
-}
-```
-
-### Propriedades de Action
-
-**SPEC-SDL-A-004:** Cada action DEVE ter:
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|-------------|-----------|
-| `name` | string | Sim | Nome único da action |
-| `schema` | string | Sim | Schema da action |
-| `operation` | enum | Sim | `"select"` ou `"mutate"` |
-| `entity` | string | Sim | Nome da entidade alvo |
-| `action` | string | Condicional* | Ação específica (ex: insert, update) |
-| `supports` | object | Não | Capacidades JQEL suportadas |
-| `returns` | object | Sim | Tipo de retorno (JSON Schema) |
-
-*Obrigatório quando `operation: "mutate"`
-
-### Nomenclatura de Actions
-
-**SPEC-SDL-A-005:** Nome da action DEVE seguir formato:
-- SELECT: `select.{entity}`
-- MUTATE: `mutate.{entity}.{action}`
-
-**SPEC-SDL-A-006:** Exemplos válidos:
-- `select.role`
-- `select.usuario`
-- `mutate.usuario.insert`
-- `mutate.usuario.update`
-- `mutate.usuario.delete`
-
-**SPEC-SDL-A-007:** Nome da action DEVE ser único no schema
-
-### Operation
-
-**SPEC-SDL-A-008:** `operation` DEVE ser exatamente `"select"` ou `"mutate"`
-
-**SPEC-SDL-A-009:** `"select"` indica operação de leitura (query)
-
-**SPEC-SDL-A-010:** `"mutate"` indica operação de escrita (mutation)
-
-### Action (campo)
-
-**SPEC-SDL-A-011:** Campo `action` é obrigatório quando `operation: "mutate"`
-
-**SPEC-SDL-A-012:** Actions padrão para mutate:
-- `insert` - Criar novo registro
-- `update` - Atualizar registro existente
-- `delete` - Remover registro
-- `upsert` - Criar ou atualizar
-
-**SPEC-SDL-A-013:** Actions customizadas são permitidas
-
-**SPEC-SDL-A-014:** Exemplos de actions customizadas:
-- `activate`
-- `deactivate`
-- `transfer`
-- `reset_password`
-
----
-
-## 6. Supports (Capacidades)
-
-### Definição
-
-**SPEC-SDL-SUP-001:** `supports` define quais parâmetros JQEL a action aceita
-
-**SPEC-SDL-SUP-002:** `supports` é objeto opcional
-
-**SPEC-SDL-SUP-003:** Se ausente, action não suporta parâmetros JQEL
-
-### Valores Possíveis
-
-**SPEC-SDL-SUP-004:** Cada capacidade pode ter:
-| Valor | Significado |
-|-------|-------------|
-| `true` | Suporte total (todos os campos/valores) |
-| `array` | Suporte restrito (apenas itens listados) |
-| ausente | Não suporta |
-
-### Capacidade: limit
-
-**SPEC-SDL-SUP-005:** `limit` controla se aceita limitação de registros
-
-**SPEC-SDL-SUP-006:** Formato:
-```json
-{ "limit": true }
-```
-
-**SPEC-SDL-SUP-007:** `limit: true` permite qualquer valor numérico
-
-### Capacidade: orderBy
-
-**SPEC-SDL-SUP-008:** `orderBy` controla ordenação de resultados
-
-**SPEC-SDL-SUP-009:** Suporte total:
-```json
-{ "orderBy": true }
-```
-
-**SPEC-SDL-SUP-010:** Suporte restrito:
-```json
-{ "orderBy": ["id", "nome", "data_criacao"] }
-```
-
-**SPEC-SDL-SUP-011:** Array lista campos permitidos para ordenação
-
-### Capacidade: output
-
-**SPEC-SDL-SUP-012:** `output` controla projeção de campos (inclusão)
-
-**SPEC-SDL-SUP-013:** Suporte total:
-```json
-{ "output": true }
-```
-
-**SPEC-SDL-SUP-014:** Suporte restrito:
-```json
-{ "output": ["id", "nome", "email", "status"] }
-```
-
-**SPEC-SDL-SUP-015:** Array lista campos que podem ser projetados
-
-### Capacidade: except
-
-**SPEC-SDL-SUP-016:** `except` controla projeção de campos (exclusão)
-
-**SPEC-SDL-SUP-017:** Suporte total:
-```json
-{ "except": true }
-```
-
-**SPEC-SDL-SUP-018:** Suporte restrito:
-```json
-{ "except": ["senha_hash", "token"] }
-```
-
-**SPEC-SDL-SUP-019:** Array lista campos que podem ser excluídos
-
-### Capacidade: values
-
-**SPEC-SDL-SUP-020:** `values` define quais campos podem ser modificados
-
-**SPEC-SDL-SUP-021:** Aplicável APENAS para `operation: "mutate"`
-
-**SPEC-SDL-SUP-022:** Suporte total:
-```json
-{ "values": true }
-```
-
-**SPEC-SDL-SUP-023:** Suporte restrito:
-```json
-{ "values": ["nome", "email", "status"] }
-```
-
-**SPEC-SDL-SUP-024:** Array lista campos modificáveis
-
----
-
-## 7. Returns (Tipo de Retorno)
-
-### Definição
-
-**SPEC-SDL-RET-001:** `returns` define tipo de dado retornado pela action
-
-**SPEC-SDL-RET-002:** `returns` DEVE seguir JSON Schema standard
-
-**SPEC-SDL-RET-003:** `returns` é obrigatório
-
-### Array de Entidade
-
-**SPEC-SDL-RET-004:** Formato para retornar lista de registros:
-```json
-{
-  "returns": {
-    "type": "array",
-    "items": { "ref": "permission" }
+    "email": { "type": "string", "format": "email" },
+    "telefone": { "type": "string", "format": "phone" },
+    "cpf": { "type": "string", "format": "cpf" },
+    "cnpj": { "type": "string", "format": "cnpj" },
+    "site": { "type": "string", "format": "uri" },
+    "data_nascimento": { "type": "string", "format": "date" }
   }
 }
 ```
 
-**SPEC-SDL-RET-005:** `ref` referencia entity definida
+---
 
-### Objeto Único
+## 6. Actions
 
-**SPEC-SDL-RET-006:** Formato para retornar objeto estruturado:
+**SPEC-SDL-ACT-001:** Actions definem operações (queries ou mutations) que podem ser executadas
+
+**SPEC-SDL-ACT-002:** Actions são estruturas isoladas que referenciam entidades por nome
+
+**SPEC-SDL-ACT-003:** Formato:
+```json
+[
+  {
+    "name": "select.usuario",
+    "schema": "app1",
+    "entity": "usuario",
+    "operation": "select",
+    "sqlTemplate": "select",
+    "supports": { ... },
+    "returns": { ... },
+    "metadata": { ... }
+  }
+]
+```
+
+**SPEC-SDL-ACT-004:** Cada action DEVE ter:
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| `name` | string | Sim | Nome único da action (snake_case) |
+| `schema` | string | Sim | Schema ao qual pertence |
+| `entity` | string | Sim | Entidade que a action opera |
+| `operation` | enum | Sim | `"select"` ou `"mutate"` |
+| `returns` | object | Sim | Tipo de retorno (JSON Schema) |
+
+**SPEC-SDL-ACT-005:** Campos opcionais:
+- `supports` - Capacidades JQEL suportadas
+- `sqlTemplate` - Tipo de template SQL (ver SPEC-jqel-schema-sql.md)
+- `metadata` - Informações de apresentação
+
+### Nomenclatura
+
+**SPEC-SDL-ACT-006:** Padrão de nomenclatura:
+- SELECT: `select.{entity}` ou `select.{entity}.{action_name}`
+- MUTATE: `mutate.{entity}.{action_name}`
+
+**SPEC-SDL-ACT-007:** Exemplos:
+- `select.usuario`
+- `select.usuario.ativas`
+- `mutate.usuario.insert`
+- `mutate.usuario.activate`
+
+### Operation
+
+**SPEC-SDL-ACT-008:** `operation` DEVE ser `"select"` ou `"mutate"`
+
+### sqlTemplate (em Action)
+
+**SPEC-SDL-ACT-009:** Campo `sqlTemplate` define como executar a action no banco SQL
+
+**SPEC-SDL-ACT-010:** Ver SPEC-jqel-schema-sql.md para definição completa de `sqlTemplate`
+
+**SPEC-SDL-ACT-011:** Actions SEM `sqlTemplate` são válidas - serão interceptadas pelo caller e processadas em outro contexto (ex: API de email, webhook, etc)
+
+**SPEC-SDL-ACT-012:** Exemplo de action sem sqlTemplate:
+```json
+{
+  "name": "mutate.usuario.notify_by_email",
+  "schema": "app1",
+  "entity": "usuario",
+  "operation": "mutate",
+  "supports": {
+    "where": {
+      "properties": {
+        "id": { "type": "integer", "operators": ["eq"] }
+      },
+      "required": ["id"]
+    }
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "email_sent": { "type": "boolean" }
+    }
+  }
+}
+```
+
+---
+
+## 7. Supports (Capacidades)
+
+**SPEC-SDL-SUP-001:** Campo `supports` define quais parâmetros JQEL a action aceita
+
+**SPEC-SDL-SUP-002:** Estrutura:
+```json
+{
+  "supports": {
+    "where": { ... },
+    "values": { ... },
+    "limit": boolean,
+    "offset": boolean,
+    "orderBy": array,
+    "output": boolean,
+    "except": boolean
+  }
+}
+```
+
+### Where (Filtros)
+
+**SPEC-SDL-SUP-003:** Campo `where` define quais campos podem ser filtrados
+
+**SPEC-SDL-SUP-004:** Estrutura com properties e required:
+```json
+{
+  "where": {
+    "properties": {
+      "id": {
+        "type": "integer",
+        "operators": ["eq", "in"]
+      },
+      "nome": {
+        "type": "string",
+        "operators": ["like", "eq"]
+      }
+    },
+    "required": ["id"]
+  }
+}
+```
+
+**SPEC-SDL-SUP-005:** Cada campo em `properties` pode ter:
+- `type` - Tipo do dado (ver seção 5)
+- `operators` - Array de operadores JQEL suportados (eq, ne, gt, gte, lt, lte, in, like, etc)
+
+**SPEC-SDL-SUP-006:** Campo `required` lista campos obrigatórios em WHERE
+
+**SPEC-SDL-SUP-007:** Se `where` ausente, action não suporta filtros
+
+### Values (Modificação)
+
+**SPEC-SDL-SUP-008:** Campo `values` define quais campos podem ser modificados (MUTATE)
+
+**SPEC-SDL-SUP-009:** Estrutura com properties e required:
+```json
+{
+  "values": {
+    "properties": {
+      "nome": { "type": "string" },
+      "email": { "type": "string", "format": "email" },
+      "status": {
+        "type": "string",
+        "enum": ["ativo", "inativo", "pendente"]
+      }
+    },
+    "required": ["nome", "email"]
+  }
+}
+```
+
+**SPEC-SDL-SUP-010:** Cada campo em `properties` pode ter:
+- `type` - Tipo do dado (ver seção 5)
+- `format` - Formato específico (ver seção 5)
+- `enum` - Valores permitidos (array)
+
+**SPEC-SDL-SUP-011:** Campo `required` lista campos obrigatórios em VALUES
+
+**SPEC-SDL-SUP-012:** Se `values` ausente, action não suporta modificação
+
+### Pagination e Ordering
+
+**SPEC-SDL-SUP-013:** `limit` - Boolean indicando suporte a limitação de registros
+
+**SPEC-SDL-SUP-014:** `offset` - Boolean indicando suporte a paginação
+
+**SPEC-SDL-SUP-015:** `orderBy` - Array de campos permitidos para ordenação
+```json
+{
+  "orderBy": ["id", "nome", "criado_em"]
+}
+```
+
+### Projection
+
+**SPEC-SDL-SUP-016:** `output` - Boolean indicando suporte a projeção por inclusão
+
+**SPEC-SDL-SUP-017:** `except` - Boolean indicando suporte a projeção por exclusão
+
+### Exemplo Completo
+
+**SPEC-SDL-SUP-018:** Exemplo de `supports`:
+```json
+{
+  "supports": {
+    "where": {
+      "properties": {
+        "id": {
+          "type": "integer",
+          "operators": ["eq", "in"]
+        },
+        "status": {
+          "type": "string",
+          "operators": ["eq"]
+        }
+      },
+      "required": ["id"]
+    },
+    "values": {
+      "properties": {
+        "nome": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "status": { "type": "string" }
+      },
+      "required": ["nome", "email"]
+    },
+    "limit": true,
+    "orderBy": ["id", "nome"],
+    "output": true
+  }
+}
+```
+
+---
+
+## 8. Returns (Tipo de Retorno)
+
+**SPEC-SDL-RET-001:** Campo `returns` define tipo retornado (JSON Schema)
+
+**SPEC-SDL-RET-002:** Formato array:
+```json
+{
+  "returns": {
+    "type": "array",
+    "items": { "ref": "usuario" }
+  }
+}
+```
+
+**SPEC-SDL-RET-003:** Formato objeto:
 ```json
 {
   "returns": {
@@ -405,242 +455,221 @@ SDL descreve formalmente quais queries e mutations são permitidas no sistema, s
 }
 ```
 
-### Objeto Genérico
-
-**SPEC-SDL-RET-007:** Formato para retorno flexível:
-```json
-{
-  "returns": {
-    "type": "object"
-  }
-}
-```
-
-### Referências (ref)
-
-**SPEC-SDL-RET-008:** `ref` referencia entity por nome
-
-**SPEC-SDL-RET-009:** Mesma schema (implícito):
-```json
-{
-  "schema": "cia",
-  "returns": {
-    "type": "array",
-    "items": { "ref": "permission" }
-  }
-}
-```
-
-**SPEC-SDL-RET-010:** Cross-schema (explícito):
-```json
-{
-  "schema": "sac",
-  "returns": {
-    "type": "array",
-    "items": { "ref": "cia:permission" }
-  }
-}
-```
-
-**SPEC-SDL-RET-011:** Formato cross-schema: `"{schema}:{entity}"`
-
-**SPEC-SDL-RET-012:** Entity referenciada DEVE existir no documento SDL
-
 ---
 
-## 8. Extensão: Searchable (Command Palette)
+## 9. Metadata (Apresentação)
 
-### Definição
+**SPEC-SDL-META-001:** Campo `metadata` descreve como objeto é apresentado e descoberto
 
-**SPEC-SDL-SEARCH-001:** Actions PODEM ter campo `searchable` para integração com Command Palette
+**SPEC-SDL-META-002:** Pode estar em entities ou actions
 
-**SPEC-SDL-SEARCH-002:** `searchable` é objeto opcional
-
-**SPEC-SDL-SEARCH-003:** Se ausente, action não aparece no Command Palette
-
-### Estrutura
-
-**SPEC-SDL-SEARCH-004:** Formato completo:
+**SPEC-SDL-META-003:** Estrutura:
 ```json
 {
-  "searchable": {
-    "enabled": true,
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
     "title": "Buscar Usuários",
     "description": "Pesquisa usuários por nome ou email",
-    "keywords": ["user", "users", "pessoas"],
-    "category": "dados",
     "icon": "users",
-    "searchFields": ["nome", "email"],
-    "searchOperator": "LIKE",
-    "trigger": "/criar-usuario",
-    "params": [...]
+    "keywords": ["user", "usuarios", "pessoas"],
+    "categories": ["dados"]
   }
 }
 ```
 
-### Campos de Searchable
+**SPEC-SDL-META-004:** Campos de metadata:
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| `discoverable` | boolean | Sim | Se objeto pode ser pesquisado |
+| `severity` | enum | Não | Semântica visual do objeto |
+| `title` | string | Não | Nome amigável para apresentação |
+| `description` | string | Não | Descrição completa |
+| `icon` | string | Não | Ícone lucide-react |
+| `keywords` | array | Não | Termos para busca (não visível) |
+| `categories` | array | Não | Classificações (visível ao usuário) |
 
-**SPEC-SDL-SEARCH-005:** Campos disponíveis:
-| Campo | Tipo | Obrigatório | Aplicável | Descrição |
-|-------|------|-------------|-----------|-----------|
-| `enabled` | boolean | Sim | Todos | Se aparece no Command Palette |
-| `title` | string | Sim | Todos | Nome exibido |
-| `description` | string | Não | Todos | Texto explicativo |
-| `keywords` | array | Não | Todos | Termos de busca adicionais |
-| `category` | string | Não | Todos | Agrupamento visual |
-| `icon` | string | Não | Todos | Ícone lucide-react |
-| `searchFields` | array | Não | SELECT | Campos usados na busca |
-| `searchOperator` | string | Não | SELECT | Operador (LIKE, eq, etc) |
-| `trigger` | string | Não | MUTATE | Comando (ex: /criar-portal) |
-| `params` | array | Não | MUTATE | Parâmetros do comando |
+### Severity (Semântica Visual)
 
-### Searchable para SELECT
+**SPEC-SDL-META-005:** Campo `severity` indica semântica visual do objeto
 
-**SPEC-SDL-SEARCH-006:** SELECT searchable exemplo:
+**SPEC-SDL-META-006:** Valores possíveis:
+- `grayed` - Neutral (cinza)
+- `normal` - Default (padrão)
+- `information` - Info (azul)
+- `highlight` - Attention (violeta)
+- `success` - Positive (verde)
+- `warning` - Preventive alert (amarelo)
+- `concern` - Active issue (laranja)
+- `error` - Failure (vermelho)
+- `critical` - Severe failure (vermelho vibrante)
+
+**SPEC-SDL-META-007:** Semântica:
+- `grayed` - Neutral, sem ação necessária
+- `normal` - Operação padrão
+- `information` - Informação relevante
+- `highlight` - Requer atenção do usuário
+- `success` - Operação bem-sucedida
+- `warning` - Alerta preventivo, algo pode dar ruim
+- `concern` - Problema ativo, identificado mas controlável
+- `error` - Falha, operação falhou
+- `critical` - Falha crítica, falha severa no sistema
+
+---
+
+## 10. sqlMapping (Entity) e sqlTemplate (Action)
+
+**SPEC-SDL-SQLMAP-001:** Campo `sqlMapping` em entities descreve mapeamento para SQL (opcional)
+
+**SPEC-SDL-SQLMAP-002:** Campo `sqlTemplate` em actions descreve template SQL (opcional)
+
+**SPEC-SDL-SQLMAP-003:** Estrutura e detalhes COMPLETOS em SPEC-jqel-schema-sql.md
+
+**SPEC-SDL-SQLMAP-004:** Nota: `sqlMapping` (entity) é DIFERENTE de `sqlTemplate` (action) - consulte SPEC-jqel-schema-sql.md para ambos os casos
+
+---
+
+## 11. Exemplos Completos
+
+### Schemas
+
 ```json
-{
-  "name": "select.usuario",
-  "operation": "select",
-  "searchable": {
-    "enabled": true,
-    "title": "Usuários",
-    "keywords": ["users", "pessoas"],
-    "category": "dados",
-    "searchFields": ["nome", "email"],
-    "searchOperator": "LIKE"
-  }
-}
+[
+  { "name": "app1" },
+  { "name": "app2" }
+]
 ```
 
-**SPEC-SDL-SEARCH-007:** `searchFields` define campos usados em WHERE
+### Entities
 
-**SPEC-SDL-SEARCH-008:** `searchOperator` define como comparar (default: `"LIKE"`)
-
-### Searchable para MUTATE
-
-**SPEC-SDL-SEARCH-009:** MUTATE searchable exemplo:
 ```json
-{
-  "name": "mutate.portal.create",
-  "operation": "mutate",
-  "searchable": {
-    "enabled": true,
-    "title": "Criar Portal",
-    "description": "Criar novo portal na plataforma",
-    "category": "acoes",
-    "trigger": "/criar-portal",
-    "params": [
-      {
-        "name": "portalId",
-        "type": "string",
-        "required": true,
-        "description": "ID único do portal",
-        "placeholder": "ex: sac, app"
+[
+  {
+    "name": "usuario",
+    "schema": "app1",
+    "properties": {
+      "id": { "type": "integer" },
+      "nome": { "type": "string" },
+      "email": { "type": "string", "format": "email" },
+      "telefone": { "type": "string", "format": "phone" },
+      "cpf": { "type": "string", "format": "cpf" },
+      "status": { "type": "string" },
+      "criado_em": { "type": "string", "format": "date-time" }
+    },
+    "required": ["id", "nome", "email"],
+    "metadata": {
+      "discoverable": true,
+      "severity": "normal",
+      "title": "Usuário",
+      "description": "Entidade de usuário do sistema",
+      "icon": "user",
+      "keywords": ["user", "person"],
+      "categories": ["autenticação"]
+    },
+    "sqlMapping": { }
+  }
+]
+```
+
+### Actions
+
+```json
+[
+  {
+    "name": "select.usuario",
+    "schema": "app1",
+    "entity": "usuario",
+    "operation": "select",
+    "sqlTemplate": "select",
+    "supports": {
+      "where": {
+        "properties": {
+          "id": { "type": "integer", "operators": ["eq", "in"] },
+          "nome": { "type": "string", "operators": ["like", "eq"] }
+        },
+        "required": []
+      },
+      "limit": true,
+      "orderBy": ["id", "nome"],
+      "output": true
+    },
+    "returns": {
+      "type": "array",
+      "items": { "ref": "usuario" }
+    },
+    "metadata": {
+      "discoverable": true,
+      "severity": "normal",
+      "title": "Buscar Usuários",
+      "icon": "search",
+      "keywords": ["search", "list"],
+      "categories": ["dados"]
+    }
+  },
+  {
+    "name": "mutate.usuario.insert",
+    "schema": "app1",
+    "entity": "usuario",
+    "operation": "mutate",
+    "sqlTemplate": "insert",
+    "supports": {
+      "values": {
+        "properties": {
+          "nome": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "telefone": { "type": "string", "format": "phone" },
+          "cpf": { "type": "string", "format": "cpf" },
+          "status": { "type": "string" }
+        },
+        "required": ["nome", "email"]
       }
-    ]
+    },
+    "returns": {
+      "type": "array",
+      "items": { "ref": "usuario" }
+    },
+    "metadata": {
+      "discoverable": true,
+      "severity": "success",
+      "title": "Criar Usuário",
+      "icon": "user-plus",
+      "keywords": ["novo", "add"],
+      "categories": ["admin"]
+    }
+  },
+  {
+    "name": "mutate.usuario.delete",
+    "schema": "app1",
+    "entity": "usuario",
+    "operation": "mutate",
+    "sqlTemplate": "delete",
+    "supports": {
+      "where": {
+        "properties": {
+          "id": { "type": "integer", "operators": ["eq"] }
+        },
+        "required": ["id"]
+      }
+    },
+    "returns": {
+      "type": "object",
+      "properties": {
+        "deleted": { "type": "boolean" }
+      }
+    },
+    "metadata": {
+      "discoverable": true,
+      "severity": "error",
+      "title": "Deletar Usuário",
+      "description": "Remove permanentemente usuário do sistema",
+      "icon": "trash-2",
+      "keywords": ["delete", "remove"],
+      "categories": ["admin"]
+    }
   }
-}
+]
 ```
 
-### Params (Parâmetros de Comando)
-
-**SPEC-SDL-SEARCH-010:** `params` define parâmetros para comandos
-
-**SPEC-SDL-SEARCH-011:** Estrutura de param:
-```json
-{
-  "name": "portalId",
-  "type": "string|enum|select|boolean|array",
-  "required": true,
-  "description": "ID único do portal",
-  "placeholder": "ex: sac, app",
-  "default": null,
-  "options": ["claro", "escuro"],
-  "source": {
-    "schema": "platform",
-    "entity": "module",
-    "labelField": "name"
-  }
-}
-```
-
-**SPEC-SDL-SEARCH-012:** Tipos de parâmetro:
-- `string` - Texto livre
-- `enum` - Lista fixa (usa `options`)
-- `select` - Busca dinâmica (usa `source`)
-- `boolean` - Flag true/false
-- `array` - Múltiplos valores
-
-**SPEC-SDL-SEARCH-013:** `description` e `placeholder` são opcionais mas recomendados
-
 ---
 
-## 9. Convenções
-
-### Nomenclatura
-
-**SPEC-SDL-CONV-001:** Schemas: minúsculas, sem espaços (ex: `cia`, `sac`, `crm`)
-
-**SPEC-SDL-CONV-002:** Entities: singular, minúsculas (ex: `role`, `permission`, `usuario`)
-
-**SPEC-SDL-CONV-003:** Actions: `operation.entity[.action]` (ex: `select.role`, `mutate.usuario.insert`)
-
-**SPEC-SDL-CONV-004:** Properties: snake_case (ex: `role_id`, `data_criacao`)
-
-### Ordem dos Campos
-
-**SPEC-SDL-CONV-005:** Entity - ordem recomendada:
-1. `name`
-2. `schema`
-3. `properties`
-4. `required`
-
-**SPEC-SDL-CONV-006:** Action - ordem recomendada:
-1. `name`
-2. `schema`
-3. `operation`
-4. `entity`
-5. `action` (se aplicável)
-6. `supports`
-7. `returns`
-8. `searchable` (se aplicável)
-
----
-
-## 10. Validação
-
-### Regras Obrigatórias
-
-**SPEC-SDL-VAL-001:** Schema referenciado DEVE existir em `schemas`
-
-**SPEC-SDL-VAL-002:** Entity referenciada em action DEVE existir em `entities`
-
-**SPEC-SDL-VAL-003:** Referências cross-schema DEVEM usar formato `schema:entity`
-
-**SPEC-SDL-VAL-004:** `supports` SÓ aceita valores `true` ou `array`
-
-**SPEC-SDL-VAL-005:** Action name DEVE seguir formato `operation.entity[.action]`
-
-**SPEC-SDL-VAL-006:** MUTATE DEVE ter campo `action` definido
-
-**SPEC-SDL-VAL-007:** Campos em `required` DEVEM existir em `properties`
-
-**SPEC-SDL-VAL-008:** Campos em `supports.orderBy` (array) DEVEM existir em entity
-
-**SPEC-SDL-VAL-009:** Campos em `supports.output` (array) DEVEM existir em entity
-
-**SPEC-SDL-VAL-010:** Campos em `supports.values` (array) DEVEM existir em entity
-
-### Validação de Searchable
-
-**SPEC-SDL-VAL-011:** Se `searchable.enabled: true`, campo `title` é obrigatório
-
-**SPEC-SDL-VAL-012:** `searchFields` DEVEM referenciar campos da entity
-
-**SPEC-SDL-VAL-013:** `trigger` DEVE começar com `/`
-
-**SPEC-SDL-VAL-014:** `params[].name` DEVE corresponder a campo em `supports.values`
-
----
-
-*Esta especificação define o formato SDL para descrição de schemas JQEL. Implementação e uso em outras especificações.*
+*Especificação de schemas, entidades e ações JQEL. Mapeamento SQL em SPEC-jqel-schema-sql.md.*

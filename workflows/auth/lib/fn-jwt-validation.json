@@ -1,10 +1,5 @@
 {
-  "updatedAt": "2025-11-09T01:54:30.000Z",
-  "createdAt": "2025-10-29T05:59:59.806Z",
-  "id": "tSDIVIHXw6c5vpUp",
   "name": "fn-jwt-validation",
-  "active": false,
-  "isArchived": false,
   "nodes": [
     {
       "parameters": {
@@ -137,82 +132,10 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
-  },
-  "staticData": null,
-  "meta": null,
-  "pinData": {
-    "Invocação Manual": [
-      {
-        "json": {
-          "data": {
-            "payload": {
-              "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1YmJhMjQ5ZS01NmEwLTQ3Y2EtOTk4Zi01NWY0MzAxYTI0ZTEiLCJpc3MiOiJjaWFjdWlkYWRvcmVzIiwiYXVkIjoicHJpbWVjYXJlIiwiZXhwIjoxNzYxODA1Nzg2LCJpYXQiOjE3NjE3MTkzODYsImp0aSI6ImJkMTBjMTJiLTI5NDEtNDM3ZC05YTRjLTgzZmY3NzcwYjlhZSIsInRlbmFudCI6WzEsMTgsMTksMTIsOCwxM10sInJvbGVzIjpbbnVsbF0sIm5hbWUiOiJHVUdBIENPREVSIiwiZW1haWwiOiJndWdhLmNvZGVyQGdtYWlsLmNvbSJ9.ssLTWLiyrVXN7nF2EqG4PTk_bbPzW7YWHZ2WHVt1yu0"
-            }
-          }
-        }
-      }
-    ]
-  },
-  "versionId": "9ccc224c-0efd-4b7b-b9ce-c42ff239e180",
-  "triggerCount": 0,
-  "shared": [
-    {
-      "updatedAt": "2025-10-29T05:59:59.813Z",
-      "createdAt": "2025-10-29T05:59:59.813Z",
-      "role": "workflow:owner",
-      "workflowId": "tSDIVIHXw6c5vpUp",
-      "projectId": "IA9oo7szBC1GndRN",
-      "project": {
-        "updatedAt": "2025-10-05T13:15:53.136Z",
-        "createdAt": "2025-10-05T13:15:26.895Z",
-        "id": "IA9oo7szBC1GndRN",
-        "name": "Guga Coder <guga.coder@gmail.com>",
-        "type": "personal",
-        "icon": null,
-        "description": null,
-        "projectRelations": [
-          {
-            "updatedAt": "2025-10-05T13:15:26.896Z",
-            "createdAt": "2025-10-05T13:15:26.896Z",
-            "userId": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
-            "projectId": "IA9oo7szBC1GndRN",
-            "user": {
-              "updatedAt": "2025-11-09T01:49:33.000Z",
-              "createdAt": "2025-10-05T13:15:26.419Z",
-              "id": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
-              "email": "guga.coder@gmail.com",
-              "firstName": "Guga",
-              "lastName": "Coder",
-              "personalizationAnswers": {
-                "version": "v4",
-                "personalization_survey_submitted_at": "2025-10-05T13:16:06.256Z",
-                "personalization_survey_n8n_version": "1.107.3",
-                "companySize": "<20",
-                "companyType": "saas",
-                "role": "business-owner",
-                "reportedSource": "other",
-                "reportedSourceOther": "KeepNomad"
-              },
-              "settings": {
-                "userActivated": true,
-                "firstSuccessfulWorkflowId": "vW3Gx7OZdi98Dfao",
-                "userActivatedAt": 1759671855172,
-                "easyAIWorkflowOnboarded": true,
-                "npsSurvey": {
-                  "responded": true,
-                  "lastShownAt": 1761574956378
-                }
-              },
-              "disabled": false,
-              "mfaEnabled": false,
-              "lastActiveAt": "2025-11-08",
-              "isPending": false
-            }
-          }
-        ]
-      }
-    }
-  ],
-  "tags": []
+    "executionOrder": "v1",
+    "saveExecutionProgress": false,
+    "saveDataErrorExecution": "none",
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false
+  }
 }

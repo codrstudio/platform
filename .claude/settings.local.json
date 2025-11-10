@@ -20,5 +20,11 @@
   "enableAllProjectMcpServers": false,
   "disabledMcpjsonServers": [
     "shadcn"
+  ],
+  "enabledMcpjsonServers": [
+    "mysql",
+    "mssql",
+    "n8n",
+    "postman"
   ]
 }

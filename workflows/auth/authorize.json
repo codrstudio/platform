@@ -1,10 +1,5 @@
 {
-  "updatedAt": "2025-10-29T22:38:17.000Z",
-  "createdAt": "2025-10-29T05:57:09.876Z",
-  "id": "BERaBtKNMSJ9dbfr",
   "name": "authorize",
-  "active": true,
-  "isArchived": false,
   "nodes": [
     {
       "parameters": {
@@ -683,103 +678,10 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
-  },
-  "staticData": null,
-  "meta": {
-    "templateCredsSetupCompleted": true
-  },
-  "pinData": {
-    "Teste Manual": [
-      {
-        "json": {
-          "headers": {
-            "host": "n8n.cia.codr.studio",
-            "user-agent": "PostmanRuntime/7.49.0",
-            "content-length": "25",
-            "accept": "*/*",
-            "accept-encoding": "gzip, deflate, br",
-            "content-type": "application/json",
-            "cookie": "access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1YmJhMjQ5ZS01NmEwLTQ3Y2EtOTk4Zi01NWY0MzAxYTI0ZTEiLCJpc3MiOiJjaWFjdWlkYWRvcmVzIiwiYXVkIjoicHJpbWVjYXJlIiwiZXhwIjoxNzYxODYwODQyLCJpYXQiOjE3NjE3NzQ0NDIsImp0aSI6ImVhNjRkM2NlLTEzY2UtNDVkMS1hODk5LTIyNDFhNTk5YjZkYSIsInRlbmFudCI6WzEsMTgsMTksMTIsOCwxM10sInJvbGVzIjpbIkRvbm8gZGEgRnJhbnF1aWEiXSwibmFtZSI6IkdVR0EgQ09ERVIiLCJlbWFpbCI6Imd1Z2EuY29kZXJAZ21haWwuY29tIn0.7XmxDeU5KKE3baoGCoxr9k_8EkXMBDsSoXr6lGDj4ic",
-            "postman-token": "11c18d82-40bb-40f1-93d3-cd04bf68fb00",
-            "x-forwarded-for": "185.203.218.236",
-            "x-forwarded-host": "n8n.cia.codr.studio",
-            "x-forwarded-port": "443",
-            "x-forwarded-proto": "https",
-            "x-forwarded-server": "f03fd09cc87d",
-            "x-real-ip": "185.203.218.236"
-          },
-          "params": {},
-          "query": {},
-          "body": {
-            "schema": "cia",
-            "permission": "*"
-          },
-          "webhookUrl": "https://n8n.codrstudio.dev/webhook/api/1/auth/authorize",
-          "executionMode": "production"
-        }
-      }
-    ]
-  },
-  "versionId": "ceeff9fd-521d-4d24-a40d-1795790e83ed",
-  "triggerCount": 1,
-  "shared": [
-    {
-      "updatedAt": "2025-10-29T05:57:09.880Z",
-      "createdAt": "2025-10-29T05:57:09.880Z",
-      "role": "workflow:owner",
-      "workflowId": "BERaBtKNMSJ9dbfr",
-      "projectId": "IA9oo7szBC1GndRN",
-      "project": {
-        "updatedAt": "2025-10-05T13:15:53.136Z",
-        "createdAt": "2025-10-05T13:15:26.895Z",
-        "id": "IA9oo7szBC1GndRN",
-        "name": "Guga Coder <guga.coder@gmail.com>",
-        "type": "personal",
-        "icon": null,
-        "description": null,
-        "projectRelations": [
-          {
-            "updatedAt": "2025-10-05T13:15:26.896Z",
-            "createdAt": "2025-10-05T13:15:26.896Z",
-            "userId": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
-            "projectId": "IA9oo7szBC1GndRN",
-            "user": {
-              "updatedAt": "2025-11-09T01:49:33.000Z",
-              "createdAt": "2025-10-05T13:15:26.419Z",
-              "id": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
-              "email": "guga.coder@gmail.com",
-              "firstName": "Guga",
-              "lastName": "Coder",
-              "personalizationAnswers": {
-                "version": "v4",
-                "personalization_survey_submitted_at": "2025-10-05T13:16:06.256Z",
-                "personalization_survey_n8n_version": "1.107.3",
-                "companySize": "<20",
-                "companyType": "saas",
-                "role": "business-owner",
-                "reportedSource": "other",
-                "reportedSourceOther": "KeepNomad"
-              },
-              "settings": {
-                "userActivated": true,
-                "firstSuccessfulWorkflowId": "vW3Gx7OZdi98Dfao",
-                "userActivatedAt": 1759671855172,
-                "easyAIWorkflowOnboarded": true,
-                "npsSurvey": {
-                  "responded": true,
-                  "lastShownAt": 1761574956378
-                }
-              },
-              "disabled": false,
-              "mfaEnabled": false,
-              "lastActiveAt": "2025-11-08",
-              "isPending": false
-            }
-          }
-        ]
-      }
-    }
-  ],
-  "tags": []
+    "executionOrder": "v1",
+    "saveExecutionProgress": false,
+    "saveDataErrorExecution": "none",
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false
+  }
 }

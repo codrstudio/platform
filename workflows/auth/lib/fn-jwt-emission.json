@@ -1,10 +1,5 @@
 {
-  "updatedAt": "2025-11-09T01:54:28.000Z",
-  "createdAt": "2025-10-28T23:53:44.669Z",
-  "id": "6qequ6xLeaaSwaAu",
   "name": "fn-jwt-emission",
-  "active": false,
-  "isArchived": false,
   "nodes": [
     {
       "parameters": {
@@ -334,102 +329,10 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
-  },
-  "staticData": null,
-  "meta": {
-    "templateCredsSetupCompleted": true
-  },
-  "pinData": {
-    "Teste Manual": [
-      {
-        "json": {
-          "data": {
-            "payload": {
-              "sub": "5bba249e-56a0-47ca-998f-55f4301a24e1",
-              "iss": "ciacuidadores",
-              "aud": "primecare",
-              "exp": 1761782048,
-              "iat": 1761695648,
-              "jti": "316c75d2-44fc-4d21-ae4a-462519e37418",
-              "tenant": [
-                1,
-                18,
-                19,
-                12,
-                8,
-                13
-              ],
-              "roles": [
-                null
-              ],
-              "name": "GUGA CODER",
-              "email": "guga.coder@gmail.com"
-            }
-          }
-        }
-      }
-    ]
-  },
-  "versionId": "e196f031-501a-4f06-9622-b1bc585d3cd3",
-  "triggerCount": 1,
-  "shared": [
-    {
-      "updatedAt": "2025-10-28T23:53:44.675Z",
-      "createdAt": "2025-10-28T23:53:44.675Z",
-      "role": "workflow:owner",
-      "workflowId": "6qequ6xLeaaSwaAu",
-      "projectId": "IA9oo7szBC1GndRN",
-      "project": {
-        "updatedAt": "2025-10-05T13:15:53.136Z",
-        "createdAt": "2025-10-05T13:15:26.895Z",
-        "id": "IA9oo7szBC1GndRN",
-        "name": "Guga Coder <guga.coder@gmail.com>",
-        "type": "personal",
-        "icon": null,
-        "description": null,
-        "projectRelations": [
-          {
-            "updatedAt": "2025-10-05T13:15:26.896Z",
-            "createdAt": "2025-10-05T13:15:26.896Z",
-            "userId": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
-            "projectId": "IA9oo7szBC1GndRN",
-            "user": {
-              "updatedAt": "2025-11-09T01:49:33.000Z",
-              "createdAt": "2025-10-05T13:15:26.419Z",
-              "id": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
-              "email": "guga.coder@gmail.com",
-              "firstName": "Guga",
-              "lastName": "Coder",
-              "personalizationAnswers": {
-                "version": "v4",
-                "personalization_survey_submitted_at": "2025-10-05T13:16:06.256Z",
-                "personalization_survey_n8n_version": "1.107.3",
-                "companySize": "<20",
-                "companyType": "saas",
-                "role": "business-owner",
-                "reportedSource": "other",
-                "reportedSourceOther": "KeepNomad"
-              },
-              "settings": {
-                "userActivated": true,
-                "firstSuccessfulWorkflowId": "vW3Gx7OZdi98Dfao",
-                "userActivatedAt": 1759671855172,
-                "easyAIWorkflowOnboarded": true,
-                "npsSurvey": {
-                  "responded": true,
-                  "lastShownAt": 1761574956378
-                }
-              },
-              "disabled": false,
-              "mfaEnabled": false,
-              "lastActiveAt": "2025-11-08",
-              "isPending": false
-            }
-          }
-        ]
-      }
-    }
-  ],
-  "tags": []
+    "executionOrder": "v1",
+    "saveExecutionProgress": false,
+    "saveDataErrorExecution": "none",
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false
+  }
 }
