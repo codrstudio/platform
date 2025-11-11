@@ -1,6 +1,5 @@
 // Portal Modules Page
 // Based on spec/ui/setup-module-interfaces.md Section 4.3
-
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,29 +10,23 @@ import { ArrowLeft, Package, Settings, Plus } from 'lucide-react';
 import { usePortal, useModules, useInstances, useUpdatePortal, type Module as ModuleType } from '@/hooks/useJQEL';
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 import { ModuleBrowser } from '../components/ModuleBrowser';
-
 interface ModuleWithInstances extends ModuleType {
   instanceCount: number;
   active: boolean;
 }
-
 export function PortalModules() {
   const { portalId } = useParams<{ portalId: string }>();
   const navigate = useNavigate();
   const [showBrowser, setShowBrowser] = useState(false);
-
   const { data: portalResult, isLoading: isLoadingPortal } = usePortal(portalId!);
   const { data: modulesResult, isLoading: isLoadingModules } = useModules();
   const { data: instancesResult } = useInstances(portalId);
   const updatePortalMutation = useUpdatePortal();
-
   const portal = portalResult?.data?.[0];
-
   // Breadcrumb dinâmico
   const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => {
     const portalName = portal?.name || 'Portal';
     return [
-      { label: 'Home', href: '/' },
       { label: 'Setup', href: '/setup' },
       { label: 'Portais', href: '/setup/portals' },
       { label: portalName, href: `/setup/portals/${portalId}` },
@@ -42,29 +35,23 @@ export function PortalModules() {
   }, [portal?.name, portalId]);
   const allModules = modulesResult?.data || [];
   const instances = instancesResult?.data || [];
-
   const isLoading = isLoadingPortal || isLoadingModules;
-
   // Enrich modules with portal-specific data
   const modules: ModuleWithInstances[] = allModules.map(m => {
     const isActive = portal?.activeModules.includes(m.moduleId) || false;
     const instanceCount = instances.filter(i => i.moduleId === m.moduleId).length;
-
     return {
       ...m,
       active: isActive,
       instanceCount,
     };
   });
-
   const toggleModule = async (moduleId: string) => {
     if (!portal) return;
-
     const isCurrentlyActive = portal.activeModules.includes(moduleId);
     const newActiveModules = isCurrentlyActive
       ? portal.activeModules.filter(id => id !== moduleId)
       : [...portal.activeModules, moduleId];
-
     try {
       await updatePortalMutation.mutateAsync({
         values: { activeModules: newActiveModules },
@@ -74,12 +61,9 @@ export function PortalModules() {
       console.error('Error toggling module:', error);
     }
   };
-
   const handleAddModules = async (moduleIds: string[]) => {
     if (!portal) return;
-
     const newActiveModules = [...portal.activeModules, ...moduleIds];
-
     try {
       await updatePortalMutation.mutateAsync({
         values: { activeModules: newActiveModules },
@@ -89,7 +73,6 @@ export function PortalModules() {
       console.error('Error adding modules:', error);
     }
   };
-
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
@@ -97,7 +80,6 @@ export function PortalModules() {
       </div>
     );
   }
-
   if (!portal) {
     return (
       <div className="container mx-auto p-6">
@@ -105,12 +87,10 @@ export function PortalModules() {
       </div>
     );
   }
-
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Breadcrumb */}
       <PageBreadcrumb items={breadcrumbItems} />
-
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
@@ -129,7 +109,6 @@ export function PortalModules() {
           </p>
         </div>
       </div>
-
       {/* Active Modules */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -139,7 +118,6 @@ export function PortalModules() {
             Adicionar Módulos
           </Button>
         </div>
-
         <div className="grid gap-4">
           {modules.map((module) => (
             <Card key={module.moduleId}>
@@ -203,7 +181,6 @@ export function PortalModules() {
             </Card>
           ))}
         </div>
-
         {modules.length === 0 && (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
@@ -213,7 +190,6 @@ export function PortalModules() {
           </Card>
         )}
       </div>
-
       {/* Module Browser Dialog */}
       {showBrowser && (
         <ModuleBrowser

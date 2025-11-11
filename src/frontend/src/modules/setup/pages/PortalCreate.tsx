@@ -1,6 +1,5 @@
 // Portal Create Page
 // Based on spec/ui/setup-module-interfaces.md Section 4.2
-
 import { useNavigate } from 'react-router-dom';
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,20 +12,15 @@ import { ArrowLeft, Save } from 'lucide-react';
 import { useCreatePortal, useRealms } from '@/hooks/useJQEL';
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 import { RealmQuickCreate } from '../components/RealmQuickCreate';
-
 export function PortalCreate() {
   const navigate = useNavigate();
-
   const { data: realmsResult, isLoading: realmsLoading } = useRealms();
   const createPortalMutation = useCreatePortal();
-
   const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => [
-    { label: 'Home', href: '/' },
     { label: 'Setup', href: '/setup' },
     { label: 'Portais', href: '/setup/portals' },
     { label: 'Novo Portal' }
   ], []);
-
   const [formData, setFormData] = useState({
     portalId: '',
     name: '',
@@ -34,12 +28,9 @@ export function PortalCreate() {
     realmId: 'default',
     removable: true,
   });
-
   const realms = realmsResult?.data || [];
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       await createPortalMutation.mutateAsync({
         values: {
@@ -51,29 +42,23 @@ export function PortalCreate() {
           activeModules: [],
         },
       });
-
       navigate('/setup/portals');
     } catch (error) {
       console.error('Error creating portal:', error);
     }
   };
-
   const handleChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
-
   const handleRealmCreated = (newRealmId: string) => {
     // Seleciona automaticamente o ambiente recém-criado
     setFormData(prev => ({ ...prev, realmId: newRealmId }));
   };
-
   const isSaving = createPortalMutation.isPending;
-
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Breadcrumb */}
       <PageBreadcrumb items={breadcrumbItems} />
-
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
@@ -92,7 +77,6 @@ export function PortalCreate() {
           </p>
         </div>
       </div>
-
       {/* Form */}
       <form onSubmit={handleSubmit}>
         <Card>
@@ -117,9 +101,7 @@ export function PortalCreate() {
                 Identificador único do portal (apenas letras minúsculas, números e hífen)
               </p>
             </div>
-
             <Separator />
-
             {/* Name */}
             <div className="space-y-2">
               <Label htmlFor="name">Nome</Label>
@@ -134,9 +116,7 @@ export function PortalCreate() {
                 Nome exibido do portal
               </p>
             </div>
-
             <Separator />
-
             {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="description">Descrição</Label>
@@ -150,9 +130,7 @@ export function PortalCreate() {
                 Breve descrição sobre o propósito do portal (opcional)
               </p>
             </div>
-
             <Separator />
-
             {/* Realm ID */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -186,7 +164,6 @@ export function PortalCreate() {
             </div>
           </CardContent>
         </Card>
-
         {/* Actions */}
         <div className="flex justify-end gap-4 mt-6">
           <Button

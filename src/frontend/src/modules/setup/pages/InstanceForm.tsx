@@ -1,6 +1,5 @@
 // Instance Form Page
 // Allows creating and editing module instances with dynamic configuration
-
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,20 +11,16 @@ import { ArrowLeft } from 'lucide-react';
 import { useInstance, useModule, useCreateInstance, useUpdateInstance } from '@/hooks/useJQEL';
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 import { toastError } from '@/lib/toast';
-
 export function InstanceForm() {
   const { portalId, moduleId, instanceId } = useParams<{ portalId: string; moduleId: string; instanceId?: string }>();
   const navigate = useNavigate();
   const isEdit = !!instanceId;
-
   const { data: instanceResult } = useInstance(instanceId || '', portalId!);
   const { data: moduleResult } = useModule(moduleId!);
   const createMutation = useCreateInstance();
   const updateMutation = useUpdateInstance();
-
   const instance = instanceResult?.data?.[0];
   const module = moduleResult?.data?.[0];
-
   const [formData, setFormData] = useState({
     instanceId: '',
     name: '',
@@ -33,7 +28,6 @@ export function InstanceForm() {
     config: {} as Record<string, unknown>,
     active: true,
   });
-
   // Update form when instance data loads
   useEffect(() => {
     if (instance) {
@@ -46,12 +40,10 @@ export function InstanceForm() {
       });
     }
   }, [instance]);
-
   // Breadcrumb dinâmico
   const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => {
     const moduleName = module?.name || 'Módulo';
     return [
-      { label: 'Home', href: '/' },
       { label: 'Setup', href: '/setup' },
       { label: 'Portais', href: '/setup/portals' },
       { label: portalId || 'Portal', href: `/setup/portals/${portalId}` },
@@ -60,7 +52,6 @@ export function InstanceForm() {
       { label: isEdit ? 'Editar Instância' : 'Nova Instância' }
     ];
   }, [module?.name, portalId, moduleId, isEdit]);
-
   const handleSave = async () => {
     try {
       if (isEdit) {
@@ -85,7 +76,6 @@ export function InstanceForm() {
           },
         });
       }
-
       navigate(`/setup/portals/${portalId}/modules/${moduleId}/instances`);
     } catch (error) {
       console.error('Error saving instance:', error);
@@ -94,14 +84,12 @@ export function InstanceForm() {
       });
     }
   };
-
   const handleConfigChange = (key: string, value: unknown) => {
     setFormData(prev => ({
       ...prev,
       config: { ...prev.config, [key]: value }
     }));
   };
-
   if (!module) {
     return (
       <div className="container mx-auto p-6">
@@ -109,12 +97,10 @@ export function InstanceForm() {
       </div>
     );
   }
-
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Breadcrumb */}
       <PageBreadcrumb items={breadcrumbItems} />
-
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
@@ -133,7 +119,6 @@ export function InstanceForm() {
           </p>
         </div>
       </div>
-
       {/* Basic Fields */}
       <Card>
         <CardHeader>
@@ -158,7 +143,6 @@ export function InstanceForm() {
               </p>
             )}
           </div>
-
           <div className="flex items-center gap-2">
             <Switch
               checked={formData.active}
@@ -168,7 +152,6 @@ export function InstanceForm() {
           </div>
         </CardContent>
       </Card>
-
       {/* Configuration */}
       <Card>
         <CardHeader>
@@ -226,7 +209,6 @@ export function InstanceForm() {
           )}
         </CardContent>
       </Card>
-
       {/* Actions */}
       <div className="flex gap-2 justify-end">
         <Button

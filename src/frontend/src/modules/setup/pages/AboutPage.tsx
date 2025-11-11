@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { ExternalLink, Layers, Package, Zap, Globe, Shield, Palette } from 'lucide-react'
+import { Layers, Package, Zap, Globe, Shield, Palette } from 'lucide-react'
 import { PageBreadcrumb } from '@/components/navigation'
 import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb'
 

@@ -1,6 +1,5 @@
 // Instance List Page
 // Based on spec/ui/setup-module-interfaces.md Section 4.5
-
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,22 +19,18 @@ import {
 import { ArrowLeft, Plus, Settings, Trash2, Layers } from 'lucide-react';
 import { usePortal, useInstances, useUpdateInstance, useDeleteInstance, useModule } from '@/hooks/useJQEL';
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
-
 export function InstanceList() {
   const { portalId, moduleId } = useParams<{ portalId: string; moduleId: string }>();
   const navigate = useNavigate();
-
   const { data: portalResult, isLoading: isLoadingPortal } = usePortal(portalId!);
   const { data: instancesResult, isLoading: isLoadingInstances } = useInstances(portalId, moduleId);
   const { data: moduleResult, isLoading: isLoadingModule } = useModule(moduleId!);
   const updateInstanceMutation = useUpdateInstance();
   const deleteInstanceMutation = useDeleteInstance();
-
   const portal = portalResult?.data?.[0];
   const module = moduleResult?.data?.[0]; // Fix: module is an array
   const instances = instancesResult?.data || [];
   const isLoading = isLoadingPortal || isLoadingInstances || isLoadingModule;
-
   const [deleteDialog, setDeleteDialog] = useState<{
     open: boolean;
     instanceId: string;
@@ -43,13 +38,11 @@ export function InstanceList() {
     open: false,
     instanceId: '',
   });
-
   // Breadcrumb dinâmico
   const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => {
     const portalName = portal?.name || 'Portal';
     const moduleName = module?.name || moduleId || 'Módulo';
     return [
-      { label: 'Home', href: '/' },
       { label: 'Setup', href: '/setup' },
       { label: 'Portais', href: '/setup/portals' },
       { label: portalName, href: `/setup/portals/${portalId}` },
@@ -58,11 +51,9 @@ export function InstanceList() {
       { label: 'Instâncias' }
     ];
   }, [portal?.name, portalId, module?.name, moduleId]);
-
   const toggleInstance = async (instanceId: string) => {
     const instance = instances.find(i => i.instanceId === instanceId);
     if (!instance) return;
-
     try {
       await updateInstanceMutation.mutateAsync({
         values: { active: !instance.active },
@@ -75,11 +66,9 @@ export function InstanceList() {
       console.error('Error toggling instance:', error);
     }
   };
-
   const deleteInstance = (instanceId: string) => {
     setDeleteDialog({ open: true, instanceId });
   };
-
   const confirmDeleteInstance = async () => {
     try {
       await deleteInstanceMutation.mutateAsync({
@@ -93,7 +82,6 @@ export function InstanceList() {
       console.error('Error deleting instance:', error);
     }
   };
-
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
@@ -101,7 +89,6 @@ export function InstanceList() {
       </div>
     );
   }
-
   if (!portal) {
     return (
       <div className="container mx-auto p-6">
@@ -109,12 +96,10 @@ export function InstanceList() {
       </div>
     );
   }
-
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Breadcrumb */}
       <PageBreadcrumb items={breadcrumbItems} />
-
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
@@ -137,7 +122,6 @@ export function InstanceList() {
           Nova Instância
         </Button>
       </div>
-
       {/* Info Card */}
       <Card>
         <CardHeader>
@@ -148,7 +132,6 @@ export function InstanceList() {
           </CardDescription>
         </CardHeader>
       </Card>
-
       {/* Instances List */}
       <div className="space-y-4">
         {instances.map((instance) => (
@@ -216,7 +199,6 @@ export function InstanceList() {
           </Card>
         ))}
       </div>
-
       {instances.length === 0 && (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
@@ -229,7 +211,6 @@ export function InstanceList() {
           </CardContent>
         </Card>
       )}
-
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, open })}>
         <AlertDialogContent>

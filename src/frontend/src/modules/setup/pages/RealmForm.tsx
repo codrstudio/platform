@@ -1,6 +1,5 @@
 // Realm Form Page
 // Realm System - Formulário de criação/edição de Ambiente
-
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,33 +11,27 @@ import { ArrowLeft, Save } from 'lucide-react';
 import { useRealm, useCreateRealm, useUpdateRealm } from '@/hooks/useJQEL';
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 import { toastError } from '@/lib/toast';
-
 export function RealmForm() {
   const { realmId } = useParams<{ realmId: string }>();
   const navigate = useNavigate();
   const isEditing = realmId && realmId !== 'new';
-
   const { data: realmResult, isLoading } = useRealm(realmId || '');
   const createRealmMutation = useCreateRealm();
   const updateRealmMutation = useUpdateRealm();
-
   // Breadcrumb dinâmico
   const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => {
     const realmName = realmResult?.data?.name || 'Novo Ambiente';
     return [
-      { label: 'Home', href: '/' },
       { label: 'Setup', href: '/setup' },
       { label: 'Ambientes', href: '/setup/realms' },
       { label: isEditing ? realmName : 'Novo Ambiente' }
     ];
   }, [isEditing, realmResult?.data?.name]);
-
   const [formData, setFormData] = useState({
     realmId: '',
     name: '',
     description: '',
   });
-
   useEffect(() => {
     if (isEditing && realmResult?.data) {
       const realm = realmResult.data;
@@ -49,10 +42,8 @@ export function RealmForm() {
       });
     }
   }, [isEditing, realmResult]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       if (isEditing) {
         await updateRealmMutation.mutateAsync({
@@ -70,7 +61,6 @@ export function RealmForm() {
           removable: true,
         });
       }
-
       navigate('/setup/realms');
     } catch (error) {
       console.error('Error saving realm:', error);
@@ -79,13 +69,10 @@ export function RealmForm() {
       });
     }
   };
-
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
-
   const isSaving = createRealmMutation.isPending || updateRealmMutation.isPending;
-
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
@@ -93,12 +80,10 @@ export function RealmForm() {
       </div>
     );
   }
-
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Breadcrumb */}
       <PageBreadcrumb items={breadcrumbItems} />
-
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
@@ -119,7 +104,6 @@ export function RealmForm() {
           </p>
         </div>
       </div>
-
       {/* Form */}
       <form onSubmit={handleSubmit}>
         <Card>
@@ -150,9 +134,7 @@ export function RealmForm() {
                 </p>
               )}
             </div>
-
             <Separator />
-
             {/* Name */}
             <div className="space-y-2">
               <Label htmlFor="name">Nome</Label>
@@ -167,9 +149,7 @@ export function RealmForm() {
                 Nome exibido do ambiente
               </p>
             </div>
-
             <Separator />
-
             {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="description">Descrição</Label>
@@ -185,7 +165,6 @@ export function RealmForm() {
             </div>
           </CardContent>
         </Card>
-
         {/* Actions */}
         <div className="flex justify-end gap-4 mt-6">
           <Button
@@ -201,7 +180,6 @@ export function RealmForm() {
           </Button>
         </div>
       </form>
-
     </div>
   );
 }
