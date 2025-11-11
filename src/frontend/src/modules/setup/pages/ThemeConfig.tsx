@@ -1,6 +1,5 @@
 // Theme Config Page with Tabs (Realm / Portal)
 // Based on SPEC-theming.md and Realm System
-
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,9 +19,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Save, Palette, Globe, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Palette, Globe, Trash2, Image } from 'lucide-react';
 import { usePortal, useRealm } from '@/hooks/useJQEL';
 import { toastSuccess } from '@/lib/toast';
+import { IconUploader } from '../components/IconUploader';
 import {
   getStoredBrandColor,
   setStoredBrandColor,
@@ -33,45 +33,36 @@ import {
   hslToHex
 } from '@/lib/theme';
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
-
 export function ThemeConfig() {
   const { portalId } = useParams<{ portalId: string }>();
   const navigate = useNavigate();
-
   const { data: portalResult, isLoading: portalLoading } = usePortal(portalId || '');
   const portal = portalResult?.data?.[0] || null;
-
   const { data: realmResult, isLoading: realmLoading } = useRealm(portal?.realmId || '');
   const realm = realmResult?.data;
-
   // Breadcrumb dinâmico
   const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => {
     const portalName = portal?.name || 'Portal';
     return [
-      { label: 'Home', href: '/' },
       { label: 'Setup', href: '/setup' },
       { label: 'Portais', href: '/setup/portals' },
       { label: portalName, href: `/setup/portals/${portalId}` },
       { label: 'Tema' }
     ];
   }, [portal?.name, portalId]);
-
   const [realmBrandColor, setRealmBrandColorState] = useState('#0ea5e9');
   const [portalBrandColor, setPortalBrandColorState] = useState('#0ea5e9');
   const [hasPortalOverride, setHasPortalOverride] = useState(false);
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
-
   // Load current colors from localStorage
   useEffect(() => {
     if (portal && realm) {
       // Load realm color
       const realmColor = getStoredBrandColor(realm.realmId);
       setRealmBrandColorState(hslToHex(realmColor));
-
       // Check if portal has override
       const hasOverride = hasPortalBrandColorOverride(portal.portalId);
       setHasPortalOverride(hasOverride);
-
       if (hasOverride) {
         // Load portal override color
         const portalColor = getStoredBrandColor(realm.realmId, portal.portalId);
@@ -82,51 +73,38 @@ export function ThemeConfig() {
       }
     }
   }, [portal, realm]);
-
   const handleSaveRealmColor = () => {
     if (!realm) return;
-
     const hslColor = hexToHSL(realmBrandColor);
     setStoredBrandColor(realm.realmId, hslColor);
-
     toastSuccess('Cor do ambiente salva', {
       description: 'As alterações foram aplicadas a todos os portais do ambiente'
     });
   };
-
   const handleSavePortalColor = () => {
     if (!portal) return;
-
     const hslColor = hexToHSL(portalBrandColor);
     setPortalBrandColor(portal.portalId, hslColor);
     setHasPortalOverride(true);
-
     toastSuccess('Cor do portal salva', {
       description: 'A personalização foi aplicada somente a este portal'
     });
   };
-
   const handleRemovePortalOverride = () => {
     setShowRemoveDialog(true);
   };
-
   const confirmRemovePortalOverride = () => {
     if (!portal || !realm) return;
-
     removePortalBrandColor(portal.portalId);
     setHasPortalOverride(false);
-
     // Reset to realm color
     const realmColor = getStoredBrandColor(realm.realmId);
     setPortalBrandColorState(hslToHex(realmColor));
-
     toastSuccess('Customização removida', {
       description: 'O portal voltou a usar a cor do ambiente'
     });
-
     setShowRemoveDialog(false);
   };
-
   if (portalLoading || realmLoading) {
     return (
       <div className="container mx-auto p-6">
@@ -134,7 +112,6 @@ export function ThemeConfig() {
       </div>
     );
   }
-
   if (!portal || !realm) {
     return (
       <div className="container mx-auto p-6">
@@ -142,12 +119,10 @@ export function ThemeConfig() {
       </div>
     );
   }
-
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Breadcrumb */}
       <PageBreadcrumb items={breadcrumbItems} />
-
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
@@ -166,7 +141,6 @@ export function ThemeConfig() {
           </p>
         </div>
       </div>
-
       {/* Info Card */}
       <Card className="bg-muted/50">
         <CardContent className="pt-6">
@@ -182,7 +156,6 @@ export function ThemeConfig() {
           </div>
         </CardContent>
       </Card>
-
       {/* Tabs */}
       <Tabs defaultValue="realm" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
@@ -200,7 +173,6 @@ export function ThemeConfig() {
             )}
           </TabsTrigger>
         </TabsList>
-
         {/* Realm Tab */}
         <TabsContent value="realm" className="space-y-6 mt-6">
           <Card>
@@ -238,9 +210,7 @@ export function ThemeConfig() {
                     />
                   </div>
                 </div>
-
                 <Separator />
-
                 {/* Preview */}
                 <div className="space-y-2">
                   <Label>Preview da Paleta</Label>
@@ -264,7 +234,6 @@ export function ThemeConfig() {
                   </p>
                 </div>
               </div>
-
               <div className="flex justify-end">
                 <Button onClick={handleSaveRealmColor}>
                   <Save className="h-4 w-4 mr-2" />
@@ -273,8 +242,61 @@ export function ThemeConfig() {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
 
+          {/* Icons Card - Realm Level */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Image className="h-5 w-5 text-primary" />
+                <CardTitle>Ícones do Aplicativo</CardTitle>
+              </div>
+              <CardDescription>
+                Personalize os ícones que aparecem quando o aplicativo é instalado.
+                Estas configurações serão aplicadas a todos os portais do ambiente.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <IconUploader
+                  scope="realm"
+                  scopeId={realm.realmId}
+                  iconType="favicon"
+                  label="Favicon"
+                  description="16-48px · ICO, PNG"
+                  onUploadComplete={() => toastSuccess('Favicon atualizado')}
+                  onDelete={() => toastSuccess('Favicon removido')}
+                />
+                <IconUploader
+                  scope="realm"
+                  scopeId={realm.realmId}
+                  iconType="pwa-192"
+                  label="Ícone Pequeno"
+                  description="192x192px · PNG"
+                  onUploadComplete={() => toastSuccess('Ícone atualizado')}
+                  onDelete={() => toastSuccess('Ícone removido')}
+                />
+                <IconUploader
+                  scope="realm"
+                  scopeId={realm.realmId}
+                  iconType="pwa-512"
+                  label="Ícone Grande"
+                  description="512x512px · PNG"
+                  onUploadComplete={() => toastSuccess('Ícone atualizado')}
+                  onDelete={() => toastSuccess('Ícone removido')}
+                />
+                <IconUploader
+                  scope="realm"
+                  scopeId={realm.realmId}
+                  iconType="apple-touch"
+                  label="Apple Touch"
+                  description="180x180px · PNG"
+                  onUploadComplete={() => toastSuccess('Ícone atualizado')}
+                  onDelete={() => toastSuccess('Ícone removido')}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
         {/* Portal Tab */}
         <TabsContent value="portal" className="space-y-6 mt-6">
           <Card>
@@ -319,9 +341,7 @@ export function ThemeConfig() {
                     />
                   </div>
                 </div>
-
                 <Separator />
-
                 {/* Preview */}
                 <div className="space-y-2">
                   <Label>Preview da Paleta</Label>
@@ -341,7 +361,6 @@ export function ThemeConfig() {
                   </div>
                 </div>
               </div>
-
               <div className="flex justify-end gap-2">
                 {hasPortalOverride && (
                   <Button
@@ -360,9 +379,61 @@ export function ThemeConfig() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Icons Card - Portal Level */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Image className="h-5 w-5 text-primary" />
+                <CardTitle>Ícones do Aplicativo</CardTitle>
+              </div>
+              <CardDescription>
+                Personalize os ícones apenas para este portal, sobrescrevendo os ícones do ambiente.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <IconUploader
+                  scope="portal"
+                  scopeId={portal.portalId}
+                  iconType="favicon"
+                  label="Favicon"
+                  description="16-48px · ICO, PNG"
+                  onUploadComplete={() => toastSuccess('Favicon atualizado')}
+                  onDelete={() => toastSuccess('Favicon removido')}
+                />
+                <IconUploader
+                  scope="portal"
+                  scopeId={portal.portalId}
+                  iconType="pwa-192"
+                  label="Ícone Pequeno"
+                  description="192x192px · PNG"
+                  onUploadComplete={() => toastSuccess('Ícone atualizado')}
+                  onDelete={() => toastSuccess('Ícone removido')}
+                />
+                <IconUploader
+                  scope="portal"
+                  scopeId={portal.portalId}
+                  iconType="pwa-512"
+                  label="Ícone Grande"
+                  description="512x512px · PNG"
+                  onUploadComplete={() => toastSuccess('Ícone atualizado')}
+                  onDelete={() => toastSuccess('Ícone removido')}
+                />
+                <IconUploader
+                  scope="portal"
+                  scopeId={portal.portalId}
+                  iconType="apple-touch"
+                  label="Apple Touch"
+                  description="180x180px · PNG"
+                  onUploadComplete={() => toastSuccess('Ícone atualizado')}
+                  onDelete={() => toastSuccess('Ícone removido')}
+                />
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
-
       {/* Semantic Colors Info */}
       <Card>
         <CardHeader>
@@ -396,7 +467,6 @@ export function ThemeConfig() {
           </div>
         </CardContent>
       </Card>
-
       {/* Remove Customization Dialog */}
       <AlertDialog open={showRemoveDialog} onOpenChange={setShowRemoveDialog}>
         <AlertDialogContent>
