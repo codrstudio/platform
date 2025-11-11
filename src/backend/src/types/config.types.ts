@@ -35,10 +35,14 @@ export const PortalSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
   realmId: z.string().default('default'), // SPEC-C-P-015: Portal pertence a um Ambiente
-  activeModules: z.array(z.string()).default([]),
+  availableModules: z.array(z.string()).default([]), // Módulos adicionados ao portal (podem estar inativos)
+  activeModules: z.array(z.string()).default([]), // Módulos ativos no portal (subset de availableModules)
   removable: z.boolean().default(true),
   metadata: z.record(z.string(), z.unknown()).optional(),
-})
+}).refine(
+  (data) => data.activeModules.every(m => data.availableModules.includes(m)),
+  { message: 'activeModules must be a subset of availableModules' }
+)
 
 export type Portal = z.infer<typeof PortalSchema>
 

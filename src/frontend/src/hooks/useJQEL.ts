@@ -196,7 +196,8 @@ export interface Portal {
   name: string
   description?: string
   realmId: string
-  activeModules: string[]
+  availableModules: string[] // Modules added to portal (may be inactive)
+  activeModules: string[]    // Currently active modules (subset of availableModules)
   removable: boolean
   metadata?: Record<string, unknown>
 }

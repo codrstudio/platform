@@ -18,5 +18,155 @@
     "version": "1.0.0",
     "enabled": true,
     "metadata": {}
+  },
+  {
+    "moduleId": "chat",
+    "name": "Chat",
+    "description": "Sistema de mensagens em tempo real",
+    "type": "functionality",
+    "dependencies": ["auth"],
+    "version": "1.0.0",
+    "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "dashboard",
+    "name": "Dashboard",
+    "description": "Painel de visualização de dados e métricas",
+    "type": "functionality",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "tasks",
+    "name": "Tarefas",
+    "description": "Gestão de tarefas e projetos",
+    "type": "functionality",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "kanban",
+    "name": "Kanban",
+    "description": "Quadro Kanban para gestão visual de tarefas",
+    "type": "functionality",
+    "dependencies": ["tasks"],
+    "version": "1.0.0",
+    "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "journey",
+    "name": "Jornada",
+    "description": "Módulo de jornada do usuário",
+    "type": "functionality",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "notifications",
+    "name": "Notificações",
+    "description": "Sistema de notificações e alertas",
+    "type": "functionality",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "homepage",
+    "name": "Homepage",
+    "description": "Página inicial do portal",
+    "type": "functionality",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "sidebar",
+    "name": "Sidebar",
+    "description": "Componente de barra lateral de navegação",
+    "type": "component",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "loading",
+    "name": "Loading",
+    "description": "Componentes de carregamento e feedback visual",
+    "type": "component",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "forms",
+    "name": "Forms",
+    "description": "Componentes de formulários reutilizáveis",
+    "type": "component",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "command-palette",
+    "name": "Command Palette",
+    "description": "Paleta de comandos para navegação rápida",
+    "type": "component",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "markbrowser",
+    "name": "Mark Browser",
+    "description": "Navegador de marcações e anotações",
+    "type": "functionality",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "media-components",
+    "name": "Media Components",
+    "description": "Componentes de mídia (imagens, vídeos, áudio)",
+    "type": "component",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "export-components",
+    "name": "Export Components",
+    "description": "Componentes para exportação de dados",
+    "type": "component",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "app-components",
+    "name": "App Components",
+    "description": "Componentes base da aplicação",
+    "type": "component",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "metadata": {}
   }
 ]

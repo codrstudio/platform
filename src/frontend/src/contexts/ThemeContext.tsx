@@ -125,6 +125,37 @@ export function ThemeProvider({ children, realmId = 'default', portalId = '' }: 
   }, [mode])
 
   /**
+   * Keyboard shortcut: Ctrl+Shift+D to cycle through themes
+   * SPEC-TH-AC-015a to SPEC-TH-AC-015e
+   */
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // SPEC-TH-AC-015a: Ctrl+Shift+D
+      if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+        e.preventDefault() // SPEC-TH-AC-015b
+
+        // SPEC-TH-AC-015c: Cycle through light → dark → system → light
+        const themeSequence: ThemeMode[] = ['light', 'dark', 'system']
+        const currentIndex = themeSequence.indexOf(mode)
+        const nextIndex = (currentIndex + 1) % themeSequence.length
+        const nextMode = themeSequence[nextIndex]
+
+        setMode(nextMode)
+
+        // SPEC-TH-AC-015e: Visual feedback (optional toast)
+        // Toast is imported in components that need it
+      }
+    }
+
+    // SPEC-TH-AC-015d: Global registration
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [mode])
+
+  /**
    * Sync theme across tabs
    * SPEC-TH-LD-010
    * SPEC-TH-HC-025: Portal customizations persist across realm changes

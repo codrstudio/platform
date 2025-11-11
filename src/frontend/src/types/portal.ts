@@ -11,7 +11,8 @@ export interface Portal {
   name: string;               // Display name
   description?: string;       // Optional description
   realmId: string;            // Realm this portal belongs to (default: "default")
-  activeModules: string[];    // List of active module IDs
+  availableModules: string[]; // Modules added to portal (may be inactive)
+  activeModules: string[];    // Currently active modules (subset of availableModules)
   removable: boolean;         // Can be deleted
   metadata?: Record<string, unknown>;
 }

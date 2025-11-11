@@ -17,3 +17,5 @@ export type { Portal } from './usePortalsList';
 // Animation & Accessibility Hooks
 export { useScrollAnimation } from './useScrollAnimation';
 export { useReducedMotion } from './useReducedMotion';
+export { useLazySection } from './useLazySection';
+export { useWillChange } from './useWillChange';

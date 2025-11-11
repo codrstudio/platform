@@ -55,6 +55,15 @@ class ConfigService {
       const content = await fs.readFile(filePath, 'utf-8')
       const data = JSON.parse(content)
 
+      // Migration: For portals, initialize availableModules if not present
+      if (type === 'portals') {
+        data.forEach((item: any) => {
+          if (!item.availableModules) {
+            item.availableModules = item.activeModules || []
+          }
+        })
+      }
+
       // SPEC-CF-AS-006: Validate with Zod schema
       const validated = data.map((item: unknown) => schema.parse(item))
       return validated
