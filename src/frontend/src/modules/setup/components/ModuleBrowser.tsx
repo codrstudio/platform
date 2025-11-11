@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { useModules } from '@/hooks/useJQEL';
+import { toastWarning } from '@/lib/toast';
 
 interface ModuleBrowserProps {
   excludeModuleIds: string[];
@@ -72,7 +73,9 @@ export function ModuleBrowser({ excludeModuleIds, onAddModules, onClose }: Modul
       const missingNames = validation.missing
         .map(id => allModules.find(m => m.moduleId === id)?.name || id)
         .join(', ');
-      alert(`Dependências faltantes: ${missingNames}`);
+      toastWarning('Dependências faltantes', {
+        description: `Os seguintes módulos são necessários: ${missingNames}`
+      });
       return;
     }
 

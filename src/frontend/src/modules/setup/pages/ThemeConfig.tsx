@@ -10,8 +10,19 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { ArrowLeft, Save, Palette, Globe, Trash2 } from 'lucide-react';
 import { usePortal, useRealm } from '@/hooks/useJQEL';
+import { toastSuccess } from '@/lib/toast';
 import {
   getStoredBrandColor,
   setStoredBrandColor,
@@ -48,6 +59,7 @@ export function ThemeConfig() {
   const [realmBrandColor, setRealmBrandColorState] = useState('#0ea5e9');
   const [portalBrandColor, setPortalBrandColorState] = useState('#0ea5e9');
   const [hasPortalOverride, setHasPortalOverride] = useState(false);
+  const [showRemoveDialog, setShowRemoveDialog] = useState(false);
 
   // Load current colors from localStorage
   useEffect(() => {
@@ -77,7 +89,9 @@ export function ThemeConfig() {
     const hslColor = hexToHSL(realmBrandColor);
     setStoredBrandColor(realm.realmId, hslColor);
 
-    alert('Cor do ambiente salva! Recarregue a página para ver as mudanças.');
+    toastSuccess('Cor do ambiente salva', {
+      description: 'As alterações foram aplicadas a todos os portais do ambiente'
+    });
   };
 
   const handleSavePortalColor = () => {
@@ -87,15 +101,17 @@ export function ThemeConfig() {
     setPortalBrandColor(portal.portalId, hslColor);
     setHasPortalOverride(true);
 
-    alert('Cor do portal salva! Recarregue a página para ver as mudanças.');
+    toastSuccess('Cor do portal salva', {
+      description: 'A personalização foi aplicada somente a este portal'
+    });
   };
 
   const handleRemovePortalOverride = () => {
-    if (!portal || !realm) return;
+    setShowRemoveDialog(true);
+  };
 
-    if (!confirm('Tem certeza que deseja remover a customização do portal? Ele voltará a usar a cor do ambiente.')) {
-      return;
-    }
+  const confirmRemovePortalOverride = () => {
+    if (!portal || !realm) return;
 
     removePortalBrandColor(portal.portalId);
     setHasPortalOverride(false);
@@ -104,7 +120,11 @@ export function ThemeConfig() {
     const realmColor = getStoredBrandColor(realm.realmId);
     setPortalBrandColorState(hslToHex(realmColor));
 
-    alert('Customização removida! Recarregue a página para ver as mudanças.');
+    toastSuccess('Customização removida', {
+      description: 'O portal voltou a usar a cor do ambiente'
+    });
+
+    setShowRemoveDialog(false);
   };
 
   if (portalLoading || realmLoading) {
@@ -376,6 +396,24 @@ export function ThemeConfig() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Remove Customization Dialog */}
+      <AlertDialog open={showRemoveDialog} onOpenChange={setShowRemoveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remover customização do portal?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja remover a customização do portal? Ele voltará a usar a cor do ambiente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRemovePortalOverride}>
+              Confirmar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

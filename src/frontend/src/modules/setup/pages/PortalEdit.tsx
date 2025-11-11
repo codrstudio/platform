@@ -1,4 +1,4 @@
-// Portal Form Page
+// Portal Edit Page
 // Based on spec/ui/setup-module-interfaces.md Section 4.2
 
 import { useNavigate, useParams } from 'react-router-dom';
@@ -10,85 +10,66 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Save } from 'lucide-react';
-import { usePortal, useCreatePortal, useUpdatePortal, useRealms } from '@/hooks/useJQEL';
+import { usePortal, useUpdatePortal, useRealms } from '@/hooks/useJQEL';
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
+import { RealmQuickCreate } from '../components/RealmQuickCreate';
 
-export function PortalForm() {
+export function PortalEdit() {
   const { portalId } = useParams<{ portalId: string }>();
   const navigate = useNavigate();
-  const isEditing = portalId && portalId !== 'new';
 
   const { data: portalResult, isLoading } = usePortal(portalId || '');
   const { data: realmsResult, isLoading: realmsLoading } = useRealms();
-  const createPortalMutation = useCreatePortal();
   const updatePortalMutation = useUpdatePortal();
 
-  // Breadcrumb dinâmico
-  const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => {
-    const portalName = portalResult?.data?.[0]?.name || 'Novo Portal';
-    return [
-      { label: 'Home', href: '/' },
-      { label: 'Setup', href: '/setup' },
-      { label: 'Portais', href: '/setup/portals' },
-      { label: isEditing ? portalName : 'Novo Portal' }
-    ];
-  }, [isEditing, portalResult?.data]);
+  const portal = portalResult?.data?.[0];
+
+  const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => [
+    { label: 'Home', href: '/' },
+    { label: 'Setup', href: '/setup' },
+    { label: 'Portais', href: '/setup/portals' },
+    { label: portal?.name || 'Editar Portal' }
+  ], [portal?.name]);
 
   const [formData, setFormData] = useState({
-    portalId: '',
     name: '',
     description: '',
     realmId: 'default',
     removable: true,
-    activeModules: [] as string[],
   });
 
   const realms = realmsResult?.data || [];
 
   useEffect(() => {
-    if (isEditing && portalResult?.data?.[0]) {
-      const portal = portalResult.data[0];
+    if (portal) {
       setFormData({
-        portalId: portal.portalId,
         name: portal.name,
         description: portal.description || '',
         realmId: portal.realmId || 'default',
         removable: portal.removable,
-        activeModules: portal.activeModules || [],
       });
     }
-  }, [isEditing, portalResult]);
+  }, [portal]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!portalId) return;
+
     try {
-      if (isEditing) {
-        await updatePortalMutation.mutateAsync({
-          values: {
-            name: formData.name,
-            description: formData.description,
-            realmId: formData.realmId,
-            removable: formData.removable,
-          },
-          where: { portalId: { $eq: portalId! } },
-        });
-      } else {
-        await createPortalMutation.mutateAsync({
-          values: {
-            portalId: formData.portalId,
-            name: formData.name,
-            description: formData.description,
-            realmId: formData.realmId,
-            removable: formData.removable,
-            activeModules: [],
-          },
-        });
-      }
+      await updatePortalMutation.mutateAsync({
+        values: {
+          name: formData.name,
+          description: formData.description,
+          realmId: formData.realmId,
+          removable: formData.removable,
+        },
+        where: { portalId: { $eq: portalId } },
+      });
 
       navigate('/setup/portals');
     } catch (error) {
-      console.error('Error saving portal:', error);
+      console.error('Error updating portal:', error);
     }
   };
 
@@ -96,12 +77,25 @@ export function PortalForm() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const isSaving = createPortalMutation.isPending || updatePortalMutation.isPending;
+  const handleRealmCreated = (newRealmId: string) => {
+    // Seleciona automaticamente o ambiente recém-criado
+    setFormData(prev => ({ ...prev, realmId: newRealmId }));
+  };
+
+  const isSaving = updatePortalMutation.isPending;
 
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
         <p>Carregando portal...</p>
+      </div>
+    );
+  }
+
+  if (!portal) {
+    return (
+      <div className="container mx-auto p-6">
+        <p>Portal não encontrado</p>
       </div>
     );
   }
@@ -122,12 +116,10 @@ export function PortalForm() {
         </Button>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
-            {isEditing ? 'Editar Portal' : 'Novo Portal'}
+            Editar Portal
           </h1>
           <p className="text-muted-foreground mt-2">
-            {isEditing
-              ? 'Atualize as configurações do portal'
-              : 'Crie um novo portal na plataforma'}
+            Atualize as configurações do portal "{portal.name}"
           </p>
         </div>
       </div>
@@ -142,19 +134,16 @@ export function PortalForm() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Portal ID */}
+            {/* Portal ID - Read only */}
             <div className="space-y-2">
               <Label htmlFor="portalId">Portal ID</Label>
               <Input
                 id="portalId"
-                value={formData.portalId}
-                onChange={(e) => handleChange('portalId', e.target.value)}
-                disabled={!!isEditing}
-                placeholder="ex: meu-portal"
-                required
+                value={portalId}
+                disabled
               />
               <p className="text-sm text-muted-foreground">
-                Identificador único do portal (apenas letras minúsculas, números e hífen)
+                O ID do portal não pode ser alterado
               </p>
             </div>
 
@@ -195,7 +184,10 @@ export function PortalForm() {
 
             {/* Realm ID */}
             <div className="space-y-2">
-              <Label htmlFor="realmId">Ambiente</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="realmId">Ambiente</Label>
+                <RealmQuickCreate onRealmCreated={handleRealmCreated} />
+              </div>
               <Select
                 value={formData.realmId}
                 onValueChange={(value) => handleChange('realmId', value)}
@@ -235,35 +227,33 @@ export function PortalForm() {
           </Button>
           <Button type="submit" disabled={isSaving}>
             <Save className="h-4 w-4 mr-2" />
-            {isSaving ? 'Salvando...' : 'Salvar Portal'}
+            {isSaving ? 'Salvando...' : 'Salvar Alterações'}
           </Button>
         </div>
       </form>
 
-      {/* Additional Actions (only when editing) */}
-      {isEditing && (
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={() => navigate(`/setup/portals/${portalId}/theme`)}>
-            <CardHeader>
-              <CardTitle>Tema do Portal</CardTitle>
-              <CardDescription>
-                Configure cores e aparência personalizada
-              </CardDescription>
-            </CardHeader>
-          </Card>
+      {/* Additional Actions */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={() => navigate(`/setup/portals/${portalId}/theme`)}>
+          <CardHeader>
+            <CardTitle>Tema do Portal</CardTitle>
+            <CardDescription>
+              Configure cores e aparência personalizada
+            </CardDescription>
+          </CardHeader>
+        </Card>
 
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={() => navigate(`/setup/portals/${portalId}/modules`)}>
-            <CardHeader>
-              <CardTitle>Módulos Ativos</CardTitle>
-              <CardDescription>
-                Gerencie módulos e instâncias do portal
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
-      )}
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={() => navigate(`/setup/portals/${portalId}/modules`)}>
+          <CardHeader>
+            <CardTitle>Módulos Ativos</CardTitle>
+            <CardDescription>
+              Gerencie módulos e instâncias do portal
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
     </div>
   );
 }

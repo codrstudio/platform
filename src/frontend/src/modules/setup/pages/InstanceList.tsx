@@ -2,11 +2,21 @@
 // Based on spec/ui/setup-module-interfaces.md Section 4.5
 
 import { useNavigate, useParams } from 'react-router-dom';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { ArrowLeft, Plus, Settings, Trash2, Layers } from 'lucide-react';
 import { usePortal, useInstances, useUpdateInstance, useDeleteInstance, useModule } from '@/hooks/useJQEL';
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
@@ -25,6 +35,14 @@ export function InstanceList() {
   const module = moduleResult?.data?.[0]; // Fix: module is an array
   const instances = instancesResult?.data || [];
   const isLoading = isLoadingPortal || isLoadingInstances || isLoadingModule;
+
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    instanceId: string;
+  }>({
+    open: false,
+    instanceId: '',
+  });
 
   // Breadcrumb dinâmico
   const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => {
@@ -58,18 +76,19 @@ export function InstanceList() {
     }
   };
 
-  const deleteInstance = async (instanceId: string) => {
-    if (!confirm(`Tem certeza que deseja excluir esta instância?`)) {
-      return;
-    }
+  const deleteInstance = (instanceId: string) => {
+    setDeleteDialog({ open: true, instanceId });
+  };
 
+  const confirmDeleteInstance = async () => {
     try {
       await deleteInstanceMutation.mutateAsync({
         where: {
-          instanceId: { $eq: instanceId },
+          instanceId: { $eq: deleteDialog.instanceId },
           portalId: { $eq: portalId! },
         },
       });
+      setDeleteDialog({ open: false, instanceId: '' });
     } catch (error) {
       console.error('Error deleting instance:', error);
     }
@@ -210,6 +229,26 @@ export function InstanceList() {
           </CardContent>
         </Card>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, open })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir instância?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir a instância <strong>{deleteDialog.instanceId}</strong>?
+              <br />
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteInstance} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

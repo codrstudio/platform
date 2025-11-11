@@ -5,11 +5,22 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Plus, Settings, Trash2, Globe } from 'lucide-react';
 import { useRealms, useDeleteRealm, usePortals } from '@/hooks/useJQEL';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { PageBreadcrumb } from '@/components/navigation';
 import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb';
+import { toastError } from '@/lib/toast';
 
 export function RealmList() {
   const breadcrumbItems = useSetupBreadcrumb('Ambientes');
@@ -20,6 +31,18 @@ export function RealmList() {
   const realms = realmsResult?.data || [];
   const portals = portalsResult?.data || [];
 
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    realmId: string;
+    realmName: string;
+    portalCount: number;
+  }>({
+    open: false,
+    realmId: '',
+    realmName: '',
+    portalCount: 0,
+  });
+
   // Calculate portal count per realm
   const realmPortalCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -29,21 +52,25 @@ export function RealmList() {
     return counts;
   }, [portals]);
 
-  const handleDeleteRealm = async (realmId: string, realmName: string) => {
+  const handleDeleteRealm = (realmId: string, realmName: string) => {
     const portalCount = realmPortalCounts[realmId] || 0;
-    const message = portalCount > 0
-      ? `Tem certeza que deseja excluir o ambiente "${realmName}"?\n\n${portalCount} portal(is) será(ão) movido(s) para o ambiente "default".`
-      : `Tem certeza que deseja excluir o ambiente "${realmName}"?`;
+    setDeleteDialog({
+      open: true,
+      realmId,
+      realmName,
+      portalCount,
+    });
+  };
 
-    if (!confirm(message)) {
-      return;
-    }
-
+  const confirmDeleteRealm = async () => {
     try {
-      await deleteRealmMutation.mutateAsync(realmId);
+      await deleteRealmMutation.mutateAsync(deleteDialog.realmId);
+      setDeleteDialog({ open: false, realmId: '', realmName: '', portalCount: 0 });
     } catch (error) {
       console.error('Error deleting realm:', error);
-      alert('Erro ao excluir ambiente. Verifique o console para mais detalhes.');
+      toastError('Erro ao excluir ambiente', {
+        description: 'Verifique o console para mais detalhes'
+      });
     }
   };
 
@@ -169,6 +196,33 @@ export function RealmList() {
           </CardContent>
         </Card>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, open })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir ambiente "{deleteDialog.realmName}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteDialog.portalCount > 0 ? (
+                <>
+                  Tem certeza que deseja excluir este ambiente?
+                  <br />
+                  <br />
+                  <strong>{deleteDialog.portalCount} portal(is)</strong> será(ão) movido(s) para o ambiente "default".
+                </>
+              ) : (
+                'Tem certeza que deseja excluir este ambiente?'
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteRealm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

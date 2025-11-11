@@ -2,9 +2,20 @@
 // Based on spec/ui/setup-module-interfaces.md Section 4.1
 
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Plus, Settings, Trash2, Layers } from 'lucide-react';
 import { PageBreadcrumb } from '@/components/navigation';
 import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb';
@@ -17,15 +28,24 @@ export function PortalList() {
 
   const portals = portalsResult?.data || [];
 
-  const handleDeletePortal = async (portalId: string) => {
-    if (!confirm(`Tem certeza que deseja excluir o portal ${portalId}?`)) {
-      return;
-    }
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    portalId: string;
+  }>({
+    open: false,
+    portalId: '',
+  });
 
+  const handleDeletePortal = (portalId: string) => {
+    setDeleteDialog({ open: true, portalId });
+  };
+
+  const confirmDeletePortal = async () => {
     try {
       await deletePortalMutation.mutateAsync({
-        where: { portalId: { $eq: portalId } },
+        where: { portalId: { $eq: deleteDialog.portalId } },
       });
+      setDeleteDialog({ open: false, portalId: '' });
     } catch (error) {
       console.error('Error deleting portal:', error);
     }
@@ -142,6 +162,26 @@ export function PortalList() {
           </CardContent>
         </Card>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, open })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir portal?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o portal <strong>{deleteDialog.portalId}</strong>?
+              <br />
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeletePortal} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

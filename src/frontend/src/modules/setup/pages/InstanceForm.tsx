@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { ArrowLeft } from 'lucide-react';
 import { useInstance, useModule, useCreateInstance, useUpdateInstance } from '@/hooks/useJQEL';
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
+import { toastError } from '@/lib/toast';
 
 export function InstanceForm() {
   const { portalId, moduleId, instanceId } = useParams<{ portalId: string; moduleId: string; instanceId?: string }>();
@@ -88,7 +89,9 @@ export function InstanceForm() {
       navigate(`/setup/portals/${portalId}/modules/${moduleId}/instances`);
     } catch (error) {
       console.error('Error saving instance:', error);
-      alert('Erro ao salvar instância');
+      toastError('Erro ao salvar instância', {
+        description: 'Verifique o console para mais detalhes'
+      });
     }
   };
 

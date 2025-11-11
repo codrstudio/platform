@@ -11,6 +11,13 @@
           "brandColor": "221 83% 53%"
         }
       }
+    },
+    "sandbox": {
+      "realmId": "sandbox",
+      "name": "Sandbox",
+      "description": "Ambiente de Estudos",
+      "removable": true,
+      "config": {}
     }
   }
 }

@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Save } from 'lucide-react';
 import { useRealm, useCreateRealm, useUpdateRealm } from '@/hooks/useJQEL';
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
+import { toastError } from '@/lib/toast';
 
 export function RealmForm() {
   const { realmId } = useParams<{ realmId: string }>();
@@ -73,7 +74,9 @@ export function RealmForm() {
       navigate('/setup/realms');
     } catch (error) {
       console.error('Error saving realm:', error);
-      alert('Erro ao salvar ambiente. Verifique o console para mais detalhes.');
+      toastError('Erro ao salvar ambiente', {
+        description: 'Verifique o console para mais detalhes'
+      });
     }
   };
 

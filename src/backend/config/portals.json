@@ -17,5 +17,13 @@
     ],
     "removable": false,
     "metadata": {}
+  },
+  {
+    "portalId": "sandbox",
+    "name": "Sandbox",
+    "description": "Portal de Estudos",
+    "realmId": "sandbox",
+    "removable": true,
+    "activeModules": []
   }
 ]
