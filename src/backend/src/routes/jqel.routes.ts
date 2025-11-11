@@ -130,16 +130,16 @@ async function handleBackendSchema(query: JQELQuery, res: Response) {
     const entity = isSelect ? query.select : query.mutate
 
     // Validate entity
-    if (!['portal', 'portals', 'module', 'modules', 'instance', 'instances'].includes(entity!)) {
+    if (!['portal', 'portals', 'module', 'modules', 'instance', 'instances', 'realm', 'realms'].includes(entity!)) {
       return res.status(400).json({
         code: 400,
-        message: `Invalid entity: ${entity}. Must be 'portal', 'module', or 'instance'`,
+        message: `Invalid entity: ${entity}. Must be 'portal', 'module', 'instance', or 'realm'`,
         data: null,
       } as JResult)
     }
 
     // Normalize entity name (singular form)
-    const normalizedEntity = entity!.replace(/s$/, '') as 'portal' | 'module' | 'instance'
+    const normalizedEntity = entity!.replace(/s$/, '') as 'portal' | 'module' | 'instance' | 'realm'
 
     if (isSelect) {
       return await handleSelect(query, normalizedEntity, res)
@@ -159,7 +159,7 @@ async function handleBackendSchema(query: JQELQuery, res: Response) {
 /**
  * Handle SELECT queries
  */
-async function handleSelect(query: JQELQuery, entity: 'portal' | 'module' | 'instance', res: Response) {
+async function handleSelect(query: JQELQuery, entity: 'portal' | 'module' | 'instance' | 'realm', res: Response) {
   // Load data based on entity
   let data: any[] = []
   switch (entity) {
@@ -171,6 +171,9 @@ async function handleSelect(query: JQELQuery, entity: 'portal' | 'module' | 'ins
       break
     case 'instance':
       data = await configService.getInstances()
+      break
+    case 'realm':
+      data = await configService.getRealms()
       break
   }
 
@@ -187,7 +190,7 @@ async function handleSelect(query: JQELQuery, entity: 'portal' | 'module' | 'ins
 /**
  * Handle MUTATE queries (INSERT/UPDATE/DELETE)
  */
-async function handleMutate(query: JQELQuery, entity: 'portal' | 'module' | 'instance', res: Response) {
+async function handleMutate(query: JQELQuery, entity: 'portal' | 'module' | 'instance' | 'realm', res: Response) {
   const action = query.action
 
   if (!action || !['insert', 'update', 'delete'].includes(action)) {
@@ -217,7 +220,7 @@ async function handleMutate(query: JQELQuery, entity: 'portal' | 'module' | 'ins
 /**
  * Handle INSERT
  */
-async function handleInsert(query: JQELQuery, entity: 'portal' | 'module' | 'instance', res: Response) {
+async function handleInsert(query: JQELQuery, entity: 'portal' | 'module' | 'instance' | 'realm', res: Response) {
   // Type guard for mutate query
   if (!('mutate' in query)) {
     return res.status(400).json({
@@ -278,6 +281,16 @@ async function handleInsert(query: JQELQuery, entity: 'portal' | 'module' | 'ins
       data = [newItem]
       break
     }
+    case 'realm': {
+      const realm = newItem as any
+      await configService.createRealm(realm)
+
+      // Emit config-changed event
+      await emitConfigChanged('realm', realm.realmId, 'create', realm)
+
+      data = [realm]
+      break
+    }
   }
 
   return res.status(201).json({
@@ -290,7 +303,7 @@ async function handleInsert(query: JQELQuery, entity: 'portal' | 'module' | 'ins
 /**
  * Handle UPDATE
  */
-async function handleUpdate(query: JQELQuery, entity: 'portal' | 'module' | 'instance', res: Response) {
+async function handleUpdate(query: JQELQuery, entity: 'portal' | 'module' | 'instance' | 'realm', res: Response) {
   // Type guard for mutate query
   if (!('mutate' in query)) {
     return res.status(400).json({
@@ -387,6 +400,23 @@ async function handleUpdate(query: JQELQuery, entity: 'portal' | 'module' | 'ins
       data = applyWhere(instances, query.where)
       break
     }
+    case 'realm': {
+      const realms = await configService.getRealms()
+      const matchingRealms = applyWhere(realms, query.where)
+
+      for (const match of matchingRealms) {
+        await configService.updateRealm(match.realmId, query.values)
+        updated++
+
+        // Emit config-changed event
+        await emitConfigChanged('realm', match.realmId, 'update', query.values)
+      }
+
+      data = await Promise.all(
+        matchingRealms.map(m => configService.getRealmById(m.realmId))
+      ).then(results => results.filter(Boolean))
+      break
+    }
   }
 
   return res.status(200).json({
@@ -399,7 +429,7 @@ async function handleUpdate(query: JQELQuery, entity: 'portal' | 'module' | 'ins
 /**
  * Handle DELETE
  */
-async function handleDelete(query: JQELQuery, entity: 'portal' | 'module' | 'instance', res: Response) {
+async function handleDelete(query: JQELQuery, entity: 'portal' | 'module' | 'instance' | 'realm', res: Response) {
   if (!query.where) {
     return res.status(400).json({
       code: 400,
@@ -447,6 +477,19 @@ async function handleDelete(query: JQELQuery, entity: 'portal' | 'module' | 'ins
       )
       deleted = instances.length - remaining.length
       await configService.saveInstances(remaining)
+      break
+    }
+    case 'realm': {
+      const realms = await configService.getRealms()
+      const matchingRealms = applyWhere(realms, query.where)
+
+      for (const realm of matchingRealms) {
+        await configService.deleteRealm(realm.realmId)
+        deleted++
+
+        // Emit config-changed event
+        await emitConfigChanged('realm', realm.realmId, 'delete')
+      }
       break
     }
   }

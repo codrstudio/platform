@@ -7,8 +7,6 @@ import { env } from './config/env.js'
 import authRoutes from './routes/auth.routes.js'
 import jqelRoutes from './routes/jqel.routes.js'
 import eventsRoutes from './routes/events.routes.js'
-import configRoutes from './routes/config.routes.js'
-import realmRoutes from './routes/realm.routes.js'
 import adminRoutes from './routes/admin.routes.js'
 import cacheRoutes from './routes/cache.routes.js'
 import assetsRoutes from './routes/assets.routes.js'
@@ -76,12 +74,6 @@ app.use('/api/jqel', jqelRoutes)
 
 // Events routes (SPEC-EV-SSE-005, SPEC-CH-EV-015)
 app.use('/api/events', eventsRoutes)
-
-// Configuration routes (SPEC-CF-AS-*)
-app.use('/api/config', configRoutes)
-
-// Realm routes (SPEC-RM-CR-*)
-app.use('/api/realms', realmRoutes)
 
 // Admin routes (BullBoard UI for queue management)
 app.use('/admin', adminRoutes)
