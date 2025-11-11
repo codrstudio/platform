@@ -1,0 +1,53 @@
+{
+  "name": "nic-chat",
+  "version": "1.0.0",
+  "description": "NIC Chat - Núcleo de Inteligência e Conhecimento",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\" --names \"backend,frontend\" --prefix-colors \"blue,magenta\"",
+    "dev:client": "vite",
+    "dev:server": "tsx watch server/index.ts",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+  },
+  "dependencies": {
+    "@tailwindcss/typography": "^0.5.19",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "gray-matter": "^4.0.3",
+    "lucide-react": "^0.294.0",
+    "mermaid": "^11.12.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^6.21.0",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.8.1",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.16",
+    "buffer": "^6.0.3",
+    "concurrently": "^9.2.1",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.8",
+    "vite-plugin-node-polyfills": "^0.24.0",
+    "vite-plugin-pwa": "^1.1.0"
+  }
+}

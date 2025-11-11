@@ -1,0 +1,94 @@
+{
+  "name": "NIC Agents Discovery",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "nic/v1/agents",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "nic-agents-discovery"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lista de agentes N8N disponíveis\n// Cada agente pode ser um workflow separado ou uma configuração aqui\n\nconst agents = [\n  {\n    name: 'helpdesk-specialist',\n    title: 'Especialista HelpDesk',\n    description: 'Assistente especializado em suporte técnico e atendimento ao cliente. Ajuda com tickets, troubleshooting e resolução de problemas.',\n    systemPrompt: `Você é um especialista em HelpDesk com vasta experiência em suporte técnico e atendimento ao cliente.\n\nSuas responsabilidades:\n- Analisar tickets e problemas reportados\n- Fornecer soluções claras e passo a passo\n- Manter tom profissional e empático\n- Priorizar resolução rápida e eficiente\n- Documentar soluções para referência futura\n\nSempre seja prestativo, paciente e focado em resolver o problema do usuário.`,\n    endpoint: '/webhook/nic/v1/agents/helpdesk-specialist/chat',\n    icon: '🎧',\n    tags: ['suporte', 'tickets', 'helpdesk', 'atendimento'],\n    enabled: true\n  },\n  {\n    name: 'code-reviewer',\n    title: 'Revisor de Código',\n    description: 'Especialista em revisão de código, boas práticas e qualidade de software. Analisa código e sugere melhorias.',\n    systemPrompt: `Você é um revisor de código experiente com profundo conhecimento em múltiplas linguagens de programação.\n\nSua missão:\n- Analisar código em busca de bugs, vulnerabilidades e code smells\n- Sugerir melhorias de performance e legibilidade\n- Recomendar padrões de design e arquitetura\n- Verificar conformidade com boas práticas\n- Explicar o raciocínio por trás de cada sugestão\n\nSeja construtivo, objetivo e educativo em suas revisões.`,\n    endpoint: '/webhook/nic/v1/agents/code-reviewer/chat',\n    icon: '👨‍💻',\n    tags: ['codigo', 'revisao', 'qualidade', 'desenvolvimento'],\n    enabled: true\n  },\n  {\n    name: 'data-analyst',\n    title: 'Analista de Dados',\n    description: 'Especialista em análise de dados, visualizações e insights. Ajuda a interpretar dados e criar relatórios.',\n    systemPrompt: `Você é um analista de dados experiente, especializado em transformar dados brutos em insights acionáveis.\n\nSuas competências:\n- Análise exploratória de dados\n- Criação de visualizações e dashboards\n- Interpretação de métricas e KPIs\n- Identificação de padrões e tendências\n- Recomendações baseadas em dados\n\nForneça análises claras, objetivas e apoiadas por evidências.`,\n    endpoint: '/webhook/nic/v1/agents/data-analyst/chat',\n    icon: '📊',\n    tags: ['dados', 'analise', 'metricas', 'relatorios'],\n    enabled: true\n  },\n  {\n    name: 'documentation-writer',\n    title: 'Escritor de Documentação',\n    description: 'Especialista em criar documentação técnica clara e abrangente. Transforma código complexo em guias compreensíveis.',\n    systemPrompt: `Você é um escritor técnico especializado em criar documentação clara, concisa e útil.\n\nSeu foco:\n- Escrever documentação técnica acessível\n- Criar guias passo a passo\n- Documentar APIs e interfaces\n- Explicar conceitos complexos de forma simples\n- Organizar informação de forma lógica\n\nPriorize clareza, exemplos práticos e estrutura bem definida.`,\n    endpoint: '/webhook/nic/v1/agents/documentation-writer/chat',\n    icon: '📝',\n    tags: ['documentacao', 'escrita', 'guias', 'tutoriais'],\n    enabled: true\n  }\n];\n\n// Filtrar apenas agentes habilitados\nconst enabledAgents = agents.filter(agent => agent.enabled);\n\n// Retornar resposta no formato esperado\nreturn {\n  agents: enabledAgents,\n  count: enabledAgents.length,\n  timestamp: new Date().toISOString()\n};"
+      },
+      "id": "code-agents-list",
+      "name": "Agents List",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [680, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Agents List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agents List": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "nic-chat",
+      "id": "nic-chat"
+    },
+    {
+      "name": "agents",
+      "id": "agents"
+    }
+  ],
+  "meta": {
+    "instanceId": "n8n-coletivos"
+  }
+}
