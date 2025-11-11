@@ -4,6 +4,7 @@
     "name": "Portal Principal",
     "description": "Portal principal da plataforma",
     "realmId": "default",
+    "availableModules": [],
     "activeModules": [],
     "removable": false,
     "metadata": {}
@@ -12,6 +13,9 @@
     "portalId": "setup",
     "name": "Setup",
     "realmId": "default",
+    "availableModules": [
+      "setup"
+    ],
     "activeModules": [
       "setup"
     ],
@@ -23,7 +27,11 @@
     "name": "Sandbox",
     "description": "Portal de Estudos",
     "realmId": "sandbox",
-    "removable": true,
-    "activeModules": []
+    "availableModules": [
+      "setup",
+      "auth"
+    ],
+    "activeModules": [],
+    "removable": true
   }
 ]

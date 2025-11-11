@@ -19,8 +19,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Save, Palette, Globe, Trash2, Image } from 'lucide-react';
+import { ArrowLeft, Save, Palette, Globe, Trash2, Image, Sun, Moon, Monitor } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { usePortal, useRealm } from '@/hooks/useJQEL';
+import { useTheme } from '@/contexts/ThemeContext';
 import { toastSuccess } from '@/lib/toast';
 import { IconUploader } from '../components/IconUploader';
 import {
@@ -40,6 +43,7 @@ export function ThemeConfig() {
   const portal = portalResult?.data?.[0] || null;
   const { data: realmResult, isLoading: realmLoading } = useRealm(portal?.realmId || '');
   const realm = realmResult?.data;
+  const { mode, setMode } = useTheme();
   // Breadcrumb dinâmico
   const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => {
     const portalName = portal?.name || 'Portal';
@@ -175,6 +179,95 @@ export function ThemeConfig() {
         </TabsList>
         {/* Realm Tab */}
         <TabsContent value="realm" className="space-y-6 mt-6">
+          {/* Theme Mode Selector */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Monitor className="h-5 w-5 text-primary" />
+                <CardTitle>Modo de Tema</CardTitle>
+              </div>
+              <CardDescription>
+                Defina o modo de visualização para todos os portais do ambiente "{realm?.name || 'padrão'}".
+                Esta configuração será aplicada globalmente.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <TooltipProvider>
+                <RadioGroup value={mode} onValueChange={setMode} className="grid gap-4">
+                  <div className="flex items-center space-x-3 rounded-lg border p-4 hover:bg-accent/50 transition-colors">
+                    <RadioGroupItem value="light" id="theme-light" />
+                    <Label
+                      htmlFor="theme-light"
+                      className="flex items-center gap-3 cursor-pointer flex-1"
+                    >
+                      <Sun className="h-5 w-5 text-yellow-500" />
+                      <div className="flex flex-col">
+                        <span className="font-medium">Tema Claro</span>
+                        <span className="text-sm text-muted-foreground">
+                          Interface com fundo claro
+                        </span>
+                      </div>
+                    </Label>
+                  </div>
+
+                  <div className="flex items-center space-x-3 rounded-lg border p-4 hover:bg-accent/50 transition-colors">
+                    <RadioGroupItem value="dark" id="theme-dark" />
+                    <Label
+                      htmlFor="theme-dark"
+                      className="flex items-center gap-3 cursor-pointer flex-1"
+                    >
+                      <Moon className="h-5 w-5 text-blue-500" />
+                      <div className="flex flex-col">
+                        <span className="font-medium">Tema Escuro</span>
+                        <span className="text-sm text-muted-foreground">
+                          Interface com fundo escuro
+                        </span>
+                      </div>
+                    </Label>
+                  </div>
+
+                  <div className="flex items-center space-x-3 rounded-lg border p-4 hover:bg-accent/50 transition-colors">
+                    <RadioGroupItem value="system" id="theme-system" />
+                    <Label
+                      htmlFor="theme-system"
+                      className="flex items-center gap-3 cursor-pointer flex-1"
+                    >
+                      <Monitor className="h-5 w-5 text-primary" />
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">Seguir Sistema</span>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Badge variant="secondary" className="text-xs">
+                                Padrão
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="max-w-xs">
+                                O tema será ajustado automaticamente de acordo com a preferência
+                                do sistema operacional (claro durante o dia, escuro à noite).
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                        <span className="text-sm text-muted-foreground">
+                          Adapta-se automaticamente ao SO
+                        </span>
+                      </div>
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </TooltipProvider>
+
+              <div className="mt-4 p-3 rounded-lg bg-muted/50 text-sm text-muted-foreground">
+                <p>
+                  <strong>Dica:</strong> Use o atalho <kbd className="px-2 py-1 bg-background rounded border text-xs font-mono">Ctrl+Shift+D</kbd> para alternar rapidamente entre os temas.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Brand Color Card */}
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
