@@ -56,7 +56,7 @@ function CacheEpochSync() {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/cache/epoch`);
         const result = await response.json();
-        
+
         if (result.success && result.data?.epoch) {
           cacheValidator.updateEpoch(result.data.epoch);
         }

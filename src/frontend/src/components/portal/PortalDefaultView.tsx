@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PageBreadcrumb } from '@/components/navigation';
 import { useBreadcrumb } from '@/hooks/useBreadcrumb';
-import { usePortalExists } from '@/hooks/usePortalExists';
 
 export interface PortalDefaultViewProps {
   portalId: string;
@@ -25,20 +24,13 @@ export function PortalDefaultView({
 }: PortalDefaultViewProps) {
   const navigate = useNavigate();
 
-  // Verifica se o portal "setup" existe para mostrar link "Editar"
-  const { data: setupExists } = usePortalExists('setup');
-
   // Determina o nome exibido do portal
   const displayName = portalName || portalId.charAt(0).toUpperCase() + portalId.slice(1);
 
   // Gera breadcrumb items
   const breadcrumbItems = useBreadcrumb({
     portalId,
-    portalName: displayName,
-    customItems: setupExists && portalId !== 'setup' ? [
-      { label: displayName },
-      { label: 'Editar', href: `/setup/portals/${portalId}` }
-    ] : undefined
+    portalName: displayName
   });
 
   // Subtítulo baseado no contexto do portal
