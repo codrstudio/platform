@@ -47,6 +47,64 @@ self.addEventListener('message', (event) => {
     // Responde ao client confirmando que o comando foi processado
     event.ports[0]?.postMessage({ type: 'SKIP_WAITING_PROCESSED' })
   }
+
+  if (event.data && event.data.type === 'INVALIDATE_ICONS') {
+    console.log('[SW] Processing INVALIDATE_ICONS message')
+
+    // Invalida cache de ícones e manifest
+    event.waitUntil(
+      caches.open('icons-cache').then((cache) => {
+        return cache.keys().then((keys) => {
+          // Remove todos os ícones do cache
+          const deletePromises = keys.map((key) => {
+            console.log('[SW] Deleting from cache:', key.url)
+            return cache.delete(key)
+          })
+          return Promise.all(deletePromises)
+        })
+      }).then(() => {
+        // Também limpa cache de images que pode ter PWA icons
+        return caches.open('images-cache').then((cache) => {
+          return cache.keys().then((keys) => {
+            const iconKeys = keys.filter((key) =>
+              key.url.includes('/assets/') &&
+              (key.url.includes('favicon') ||
+               key.url.includes('pwa-') ||
+               key.url.includes('apple-touch'))
+            )
+            const deletePromises = iconKeys.map((key) => {
+              console.log('[SW] Deleting icon from images-cache:', key.url)
+              return cache.delete(key)
+            })
+            return Promise.all(deletePromises)
+          })
+        })
+      }).then(() => {
+        // Remove manifest do cache
+        return caches.open('api-cache').then((cache) => {
+          return cache.keys().then((keys) => {
+            const manifestKeys = keys.filter((key) =>
+              key.url.includes('manifest.webmanifest')
+            )
+            const deletePromises = manifestKeys.map((key) => {
+              console.log('[SW] Deleting manifest from cache:', key.url)
+              return cache.delete(key)
+            })
+            return Promise.all(deletePromises)
+          })
+        })
+      }).then(() => {
+        console.log('[SW] Icon cache invalidation complete')
+
+        // Responde ao client
+        if (event.ports[0]) {
+          event.ports[0].postMessage({ type: 'ICONS_CACHE_INVALIDATED' })
+        }
+      }).catch((error) => {
+        console.error('[SW] Error invalidating icon cache:', error)
+      })
+    )
+  }
 })
 
 // ============================================================================
@@ -65,6 +123,44 @@ registerRoute(
       new ExpirationPlugin({
         maxEntries: 50,
         maxAgeSeconds: 5 * 60, // 5 minutos
+      }),
+    ],
+  })
+)
+
+// Icons & PWA assets - Cache First with shorter expiration for updates
+registerRoute(
+  ({ url }) =>
+    url.pathname.includes('/assets/') &&
+    (url.pathname.includes('favicon') ||
+     url.pathname.includes('pwa-') ||
+     url.pathname.includes('apple-touch')),
+  new CacheFirst({
+    cacheName: 'icons-cache',
+    plugins: [
+      new CacheableResponsePlugin({
+        statuses: [0, 200],
+      }),
+      new ExpirationPlugin({
+        maxEntries: 20,
+        maxAgeSeconds: 7 * 24 * 60 * 60, // 7 dias
+      }),
+    ],
+  })
+)
+
+// Manifest - Cache First with shorter expiration
+registerRoute(
+  ({ url }) => url.pathname.includes('manifest.webmanifest'),
+  new CacheFirst({
+    cacheName: 'manifest-cache',
+    plugins: [
+      new CacheableResponsePlugin({
+        statuses: [0, 200],
+      }),
+      new ExpirationPlugin({
+        maxEntries: 5,
+        maxAgeSeconds: 24 * 60 * 60, // 1 dia
       }),
     ],
   })
