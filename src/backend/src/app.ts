@@ -10,6 +10,8 @@ import configRoutes from './routes/config.routes.js'
 import realmRoutes from './routes/realm.routes.js'
 import adminRoutes from './routes/admin.routes.js'
 import cacheRoutes from './routes/cache.routes.js'
+import assetsRoutes from './routes/assets.routes.js'
+import manifestRoutes from './routes/manifest.routes.js'
 import { cacheEpochMiddleware } from './middleware/cache-epoch.middleware.js'
 import { clearSiteDataMiddleware } from './middleware/clear-site-data.middleware.js'
 
@@ -82,6 +84,12 @@ app.use('/admin', adminRoutes)
 
 // Cache routes - epoch management
 app.use('/api/cache', cacheRoutes)
+
+// Assets routes - icon upload and management
+app.use('/api/1/assets', assetsRoutes)
+
+// Manifest routes - dynamic PWA manifest
+app.use('/', manifestRoutes)
 
 // 404 handler
 app.use((_req: Request, res: Response) => {
