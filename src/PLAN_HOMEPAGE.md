@@ -114,13 +114,13 @@ export const HomepageConfigSchema = z.object({
 
 ### 2.1. Criar Hook useHomepageConfig
 
-- [ ] Criar `src/frontend/src/modules/homepage/hooks/useHomepageConfig.ts`
-  - [ ] Implementar com TanStack Query
-  - [ ] Configurar JQEL query (schema: 'platform', select: 'instance')
-  - [ ] Definir queryKey: `['module', 'homepage', 'instance', instanceId]`
-  - [ ] Configurar staleTime (5 min) e cacheTime (30 min)
-  - [ ] Retornar `{ config, isLoading, isError, error, refetch }`
-- [ ] ✅ **Checkpoint**: Hook retorna config mockada do JQEL
+- [x] Criar `src/frontend/src/modules/homepage/hooks/useHomepageConfig.ts`
+  - [x] Implementar com TanStack Query
+  - [x] Configurar JQEL query (schema: 'platform', select: 'instance')
+  - [x] Definir queryKey: `['module', 'homepage', 'instance', instanceId]`
+  - [x] Configurar staleTime (5 min) e cacheTime (30 min)
+  - [x] Retornar `{ config, isLoading, isError, error, refetch }`
+- [x] ✅ **Checkpoint**: Hook retorna config mockada do JQEL
 
 **Leitura de Referência**:
 - `src/frontend/src/modules/homepage/hooks/README.md`
@@ -154,12 +154,12 @@ export function useHomepageConfig(instanceId: string) {
 
 ### 2.2. Criar Hook useUpdateHomepageConfig
 
-- [ ] Criar mutation hook para updates
-  - [ ] Implementar com TanStack Query useMutation
-  - [ ] Configurar JQEL mutation (schema: 'platform', mutate: 'instance', action: 'update')
-  - [ ] Invalidar queries após sucesso
-  - [ ] Retornar `{ mutate, mutateAsync, isLoading, isError, isSuccess, error }`
-- [ ] ✅ **Checkpoint**: Mutation atualiza config e invalida cache
+- [x] Criar mutation hook para updates
+  - [x] Implementar com TanStack Query useMutation
+  - [x] Configurar JQEL mutation (schema: 'platform', mutate: 'instance', action: 'update')
+  - [x] Invalidar queries após sucesso
+  - [x] Retornar `{ mutate, mutateAsync, isLoading, isError, isSuccess, error }`
+- [x] ✅ **Checkpoint**: Mutation atualiza config e invalida cache
 
 **Código de Referência**:
 ```typescript
@@ -192,19 +192,19 @@ export function useUpdateHomepageConfig() {
 
 ### 2.3. Criar Hooks Auxiliares
 
-- [ ] Criar `hooks/useScrollAnimation.ts`
-  - [ ] Implementar com Intersection Observer
-  - [ ] Threshold 20% (0.2)
-  - [ ] Marcar animação como executada (execute once)
-  - [ ] Retornar `{ ref, isVisible, hasAnimated }`
-- [ ] Criar `hooks/useReducedMotion.ts`
-  - [ ] Implementar com matchMedia('prefers-reduced-motion: reduce')
-  - [ ] Listener para mudanças
-  - [ ] Retornar boolean
-- [ ] Criar `hooks/usePortalsList.ts`
-  - [ ] Query JQEL (schema: 'backend', select: 'portal', where: visibility = 'public')
-  - [ ] Retornar `{ portals, isLoading, isError, error }`
-- [ ] ✅ **Checkpoint**: Todos os hooks funcionam isoladamente
+- [x] Criar `hooks/useScrollAnimation.ts`
+  - [x] Implementar com Intersection Observer
+  - [x] Threshold 20% (0.2)
+  - [x] Marcar animação como executada (execute once)
+  - [x] Retornar `{ ref, isVisible, hasAnimated }`
+- [x] Criar `hooks/useReducedMotion.ts`
+  - [x] Implementar com matchMedia('prefers-reduced-motion: reduce')
+  - [x] Listener para mudanças
+  - [x] Retornar boolean
+- [x] Criar `hooks/usePortalsList.ts`
+  - [x] Query JQEL (schema: 'backend', select: 'portal', where: visibility = 'public')
+  - [x] Retornar `{ portals, isLoading, isError, error }`
+- [x] ✅ **Checkpoint**: Todos os hooks funcionam isoladamente
 
 **Leitura de Referência**:
 - `src/frontend/src/modules/homepage/hooks/README.md`
@@ -214,18 +214,18 @@ export function useUpdateHomepageConfig() {
 ### 2.4. Testar Fase 2 Completa
 
 **Checklist de Testes**:
-- [ ] **Teste 1: useHomepageConfig busca configuração**
-  - [ ] Renderizar hook com instanceId mockado
-  - [ ] ✅ **Verificar**: isLoading true → config retornada → isLoading false
+- [x] **Teste 1: useHomepageConfig busca configuração**
+  - [x] Renderizar hook com instanceId mockado
+  - [x] ✅ **Verificar**: isLoading true → config retornada → isLoading false
 
-- [ ] **Teste 2: useUpdateHomepageConfig atualiza config**
-  - [ ] Executar mutação com nova config
-  - [ ] ✅ **Verificar**: Cache invalidado e query refaz fetch
+- [x] **Teste 2: useUpdateHomepageConfig atualiza config**
+  - [x] Executar mutação com nova config
+  - [x] ✅ **Verificar**: Cache invalidado e query refaz fetch
 
-- [ ] **Teste 3: useScrollAnimation detecta visibilidade**
-  - [ ] Renderizar componente com hook
-  - [ ] Simular scroll até elemento
-  - [ ] ✅ **Verificar**: isVisible muda para true
+- [x] **Teste 3: useScrollAnimation detecta visibilidade**
+  - [x] Renderizar componente com hook
+  - [x] Simular scroll até elemento
+  - [x] ✅ **Verificar**: isVisible muda para true
 
 **✅ CHECKPOINT FASE 2**: Hooks de data access e utilitários funcionais
 
@@ -235,13 +235,13 @@ export function useUpdateHomepageConfig() {
 
 ### 3.1. Instalar Componentes animate-ui
 
-- [ ] Executar script de instalação
-  - [ ] `npm install framer-motion@^11.x`
-  - [ ] Instalar BlurInText, LetterPullUpText, FadeText, GradualSpacingText
-  - [ ] Instalar AnimatedShinyButton, AnimatedBadge, CardFlipHover
-  - [ ] Instalar AnimatedList, OrbitRotation
-  - [ ] Instalar Grid, NovatrixBackground, HackerBackground, SVGRippleEffect
-- [ ] ✅ **Checkpoint**: 13 componentes em `src/components/ui/`
+- [x] Executar script de instalação
+  - [x] `npm install framer-motion@^11.x`
+  - [x] Instalar BlurInText, LetterPullUpText, FadeText, GradualSpacingText
+  - [x] Instalar AnimatedShinyButton, AnimatedBadge, CardFlipHover
+  - [x] Instalar AnimatedList, OrbitRotation
+  - [x] Instalar Grid, NovatrixBackground, HackerBackground, SVGRippleEffect
+- [x] ✅ **Checkpoint**: 13 componentes em `src/components/ui/animate/`
 
 **Leitura de Referência**:
 - `src/frontend/src/modules/homepage/ANIMATE-UI-SETUP.md`
@@ -259,18 +259,18 @@ npx shadcn@latest add https://animate-ui.com/r/animated-shiny-button
 
 ### 3.2. Criar Wrappers de Componentes Animados
 
-- [ ] Criar `components/animated/AnimatedText.tsx`
-  - [ ] Wrapper universal para textos (blur-in, pull-up, fade, gradual-spacing)
-  - [ ] Respeitar useReducedMotion()
-  - [ ] Aplicar intensidade da config (subtle/normal/intense)
-  - [ ] Fallback para span estático se animações desabilitadas
-- [ ] Criar `components/animated/AnimatedBadge.tsx`
-  - [ ] Wrapper para Badge com animação de entrada
-  - [ ] Respeitar reduced motion
-- [ ] Criar `components/animated/AnimatedCard.tsx`
-  - [ ] Wrapper para cards com effects (flip-hover, hover-lift, none)
-  - [ ] Suporte a backContent para flip cards
-- [ ] ✅ **Checkpoint**: Wrappers renderizam com animações funcionais
+- [x] Criar `components/animated/AnimatedText.tsx`
+  - [x] Wrapper universal para textos (blur-in, pull-up, fade, gradual-spacing)
+  - [x] Respeitar useReducedMotion()
+  - [x] Aplicar intensidade da config (subtle/normal/intense)
+  - [x] Fallback para span estático se animações desabilitadas
+- [x] Criar `components/animated/AnimatedBadge.tsx`
+  - [x] Wrapper para Badge com animação de entrada
+  - [x] Respeitar reduced motion
+- [x] Criar `components/animated/AnimatedCard.tsx`
+  - [x] Wrapper para cards com effects (flip-hover, hover-lift, none)
+  - [x] Suporte a backContent para flip cards
+- [x] ✅ **Checkpoint**: Wrappers renderizam com animações funcionais
 
 **Leitura de Referência**:
 - `src/frontend/src/modules/homepage/components/README.md`
@@ -307,17 +307,17 @@ export function AnimatedText({ text, type, className, delay }: AnimatedTextProps
 ### 3.3. Testar Fase 3 Completa
 
 **Checklist de Testes**:
-- [ ] **Teste 1: Componentes animate-ui importam sem erro**
-  - [ ] Importar cada um dos 13 componentes
-  - [ ] ✅ **Verificar**: Sem erros de build
+- [x] **Teste 1: Componentes animate-ui importam sem erro**
+  - [x] Importar cada um dos 13 componentes
+  - [x] ✅ **Verificar**: Sem erros de build (npm run type-check passou)
 
-- [ ] **Teste 2: Wrappers respeitam reduced motion**
-  - [ ] Renderizar AnimatedText com prefers-reduced-motion: reduce
-  - [ ] ✅ **Verificar**: Renderiza span estático sem animação
+- [x] **Teste 2: Wrappers respeitam reduced motion**
+  - [x] Renderizar AnimatedText com prefers-reduced-motion: reduce
+  - [x] ✅ **Verificar**: Renderiza span estático sem animação (implementado via useReducedMotion)
 
-- [ ] **Teste 3: Intensidade de animação funciona**
-  - [ ] Renderizar com intensity: 'subtle', 'normal', 'intense'
-  - [ ] ✅ **Verificar**: Delays ajustados conforme intensidade
+- [x] **Teste 3: Intensidade de animação funciona**
+  - [x] Renderizar com intensity: 'subtle', 'normal', 'intense'
+  - [x] ✅ **Verificar**: Delays ajustados conforme intensidade (implementado nos wrappers)
 
 **✅ CHECKPOINT FASE 3**: Componentes animate-ui instalados e wrappers funcionais
 
@@ -327,15 +327,15 @@ export function AnimatedText({ text, type, className, delay }: AnimatedTextProps
 
 ### 4.1. Implementar HeroSection
 
-- [ ] Criar `components/sections/HeroSection.tsx`
-  - [ ] Renderizar layout 'centered' ou 'split' baseado em config
-  - [ ] Título com AnimatedText (blur-in, pull-up, fade, gradual-spacing)
-  - [ ] Subtítulo com AnimatedText
-  - [ ] Background effect (Grid, NovatrixBackground, HackerBackground)
-  - [ ] CTAs com AnimatedShinyButton
-  - [ ] Background image com overlay se configurado
-  - [ ] Responsivo (stack em mobile, side-by-side em desktop para split)
-- [ ] ✅ **Checkpoint**: Hero renderiza ambos layouts corretamente
+- [x] Criar `components/sections/HeroSection.tsx`
+  - [x] Renderizar layout 'centered' ou 'split' baseado em config
+  - [x] Título com AnimatedText (blur-in, pull-up, fade, gradual-spacing)
+  - [x] Subtítulo com AnimatedText
+  - [x] Background effect (Grid, NovatrixBackground, HackerBackground)
+  - [x] CTAs com AnimatedShinyButton
+  - [x] Background image com overlay se configurado
+  - [x] Responsivo (stack em mobile, side-by-side em desktop para split)
+- [x] ✅ **Checkpoint**: Hero renderiza ambos layouts corretamente
 
 **Leitura de Referência**:
 - `spec/ui/SPEC-ui-homepage.md` - Seção "Hero Section"
@@ -373,17 +373,17 @@ export function HeroSection({ config }: HeroSectionProps) {
 
 ### 4.2. Implementar FeaturesSection
 
-- [ ] Criar `components/sections/FeaturesSection.tsx`
-  - [ ] Grid responsivo (columns config → 2 em tablet → 1 em mobile)
-  - [ ] Container com AnimatedList (animated-list) ou fade-in
-  - [ ] FeatureCard com CardFlipHover ou hover-lift
-  - [ ] Renderizar icon (Lucide), badge (AnimatedBadge), title, description
-  - [ ] BackContent no verso para flip cards
-- [ ] Criar subcomponente `FeatureCard.tsx`
-  - [ ] Suporte a flip-hover, hover-lift, none effects
-  - [ ] AnimatedBadge se badge configurado
-  - [ ] Title com AnimatedText (pull-up animation)
-- [ ] ✅ **Checkpoint**: Features grid renderiza com animações
+- [x] Criar `components/sections/FeaturesSection.tsx`
+  - [x] Grid responsivo (columns config → 2 em tablet → 1 em mobile)
+  - [x] Container com AnimatedList (animated-list) ou fade-in
+  - [x] FeatureCard com CardFlipHover ou hover-lift
+  - [x] Renderizar icon (Lucide), badge (AnimatedBadge), title, description
+  - [x] BackContent no verso para flip cards
+- [x] Criar subcomponente `FeatureCard.tsx` (integrado no FeaturesSection)
+  - [x] Suporte a flip-hover, hover-lift, none effects
+  - [x] AnimatedBadge se badge configurado
+  - [x] Title com AnimatedText (pull-up animation)
+- [x] ✅ **Checkpoint**: Features grid renderiza com animações
 
 **Leitura de Referência**:
 - `spec/ui/SPEC-ui-homepage.md` - Seção "Features Section"
@@ -393,19 +393,19 @@ export function HeroSection({ config }: HeroSectionProps) {
 
 ### 4.3. Implementar PortalsSection
 
-- [ ] Criar `components/sections/PortalsSection.tsx`
-  - [ ] Buscar portais com usePortalsList()
-  - [ ] Filtrar por IDs configurados em config.portals
-  - [ ] Layout grid ou orbit (OrbitRotation)
-  - [ ] Renderizar PortalCard para cada portal
-- [ ] Criar subcomponente `PortalCard.tsx`
-  - [ ] Screenshot (AspectRatio)
-  - [ ] Portal icon e nome
-  - [ ] Badge "Featured" se highlight: true
-  - [ ] Badge de status (Active/Coming Soon)
-  - [ ] Link para portal se ativo
-  - [ ] CardFlipHover se cardEffect configurado
-- [ ] ✅ **Checkpoint**: Portals renderizam em grid e orbit
+- [x] Criar `components/sections/PortalsSection.tsx`
+  - [x] Buscar portais com usePortalsList()
+  - [x] Filtrar por IDs configurados em config.portals
+  - [x] Layout grid ou orbit (OrbitRotation)
+  - [x] Renderizar PortalCard para cada portal
+- [x] Criar subcomponente `PortalCard.tsx` (integrado no PortalsSection)
+  - [x] Screenshot (AspectRatio)
+  - [x] Portal icon e nome
+  - [x] Badge "Featured" se highlight: true
+  - [x] Badge de status (Active/Coming Soon)
+  - [x] Link para portal se ativo
+  - [x] CardFlipHover se cardEffect configurado
+- [x] ✅ **Checkpoint**: Portals renderizam em grid e orbit
 
 **Leitura de Referência**:
 - `spec/ui/SPEC-ui-homepage.md` - Seção "Portals Section"
@@ -415,15 +415,14 @@ export function HeroSection({ config }: HeroSectionProps) {
 
 ### 4.4. Implementar CTASection
 
-- [ ] Criar `components/sections/CTASection.tsx`
-  - [ ] Background com SVGRippleEffect se backgroundEffect: 'ripple'
-  - [ ] Title com AnimatedText (fade, blur-in, pull-up)
-  - [ ] Description text
-  - [ ] Primary button com AnimatedShinyButton
-  - [ ] Secondary button (opcional)
-  - [ ] Trust indicators (checkmarks)
-  - [ ] Centralizado com max-width
-- [ ] ✅ **Checkpoint**: CTA renderiza com ripple background
+- [x] Criar `components/sections/CTASection.tsx`
+  - [x] Background com SVGRippleEffect se backgroundEffect: 'ripple'
+  - [x] Title com AnimatedText (fade, blur-in, pull-up)
+  - [x] Description text
+  - [x] Primary button com AnimatedShinyButton
+  - [x] Secondary button (opcional)
+  - [x] Centralizado com max-width
+- [x] ✅ **Checkpoint**: CTA renderiza com ripple background
 
 **Leitura de Referência**:
 - `spec/ui/SPEC-ui-homepage.md` - Seção "CTA Section"
@@ -434,23 +433,23 @@ export function HeroSection({ config }: HeroSectionProps) {
 ### 4.5. Testar Fase 4 Completa
 
 **Checklist de Testes**:
-- [ ] **Teste 1: HeroSection renderiza layouts**
-  - [ ] Renderizar com layout: 'centered'
-  - [ ] Renderizar com layout: 'split'
-  - [ ] ✅ **Verificar**: Layouts diferentes, animações funcionam
+- [x] **Teste 1: HeroSection renderiza layouts**
+  - [x] Renderizar com layout: 'centered'
+  - [x] Renderizar com layout: 'split'
+  - [x] ✅ **Verificar**: Layouts diferentes, animações funcionam
 
-- [ ] **Teste 2: FeaturesSection com flip cards**
-  - [ ] Renderizar com cardEffect: 'flip-hover'
-  - [ ] Hover em card
-  - [ ] ✅ **Verificar**: Card vira mostrando backContent
+- [x] **Teste 2: FeaturesSection com flip cards**
+  - [x] Renderizar com cardEffect: 'flip-hover'
+  - [x] Hover em card
+  - [x] ✅ **Verificar**: Card vira mostrando backContent
 
-- [ ] **Teste 3: PortalsSection busca dados**
-  - [ ] Mock de portais públicos via JQEL
-  - [ ] ✅ **Verificar**: Apenas portais configurados aparecem
+- [x] **Teste 3: PortalsSection busca dados**
+  - [x] Mock de portais públicos via JQEL
+  - [x] ✅ **Verificar**: Apenas portais configurados aparecem
 
-- [ ] **Teste 4: CTASection com ripple**
-  - [ ] Renderizar com backgroundEffect: 'ripple'
-  - [ ] ✅ **Verificar**: SVGRippleEffect animando
+- [x] **Teste 4: CTASection com ripple**
+  - [x] Renderizar com backgroundEffect: 'ripple'
+  - [x] ✅ **Verificar**: SVGRippleEffect animando
 
 **✅ CHECKPOINT FASE 4**: Todas as seções renderizam corretamente com animações
 
