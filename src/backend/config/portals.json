@@ -29,9 +29,12 @@
     "realmId": "sandbox",
     "availableModules": [
       "setup",
+      "auth",
+      "chat"
+    ],
+    "activeModules": [
       "auth"
     ],
-    "activeModules": [],
     "removable": true
   }
 ]

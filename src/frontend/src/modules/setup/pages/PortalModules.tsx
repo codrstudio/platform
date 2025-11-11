@@ -1,32 +1,15 @@
-// Portal Modules Page - Refactored with Tabs and Enhanced UX
+// Portal Modules Page - Unified View with Toggle
 // Based on spec/ui/setup-module-interfaces.md Section 5
 
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMemo, useState } from 'react';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  rectSortingStrategy,
-  useSortable
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   AlertDialog,
@@ -55,20 +38,16 @@ import {
   Package,
   Settings,
   Plus,
-  GripVertical,
   CheckCircle2,
   Circle,
-  Trash2,
-  PowerOff,
   AlertCircle,
   Search,
   Link2,
-  Info
 } from 'lucide-react';
 import { usePortal, useModules, useInstances, useUpdatePortal, type Module as ModuleType } from '@/hooks/useJQEL';
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 import { ModuleBrowser } from '../components/ModuleBrowser';
-import { toastSuccess, toastError, toastWarning } from '@/lib/toast';
+import { toastSuccess, toastError } from '@/lib/toast';
 
 interface ModuleWithStatus extends ModuleType {
   instanceCount: number;
@@ -89,207 +68,54 @@ function getModuleName(modules: ModuleType[], moduleId: string): string {
   return modules.find(m => m.moduleId === moduleId)?.name || moduleId;
 }
 
-// Active Module Card Component (with drag & drop, selection)
-function ActiveModuleCard({
+// Unified Module Card Component
+function UnifiedModuleCard({
   module,
   allModules,
-  isSelected,
-  onSelect,
-  onDeactivate,
+  activeModuleIds,
+  onToggleActive,
   onManageInstances
 }: {
   module: ModuleWithStatus;
   allModules: ModuleType[];
-  isSelected: boolean;
-  onSelect: (checked: boolean) => void;
-  onDeactivate: (module: ModuleWithStatus) => void;
+  activeModuleIds: string[];
+  onToggleActive: (module: ModuleWithStatus, newState: boolean) => void;
   onManageInstances: (moduleId: string) => void;
 }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging
-  } = useSortable({ id: module.moduleId });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1
-  };
-
+  const isActive = module.isActive;
   const hasBlockingDependents = (module.dependents?.length || 0) > 0;
-
-  return (
-    <div ref={setNodeRef} style={style}>
-      <Card className={`relative border-l-4 border-l-green-500 ${isDragging ? 'shadow-2xl' : ''} ${isSelected ? 'ring-2 ring-primary' : ''}`}>
-        {/* Drag Handle */}
-        <div
-          {...attributes}
-          {...listeners}
-          className="absolute top-2 right-2 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-muted"
-        >
-          <GripVertical className="h-4 w-4 text-muted-foreground" />
-        </div>
-
-        <CardHeader className="pb-3">
-          <div className="flex items-start gap-3">
-            {/* Checkbox */}
-            <Checkbox
-              checked={isSelected}
-              onCheckedChange={onSelect}
-              className="mt-1"
-            />
-
-            {/* Module Icon */}
-            <div className="p-3 rounded-lg bg-primary/10">
-              <CheckCircle2 className="h-6 w-6 text-primary" />
-            </div>
-
-            {/* Module Info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <CardTitle className="text-base truncate">{module.name}</CardTitle>
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <Badge variant="outline" className="text-xs">
-                  v{module.version}
-                </Badge>
-                <Badge variant="outline" className="text-xs capitalize">
-                  {module.type}
-                </Badge>
-              </div>
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent className="pb-3 space-y-3">
-          <CardDescription className="text-sm line-clamp-2">
-            {module.description || 'Sem descrição'}
-          </CardDescription>
-
-          <Separator />
-
-          {/* Module Details with Hover Cards */}
-          <div className="space-y-1 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Instâncias:</span>
-              <span className="font-medium">{module.instanceCount}</span>
-            </div>
-
-            {/* Dependencies with Hover Card */}
-            {module.dependencies.length > 0 && (
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Dependências:</span>
-                <HoverCard>
-                  <HoverCardTrigger asChild>
-                    <Badge variant="outline" className="cursor-help text-xs">
-                      {module.dependencies.length}
-                    </Badge>
-                  </HoverCardTrigger>
-                  <HoverCardContent className="w-80">
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-semibold">Dependências:</h4>
-                      <ul className="text-sm space-y-1">
-                        {module.dependencies.map(dep => (
-                          <li key={dep} className="flex items-center gap-2">
-                            <Link2 className="h-3 w-3" />
-                            {getModuleName(allModules, dep)}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </HoverCardContent>
-                </HoverCard>
-              </div>
-            )}
-
-            {/* Dependents with Hover Card */}
-            {hasBlockingDependents && (
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Dependentes:</span>
-                <HoverCard>
-                  <HoverCardTrigger asChild>
-                    <Badge variant="secondary" className="cursor-help text-xs">
-                      {module.dependents!.length}
-                    </Badge>
-                  </HoverCardTrigger>
-                  <HoverCardContent className="w-80">
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-semibold">Dependência de:</h4>
-                      <ul className="text-sm space-y-1">
-                        {module.dependents!.map(dep => (
-                          <li key={dep} className="flex items-center gap-2">
-                            <Link2 className="h-3 w-3" />
-                            {dep}
-                          </li>
-                        ))}
-                      </ul>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Desative estes módulos primeiro para poder desativar este.
-                      </p>
-                    </div>
-                  </HoverCardContent>
-                </HoverCard>
-              </div>
-            )}
-          </div>
-        </CardContent>
-
-        <CardFooter className="flex flex-col gap-2">
-          {/* Manage Instances Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full"
-            onClick={() => onManageInstances(module.moduleId)}
-          >
-            <Settings className="h-4 w-4 mr-2" />
-            Gerenciar Instâncias
-          </Button>
-
-          {/* Deactivate Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full"
-            onClick={() => onDeactivate(module)}
-            disabled={hasBlockingDependents}
-          >
-            Desativar
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
-  );
-}
-
-// Available Module Card Component (simpler, just activate button)
-function AvailableModuleCard({
-  module,
-  allModules,
-  activeModuleIds,
-  onActivate
-}: {
-  module: ModuleWithStatus;
-  allModules: ModuleType[];
-  activeModuleIds: string[];
-  onActivate: (module: ModuleWithStatus) => void;
-}) {
   const missingDeps = module.dependencies.filter(
     dep => !activeModuleIds.includes(dep)
   );
   const hasMissingDeps = missingDeps.length > 0;
 
   return (
-    <Card className="relative border-l-4 border-l-gray-300">
+    <Card className={`relative border-l-4 ${isActive ? 'border-l-green-500' : 'border-l-gray-300'}`}>
       <CardHeader className="pb-3">
-        <div className="flex items-start gap-3">
+        {/* Toggle Switch - Top Right */}
+        <div className="absolute top-4 right-4 flex items-center gap-2">
+          <Label
+            htmlFor={`switch-${module.moduleId}`}
+            className={`text-xs font-medium ${isActive ? 'text-green-600' : 'text-muted-foreground'}`}
+          >
+            {isActive ? 'Ativado' : 'Desativado'}
+          </Label>
+          <Switch
+            id={`switch-${module.moduleId}`}
+            checked={isActive}
+            onCheckedChange={(checked) => onToggleActive(module, checked)}
+            disabled={!isActive && hasMissingDeps ? false : (!isActive ? false : hasBlockingDependents)}
+          />
+        </div>
+
+        <div className="flex items-start gap-3 pr-28">
           {/* Module Icon */}
-          <div className="p-3 rounded-lg bg-muted">
-            <Circle className="h-6 w-6 text-muted-foreground" />
+          <div className={`p-3 rounded-lg ${isActive ? 'bg-green-50 dark:bg-green-950' : 'bg-muted'}`}>
+            {isActive ? (
+              <CheckCircle2 className="h-6 w-6 text-green-600" />
+            ) : (
+              <Circle className="h-6 w-6 text-muted-foreground" />
+            )}
           </div>
 
           {/* Module Info */}
@@ -314,55 +140,99 @@ function AvailableModuleCard({
           {module.description || 'Sem descrição'}
         </CardDescription>
 
-        {/* Dependencies Info */}
-        {module.dependencies.length > 0 && (
-          <>
-            <Separator />
-            <div className="space-y-1 text-sm">
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Dependências:</span>
-                <HoverCard>
-                  <HoverCardTrigger asChild>
-                    <Badge
-                      variant={hasMissingDeps ? "destructive" : "outline"}
-                      className="cursor-help text-xs"
-                    >
-                      {module.dependencies.length}
-                    </Badge>
-                  </HoverCardTrigger>
-                  <HoverCardContent className="w-80">
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-semibold">Dependências:</h4>
-                      <ul className="text-sm space-y-1">
-                        {module.dependencies.map(dep => {
-                          const isActive = activeModuleIds.includes(dep);
-                          return (
-                            <li key={dep} className="flex items-center gap-2">
-                              {isActive ? (
-                                <CheckCircle2 className="h-3 w-3 text-green-600" />
-                              ) : (
-                                <AlertCircle className="h-3 w-3 text-destructive" />
-                              )}
-                              <span className={isActive ? '' : 'text-destructive'}>
-                                {getModuleName(allModules, dep)}
-                              </span>
-                              {!isActive && <span className="text-xs text-muted-foreground">(será ativado)</span>}
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </div>
-                  </HoverCardContent>
-                </HoverCard>
-              </div>
+        <Separator />
+
+        {/* Module Details with Hover Cards */}
+        <div className="space-y-1 text-sm">
+          {isActive && (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Instâncias:</span>
+              <span className="font-medium">{module.instanceCount}</span>
             </div>
-          </>
-        )}
+          )}
+
+          {/* Dependencies with Hover Card */}
+          {module.dependencies.length > 0 && (
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground">Dependências:</span>
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <Badge
+                    variant={!isActive && hasMissingDeps ? "destructive" : "outline"}
+                    className="cursor-help text-xs"
+                  >
+                    {module.dependencies.length}
+                  </Badge>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-80">
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-semibold">Dependências:</h4>
+                    <ul className="text-sm space-y-1">
+                      {module.dependencies.map(dep => {
+                        const isDepActive = activeModuleIds.includes(dep);
+                        return (
+                          <li key={dep} className="flex items-center gap-2">
+                            {isDepActive ? (
+                              <CheckCircle2 className="h-3 w-3 text-green-600" />
+                            ) : (
+                              <AlertCircle className="h-3 w-3 text-destructive" />
+                            )}
+                            <span className={isDepActive ? '' : 'text-destructive'}>
+                              {getModuleName(allModules, dep)}
+                            </span>
+                            {!isActive && !isDepActive && (
+                              <span className="text-xs text-muted-foreground">(será ativado)</span>
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                    {hasBlockingDependents && isActive && (
+                      <p className="text-xs text-muted-foreground mt-2 pt-2 border-t">
+                        Este módulo não pode ser desativado enquanto outros módulos dependem dele.
+                      </p>
+                    )}
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
+            </div>
+          )}
+
+          {/* Dependents with Hover Card */}
+          {hasBlockingDependents && isActive && (
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground">Dependentes:</span>
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <Badge variant="secondary" className="cursor-help text-xs">
+                    {module.dependents!.length}
+                  </Badge>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-80">
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-semibold">Dependência de:</h4>
+                    <ul className="text-sm space-y-1">
+                      {module.dependents!.map(dep => (
+                        <li key={dep} className="flex items-center gap-2">
+                          <Link2 className="h-3 w-3" />
+                          {dep}
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Desative estes módulos primeiro para poder desativar este.
+                    </p>
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
+            </div>
+          )}
+        </div>
 
         {/* Warning for auto-activation */}
-        {hasMissingDeps && (
+        {!isActive && hasMissingDeps && (
           <Alert>
-            <Info className="h-4 w-4" />
+            <AlertCircle className="h-4 w-4" />
             <AlertDescription className="text-xs">
               Ativará também: {missingDeps.map(id => getModuleName(allModules, id)).join(', ')}
             </AlertDescription>
@@ -370,15 +240,19 @@ function AvailableModuleCard({
         )}
       </CardContent>
 
-      <CardFooter>
-        <Button
-          size="sm"
-          className="w-full"
-          onClick={() => onActivate(module)}
-        >
-          Ativar
-        </Button>
-      </CardFooter>
+      {isActive && (
+        <CardFooter>
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={() => onManageInstances(module.moduleId)}
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            Gerenciar Instâncias
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 }
@@ -389,9 +263,9 @@ export function PortalModules() {
 
   // UI State
   const [showBrowser, setShowBrowser] = useState(false);
-  const [selectedModules, setSelectedModules] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [confirmDialog, setConfirmDialog] = useState<ConfirmationDialog>({ type: null, module: null });
 
   // Data fetching
@@ -404,11 +278,6 @@ export function PortalModules() {
   const allModules = modulesResult?.data || [];
   const instances = instancesResult?.data || [];
   const isLoading = isLoadingPortal || isLoadingModules;
-
-  // Get module order from portal metadata
-  const moduleOrder = useMemo(() => {
-    return (portal?.metadata?.moduleOrder as string[]) || portal?.availableModules || [];
-  }, [portal]);
 
   // Filter and enrich modules with portal-specific data
   const allEnrichedModules: ModuleWithStatus[] = useMemo(() => {
@@ -449,32 +318,14 @@ export function PortalModules() {
     return enriched;
   }, [allModules, portal, instances]);
 
-  // Separate active and available modules
-  const activeModules = useMemo(() => {
-    const active = allEnrichedModules.filter(m => m.isActive);
-
-    // Sort by custom order
-    if (moduleOrder.length > 0) {
-      active.sort((a, b) => {
-        const aIndex = moduleOrder.indexOf(a.moduleId);
-        const bIndex = moduleOrder.indexOf(b.moduleId);
-        if (aIndex === -1 && bIndex === -1) return 0;
-        if (aIndex === -1) return 1;
-        if (bIndex === -1) return -1;
-        return aIndex - bIndex;
-      });
-    }
-
-    return active;
-  }, [allEnrichedModules, moduleOrder]);
-
-  const availableModules = useMemo(() => {
-    let available = allEnrichedModules.filter(m => !m.isActive);
+  // Filter modules based on search and filters
+  const filteredModules = useMemo(() => {
+    let filtered = allEnrichedModules;
 
     // Apply search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      available = available.filter(m =>
+      filtered = filtered.filter(m =>
         m.name.toLowerCase().includes(query) ||
         m.description?.toLowerCase().includes(query) ||
         m.moduleId.toLowerCase().includes(query)
@@ -483,19 +334,25 @@ export function PortalModules() {
 
     // Apply type filter
     if (typeFilter !== 'all') {
-      available = available.filter(m => m.type === typeFilter);
+      filtered = filtered.filter(m => m.type === typeFilter);
     }
 
-    return available;
-  }, [allEnrichedModules, searchQuery, typeFilter]);
+    // Apply status filter
+    if (statusFilter === 'active') {
+      filtered = filtered.filter(m => m.isActive);
+    } else if (statusFilter === 'inactive') {
+      filtered = filtered.filter(m => !m.isActive);
+    }
 
-  // Drag and Drop sensors
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+    // Sort: active modules first, then inactive
+    filtered.sort((a, b) => {
+      if (a.isActive && !b.isActive) return -1;
+      if (!a.isActive && b.isActive) return 1;
+      return a.name.localeCompare(b.name);
+    });
+
+    return filtered;
+  }, [allEnrichedModules, searchQuery, typeFilter, statusFilter]);
 
   // Breadcrumb dinâmico
   const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => {
@@ -509,34 +366,13 @@ export function PortalModules() {
   }, [portal?.name, portalId]);
 
   // Handlers
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (over && active.id !== over.id) {
-      const oldIndex = activeModules.findIndex(m => m.moduleId === active.id);
-      const newIndex = activeModules.findIndex(m => m.moduleId === over.id);
-
-      const newOrder = arrayMove(
-        activeModules.map(m => m.moduleId),
-        oldIndex,
-        newIndex
-      );
-
-      try {
-        await updatePortalMutation.mutateAsync({
-          values: {
-            metadata: {
-              ...portal?.metadata,
-              moduleOrder: newOrder
-            }
-          },
-          where: { portalId: { $eq: portalId! } },
-        });
-        toastSuccess('Ordem atualizada', { description: 'A ordem dos módulos foi salva' });
-      } catch (error) {
-        console.error('Error updating module order:', error);
-        toastError('Erro ao salvar ordem', { description: 'Não foi possível salvar a ordem dos módulos' });
-      }
+  const handleToggleActive = (module: ModuleWithStatus, newState: boolean) => {
+    if (newState) {
+      // Activating
+      handleActivateClick(module);
+    } else {
+      // Deactivating
+      handleDeactivateClick(module);
     }
   };
 
@@ -652,85 +488,6 @@ export function PortalModules() {
     }
   };
 
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedModules(new Set(activeModules.map(m => m.moduleId)));
-    } else {
-      setSelectedModules(new Set());
-    }
-  };
-
-  const handleSelectModule = (moduleId: string, checked: boolean) => {
-    const newSelection = new Set(selectedModules);
-    if (checked) {
-      newSelection.add(moduleId);
-    } else {
-      newSelection.delete(moduleId);
-    }
-    setSelectedModules(newSelection);
-  };
-
-  const handleBulkRemove = async () => {
-    if (!portal || selectedModules.size === 0) return;
-
-    const modulesToRemove = Array.from(selectedModules);
-    const newAvailableModules = portal.availableModules.filter(
-      (id: string) => !modulesToRemove.includes(id)
-    );
-    const newActiveModules = portal.activeModules.filter(
-      (id: string) => !modulesToRemove.includes(id)
-    );
-
-    try {
-      await updatePortalMutation.mutateAsync({
-        values: {
-          availableModules: newAvailableModules,
-          activeModules: newActiveModules
-        },
-        where: { portalId: { $eq: portalId! } },
-      });
-      setSelectedModules(new Set());
-      toastSuccess('Módulos removidos', {
-        description: `${modulesToRemove.length} módulo(s) removido(s) do portal`
-      });
-    } catch (error) {
-      console.error('Error removing modules:', error);
-      toastError('Erro', { description: 'Não foi possível remover os módulos' });
-    }
-  };
-
-  const handleBulkDeactivate = async () => {
-    if (!portal || selectedModules.size === 0) return;
-
-    const modulesToDeactivate = Array.from(selectedModules).filter(
-      id => portal.activeModules.includes(id)
-    );
-
-    if (modulesToDeactivate.length === 0) {
-      toastWarning('Nenhum módulo para desativar', {
-        description: 'Nenhum dos módulos selecionados está ativo'
-      });
-      return;
-    }
-
-    const newActiveModules = portal.activeModules.filter(
-      id => !modulesToDeactivate.includes(id)
-    );
-
-    try {
-      await updatePortalMutation.mutateAsync({
-        values: { activeModules: newActiveModules },
-        where: { portalId: { $eq: portalId! } },
-      });
-      toastSuccess('Módulos desativados', {
-        description: `${modulesToDeactivate.length} módulo(s) desativado(s)`
-      });
-    } catch (error) {
-      console.error('Error deactivating modules:', error);
-      toastError('Erro', { description: 'Não foi possível desativar os módulos' });
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
@@ -753,8 +510,8 @@ export function PortalModules() {
     );
   }
 
-  const allSelected = selectedModules.size === activeModules.length && activeModules.length > 0;
-  const someSelected = selectedModules.size > 0 && selectedModules.size < activeModules.length;
+  const activeCount = allEnrichedModules.filter(m => m.isActive).length;
+  const inactiveCount = allEnrichedModules.filter(m => !m.isActive).length;
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -775,7 +532,7 @@ export function PortalModules() {
             Módulos do Portal
           </h1>
           <p className="text-muted-foreground mt-1">
-            {portal.name} - Gerencie módulos ativos e disponíveis
+            {portal.name} - {activeCount} ativos, {inactiveCount} inativos
           </p>
         </div>
         <Button onClick={() => setShowBrowser(true)}>
@@ -784,190 +541,75 @@ export function PortalModules() {
         </Button>
       </div>
 
-      {/* Tabs: Active vs Available */}
-      <Tabs defaultValue="active" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="active" className="flex items-center gap-2">
-            Ativos
-            <Badge variant="secondary" className="ml-1">
-              {activeModules.length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="available" className="flex items-center gap-2">
-            Disponíveis
-            <Badge variant="secondary" className="ml-1">
-              {allEnrichedModules.filter(m => !m.isActive).length}
-            </Badge>
-          </TabsTrigger>
-        </TabsList>
+      {/* Filters */}
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Buscar módulos..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filtrar por status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="active">Ativos ({activeCount})</SelectItem>
+            <SelectItem value="inactive">Inativos ({inactiveCount})</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filtrar por tipo" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os tipos</SelectItem>
+            <SelectItem value="functionality">Funcionalidade</SelectItem>
+            <SelectItem value="components">Componentes</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-        {/* ACTIVE MODULES TAB */}
-        <TabsContent value="active" className="space-y-4">
-          {/* Bulk Actions Toolbar */}
-          {selectedModules.size > 0 && (
-            <Alert>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <span className="font-medium">
-                    {selectedModules.size} módulo(s) selecionado(s)
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleBulkDeactivate}
-                  >
-                    <PowerOff className="h-4 w-4 mr-2" />
-                    Desativar
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={handleBulkRemove}
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Remover
-                  </Button>
-                </div>
-              </div>
-            </Alert>
-          )}
-
-          {/* Select All */}
-          {activeModules.length > 0 && (
-            <div className="flex items-center gap-2">
-              <Checkbox
-                checked={allSelected}
-                ref={(el) => {
-                  if (el && 'indeterminate' in el) {
-                    (el as any).indeterminate = someSelected;
-                  }
-                }}
-                onCheckedChange={handleSelectAll}
-              />
-              <span className="text-sm text-muted-foreground">
-                {allSelected ? 'Desselecionar todos' : 'Selecionar todos'}
-              </span>
-            </div>
-          )}
-
-          {/* Active Modules Grid with Drag & Drop */}
-          {activeModules.length === 0 ? (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <Package className="h-12 w-12 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground text-center mb-4">
-                  Nenhum módulo ativo neste portal
-                </p>
-                <p className="text-sm text-muted-foreground text-center">
-                  Vá para a aba "Disponíveis" para ativar módulos
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
+      {/* Modules Grid */}
+      {filteredModules.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <Package className="h-12 w-12 text-muted-foreground mb-4" />
+            <p className="text-muted-foreground text-center mb-4">
+              Nenhum módulo encontrado
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSearchQuery('');
+                setTypeFilter('all');
+                setStatusFilter('all');
+              }}
             >
-              <SortableContext
-                items={activeModules.map(m => m.moduleId)}
-                strategy={rectSortingStrategy}
-              >
-                <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                  {activeModules.map((module) => (
-                    <ActiveModuleCard
-                      key={module.moduleId}
-                      module={module}
-                      allModules={allModules}
-                      isSelected={selectedModules.has(module.moduleId)}
-                      onSelect={(checked) => handleSelectModule(module.moduleId, checked)}
-                      onDeactivate={handleDeactivateClick}
-                      onManageInstances={(moduleId) =>
-                        navigate(`/setup/portals/${portalId}/modules/${moduleId}/instances`)
-                      }
-                    />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
-          )}
-        </TabsContent>
-
-        {/* AVAILABLE MODULES TAB */}
-        <TabsContent value="available" className="space-y-4">
-          {/* Search and Filters */}
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Buscar módulos..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filtrar por tipo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os tipos</SelectItem>
-                <SelectItem value="functionality">Funcionalidade</SelectItem>
-                <SelectItem value="components">Componentes</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Available Modules Grid */}
-          {availableModules.length === 0 ? (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <Package className="h-12 w-12 text-muted-foreground mb-4" />
-                {searchQuery || typeFilter !== 'all' ? (
-                  <>
-                    <p className="text-muted-foreground text-center mb-4">
-                      Nenhum módulo encontrado
-                    </p>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setSearchQuery('');
-                        setTypeFilter('all');
-                      }}
-                    >
-                      Limpar filtros
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-muted-foreground text-center mb-4">
-                      Todos os módulos já estão ativos
-                    </p>
-                    <Button onClick={() => setShowBrowser(true)}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Adicionar Mais Módulos
-                    </Button>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              {availableModules.map((module) => (
-                <AvailableModuleCard
-                  key={module.moduleId}
-                  module={module}
-                  allModules={allModules}
-                  activeModuleIds={portal.activeModules}
-                  onActivate={handleActivateClick}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+              Limpar filtros
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          {filteredModules.map((module) => (
+            <UnifiedModuleCard
+              key={module.moduleId}
+              module={module}
+              allModules={allModules}
+              activeModuleIds={portal.activeModules}
+              onToggleActive={handleToggleActive}
+              onManageInstances={(moduleId) =>
+                navigate(`/setup/portals/${portalId}/modules/${moduleId}/instances`)
+              }
+            />
+          ))}
+        </div>
+      )}
 
       {/* Module Browser Dialog */}
       {showBrowser && (

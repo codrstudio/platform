@@ -14,5 +14,12 @@
     "config": {},
     "active": true,
     "metadata": {}
+  },
+  {
+    "instanceId": "auth",
+    "portalId": "sandbox",
+    "moduleId": "auth",
+    "config": {},
+    "active": true
   }
 ]

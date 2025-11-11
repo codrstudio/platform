@@ -11,6 +11,7 @@ const AboutPage = lazy(() => import('./pages/AboutPage').then(m => ({ default: m
 const PlatformSettings = lazy(() => import('./pages/PlatformSettings').then(m => ({ default: m.PlatformSettings })));
 const RealmList = lazy(() => import('./pages/RealmList').then(m => ({ default: m.RealmList })));
 const RealmForm = lazy(() => import('./pages/RealmForm').then(m => ({ default: m.RealmForm })));
+const RealmEdit = lazy(() => import('./pages/RealmEdit').then(m => ({ default: m.RealmEdit })));
 const PortalList = lazy(() => import('./pages/PortalList').then(m => ({ default: m.PortalList })));
 const PortalCreate = lazy(() => import('./pages/PortalCreate').then(m => ({ default: m.PortalCreate })));
 const PortalEdit = lazy(() => import('./pages/PortalEdit').then(m => ({ default: m.PortalEdit })));
@@ -44,6 +45,10 @@ export const setupRoutes: ModuleRoute[] = [
   },
   {
     path: '/realms/:realmId',
+    component: RealmEdit
+  },
+  {
+    path: '/realms/:realmId/form',
     component: RealmForm
   },
   {

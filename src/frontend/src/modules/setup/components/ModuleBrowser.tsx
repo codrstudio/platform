@@ -85,7 +85,7 @@ export function ModuleBrowser({ excludeModuleIds, onAddModules, onClose }: Modul
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Adicionar Módulos ao Portal</DialogTitle>
         </DialogHeader>
@@ -109,57 +109,59 @@ export function ModuleBrowser({ excludeModuleIds, onAddModules, onClose }: Modul
           </Select>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          {filteredModules.map(module => (
-            <Card key={module.moduleId} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <CardTitle className="text-lg">{module.name}</CardTitle>
-                      <Badge variant="outline" className="text-xs">
-                        v{module.version}
-                      </Badge>
-                      {module.category && (
-                        <Badge variant="secondary" className="text-xs capitalize">
-                          {module.category}
+        <div className="flex-1 overflow-y-auto pr-2">
+          <div className="grid gap-4 md:grid-cols-2">
+            {filteredModules.map(module => (
+              <Card key={module.moduleId} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-lg">{module.name}</CardTitle>
+                        <Badge variant="outline" className="text-xs">
+                          v{module.version}
                         </Badge>
-                      )}
+                        {module.category && (
+                          <Badge variant="secondary" className="text-xs capitalize">
+                            {module.category}
+                          </Badge>
+                        )}
+                      </div>
+                      <CardDescription className="mt-1">
+                        {module.description}
+                      </CardDescription>
                     </div>
-                    <CardDescription className="mt-1">
-                      {module.description}
-                    </CardDescription>
+                    <Checkbox
+                      checked={selectedModules.includes(module.moduleId)}
+                      onCheckedChange={(checked) => {
+                        setSelectedModules(prev =>
+                          checked
+                            ? [...prev, module.moduleId]
+                            : prev.filter(id => id !== module.moduleId)
+                        );
+                      }}
+                    />
                   </div>
-                  <Checkbox
-                    checked={selectedModules.includes(module.moduleId)}
-                    onCheckedChange={(checked) => {
-                      setSelectedModules(prev =>
-                        checked
-                          ? [...prev, module.moduleId]
-                          : prev.filter(id => id !== module.moduleId)
-                      );
-                    }}
-                  />
-                </div>
-              </CardHeader>
-              {module.dependencies && module.dependencies.length > 0 && (
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Dependências: {module.dependencies.join(', ')}
-                  </p>
-                </CardContent>
-              )}
-            </Card>
-          ))}
+                </CardHeader>
+                {module.dependencies && module.dependencies.length > 0 && (
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Dependências: {module.dependencies.join(', ')}
+                    </p>
+                  </CardContent>
+                )}
+              </Card>
+            ))}
+          </div>
+
+          {filteredModules.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              Nenhum módulo encontrado
+            </div>
+          )}
         </div>
 
-        {filteredModules.length === 0 && (
-          <div className="text-center py-8 text-muted-foreground">
-            Nenhum módulo encontrado
-          </div>
-        )}
-
-        <DialogFooter>
+        <DialogFooter className="mt-4">
           <Button variant="outline" onClick={onClose}>
             Cancelar
           </Button>

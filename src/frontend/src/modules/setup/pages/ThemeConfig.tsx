@@ -1,13 +1,9 @@
-// Theme Config Page with Tabs (Realm / Portal)
+// Theme Config Page - Portal Theme Configuration
 // Based on SPEC-theming.md and Realm System
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
@@ -19,16 +15,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Save, Palette, Globe, Trash2, Image, Sun, Moon, Monitor } from 'lucide-react';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ArrowLeft, Save, Palette, Lock, RotateCcw, Image, AlertTriangle } from 'lucide-react';
 import { usePortal, useRealm } from '@/hooks/useJQEL';
-import { useTheme } from '@/contexts/ThemeContext';
-import { toastSuccess } from '@/lib/toast';
+import { toastSuccess, toastInfo } from '@/lib/toast';
 import { IconUploader } from '../components/IconUploader';
+import { ThemeColorPicker } from '../components/ThemeColorPicker';
 import {
   getStoredBrandColor,
-  setStoredBrandColor,
   setPortalBrandColor,
   removePortalBrandColor,
   hasPortalBrandColorOverride,
@@ -43,7 +36,7 @@ export function ThemeConfig() {
   const portal = portalResult?.data?.[0] || null;
   const { data: realmResult, isLoading: realmLoading } = useRealm(portal?.realmId || '');
   const realm = realmResult?.data;
-  const { mode, setMode } = useTheme();
+
   // Breadcrumb dinâmico
   const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => {
     const portalName = portal?.name || 'Portal';
@@ -54,59 +47,76 @@ export function ThemeConfig() {
       { label: 'Tema' }
     ];
   }, [portal?.name, portalId]);
-  const [realmBrandColor, setRealmBrandColorState] = useState('#0ea5e9');
+
   const [portalBrandColor, setPortalBrandColorState] = useState('#0ea5e9');
   const [hasPortalOverride, setHasPortalOverride] = useState(false);
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
+  const [showCustomizeDialog, setShowCustomizeDialog] = useState(false);
+
   // Load current colors from localStorage
   useEffect(() => {
     if (portal && realm) {
-      // Load realm color
-      const realmColor = getStoredBrandColor(realm.realmId);
-      setRealmBrandColorState(hslToHex(realmColor));
       // Check if portal has override
       const hasOverride = hasPortalBrandColorOverride(portal.portalId);
       setHasPortalOverride(hasOverride);
+
       if (hasOverride) {
         // Load portal override color
         const portalColor = getStoredBrandColor(realm.realmId, portal.portalId);
         setPortalBrandColorState(hslToHex(portalColor));
       } else {
-        // Use realm color
+        // Use realm color (readonly)
+        const realmColor = getStoredBrandColor(realm.realmId);
         setPortalBrandColorState(hslToHex(realmColor));
       }
     }
   }, [portal, realm]);
-  const handleSaveRealmColor = () => {
-    if (!realm) return;
-    const hslColor = hexToHSL(realmBrandColor);
-    setStoredBrandColor(realm.realmId, hslColor);
-    toastSuccess('Cor do ambiente salva', {
-      description: 'As alterações foram aplicadas a todos os portais do ambiente'
-    });
+
+  const handleCustomizeTheme = () => {
+    setShowCustomizeDialog(true);
   };
+
+  const confirmCustomizeTheme = () => {
+    if (!portal || !realm) return;
+
+    // Create override with current realm color as starting point
+    const currentColor = getStoredBrandColor(realm.realmId);
+    setPortalBrandColor(portal.portalId, currentColor);
+    setHasPortalOverride(true);
+
+    toastInfo('Tema customizado ativado', {
+      description: 'Agora você pode personalizar a cor deste portal'
+    });
+
+    setShowCustomizeDialog(false);
+  };
+
   const handleSavePortalColor = () => {
     if (!portal) return;
     const hslColor = hexToHSL(portalBrandColor);
     setPortalBrandColor(portal.portalId, hslColor);
-    setHasPortalOverride(true);
-    toastSuccess('Cor do portal salva', {
+    toastSuccess('Tema customizado salvo', {
       description: 'A personalização foi aplicada somente a este portal'
     });
   };
+
   const handleRemovePortalOverride = () => {
     setShowRemoveDialog(true);
   };
+
   const confirmRemovePortalOverride = () => {
     if (!portal || !realm) return;
     removePortalBrandColor(portal.portalId);
     setHasPortalOverride(false);
+
     // Reset to realm color
     const realmColor = getStoredBrandColor(realm.realmId);
     setPortalBrandColorState(hslToHex(realmColor));
-    toastSuccess('Customização removida', {
-      description: 'O portal voltou a usar a cor do ambiente'
+
+    toastSuccess('Tema customizado removido', {
+      description: 'O portal voltou a usar o tema do ambiente'
     });
+
     setShowRemoveDialog(false);
   };
   if (portalLoading || realmLoading) {
@@ -127,6 +137,7 @@ export function ThemeConfig() {
     <div className="container mx-auto p-6 space-y-8">
       {/* Breadcrumb */}
       <PageBreadcrumb items={breadcrumbItems} />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
@@ -138,395 +149,177 @@ export function ThemeConfig() {
         </Button>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
-            Configuração de Tema
+            Tema do Portal
           </h1>
           <p className="text-muted-foreground mt-2">
             {portal.name} (Ambiente: {realm.name})
           </p>
         </div>
       </div>
-      {/* Info Card */}
-      <Card className="bg-muted/50">
-        <CardContent className="pt-6">
-          <div className="flex items-start gap-3">
-            <Globe className="h-5 w-5 text-primary mt-0.5" />
-            <div className="space-y-1">
-              <p className="text-sm font-medium">Sistema de Ambientes</p>
-              <p className="text-sm text-muted-foreground">
-                A aba <strong>Ambiente</strong> define a cor padrão para todos os portais do ambiente "{realm.name}".
-                A aba <strong>Portal</strong> permite customizar apenas este portal, sobrescrevendo a cor do ambiente.
-              </p>
+      {/* Theme Configuration Card */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {hasPortalOverride ? (
+                <Palette className="h-5 w-5 text-primary" />
+              ) : (
+                <Lock className="h-5 w-5 text-primary" />
+              )}
+              <CardTitle>Tema do Portal</CardTitle>
             </div>
+            {hasPortalOverride ? (
+              <Badge variant="default" className="gap-1">
+                <Palette className="h-3 w-3" />
+                Tema Customizado
+              </Badge>
+            ) : (
+              <Badge variant="secondary" className="gap-1">
+                <Lock className="h-3 w-3" />
+                Tema do Ambiente
+              </Badge>
+            )}
+          </div>
+          <CardDescription>
+            {hasPortalOverride ? (
+              <>Este portal possui tema customizado, independente do ambiente "{realm.name}".</>
+            ) : (
+              <>Este portal está usando o tema configurado no ambiente "{realm.name}". As configurações abaixo são somente leitura.</>
+            )}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {!hasPortalOverride && (
+            <Card className="bg-muted/50 border-muted">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-3">
+                  <Lock className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <div className="space-y-3 flex-1">
+                    <div>
+                      <p className="text-sm font-medium">Tema Herdado do Ambiente</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Este portal está usando o tema configurado no ambiente "{realm.name}".
+                        As configurações abaixo são somente leitura.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          <ThemeColorPicker
+            value={portalBrandColor}
+            onChange={hasPortalOverride ? setPortalBrandColorState : undefined}
+            label={hasPortalOverride ? "Cor do Portal" : "Cor do Ambiente (Somente Leitura)"}
+            readonly={!hasPortalOverride}
+            locked={!hasPortalOverride}
+            showPalette={true}
+          />
+
+          {hasPortalOverride && (
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={handleRemovePortalOverride}
+              >
+                <RotateCcw className="h-4 w-4 mr-2" />
+                Voltar ao Tema do Ambiente
+              </Button>
+              <Button onClick={handleSavePortalColor}>
+                <Save className="h-4 w-4 mr-2" />
+                Salvar Tema Customizado
+              </Button>
+            </div>
+          )}
+
+          {!hasPortalOverride && (
+            <div className="space-y-4">
+              <div className="flex justify-center">
+                <Button onClick={handleCustomizeTheme} size="lg">
+                  <Palette className="h-4 w-4 mr-2" />
+                  Customizar Tema deste Portal
+                </Button>
+              </div>
+              <Card className="bg-muted/50 border-muted">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="h-5 w-5 text-warning mt-0.5" />
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">Atenção</p>
+                      <p className="text-sm text-muted-foreground">
+                        Ao customizar, este portal terá tema independente do ambiente.
+                        Alterações no tema do ambiente não afetarão este portal.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Icons Card */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Image className="h-5 w-5 text-primary" />
+            <CardTitle>Ícones do Aplicativo</CardTitle>
+          </div>
+          <CardDescription>
+            {hasPortalOverride ? (
+              <>Personalize os ícones apenas para este portal, sobrescrevendo os ícones do ambiente.</>
+            ) : (
+              <>Ícones herdados do ambiente "{realm.name}". Customize o tema do portal para personalizar os ícones.</>
+            )}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <IconUploader
+              scope={hasPortalOverride ? "portal" : "realm"}
+              scopeId={hasPortalOverride ? portal.portalId : realm.realmId}
+              iconType="favicon"
+              label="Favicon"
+              description="16-48px · ICO, PNG"
+              readonly={!hasPortalOverride}
+              onUploadComplete={() => toastSuccess('Favicon atualizado')}
+              onDelete={() => toastSuccess('Favicon removido')}
+            />
+            <IconUploader
+              scope={hasPortalOverride ? "portal" : "realm"}
+              scopeId={hasPortalOverride ? portal.portalId : realm.realmId}
+              iconType="pwa-192"
+              label="Ícone Pequeno"
+              description="192x192px · PNG"
+              readonly={!hasPortalOverride}
+              onUploadComplete={() => toastSuccess('Ícone atualizado')}
+              onDelete={() => toastSuccess('Ícone removido')}
+            />
+            <IconUploader
+              scope={hasPortalOverride ? "portal" : "realm"}
+              scopeId={hasPortalOverride ? portal.portalId : realm.realmId}
+              iconType="pwa-512"
+              label="Ícone Grande"
+              description="512x512px · PNG"
+              readonly={!hasPortalOverride}
+              onUploadComplete={() => toastSuccess('Ícone atualizado')}
+              onDelete={() => toastSuccess('Ícone removido')}
+            />
+            <IconUploader
+              scope={hasPortalOverride ? "portal" : "realm"}
+              scopeId={hasPortalOverride ? portal.portalId : realm.realmId}
+              iconType="apple-touch"
+              label="Apple Touch"
+              description="180x180px · PNG"
+              readonly={!hasPortalOverride}
+              onUploadComplete={() => toastSuccess('Ícone atualizado')}
+              onDelete={() => toastSuccess('Ícone removido')}
+            />
           </div>
         </CardContent>
       </Card>
-      {/* Tabs */}
-      <Tabs defaultValue="realm" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="realm">
-            <Globe className="h-4 w-4 mr-2" />
-            Ambiente
-          </TabsTrigger>
-          <TabsTrigger value="portal">
-            <Palette className="h-4 w-4 mr-2" />
-            Portal
-            {hasPortalOverride && (
-              <Badge variant="secondary" className="ml-2 text-xs">
-                Custom
-              </Badge>
-            )}
-          </TabsTrigger>
-        </TabsList>
-        {/* Realm Tab */}
-        <TabsContent value="realm" className="space-y-6 mt-6">
-          {/* Theme Mode Selector */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Monitor className="h-5 w-5 text-primary" />
-                <CardTitle>Modo de Tema</CardTitle>
-              </div>
-              <CardDescription>
-                Defina o modo de visualização para todos os portais do ambiente "{realm?.name || 'padrão'}".
-                Esta configuração será aplicada globalmente.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <TooltipProvider>
-                <RadioGroup value={mode} onValueChange={setMode} className="grid gap-4">
-                  <div className="flex items-center space-x-3 rounded-lg border p-4 hover:bg-accent/50 transition-colors">
-                    <RadioGroupItem value="light" id="theme-light" />
-                    <Label
-                      htmlFor="theme-light"
-                      className="flex items-center gap-3 cursor-pointer flex-1"
-                    >
-                      <Sun className="h-5 w-5 text-yellow-500" />
-                      <div className="flex flex-col">
-                        <span className="font-medium">Tema Claro</span>
-                        <span className="text-sm text-muted-foreground">
-                          Interface com fundo claro
-                        </span>
-                      </div>
-                    </Label>
-                  </div>
-
-                  <div className="flex items-center space-x-3 rounded-lg border p-4 hover:bg-accent/50 transition-colors">
-                    <RadioGroupItem value="dark" id="theme-dark" />
-                    <Label
-                      htmlFor="theme-dark"
-                      className="flex items-center gap-3 cursor-pointer flex-1"
-                    >
-                      <Moon className="h-5 w-5 text-blue-500" />
-                      <div className="flex flex-col">
-                        <span className="font-medium">Tema Escuro</span>
-                        <span className="text-sm text-muted-foreground">
-                          Interface com fundo escuro
-                        </span>
-                      </div>
-                    </Label>
-                  </div>
-
-                  <div className="flex items-center space-x-3 rounded-lg border p-4 hover:bg-accent/50 transition-colors">
-                    <RadioGroupItem value="system" id="theme-system" />
-                    <Label
-                      htmlFor="theme-system"
-                      className="flex items-center gap-3 cursor-pointer flex-1"
-                    >
-                      <Monitor className="h-5 w-5 text-primary" />
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">Seguir Sistema</span>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Badge variant="secondary" className="text-xs">
-                                Padrão
-                              </Badge>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p className="max-w-xs">
-                                O tema será ajustado automaticamente de acordo com a preferência
-                                do sistema operacional (claro durante o dia, escuro à noite).
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                        <span className="text-sm text-muted-foreground">
-                          Adapta-se automaticamente ao SO
-                        </span>
-                      </div>
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </TooltipProvider>
-
-              <div className="mt-4 p-3 rounded-lg bg-muted/50 text-sm text-muted-foreground">
-                <p>
-                  <strong>Dica:</strong> Use o atalho <kbd className="px-2 py-1 bg-background rounded border text-xs font-mono">Ctrl+Shift+D</kbd> para alternar rapidamente entre os temas.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Brand Color Card */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Globe className="h-5 w-5 text-primary" />
-                <CardTitle>Cor do Ambiente</CardTitle>
-              </div>
-              <CardDescription>
-                Define a cor padrão para todos os portais do ambiente "{realm.name}".
-                Esta mudança afetará todos os portais que não têm customização própria.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="space-y-2 flex-1">
-                    <Label htmlFor="realmBrandColor">Cor Principal</Label>
-                    <Input
-                      id="realmBrandColor"
-                      type="color"
-                      value={realmBrandColor}
-                      onChange={(e) => setRealmBrandColorState(e.target.value)}
-                      className="h-12 w-full cursor-pointer"
-                    />
-                  </div>
-                  <div className="space-y-2 flex-1">
-                    <Label>Valor Hexadecimal</Label>
-                    <Input
-                      type="text"
-                      value={realmBrandColor}
-                      onChange={(e) => setRealmBrandColorState(e.target.value)}
-                      placeholder="#0ea5e9"
-                      pattern="^#[0-9A-Fa-f]{6}$"
-                    />
-                  </div>
-                </div>
-                <Separator />
-                {/* Preview */}
-                <div className="space-y-2">
-                  <Label>Preview da Paleta</Label>
-                  <div className="grid grid-cols-5 gap-2">
-                    {[50, 100, 200, 300, 400, 500, 600, 700, 800, 900].map((shade) => (
-                      <div key={shade} className="space-y-1">
-                        <div
-                          className="h-16 rounded border"
-                          style={{
-                            backgroundColor: realmBrandColor,
-                            opacity: shade === 500 ? 1 : shade < 500 ? shade / 500 : (1000 - shade) / 500
-                          }}
-                        />
-                        <p className="text-xs text-center text-muted-foreground">{shade}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-4">
-                    A paleta completa será gerada automaticamente com base na cor principal,
-                    garantindo contraste WCAG AA.
-                  </p>
-                </div>
-              </div>
-              <div className="flex justify-end">
-                <Button onClick={handleSaveRealmColor}>
-                  <Save className="h-4 w-4 mr-2" />
-                  Aplicar a Todos os Portais do Ambiente
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Icons Card - Realm Level */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Image className="h-5 w-5 text-primary" />
-                <CardTitle>Ícones do Aplicativo</CardTitle>
-              </div>
-              <CardDescription>
-                Personalize os ícones que aparecem quando o aplicativo é instalado.
-                Estas configurações serão aplicadas a todos os portais do ambiente.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <IconUploader
-                  scope="realm"
-                  scopeId={realm.realmId}
-                  iconType="favicon"
-                  label="Favicon"
-                  description="16-48px · ICO, PNG"
-                  onUploadComplete={() => toastSuccess('Favicon atualizado')}
-                  onDelete={() => toastSuccess('Favicon removido')}
-                />
-                <IconUploader
-                  scope="realm"
-                  scopeId={realm.realmId}
-                  iconType="pwa-192"
-                  label="Ícone Pequeno"
-                  description="192x192px · PNG"
-                  onUploadComplete={() => toastSuccess('Ícone atualizado')}
-                  onDelete={() => toastSuccess('Ícone removido')}
-                />
-                <IconUploader
-                  scope="realm"
-                  scopeId={realm.realmId}
-                  iconType="pwa-512"
-                  label="Ícone Grande"
-                  description="512x512px · PNG"
-                  onUploadComplete={() => toastSuccess('Ícone atualizado')}
-                  onDelete={() => toastSuccess('Ícone removido')}
-                />
-                <IconUploader
-                  scope="realm"
-                  scopeId={realm.realmId}
-                  iconType="apple-touch"
-                  label="Apple Touch"
-                  description="180x180px · PNG"
-                  onUploadComplete={() => toastSuccess('Ícone atualizado')}
-                  onDelete={() => toastSuccess('Ícone removido')}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        {/* Portal Tab */}
-        <TabsContent value="portal" className="space-y-6 mt-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Palette className="h-5 w-5 text-primary" />
-                  <CardTitle>Cor do Portal</CardTitle>
-                </div>
-                {hasPortalOverride && (
-                  <Badge variant="secondary">Customizado</Badge>
-                )}
-              </div>
-              <CardDescription>
-                Customize a cor apenas para este portal.
-                {hasPortalOverride
-                  ? ' Este portal está usando uma cor personalizada.'
-                  : ' Este portal está usando a cor do ambiente.'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="space-y-2 flex-1">
-                    <Label htmlFor="portalBrandColor">Cor Principal</Label>
-                    <Input
-                      id="portalBrandColor"
-                      type="color"
-                      value={portalBrandColor}
-                      onChange={(e) => setPortalBrandColorState(e.target.value)}
-                      className="h-12 w-full cursor-pointer"
-                    />
-                  </div>
-                  <div className="space-y-2 flex-1">
-                    <Label>Valor Hexadecimal</Label>
-                    <Input
-                      type="text"
-                      value={portalBrandColor}
-                      onChange={(e) => setPortalBrandColorState(e.target.value)}
-                      placeholder="#0ea5e9"
-                      pattern="^#[0-9A-Fa-f]{6}$"
-                    />
-                  </div>
-                </div>
-                <Separator />
-                {/* Preview */}
-                <div className="space-y-2">
-                  <Label>Preview da Paleta</Label>
-                  <div className="grid grid-cols-5 gap-2">
-                    {[50, 100, 200, 300, 400, 500, 600, 700, 800, 900].map((shade) => (
-                      <div key={shade} className="space-y-1">
-                        <div
-                          className="h-16 rounded border"
-                          style={{
-                            backgroundColor: portalBrandColor,
-                            opacity: shade === 500 ? 1 : shade < 500 ? shade / 500 : (1000 - shade) / 500
-                          }}
-                        />
-                        <p className="text-xs text-center text-muted-foreground">{shade}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-end gap-2">
-                {hasPortalOverride && (
-                  <Button
-                    variant="outline"
-                    onClick={handleRemovePortalOverride}
-                    className="text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Remover Customização
-                  </Button>
-                )}
-                <Button onClick={handleSavePortalColor}>
-                  <Save className="h-4 w-4 mr-2" />
-                  Aplicar Somente a Este Portal
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Icons Card - Portal Level */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Image className="h-5 w-5 text-primary" />
-                <CardTitle>Ícones do Aplicativo</CardTitle>
-              </div>
-              <CardDescription>
-                Personalize os ícones apenas para este portal, sobrescrevendo os ícones do ambiente.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <IconUploader
-                  scope="portal"
-                  scopeId={portal.portalId}
-                  iconType="favicon"
-                  label="Favicon"
-                  description="16-48px · ICO, PNG"
-                  onUploadComplete={() => toastSuccess('Favicon atualizado')}
-                  onDelete={() => toastSuccess('Favicon removido')}
-                />
-                <IconUploader
-                  scope="portal"
-                  scopeId={portal.portalId}
-                  iconType="pwa-192"
-                  label="Ícone Pequeno"
-                  description="192x192px · PNG"
-                  onUploadComplete={() => toastSuccess('Ícone atualizado')}
-                  onDelete={() => toastSuccess('Ícone removido')}
-                />
-                <IconUploader
-                  scope="portal"
-                  scopeId={portal.portalId}
-                  iconType="pwa-512"
-                  label="Ícone Grande"
-                  description="512x512px · PNG"
-                  onUploadComplete={() => toastSuccess('Ícone atualizado')}
-                  onDelete={() => toastSuccess('Ícone removido')}
-                />
-                <IconUploader
-                  scope="portal"
-                  scopeId={portal.portalId}
-                  iconType="apple-touch"
-                  label="Apple Touch"
-                  description="180x180px · PNG"
-                  onUploadComplete={() => toastSuccess('Ícone atualizado')}
-                  onDelete={() => toastSuccess('Ícone removido')}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
       {/* Semantic Colors Info */}
       <Card>
         <CardHeader>
@@ -560,13 +353,33 @@ export function ThemeConfig() {
           </div>
         </CardContent>
       </Card>
+      {/* Customize Theme Dialog */}
+      <AlertDialog open={showCustomizeDialog} onOpenChange={setShowCustomizeDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Customizar tema deste portal?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Ao ativar a customização, este portal terá tema independente do ambiente "{realm.name}".
+              Alterações futuras no tema do ambiente não afetarão este portal.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmCustomizeTheme}>
+              Confirmar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Remove Customization Dialog */}
       <AlertDialog open={showRemoveDialog} onOpenChange={setShowRemoveDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remover customização do portal?</AlertDialogTitle>
+            <AlertDialogTitle>Voltar ao tema do ambiente?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja remover a customização do portal? Ele voltará a usar a cor do ambiente.
+              Tem certeza que deseja remover a customização do portal?
+              Ele voltará a usar o tema configurado no ambiente "{realm.name}".
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

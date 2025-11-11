@@ -12,6 +12,7 @@ export interface IconUploaderProps {
   label: string;
   description: string;
   currentUrl?: string;
+  readonly?: boolean;
   onUploadComplete?: (url: string) => void;
   onDelete?: () => void;
 }
@@ -55,6 +56,7 @@ export function IconUploader({
   label,
   description,
   currentUrl,
+  readonly = false,
   onUploadComplete,
   onDelete
 }: IconUploaderProps) {
@@ -238,23 +240,27 @@ export function IconUploader({
 
   // Handlers de drag & drop
   const handleDragEnter = (e: React.DragEvent) => {
+    if (readonly) return;
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(true);
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
+    if (readonly) return;
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
+    if (readonly) return;
     e.preventDefault();
     e.stopPropagation();
   };
 
   const handleDrop = (e: React.DragEvent) => {
+    if (readonly) return;
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
@@ -267,6 +273,7 @@ export function IconUploader({
 
   // Handler de input file
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (readonly) return;
     const files = e.target.files;
     if (files && files.length > 0) {
       uploadFile(files[0]);
@@ -280,7 +287,7 @@ export function IconUploader({
           <p className="text-sm font-medium">{label}</p>
           <p className="text-xs text-muted-foreground">{description}</p>
         </div>
-        {preview && (
+        {preview && !readonly && (
           <Button
             variant="ghost"
             size="sm"
@@ -294,8 +301,10 @@ export function IconUploader({
 
       <Card
         className={cn(
-          'border-2 border-dashed transition-colors cursor-pointer',
-          isDragging && 'border-primary bg-primary/5',
+          'border-2 border-dashed transition-colors',
+          !readonly && 'cursor-pointer',
+          readonly && 'opacity-60 cursor-not-allowed',
+          isDragging && !readonly && 'border-primary bg-primary/5',
           error && 'border-destructive',
           success && 'border-green-500'
         )}
@@ -303,7 +312,7 @@ export function IconUploader({
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
-        onClick={() => fileInputRef.current?.click()}
+        onClick={() => !readonly && fileInputRef.current?.click()}
       >
         <CardContent className="p-4">
           <input
