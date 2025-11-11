@@ -89,6 +89,7 @@ router.post('/guest', async (_req: Request, res: Response) => {
 /**
  * POST /api/1/auth/login
  * SPEC-AU-RO-005, SPEC-AU-LI-001 to SPEC-AU-LI-026
+ * SPEC-AU-ST-005: Store refresh_token in httpOnly cookie
  *
  * Login with credentials
  */
@@ -105,14 +106,30 @@ router.post('/login', async (req: Request, res: Response) => {
     }
 
     // Forward to n8n (SPEC-AU-LI-008)
-    const response = await n8nProxy.post('/webhook/auth/login', {
+    const response = await n8nProxy.post('/auth/login', {
       username,
       password,
       realm,
       schema,
     });
 
-    // Return response from n8n
+    // If login successful, set httpOnly cookie for refresh_token (SPEC-AU-ST-005 to SPEC-AU-ST-008)
+    if (response.status === 200 && response.data?.refresh_token) {
+      res.cookie('refresh_token', response.data.refresh_token, {
+        httpOnly: true,                            // SPEC-AU-ST-006: Protect against XSS
+        secure: env.NODE_ENV === 'production',     // SPEC-AU-ST-007: HTTPS only in production
+        sameSite: 'strict',                        // SPEC-AU-ST-008: Protect against CSRF
+        maxAge: 7 * 24 * 60 * 60 * 1000,          // 7 days (SPEC-AU-RF-020)
+        path: '/api/1/auth',                       // Restrict cookie scope
+      });
+
+      // Remove refresh_token from response body (SPEC-AU-ST-005)
+      const { refresh_token, ...dataWithoutRefreshToken } = response.data;
+
+      return res.status(response.status || 200).json(dataWithoutRefreshToken);
+    }
+
+    // Return response from n8n (error or non-200)
     return res.status(response.status || 200).json(response.data);
   } catch (error: any) {
     return handleN8nError(error, res, 'Internal server error');
@@ -122,6 +139,7 @@ router.post('/login', async (req: Request, res: Response) => {
 /**
  * POST /api/1/auth/refresh
  * SPEC-AU-RO-006, SPEC-AU-RF-001 to SPEC-AU-RF-024
+ * SPEC-AU-ST-005: Use refresh_token from httpOnly cookie
  *
  * Refresh access token
  */
@@ -139,10 +157,33 @@ router.post('/refresh', async (req: Request, res: Response) => {
       });
     }
 
-    // Forward to n8n (SPEC-AU-RF-005)
-    const response = await n8nProxy.post('/webhook/auth/refresh', {
-      refresh_token: refreshToken,
-    });
+    // Forward to n8n with Cookie header (SPEC-AU-RF-005)
+    // n8n workflow will extract refresh_token from Cookie header automatically
+    const response = await n8nProxy.post(
+      '/auth/refresh',
+      { refresh_token: refreshToken },
+      {
+        headers: {
+          Cookie: `refresh_token=${refreshToken}`,
+        },
+      }
+    );
+
+    // If refresh successful, renew httpOnly cookie with new refresh_token
+    if (response.status === 200 && response.data?.refresh_token) {
+      res.cookie('refresh_token', response.data.refresh_token, {
+        httpOnly: true,                            // SPEC-AU-ST-006: Protect against XSS
+        secure: env.NODE_ENV === 'production',     // SPEC-AU-ST-007: HTTPS only in production
+        sameSite: 'strict',                        // SPEC-AU-ST-008: Protect against CSRF
+        maxAge: 7 * 24 * 60 * 60 * 1000,          // 7 days (SPEC-AU-RF-020)
+        path: '/api/1/auth',                       // Restrict cookie scope
+      });
+
+      // Remove refresh_token from response body (SPEC-AU-ST-005)
+      const { refresh_token, ...dataWithoutRefreshToken } = response.data;
+
+      return res.status(response.status || 200).json(dataWithoutRefreshToken);
+    }
 
     return res.status(response.status || 200).json(response.data);
   } catch (error: any) {
@@ -153,6 +194,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
 /**
  * POST /api/1/auth/logout
  * SPEC-AU-RO-007, SPEC-AU-LO-001 to SPEC-AU-LO-012
+ * SPEC-AU-ST-005: Clear refresh_token httpOnly cookie
  *
  * Logout (revoke current refresh token)
  */
@@ -163,6 +205,9 @@ router.post('/logout', async (req: Request, res: Response) => {
     // Check cookies if not in body (SPEC-AU-LO-002, SPEC-AU-LO-003)
     const refreshToken = refresh_token || req.cookies?.refresh_token;
 
+    // Clear cookie immediately (SPEC-AU-ST-005)
+    res.clearCookie('refresh_token', { path: '/api/1/auth' });
+
     if (!refreshToken) {
       // Idempotent - return success even without token (SPEC-AU-LO-011)
       return res.status(200).json({
@@ -171,10 +216,16 @@ router.post('/logout', async (req: Request, res: Response) => {
       });
     }
 
-    // Forward to n8n (SPEC-AU-LO-004)
-    const response = await n8nProxy.post('/webhook/auth/logout', {
-      refresh_token: refreshToken,
-    });
+    // Forward to n8n to revoke token in database (SPEC-AU-LO-004)
+    const response = await n8nProxy.post(
+      '/auth/logout',
+      { refresh_token: refreshToken },
+      {
+        headers: {
+          Cookie: `refresh_token=${refreshToken}`,
+        },
+      }
+    );
 
     return res.status(response.status || 200).json(response.data);
   } catch (error: any) {
@@ -185,6 +236,7 @@ router.post('/logout', async (req: Request, res: Response) => {
 /**
  * POST /api/1/auth/logout-all
  * SPEC-AU-RO-008, SPEC-AU-LA-001 to SPEC-AU-LA-017
+ * SPEC-AU-ST-005: Clear refresh_token httpOnly cookie
  *
  * Logout from all devices
  */
@@ -205,13 +257,17 @@ router.post('/logout-all', async (req: Request, res: Response) => {
       });
     }
 
-    // Forward to n8n (SPEC-AU-LA-007)
+    // Clear local cookie immediately (SPEC-AU-ST-005)
+    res.clearCookie('refresh_token', { path: '/api/1/auth' });
+
+    // Forward to n8n to revoke ALL refresh tokens for this user (SPEC-AU-LA-007)
     const response = await n8nProxy.post(
-      '/webhook/auth/logout-all',
+      '/auth/logout-all',
       {},
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
+          Cookie: req.headers.cookie || '',
         },
       }
     );
@@ -249,7 +305,7 @@ router.post('/authorize', async (req: Request, res: Response) => {
 
     // Forward to n8n (SPEC-AU-AZ-016)
     const response = await n8nProxy.post(
-      '/webhook/auth/authorize',
+      '/auth/authorize',
       {
         schema,
         permission,

@@ -1,9 +1,10 @@
 // JQEL Client Service
 // Based on SPEC-data-access.md (SPEC-DA-W-*)
+// Updated per PLAN_AUTH.md Phase 2.4 - Use fetchClient
 
 import type { JQELQuery, JResult } from '@/types/jqel';
 import { JQELError as JQELErrorClass } from '@/types/jqel';
-import { tokenStorage } from './tokenStorage';
+import { fetchClient } from './fetchClient';
 import { cacheValidator } from './cacheValidator';
 
 const JQEL_ENDPOINT = '/api/jqel';
@@ -22,24 +23,19 @@ class JQELClient {
    * SPEC-DA-W-005: POST to /api/jqel
    * SPEC-DA-W-006: Content-Type: application/json
    * SPEC-DA-W-007: Include JWT automatically if available
-   * 
+   * PLAN_AUTH.md Phase 2.4: Use fetchClient (automatic token injection)
+   *
    * Cache Epoch Integration:
    * - Extracts X-Cache-Epoch header from response
    * - Updates cache validator automatically
    */
   async query<T = unknown>(queryObject: JQELQuery): Promise<JResult<T>> {
-    const token = tokenStorage.getAccessToken();
-
     try {
-      const response = await fetch(JQEL_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
-        body: JSON.stringify(queryObject),
-        credentials: 'include',
-      });
+      // Use fetchClient - automatic token injection and refresh on 401
+      const response = await fetchClient.post<JResult<T>>(
+        JQEL_ENDPOINT,
+        queryObject
+      );
 
       // Extract and update cache epoch from response header
       const cacheEpoch = response.headers.get('X-Cache-Epoch');
@@ -47,7 +43,8 @@ class JQELClient {
         cacheValidator.updateEpoch(cacheEpoch);
       }
 
-      const result: JResult<T> = await response.json();
+      // Get result from response.data
+      const result = response.data as JResult<T>;
 
       // SPEC-DA-W-009: Throw exception on HTTP errors
       if (!response.ok) {

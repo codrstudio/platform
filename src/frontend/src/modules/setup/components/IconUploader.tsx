@@ -3,7 +3,7 @@ import { Upload, X, Image as ImageIcon, Check, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { tokenStorage } from '@/services/tokenStorage';
+import { fetchClient } from '@/services/fetchClient';
 
 export interface IconUploaderProps {
   scope: 'realm' | 'portal';
@@ -157,23 +157,21 @@ export function IconUploader({
       formData.append('scopeId', scopeId);
       formData.append('iconType', iconType);
 
-      // Obter token JWT
-      const token = tokenStorage.getAccessToken();
-
-      // Upload
-      const response = await fetch('/api/1/assets/icons', {
+      // Upload using fetchClient (automatic token injection)
+      const response = await fetchClient.request<{
+        success: boolean;
+        error?: string;
+        data?: { url: string };
+      }>('/api/1/assets/icons', {
         method: 'POST',
-        headers: {
-          ...(token && { Authorization: `Bearer ${token}` })
-        },
         body: formData,
-        credentials: 'include'
+        // Note: Don't set Content-Type for FormData - browser sets it automatically with boundary
       });
 
-      const result = await response.json();
+      const result = response.data;
 
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || 'Erro ao fazer upload');
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.error || 'Erro ao fazer upload');
       }
 
       // Atualizar preview
@@ -182,7 +180,7 @@ export function IconUploader({
       setSuccess(true);
 
       // Callback
-      if (onUploadComplete) {
+      if (onUploadComplete && result?.data?.url) {
         onUploadComplete(result.data.url);
       }
 
@@ -202,27 +200,25 @@ export function IconUploader({
     setIsUploading(true);
 
     try {
-      // Obter token JWT
-      const token = tokenStorage.getAccessToken();
-
-      const response = await fetch('/api/1/assets/icons', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` })
-        },
+      // Delete using fetchClient (automatic token injection)
+      const response = await fetchClient.delete<{
+        success: boolean;
+        error?: string;
+      }>('/api/1/assets/icons', {
         body: JSON.stringify({
           scope,
           scopeId,
           iconType
         }),
-        credentials: 'include'
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
-      const result = await response.json();
+      const result = response.data;
 
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || 'Erro ao deletar');
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.error || 'Erro ao deletar');
       }
 
       setPreview(null);

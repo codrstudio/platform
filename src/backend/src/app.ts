@@ -2,6 +2,7 @@ import express, { type Request, type Response, type NextFunction } from 'express
 import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
+import cookieParser from 'cookie-parser'
 import { env } from './config/env.js'
 import authRoutes from './routes/auth.routes.js'
 import jqelRoutes from './routes/jqel.routes.js'
@@ -37,6 +38,9 @@ app.use(
 // SPEC-CF-VEO-001: Body parsers with size limit
 app.use(express.json({ limit: env.MAX_REQUEST_SIZE }))
 app.use(express.urlencoded({ extended: true, limit: env.MAX_REQUEST_SIZE }))
+
+// Cookie parser middleware (SPEC-AU-ST-005)
+app.use(cookieParser())
 
 // SPEC-CF-VEO-005: HTTP logging with Morgan
 if (env.NODE_ENV === 'development') {

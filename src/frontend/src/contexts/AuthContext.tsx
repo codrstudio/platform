@@ -1,14 +1,15 @@
 // Authentication Context and Provider
 // Based on SPEC-authentication.md and SPEC-frontend-state.md
+// Updated per PLAN_AUTH.md Phase 2.3 - Use authService
 
 import React, { createContext, useState, useEffect, useMemo, useCallback } from 'react';
 import type {
   AuthContextValue,
   AuthState,
   LoginRequest,
+  User,
 } from '@/types/auth';
-import * as authClient from '@/services/authClient';
-import { tokenStorage } from '@/services/tokenStorage';
+import { authService } from '@/services/auth.service';
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
@@ -37,27 +38,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
   /**
    * Login function
    * SPEC-AU-LI-001 to SPEC-AU-LI-018
+   * PLAN_AUTH.md Phase 2.3: Use authService (cookies + memory)
    */
   const login = useCallback(async (credentials: LoginRequest): Promise<void> => {
     try {
-      const response = await authClient.login(credentials);
+      const payload = await authService.login(
+        credentials.username,
+        credentials.password,
+        credentials.realm,
+        credentials.schema
+      );
 
-      // Store tokens (SPEC-AU-ST-001 to SPEC-AU-ST-008)
-      tokenStorage.setAccessToken(response.access_token, response.expires_in);
-      tokenStorage.setRefreshToken(response.refresh_token);
+      // authService stores access_token in memory
+      // refresh_token stored in httpOnly cookie by backend
 
       // Update state
       setAuthState({
-        user: response.payload,
-        accessToken: response.access_token,
-        refreshToken: response.refresh_token,
+        user: payload as User,
+        accessToken: authService.getAccessToken(),
+        refreshToken: null, // Not accessible (httpOnly cookie)
         isAuthenticated: true,
         isLoading: false,
-        permissions: response.payload.permissions || [],
+        permissions: (payload.permissions as string[]) || [],
       });
     } catch (error) {
       // Clear any partial state
-      tokenStorage.clearTokens();
+      authService.setAccessToken(null);
       setAuthState((prev) => ({
         ...prev,
         user: null,
@@ -74,22 +80,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   /**
    * Logout function
    * SPEC-AU-LO-001 to SPEC-AU-LO-015
+   * PLAN_AUTH.md Phase 2.3: Use authService (clears cookie + memory)
    */
   const logout = useCallback(async (): Promise<void> => {
-    const refreshToken = tokenStorage.getRefreshToken();
-
-    // Call logout API if we have a refresh token
-    if (refreshToken) {
-      try {
-        await authClient.logout({ refresh_token: refreshToken });
-      } catch (error) {
-        // Log error but continue with local cleanup
-        console.error('Logout API error:', error);
-      }
+    try {
+      // authService calls backend logout (clears cookie)
+      await authService.logout();
+    } catch (error) {
+      // Log error but continue with local cleanup
+      console.error('Logout API error:', error);
     }
-
-    // Clear tokens (SPEC-AU-LO-013, SPEC-AU-LO-014, SPEC-AU-LO-015)
-    tokenStorage.clearTokens();
 
     // Clear state
     setAuthState({
@@ -105,28 +105,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
   /**
    * Refresh tokens
    * SPEC-AU-RF-001 to SPEC-AU-RF-020
+   * PLAN_AUTH.md Phase 2.3: Use authService (cookie sent automatically)
    */
   const refresh = useCallback(async (): Promise<void> => {
-    const refreshToken = tokenStorage.getRefreshToken();
-
-    if (!refreshToken) {
-      throw new Error('No refresh token available');
-    }
-
     try {
-      const response = await authClient.refresh({ refresh_token: refreshToken });
+      // authService.refresh() uses cookie automatically
+      const success = await authService.refresh();
 
-      // Store new tokens
-      tokenStorage.setAccessToken(response.access_token, response.expires_in);
-      tokenStorage.setRefreshToken(response.refresh_token);
+      if (!success) {
+        throw new Error('Token refresh failed');
+      }
 
-      // Update state
+      // Update state with new access_token
       setAuthState((prev) => ({
         ...prev,
-        accessToken: response.access_token,
-        refreshToken: response.refresh_token,
-        user: response.payload || prev.user,
-        permissions: response.payload?.permissions || prev.permissions,
+        accessToken: authService.getAccessToken(),
+        refreshToken: null, // Not accessible (httpOnly cookie)
       }));
     } catch (error) {
       // Refresh failed, logout user (SPEC-AU-ST-012)
@@ -138,15 +132,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
   /**
    * Check if user has permission
    * SPEC-AU-AZ-001 to SPEC-AU-AZ-036
+   * Note: Still uses authClient directly (no change needed)
    */
   const hasPermission = useCallback(async (permission: string): Promise<boolean> => {
-    const accessToken = tokenStorage.getAccessToken();
+    const accessToken = authService.getAccessToken();
 
     if (!accessToken) {
       return false;
     }
 
     try {
+      // Use authClient for authorize endpoint
+      const authClient = await import('@/services/authClient');
       const response = await authClient.authorize({
         access_token: accessToken,
         permission,
@@ -162,14 +159,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
   /**
    * Auto-refresh timer
    * SPEC-AU-ST-009 to SPEC-AU-ST-012
+   * Note: With httpOnly cookies, refresh happens automatically via fetchClient interceptor
+   * This timer is kept as a backup mechanism
    */
   useEffect(() => {
     if (!authState.isAuthenticated) return;
 
-    const REFRESH_BUFFER = 5 * 60 * 1000; // 5 minutes before expiry
-    const expiresAt = tokenStorage.getExpiresAt();
+    // Parse token to get expiration
+    const payload = authService.parseToken();
+    if (!payload?.exp) return;
 
-    if (!expiresAt) return;
+    const REFRESH_BUFFER = 5 * 60 * 1000; // 5 minutes before expiry
+    const expiresAt = (payload.exp as number) * 1000; // Convert to milliseconds
 
     const now = Date.now();
     const timeUntilRefresh = expiresAt - now - REFRESH_BUFFER;
@@ -195,18 +196,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
   /**
    * Hydration on app start
    * SPEC-STATE-H-002
+   * PLAN_AUTH.md Phase 2.3: Refresh token in httpOnly cookie
    */
   useEffect(() => {
     const hydrateAuth = async () => {
-      // Check if we have a refresh token
-      if (!tokenStorage.hasRefreshToken()) {
-        setAuthState((prev) => ({ ...prev, isLoading: false }));
-        return;
-      }
-
       // Try to refresh and restore session
+      // If refresh_token cookie exists, this will succeed
       try {
-        await refresh();
+        const success = await authService.refresh();
+
+        if (success) {
+          // Parse token to get user info
+          const payload = authService.parseToken();
+
+          setAuthState({
+            user: (payload as User) || null,
+            accessToken: authService.getAccessToken(),
+            refreshToken: null, // Not accessible (httpOnly cookie)
+            isAuthenticated: true,
+            isLoading: false,
+            permissions: (payload?.permissions as string[]) || [],
+          });
+        } else {
+          setAuthState((prev) => ({ ...prev, isLoading: false }));
+        }
       } catch (error) {
         console.error('Session restoration failed:', error);
         setAuthState((prev) => ({ ...prev, isLoading: false }));
