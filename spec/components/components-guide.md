@@ -1,6 +1,6 @@
-# Tabela de Decisão de Componentes shadcn/ui
+# Guia de Componentes
 
-Esta tabela cataloga componentes de interface compatíveis com shadcn/ui, incluindo metadados específicos para filtragem e seleção semântica por IA.
+Tabela completa de componentes compatíveis com shadcn/ui, incluindo metadados para filtragem e seleção semântica por IA.
 
 | Component | Doc URL | Description | Keywords |
 |-----------|---------|-------------|----------|
