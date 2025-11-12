@@ -13,5 +13,44 @@
     "moduleId": "auth",
     "config": {},
     "active": true
+  },
+  {
+    "instanceId": "nic",
+    "portalId": "main",
+    "moduleId": "chat",
+    "config": {
+      "agentId": "nic-assistant",
+      "route": "/chats/nic",
+      "title": "NIC Chat",
+      "description": "Converse com o assistente NIC sobre a plataforma",
+      "welcomeMessage": "Olá! Sou o assistente NIC. Como posso ajudar você hoje?",
+      "placeholder": "Digite sua mensagem...",
+      "quickSuggestions": [
+        "O que é a plataforma?",
+        "Como criar um módulo?",
+        "Explique o sistema de portais",
+        "Como funciona o JQEL?",
+        "O que são instâncias?"
+      ],
+      "enableStreaming": true,
+      "showTimestamps": true,
+      "persistHistory": true,
+      "contextWindow": 10,
+      "allowFileUpload": false,
+      "maxInputLength": 4000,
+      "maxInputRows": 5
+    },
+    "active": true,
+    "metadata": {
+      "createdAt": "2025-01-11T00:00:00Z",
+      "createdBy": "system"
+    }
+  },
+  {
+    "instanceId": "default",
+    "portalId": "sandbox",
+    "moduleId": "chat",
+    "config": {},
+    "active": true
   }
 ]

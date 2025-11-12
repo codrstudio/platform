@@ -11,6 +11,7 @@ import adminRoutes from './routes/admin.routes.js'
 import cacheRoutes from './routes/cache.routes.js'
 import assetsRoutes from './routes/assets.routes.js'
 import manifestRoutes from './routes/manifest.routes.js'
+import agentRoutes from './routes/agent.routes.js'
 import { cacheEpochMiddleware } from './middleware/cache-epoch.middleware.js'
 import { clearSiteDataMiddleware } from './middleware/clear-site-data.middleware.js'
 
@@ -74,6 +75,9 @@ app.use('/api/jqel', jqelRoutes)
 
 // Events routes (SPEC-EV-SSE-005, SPEC-CH-EV-015)
 app.use('/api/events', eventsRoutes)
+
+// Agent routes (SPEC-CHAT-I-001: AI agent integration with streaming)
+app.use('/api', agentRoutes)
 
 // Admin routes (BullBoard UI for queue management)
 app.use('/admin', adminRoutes)
