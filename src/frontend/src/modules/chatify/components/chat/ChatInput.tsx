@@ -4,7 +4,8 @@
  * Botão toggle: "Enviar" vira "Parar" durante streaming
  */
 
-import { useState, KeyboardEvent } from 'react'
+import { useState } from 'react'
+import type { KeyboardEvent } from 'react'
 import { Send, X } from 'lucide-react'
 
 interface ChatInputProps {
@@ -14,7 +15,7 @@ interface ChatInputProps {
   compact?: boolean
 }
 
-export function ChatInput({ onSend, onCancel, isDisabled, compact = false }: ChatInputProps) {
+export function ChatInput({ onSend, onCancel, isDisabled }: ChatInputProps) {
   const [input, setInput] = useState('')
 
   const handleSend = () => {

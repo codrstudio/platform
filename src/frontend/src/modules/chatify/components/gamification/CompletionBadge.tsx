@@ -11,19 +11,19 @@ import { useJourneyProgress } from '../../hooks/useJourneyProgress'
 import { ConfettiEffect } from './ConfettiEffect'
 
 export function CompletionBadge() {
-  const { isJourneyComplete, progress, markAchievementShown } = useJourneyProgress()
+  const { isJourneyComplete, achievementShown, markAchievementShown } = useJourneyProgress()
   const [showModal, setShowModal] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
 
   useEffect(() => {
-    if (isJourneyComplete() && !progress.achievementShown) {
+    if (isJourneyComplete() && !achievementShown) {
       setShowConfetti(true)
       setShowModal(true)
 
       // Parar confete após 2s
       setTimeout(() => setShowConfetti(false), 2000)
     }
-  }, [isJourneyComplete, progress.achievementShown])
+  }, [isJourneyComplete, achievementShown])
 
   const handleClose = () => {
     setShowModal(false)

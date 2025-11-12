@@ -1,4 +1,5 @@
-import { ReactNode, useEffect } from 'react'
+import type { ReactNode } from 'react'
+import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Menu } from 'lucide-react'
 import { Sidebar } from './Sidebar'

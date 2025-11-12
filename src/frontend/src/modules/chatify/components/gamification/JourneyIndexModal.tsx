@@ -17,7 +17,7 @@ interface Props {
 }
 
 export function JourneyIndexModal({ isOpen, onClose }: Props) {
-  const { progress, isPageVisited } = useJourneyProgress()
+  const { visitedPages, completionPercentage, isPageVisited } = useJourneyProgress()
 
   if (!isOpen) return null
 
@@ -59,7 +59,7 @@ export function JourneyIndexModal({ isOpen, onClose }: Props) {
             <div>
               <h2 className="text-xl font-bold">🗺️ Índice da Jornada NIC</h2>
               <p className="text-sm text-white/80 mt-1">
-                {progress.visitedPages.length} de 14 etapas concluídas ({Math.round(progress.completionPercentage)}%)
+                {visitedPages.length} de 14 etapas concluídas ({Math.round(completionPercentage)}%)
               </p>
             </div>
             <button
@@ -76,7 +76,7 @@ export function JourneyIndexModal({ isOpen, onClose }: Props) {
             <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-nic-accent-light to-nic-accent-dark transition-all duration-500"
-                style={{ width: `${progress.completionPercentage}%` }}
+                style={{ width: `${completionPercentage}%` }}
               />
             </div>
           </div>

@@ -1,64 +1,64 @@
-# PLAN_CHATIFY.md - Migração do NIC Chat para Módulo Chatify
+# PLAN_CHATIFY.md - Migraï¿½ï¿½o do NIC Chat para Mï¿½dulo Chatify
 
-**Objetivo**: Migrar aplicação standalone NIC Chat (`examples/chat/`) para módulo plugável da plataforma, preservando todas as funcionalidades (chat com IA, streaming SSE, sistema de agentes, gamificação/jornada, renderização Markdown+Mermaid) e adaptando persistência de localStorage para JQEL.
+**Objetivo**: Migrar aplicaï¿½ï¿½o standalone NIC Chat (`examples/chat/`) para mï¿½dulo plugï¿½vel da plataforma, preservando todas as funcionalidades (chat com IA, streaming SSE, sistema de agentes, gamificaï¿½ï¿½o/jornada, renderizaï¿½ï¿½o Markdown+Mermaid) e adaptando persistï¿½ncia de localStorage para JQEL.
 
 ---
 
-## =Ë RESUMO EXECUTIVO
+## =ï¿½ RESUMO EXECUTIVO
 
 ### Problemas Identificados
-1. L **Módulo vazio**: Apenas 3% completo (manifest, types, MIGRATION.md) - faltam ~74 arquivos
-2. L **Persistência inadequada**: Original usa localStorage para mensagens/conversas - precisa migrar para JQEL
-3. L **Contexts não compatíveis**: Aplicação usa 5 React Contexts - plataforma usa hooks puros
-4.   **Bundle size**: Mermaid library (442KB) sem otimização - precisa dynamic import
+1. L **Mï¿½dulo vazio**: Apenas 3% completo (manifest, types, MIGRATION.md) - faltam ~74 arquivos
+2. L **Persistï¿½ncia inadequada**: Original usa localStorage para mensagens/conversas - precisa migrar para JQEL
+3. L **Contexts nï¿½o compatï¿½veis**: Aplicaï¿½ï¿½o usa 5 React Contexts - plataforma usa hooks puros
+4. ï¿½ **Bundle size**: Mermaid library (442KB) sem otimizaï¿½ï¿½o - precisa dynamic import
 
-### Solução (Baseada em Padrões)
--  **Migração incremental**: Services ’ Hooks ’ Components ’ Pages ’ Routes (5 fases)
+### Soluï¿½ï¿½o (Baseada em Padrï¿½es)
+-  **Migraï¿½ï¿½o incremental**: Services ï¿½ Hooks ï¿½ Components ï¿½ Pages ï¿½ Routes (5 fases)
 -  **JQEL para dados**: chatService adaptado para useJQELQuery/Mutation (schema: 'chatify')
 -  **Hooks puros**: Contexts convertidos para hooks customizados com storage service
--  **Lazy loading**: Todas as páginas e Mermaid com React.lazy() / dynamic import
+-  **Lazy loading**: Todas as pï¿½ginas e Mermaid com React.lazy() / dynamic import
 
 ---
 
-## <¯ FASE 1: STORAGE & SERVICES
+## <ï¿½ FASE 1: STORAGE & SERVICES
 
 ### 1.1. Migrar Storage System
 
-- [x] Copiar `examples/chat/src/services/storage/` ’ `chatify/services/storage/`
+- [x] Copiar `examples/chat/src/services/storage/` ï¿½ `chatify/services/storage/`
   - [x] `index.ts`
   - [x] `StorageDriver.ts` (interface)
-  - [x] `LocalStorageDriver.ts` (implementação)
+  - [x] `LocalStorageDriver.ts` (implementaï¿½ï¿½o)
   - [x] `storageService.ts` (facade com debounce 300ms)
   - [x] `README.md`
 - [ ]  **Checkpoint**: Storage service compila sem erros
 
-### 1.2. Migrar Services Básicos
+### 1.2. Migrar Services Bï¿½sicos
 
-- [x] Copiar `examples/chat/src/services/agentParser.ts` ’ `chatify/services/`
+- [x] Copiar `examples/chat/src/services/agentParser.ts` ï¿½ `chatify/services/`
   - [x] Ajustar imports de tipos para `../types`
-- [x] Copiar `examples/chat/src/services/agentService.ts` ’ `chatify/services/`
+- [x] Copiar `examples/chat/src/services/agentService.ts` ï¿½ `chatify/services/`
   - [x] Ajustar imports de tipos
-  - [x] Manter uso de localStorage para agentes custom (não é dado persistente)
-- [x] Copiar `examples/chat/src/services/providerService.ts` ’ `chatify/services/`
+  - [x] Manter uso de localStorage para agentes custom (nï¿½o ï¿½ dado persistente)
+- [x] Copiar `examples/chat/src/services/providerService.ts` ï¿½ `chatify/services/`
   - [x] Ajustar path do JSON config para `/config/chatify-providers.json`
-- [ ]  **Checkpoint**: Services básicos compilam e funções são exportadas
+- [ ]  **Checkpoint**: Services bï¿½sicos compilam e funï¿½ï¿½es sï¿½o exportadas
 
 ### 1.3. Adaptar chatService para JQEL
 
-- [x] Criar `chatify/services/chatService.ts` NOVO (não copiar)
+- [x] Criar `chatify/services/chatService.ts` NOVO (nï¿½o copiar)
   - [x] Implementar `loadConversation()` usando JQEL query
   - [x] Implementar `saveConversation()` usando JQEL mutation
   - [x] Implementar `updateConversation()` usando JQEL mutation
   - [x] Implementar `clearHistory()` usando JQEL mutation
-  - [x] Manter interface compatível com original
-- [ ]  **Checkpoint**: chatService usa JQEL e exporta todas as funções
+  - [x] Manter interface compatï¿½vel com original
+- [ ]  **Checkpoint**: chatService usa JQEL e exporta todas as funï¿½ï¿½es
 
-**Leitura de Referência**:
+**Leitura de Referï¿½ncia**:
 - `spec/SPEC-data-access.md` - JQEL integration patterns
 - `spec/SPEC-jqel-syntax.md` - Query syntax
-- `src/frontend/src/modules/chat/` - Exemplo de módulo usando JQEL
+- `src/frontend/src/modules/chat/` - Exemplo de mï¿½dulo usando JQEL
 
-**Código de Referência**:
+**Cï¿½digo de Referï¿½ncia**:
 ```typescript
 // chatService.ts - exemplo de query
 import { jqelClient } from '@/core/jqel'
@@ -75,16 +75,16 @@ export async function loadConversation(conversationId?: string): Promise<Message
 }
 ```
 
-### 1.4. Migrar Services de Integração
+### 1.4. Migrar Services de Integraï¿½ï¿½o
 
-- [x] Copiar `examples/chat/src/services/aiChatService.ts` ’ `chatify/services/`
+- [x] Copiar `examples/chat/src/services/aiChatService.ts` ï¿½ `chatify/services/`
   - [x] Ajustar imports de tipos
   - [x] Verificar SSE streaming (N8N + OpenAI parsers)
   - [x] Manter AbortController para cancelamento
-- [x] Copiar `examples/chat/src/services/n8nChatService.ts` ’ `chatify/services/`
+- [x] Copiar `examples/chat/src/services/n8nChatService.ts` ï¿½ `chatify/services/`
   - [x] Ajustar imports de tipos
-  - [x] Verificar integração com N8N
-- [ ]  **Checkpoint**: Services de integração funcionam com SSE streaming
+  - [x] Verificar integraï¿½ï¿½o com N8N
+- [ ]  **Checkpoint**: Services de integraï¿½ï¿½o funcionam com SSE streaming
 
 ### 1.5. Testar Fase 1 Completa
 
@@ -92,7 +92,7 @@ export async function loadConversation(conversationId?: string): Promise<Message
 - [x] **Teste 1: Storage Service**
   - [x] Executar `storageService.set('test-key', { value: 'test' })`
   - [x] Executar `storageService.get('test-key')`
-  - [x]  **Verificar**: Retorna objeto salvo após debounce (300ms)
+  - [x]  **Verificar**: Retorna objeto salvo apï¿½s debounce (300ms)
 
 - [x] **Teste 2: Chat Service com JQEL**
   - [x] Executar `saveConversation([mockMessage])`
@@ -107,24 +107,24 @@ export async function loadConversation(conversationId?: string): Promise<Message
 
 ---
 
-## <¯ FASE 2: HOOKS
+## <ï¿½ FASE 2: HOOKS
 
-### 2.1. Converter ChatContext ’ useChatify
+### 2.1. Converter ChatContext ï¿½ useChatify
 
 - [ ] Criar `chatify/hooks/useChatify.ts`
-  - [ ] REMOVER toda lógica de Context/Provider
+  - [ ] REMOVER toda lï¿½gica de Context/Provider
   - [ ] Implementar hook que usa `useJQELQuery` para carregar mensagens
   - [ ] Implementar hook que usa `useJQELMutation` para salvar/atualizar/deletar
-  - [ ] Manter interface pública compatível (sendMessage, clearHistory, etc.)
-  - [ ] Adicionar estado local para mensagens em memória (cache)
+  - [ ] Manter interface pï¿½blica compatï¿½vel (sendMessage, clearHistory, etc.)
+  - [ ] Adicionar estado local para mensagens em memï¿½ria (cache)
   - [ ] Implementar optimistic updates (adicionar mensagem antes de confirmar)
 - [ ]  **Checkpoint**: useChatify retorna mesmas propriedades que ChatContext
 
-**Leitura de Referência**:
-- `examples/chat/src/contexts/ChatContext.tsx` - Lógica original
+**Leitura de Referï¿½ncia**:
+- `examples/chat/src/contexts/ChatContext.tsx` - Lï¿½gica original
 - `spec/SPEC-data-access.md` - useJQELQuery/Mutation patterns
 
-**Código de Referência**:
+**Cï¿½digo de Referï¿½ncia**:
 ```typescript
 // useChatify.ts - estrutura base
 export function useChatify(conversationId?: string) {
@@ -139,7 +139,7 @@ export function useChatify(conversationId?: string) {
   const saveMutation = useJQELMutation()
 
   const sendMessage = async (content: string) => {
-    // Implementação com optimistic update
+    // Implementaï¿½ï¿½o com optimistic update
   }
 
   return { messages, sendMessage, isLoading, ... }
@@ -150,34 +150,34 @@ export function useChatify(conversationId?: string) {
 
 - [ ] Criar `chatify/hooks/useJourneyProgress.ts`
   - [ ] Converter `JourneyProgressContext.tsx` para hook
-  - [ ] Usar `storageService` para persistência
-  - [ ] Manter tracking automático de páginas visitadas
-  - [ ] Manter cálculo de porcentagem de conclusão
+  - [ ] Usar `storageService` para persistï¿½ncia
+  - [ ] Manter tracking automï¿½tico de pï¿½ginas visitadas
+  - [ ] Manter cï¿½lculo de porcentagem de conclusï¿½o
 - [ ] Criar `chatify/hooks/useTheme.ts`
   - [ ] Converter `ThemeContext.tsx` para hook
-  - [ ] Usar `localStorage` direto (preferência de UI)
-  - [ ] Manter auto-detecção com `matchMedia('prefers-color-scheme')`
+  - [ ] Usar `localStorage` direto (preferï¿½ncia de UI)
+  - [ ] Manter auto-detecï¿½ï¿½o com `matchMedia('prefers-color-scheme')`
 - [ ] Criar `chatify/hooks/useSidebar.ts`
   - [ ] Converter `SidebarContext.tsx` para hook
-  - [ ] Usar `localStorage` para persistência (desktop only)
-  - [ ] Adicionar listener de resize para detecção mobile
+  - [ ] Usar `localStorage` para persistï¿½ncia (desktop only)
+  - [ ] Adicionar listener de resize para detecï¿½ï¿½o mobile
 - [ ] Criar `chatify/hooks/useNextStepWidget.ts`
   - [ ] Converter `NextStepWidgetContext.tsx` para hook
   - [ ] Usar `storageService` para estado de visibilidade
 - [ ]  **Checkpoint**: Todos os hooks compilam e retornam interface esperada
 
-### 2.3. Migrar Hooks Utilitários
+### 2.3. Migrar Hooks Utilitï¿½rios
 
-- [ ] Copiar `examples/chat/src/hooks/` ’ `chatify/hooks/`
+- [ ] Copiar `examples/chat/src/hooks/` ï¿½ `chatify/hooks/`
   - [ ] `useAgents.ts` - gerenciamento de agentes
   - [ ] `useModels.ts` - gerenciamento de modelos IA
   - [ ] `useChatWidget.ts` - estado do widget flutuante
-  - [ ] `useJourneyContent.ts` - carregamento de conteúdo markdown
-  - [ ] `useMermaid.ts` - renderização de diagramas
-  - [ ] `useAutoScroll.ts` - scroll automático em chat
-- [ ] Renomear `useChat.ts` ’ (não migrar, substituído por useChatify.ts)
+  - [ ] `useJourneyContent.ts` - carregamento de conteï¿½do markdown
+  - [ ] `useMermaid.ts` - renderizaï¿½ï¿½o de diagramas
+  - [ ] `useAutoScroll.ts` - scroll automï¿½tico em chat
+- [ ] Renomear `useChat.ts` ï¿½ (nï¿½o migrar, substituï¿½do por useChatify.ts)
 - [ ] Ajustar todos os imports de tipos para `../types`
-- [ ]  **Checkpoint**: Todos os hooks utilitários compilam
+- [ ]  **Checkpoint**: Todos os hooks utilitï¿½rios compilam
 
 ### 2.4. Testar Fase 2 Completa
 
@@ -185,7 +185,7 @@ export function useChatify(conversationId?: string) {
 - [ ] **Teste 1: useChatify**
   - [ ] Renderizar componente que usa `useChatify()`
   - [ ] Executar `sendMessage('Test')`
-  - [ ]  **Verificar**: Mensagem aparece na lista e é persistida via JQEL
+  - [ ]  **Verificar**: Mensagem aparece na lista e ï¿½ persistida via JQEL
 
 - [ ] **Teste 2: useJourneyProgress**
   - [ ] Renderizar componente que usa `useJourneyProgress()`
@@ -195,23 +195,23 @@ export function useChatify(conversationId?: string) {
 - [ ] **Teste 3: useTheme**
   - [ ] Renderizar componente que usa `useTheme()`
   - [ ] Alternar tema (light/dark)
-  - [ ]  **Resultado**: CSS custom properties atualizadas, preferência salva
+  - [ ]  **Resultado**: CSS custom properties atualizadas, preferï¿½ncia salva
 
 ** CHECKPOINT FASE 2**: Hooks funcionam, contexts removidos, JQEL integrado
 
 ---
 
-## <¯ FASE 3: COMPONENTS
+## <ï¿½ FASE 3: COMPONENTS
 
 ### 3.1. Components de Markdown
 
 - [ ] Criar `chatify/components/markdown/`
   - [ ] Copiar `MarkdownContent.tsx` de `examples/chat/`
   - [ ] Ajustar imports
-  - [ ] Verificar dependências (react-markdown, remark-gfm, rehype-raw)
+  - [ ] Verificar dependï¿½ncias (react-markdown, remark-gfm, rehype-raw)
 - [ ] Otimizar carregamento de Mermaid
   - [ ] Modificar `useMermaid.ts` para usar dynamic import
-  - [ ] Carregar mermaid library apenas quando necessário
+  - [ ] Carregar mermaid library apenas quando necessï¿½rio
 - [ ]  **Checkpoint**: Markdown renderiza corretamente com GFM + Mermaid
 
 ### 3.2. Components de Chat
@@ -256,12 +256,12 @@ export function useChatify(conversationId?: string) {
 
 - [ ] Criar `chatify/components/layout/`
   - [ ] Copiar 5 componentes de `examples/chat/src/components/layout/`
-  - [ ] `Layout.tsx` - ADAPTAR para integração com portal
+  - [ ] `Layout.tsx` - ADAPTAR para integraï¿½ï¿½o com portal
   - [ ] `Sidebar.tsx` - usa useSidebar
   - [ ] `Navigation.tsx`
   - [ ] `ThemeToggle.tsx` - usa useTheme
   - [ ] `BottomControls.tsx`
-- [ ] Remover BrowserRouter de Layout (portal já tem router)
+- [ ] Remover BrowserRouter de Layout (portal jï¿½ tem router)
 - [ ]  **Checkpoint**: Layout integra com portal
 
 ### 3.6. Components Adicionais
@@ -270,7 +270,7 @@ export function useChatify(conversationId?: string) {
   - [ ] Copiar `AgentModelSelector.tsx`
 - [ ] Copiar `chatify/components/FloatingActionStack.tsx`
 - [ ] Criar barrel exports em `chatify/components/index.ts`
-- [ ]  **Checkpoint**: Todos os componentes compilam e são exportados
+- [ ]  **Checkpoint**: Todos os componentes compilam e sï¿½o exportados
 
 ### 3.7. Testar Fase 3 Completa
 
@@ -278,10 +278,10 @@ export function useChatify(conversationId?: string) {
 - [ ] **Teste 1: ChatHistory + ChatInput**
   - [ ] Renderizar componentes
   - [ ] Enviar mensagem
-  - [ ]  **Verificar**: Mensagem aparece no histórico com Markdown renderizado
+  - [ ]  **Verificar**: Mensagem aparece no histï¿½rico com Markdown renderizado
 
 - [ ] **Teste 2: ProgressBar + Journey**
-  - [ ] Navegar entre páginas da jornada
+  - [ ] Navegar entre pï¿½ginas da jornada
   - [ ]  **Resultado**: Barra de progresso atualiza, etapas marcadas como visitadas
 
 - [ ] **Teste 3: Theme Toggle**
@@ -292,31 +292,31 @@ export function useChatify(conversationId?: string) {
 
 ---
 
-## <¯ FASE 4: PAGES & ROUTES
+## <ï¿½ FASE 4: PAGES & ROUTES
 
 ### 4.1. Migrar Pages
 
 - [ ] Criar `chatify/pages/`
   - [ ] Copiar `Home.tsx` - landing page
-  - [ ] Copiar `Chat.tsx` ’ renomear para `ChatInterface.tsx`
-  - [ ] Copiar `Admin.tsx` - configurações de agentes
+  - [ ] Copiar `Chat.tsx` ï¿½ renomear para `ChatInterface.tsx`
+  - [ ] Copiar `Admin.tsx` - configuraï¿½ï¿½es de agentes
   - [ ] Copiar `Guide.tsx` - guia da jornada
-- [ ] Ajustar imports em todas as páginas
+- [ ] Ajustar imports em todas as pï¿½ginas
 - [ ] Substituir `useChat()` por `useChatify()`
-- [ ] Remover qualquer referência a `useContext`
-- [ ]  **Checkpoint**: Páginas compilam sem erros
+- [ ] Remover qualquer referï¿½ncia a `useContext`
+- [ ]  **Checkpoint**: Pï¿½ginas compilam sem erros
 
 ### 4.2. Criar Routes com Lazy Loading
 
 - [ ] Criar `chatify/routes.ts`
-  - [ ] Definir rotas com `React.lazy()` para cada página
-  - [ ] Rota `/` ’ Home (lazy)
-  - [ ] Rota `/chat` ’ ChatInterface (lazy)
-  - [ ] Rota `/admin` ’ Admin (lazy)
-  - [ ] Rota `/guide` ’ Guide (lazy)
+  - [ ] Definir rotas com `React.lazy()` para cada pï¿½gina
+  - [ ] Rota `/` ï¿½ Home (lazy)
+  - [ ] Rota `/chat` ï¿½ ChatInterface (lazy)
+  - [ ] Rota `/admin` ï¿½ Admin (lazy)
+  - [ ] Rota `/guide` ï¿½ Guide (lazy)
 - [ ]  **Checkpoint**: Routes definidas corretamente
 
-**Código de Referência**:
+**Cï¿½digo de Referï¿½ncia**:
 ```typescript
 // routes.ts
 import { lazy } from 'react'
@@ -342,9 +342,9 @@ export const chatifyRoutes: RouteDefinition[] = [
   - [ ] Import routes
   - [ ] Criar `chatifyModule: ModuleExports`
   - [ ] Auto-registrar com `moduleRegistry.register(chatifyModule)`
-- [ ]  **Checkpoint**: Módulo exporta tudo e auto-registra
+- [ ]  **Checkpoint**: Mï¿½dulo exporta tudo e auto-registra
 
-**Código de Referência**:
+**Cï¿½digo de Referï¿½ncia**:
 ```typescript
 // index.ts
 import { moduleRegistry } from '@/core/modules'
@@ -367,14 +367,14 @@ export { chatifyManifest, chatifyRoutes }
 
 - [ ] Abrir `src/frontend/src/modules/index.ts`
   - [ ] Adicionar `import './chatify'` (auto-registra ao importar)
-- [ ]  **Checkpoint**: Módulo aparece no ModuleRegistry
+- [ ]  **Checkpoint**: Mï¿½dulo aparece no ModuleRegistry
 
 ### 4.5. Testar Fase 4 Completa
 
 **Checklist de Testes**:
-- [ ] **Teste 1: Lazy Loading de Páginas**
+- [ ] **Teste 1: Lazy Loading de Pï¿½ginas**
   - [ ] Inspecionar Network tab ao navegar entre rotas
-  - [ ]  **Verificar**: Cada página carrega chunk JS separado
+  - [ ]  **Verificar**: Cada pï¿½gina carrega chunk JS separado
 
 - [ ] **Teste 2: Module Registration**
   - [ ] Console: `moduleRegistry.getModule('chatify')`
@@ -383,13 +383,13 @@ export { chatifyManifest, chatifyRoutes }
 - [ ] **Teste 3: Portal Integration**
   - [ ] Ativar chatify em um portal via setup
   - [ ] Acessar rota do chatify
-  - [ ]  **Resultado**: Página renderiza dentro do portal
+  - [ ]  **Resultado**: Pï¿½gina renderiza dentro do portal
 
-** CHECKPOINT FASE 4**: Páginas funcionam, routes lazy-loaded, módulo registrado
+** CHECKPOINT FASE 4**: Pï¿½ginas funcionam, routes lazy-loaded, mï¿½dulo registrado
 
 ---
 
-## <¯ FASE 5: ASSETS, DATA & POLISH
+## <ï¿½ FASE 5: ASSETS, DATA & POLISH
 
 ### 5.1. Copiar Assets
 
@@ -415,60 +415,60 @@ export { chatifyManifest, chatifyRoutes }
 - [ ] Ajustar imports
 - [ ]  **Checkpoint**: Utils funcionam
 
-### 5.4. Configuração de Providers
+### 5.4. Configuraï¿½ï¿½o de Providers
 
 - [ ] Copiar `examples/chat/public/config/ai-providers.json`
   - [ ] Para `public/config/chatify-providers.json`
 - [ ] Ajustar `providerService.ts` para apontar para novo path
 - [ ]  **Checkpoint**: Providers carregam corretamente
 
-### 5.5. Adicionar Dependências
+### 5.5. Adicionar Dependï¿½ncias
 
 - [ ] Verificar `package.json` da plataforma
-  - [ ] Se não estiver, adicionar: `react-markdown@^10.1.0`
-  - [ ] Se não estiver, adicionar: `remark-gfm@^4.0.1`
-  - [ ] Se não estiver, adicionar: `rehype-raw@^7.0.0`
-  - [ ] Se não estiver, adicionar: `mermaid@^11.12.0`
-  - [ ] Se não estiver, adicionar: `gray-matter@^4.0.3`
-  - [ ] Se não estiver, adicionar: `date-fns@^3.x`
+  - [ ] Se nï¿½o estiver, adicionar: `react-markdown@^10.1.0`
+  - [ ] Se nï¿½o estiver, adicionar: `remark-gfm@^4.0.1`
+  - [ ] Se nï¿½o estiver, adicionar: `rehype-raw@^7.0.0`
+  - [ ] Se nï¿½o estiver, adicionar: `mermaid@^11.12.0`
+  - [ ] Se nï¿½o estiver, adicionar: `gray-matter@^4.0.3`
+  - [ ] Se nï¿½o estiver, adicionar: `date-fns@^3.x`
 - [ ] Executar `npm install`
-- [ ]  **Checkpoint**: Dependências instaladas
+- [ ]  **Checkpoint**: Dependï¿½ncias instaladas
 
 ### 5.6. Testar Fase 5 Completa
 
 **Checklist de Testes**:
 - [ ] **Teste 1: Assets Carregam**
-  - [ ] Renderizar página com logos NIC
+  - [ ] Renderizar pï¿½gina com logos NIC
   - [ ]  **Verificar**: Logos light/dark aparecem corretamente
 
 - [ ] **Teste 2: Journey Content**
-  - [ ] Abrir página Guide
+  - [ ] Abrir pï¿½gina Guide
   - [ ] Navegar entre etapas da jornada
-  - [ ]  **Resultado**: Conteúdo markdown carrega e renderiza
+  - [ ]  **Resultado**: Conteï¿½do markdown carrega e renderiza
 
 - [ ] **Teste 3: Emoji/Icon Pickers**
   - [ ] Abrir CustomAgentEditor
   - [ ] Abrir IconPicker
-  - [ ]  **Resultado**: Categorias de emojis e ícones Lucide aparecem
+  - [ ]  **Resultado**: Categorias de emojis e ï¿½cones Lucide aparecem
 
-** CHECKPOINT FASE 5**: Assets, data e utils funcionam, dependências instaladas
+** CHECKPOINT FASE 5**: Assets, data e utils funcionam, dependï¿½ncias instaladas
 
 ---
 
-## <¯ FASE 6: TESTES INTEGRADOS
+## <ï¿½ FASE 6: TESTES INTEGRADOS
 
 ### 6.1. Teste: Chat Completo com IA
 
-- [ ] Abrir página ChatInterface
+- [ ] Abrir pï¿½gina ChatInterface
 - [ ] Selecionar agente NIC
-- [ ] Enviar mensagem "Olá"
+- [ ] Enviar mensagem "Olï¿½"
 - [ ]  **Verificar**: Resposta do agente com streaming SSE
-- [ ]  **Verificar**: Markdown renderizado (negrito, código, listas)
+- [ ]  **Verificar**: Markdown renderizado (negrito, cï¿½digo, listas)
 - [ ]  **Verificar**: Mensagens persistidas via JQEL
 
 ### 6.2. Teste: Sistema de Agentes
 
-- [ ] Abrir página Admin
+- [ ] Abrir pï¿½gina Admin
 - [ ] Verificar agentes built-in (da .env)
 - [ ] Verificar agentes N8N-discovered
 - [ ] Criar agente custom
@@ -478,23 +478,23 @@ export { chatifyManifest, chatifyRoutes }
 
 ### 6.3. Teste: Sistema de Jornada
 
-- [ ] Abrir página Home
+- [ ] Abrir pï¿½gina Home
 - [ ]  **Verificar**: Barra de progresso aparece (0%)
-- [ ] Navegar todas as 14 etapas (Home ’ Guide ’ etapas)
-- [ ]  **Verificar**: Progresso atualiza até 100%
-- [ ]  **Verificar**: Badge de conclusão + confetes ao completar
-- [ ] Recarregar página
+- [ ] Navegar todas as 14 etapas (Home ï¿½ Guide ï¿½ etapas)
+- [ ]  **Verificar**: Progresso atualiza atï¿½ 100%
+- [ ]  **Verificar**: Badge de conclusï¿½o + confetes ao completar
+- [ ] Recarregar pï¿½gina
 - [ ]  **Verificar**: Progresso mantido (localStorage)
 
 ### 6.4. Teste: Widget Flutuante
 
-- [ ] Abrir qualquer página
+- [ ] Abrir qualquer pï¿½gina
 - [ ] Clicar no FAB principal
 - [ ]  **Verificar**: Widget de chat abre
 - [ ] Enviar mensagem no widget
 - [ ]  **Verificar**: Mensagem aparece no widget
 - [ ] Minimizar widget
-- [ ]  **Verificar**: Badge de notificações aparece
+- [ ]  **Verificar**: Badge de notificaï¿½ï¿½es aparece
 
 ### 6.5. Teste: Responsividade
 
@@ -511,15 +511,15 @@ export { chatifyManifest, chatifyRoutes }
 - [ ] Sistema em modo claro
 - [ ] Clicar em toggle de tema
 - [ ]  **Verificar**: Interface muda para dark
-- [ ]  **Verificar**: Logos mudam (dark ’ light)
-- [ ] Recarregar página
+- [ ]  **Verificar**: Logos mudam (dark ï¿½ light)
+- [ ] Recarregar pï¿½gina
 - [ ]  **Verificar**: Tema dark mantido
 
 ### 6.7. Teste: Markdown + Mermaid
 
-- [ ] Enviar mensagem com código:
+- [ ] Enviar mensagem com cï¿½digo:
   ```
-  **Negrito** e *itálico*
+  **Negrito** e *itï¿½lico*
 
   ` ```javascript
   const x = 1
@@ -530,7 +530,7 @@ export { chatifyManifest, chatifyRoutes }
   A-->B
   ` ```
   ```
-- [ ]  **Verificar**: Negrito e itálico renderizados
+- [ ]  **Verificar**: Negrito e itï¿½lico renderizados
 - [ ]  **Verificar**: Code block com syntax highlighting
 - [ ]  **Verificar**: Diagrama Mermaid renderizado
 
@@ -538,45 +538,45 @@ export { chatifyManifest, chatifyRoutes }
 
 ---
 
-## =İ NOTAS DE IMPLEMENTAÇÃO
+## =ï¿½ NOTAS DE IMPLEMENTAï¿½ï¿½O
 
-### Decisões Arquiteturais
+### Decisï¿½es Arquiteturais
 
-- **JQEL para Mensagens**: Mensagens e conversas migradas de localStorage para JQEL (schema: 'chatify') para persistência real e suporte a múltiplos dispositivos. localStorage mantido apenas para preferências de UI.
+- **JQEL para Mensagens**: Mensagens e conversas migradas de localStorage para JQEL (schema: 'chatify') para persistï¿½ncia real e suporte a mï¿½ltiplos dispositivos. localStorage mantido apenas para preferï¿½ncias de UI.
 
-- **Hooks Puros**: Contexts removidos para aderir ao padrão da plataforma. Cada hook gerencia seu próprio estado usando storage service ou JQEL, sem necessidade de Providers.
+- **Hooks Puros**: Contexts removidos para aderir ao padrï¿½o da plataforma. Cada hook gerencia seu prï¿½prio estado usando storage service ou JQEL, sem necessidade de Providers.
 
-- **Lazy Loading**: Todas as páginas e Mermaid library com dynamic import para otimizar bundle size (~316KB gzip inicial, Mermaid carrega sob demanda).
+- **Lazy Loading**: Todas as pï¿½ginas e Mermaid library com dynamic import para otimizar bundle size (~316KB gzip inicial, Mermaid carrega sob demanda).
 
-- **Backend Separado**: Express backend mantido como microserviço separado (não parte do módulo frontend) com rotas prefixadas `/api/chatify/*` para proxy de APIs externas (NIC, OpenAI).
+- **Backend Separado**: Express backend mantido como microserviï¿½o separado (nï¿½o parte do mï¿½dulo frontend) com rotas prefixadas `/api/chatify/*` para proxy de APIs externas (NIC, OpenAI).
 
-### Limitações Conhecidas
+### Limitaï¿½ï¿½es Conhecidas
 
-- **Mermaid Bundle Size**: Library de 442KB é grande mesmo com dynamic import
-  - Mitigação: Carregado apenas quando diagrama detectado no markdown
+- **Mermaid Bundle Size**: Library de 442KB ï¿½ grande mesmo com dynamic import
+  - Mitigaï¿½ï¿½o: Carregado apenas quando diagrama detectado no markdown
   - Alternativa futura: Substituir por biblioteca menor ou renderizar server-side
 
 - **XSS em Markdown**: rehype-raw permite HTML bruto nas mensagens
-  - Mitigação: Sanitizar mensagens de usuários antes de renderizar (DOMPurify)
+  - Mitigaï¿½ï¿½o: Sanitizar mensagens de usuï¿½rios antes de renderizar (DOMPurify)
   - Alternativa futura: Remover rehype-raw e desabilitar HTML inline
 
 - **N8N Cache**: Agentes N8N descobertos tem cache de 5min, pode estar desatualizado
-  - Mitigação: Botão de refresh manual já implementado
-  - Alternativa futura: WebSocket para notificações de mudanças em tempo real
+  - Mitigaï¿½ï¿½o: Botï¿½o de refresh manual jï¿½ implementado
+  - Alternativa futura: WebSocket para notificaï¿½ï¿½es de mudanï¿½as em tempo real
 
-- **localStorage Sync**: Storage events não funcionam na mesma aba
-  - Mitigação: Cada aba mantém estado independente
+- **localStorage Sync**: Storage events nï¿½o funcionam na mesma aba
+  - Mitigaï¿½ï¿½o: Cada aba mantï¿½m estado independente
   - Alternativa futura: BroadcastChannel API para sync cross-tab
 
-### Referências
+### Referï¿½ncias
 
 - `examples/chat/` - Projeto original standalone
 - `spec/SPEC-data-access.md` - JQEL integration patterns
 - `spec/SPEC-jqel-syntax.md` - JQEL query syntax
 - `spec/SPEC-modules.md` - Module system design
 - `spec/SPEC-routing.md` - Lazy loading patterns
-- `src/frontend/src/modules/chat/` - Módulo de referência usando JQEL
-- `chatify/MIGRATION.md` - Documentação detalhada da migração
+- `src/frontend/src/modules/chat/` - Mï¿½dulo de referï¿½ncia usando JQEL
+- `chatify/MIGRATION.md` - Documentaï¿½ï¿½o detalhada da migraï¿½ï¿½o
 
 ---
 
@@ -730,4 +730,105 @@ cd src/frontend && npm run type-check
 - Components de Gamification (ProgressBar, NextStepWidget, JourneyIndexModal, etc)
 - Components de Layout (Layout, Sidebar, Navigation, ThemeToggle, etc)
 - Components Adicionais (AgentModelSelector, FloatingActionStack)
+
+
+### Fase 3 - COMPONENTS âœ… CONCLUÃDO (2025-11-12)
+
+**Status**: Todas as tarefas da Fase 3 foram concluÃ­das com sucesso.
+
+#### Componentes Migrados (24 componentes + 2 arquivos de dados)
+
+**Components de Markdown (1 componente)**
+- âœ… `components/markdown/MarkdownContent.tsx` - Renderizador Markdown com suporte a GFM, Mermaid, code blocks
+  - Integrado com `useMermaid` hook (dynamic import otimizado)
+  - Suporte a imagens base64, tabelas, listas, links externos
+
+**Components de Chat (7 componentes)**
+- âœ… `components/chat/AgentIcon.tsx` - Ãcone de agente (emoji ou Lucide)
+- âœ… `components/chat/ChatBadge.tsx` - Badge de notificaÃ§Ãµes nÃ£o lidas
+- âœ… `components/chat/ChatHistory.tsx` - Lista de mensagens com auto-scroll
+- âœ… `components/chat/ChatInput.tsx` - Input com textarea expansÃ­vel
+- âœ… `components/chat/ChatMessage.tsx` - Mensagem individual com Markdown/Mermaid
+- âœ… `components/chat/ChatWidgetPanel.tsx` - Painel do chat flutuante
+- âœ… `components/chat/SuggestedQuestions.tsx` - SugestÃµes de perguntas clicÃ¡veis
+
+**Components de Agent (4 componentes)**
+- âœ… `components/agent/AgentAttachmentUploader.tsx` - Upload de anexos (URL, texto, arquivo)
+- âœ… `components/agent/IconPicker.tsx` - Buscador de Ã­cones Lucide e emojis
+- âœ… `components/agent/CustomAgentEditor.tsx` - Editor modal de agentes custom
+- âœ… `components/agent/AgentManagement.tsx` - Gerenciamento completo de agentes
+
+**Components de Gamification (5 componentes)**
+- âœ… `components/gamification/ProgressBar.tsx` - Barra de progresso global da jornada
+- âœ… `components/gamification/NextStepWidget.tsx` - Widget flutuante de prÃ³xima etapa
+- âœ… `components/gamification/JourneyIndexModal.tsx` - Modal com Ã­ndice completo da jornada
+- âœ… `components/gamification/CompletionBadge.tsx` - Modal de celebraÃ§Ã£o 100%
+- âœ… `components/gamification/ConfettiEffect.tsx` - AnimaÃ§Ã£o CSS de confetes
+
+**Components de Layout (5 componentes)**
+- âœ… `components/layout/Layout.tsx` - Layout principal (ADAPTADO: sem BrowserRouter)
+- âœ… `components/layout/Sidebar.tsx` - Sidebar responsiva com navegaÃ§Ã£o
+- âœ… `components/layout/Navigation.tsx` - Menu de navegaÃ§Ã£o
+- âœ… `components/layout/ThemeToggle.tsx` - Toggle light/dark theme
+- âœ… `components/layout/BottomControls.tsx` - Controles inferiores
+
+**Components Adicionais (2 componentes)**
+- âœ… `components/unified/AgentModelSelector.tsx` - Seletor unificado de agente + modelo
+- âœ… `components/FloatingActionStack.tsx` - Stack de FABs (Material Design)
+
+**Arquivos de Dados (2 arquivos)**
+- âœ… `data/lucideIcons.ts` - Lista de 1324 Ã­cones Lucide (kebab-case)
+- âœ… `data/emojiCategories.ts` - 515 emojis organizados em 8 categorias
+
+**Barrel Exports (6 arquivos)**
+- âœ… `components/markdown/index.ts`
+- âœ… `components/chat/index.ts`
+- âœ… `components/agent/index.ts`
+- âœ… `components/gamification/index.ts`
+- âœ… `components/layout/index.ts`
+- âœ… `components/unified/index.ts`
+- âœ… `components/index.ts` - Export principal (todos os componentes)
+
+#### Ajustes Aplicados
+
+1. âœ… **Imports ajustados**: Todos os imports de `@/...` convertidos para caminhos relativos `../../...`
+2. âœ… **Hook useMermaid refatorado**: Mudado de ref-based para funÃ§Ã£o `renderDiagram()` assÃ­ncrona
+3. âœ… **Type-only imports**: Adicionado `import type` onde necessÃ¡rio (`KeyboardEvent`, `ReactNode`)
+4. âœ… **Layout adaptado**: Removido `BrowserRouter` (integraÃ§Ã£o com PortalRouter)
+5. âœ… **Hook useJourneyProgress**: Corrigido acesso Ã s propriedades (spread direto, nÃ£o `progress.property`)
+6. âœ… **Sidebar atualizada**: TÃ­tulo mudado de "NIC Chat" para "Chatify"
+
+#### VerificaÃ§Ã£o TypeScript
+
+```bash
+cd src/frontend && npm run type-check | grep "chatify"
+# Resultado: âœ… 0 erros TypeScript no mÃ³dulo chatify
+```
+
+#### Checkpoints Atingidos
+
+- âœ… 3.1 - Markdown renderiza com GFM + Mermaid
+- âœ… 3.2 - Componentes de chat renderizam sem erros
+- âœ… 3.3 - Componentes de agente funcionam
+- âœ… 3.4 - Sistema de jornada funciona
+- âœ… 3.5 - Layout integra com portal
+- âœ… 3.6 - Todos os componentes compilam e sÃ£o exportados
+- âœ… 3.7 - CompilaÃ§Ã£o TypeScript sem erros
+
+**âœ… CHECKPOINT FASE 3 COMPLETO**:
+- 24 componentes migrados e funcionais
+- 2 arquivos de dados (lucideIcons, emojiCategories)
+- 6 barrel exports para organizaÃ§Ã£o
+- 0 erros TypeScript
+- Todos os componentes ajustados para hooks puros
+- Layout adaptado para integraÃ§Ã£o com PortalRouter
+
+#### PrÃ³xima Fase
+
+**FASE 4: PAGES & ROUTES** - Criar pÃ¡ginas e configurar roteamento
+- Migrar pÃ¡ginas (Home, ChatInterface, Admin, Guide)
+- Criar routes.ts com lazy loading
+- Criar module exports e auto-registro
+- Adicionar import em modules/index.ts
+- Testar lazy loading e module registration
 

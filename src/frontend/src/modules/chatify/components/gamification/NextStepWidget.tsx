@@ -28,7 +28,9 @@ export function NextStepWidget() {
   const {
     getNextRecommendedStep,
     getCurrentStep,
-    progress,
+    welcomeShown,
+    widgetDismissed,
+    completionPercentage,
     markWelcomeShown,
     dismissWidget,
     settings
@@ -38,11 +40,11 @@ export function NextStepWidget() {
 
   const nextStep = getNextRecommendedStep()
   const currentStep = getCurrentStep(location.pathname, location.hash)
-  const isWelcomeState = !progress.welcomeShown
+  const isWelcomeState = !welcomeShown
 
   // Auto-show após 30s OU scroll >70% (apenas na primeira vez)
   useEffect(() => {
-    if (hasAutoShown || isVisible || !nextStep || progress.completionPercentage >= 100) {
+    if (hasAutoShown || isVisible || !nextStep || completionPercentage >= 100) {
       return
     }
 
@@ -67,7 +69,7 @@ export function NextStepWidget() {
       clearTimeout(timer)
       window.removeEventListener('scroll', handleScroll)
     }
-  }, [hasAutoShown, isVisible, nextStep, progress.completionPercentage, show])
+  }, [hasAutoShown, isVisible, nextStep, completionPercentage, show])
 
   // Função para aceitar o tour (garante que widget continua visível)
   const handleStartTour = () => {
@@ -87,10 +89,10 @@ export function NextStepWidget() {
   // 3. Jornada completa
   // 4. Não há próxima etapa
   if (
-    progress.widgetDismissed ||
+    widgetDismissed ||
     !settings.showNextStepWidget ||
     !nextStep ||
-    progress.completionPercentage >= 100
+    completionPercentage >= 100
   ) {
     return null
   }
