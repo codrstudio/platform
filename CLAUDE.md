@@ -112,7 +112,7 @@ See `spec/STACK.md` for the complete stack. Must use these exact technologies:
 
 **Critical**: ALL data access MUST use JQEL (JSON Query Expression Language).
 
-Read `spec/SPEC-data-access.md` and `spec/SPEC-jqel-syntax.md` for complete documentation.
+Read `spec/SPEC-data-access.md`, `spec/SPEC-jqel-syntax.md`, and `spec/SPEC-jqel-schemas-organization.md` for complete documentation.
 
 ### What is JQEL
 - Platform's unified query language
@@ -123,7 +123,7 @@ Read `spec/SPEC-data-access.md` and `spec/SPEC-jqel-syntax.md` for complete docu
 ### Query Structure
 ```typescript
 {
-  "schema": "platform" | "backend" | "system" | "<app-schema>",
+  "schema": "frontend" | "backend" | "platform" | "backbone" | "system" | "<custom>",
   "select": "entity" | "mutate": "entity",
   "action": "insert" | "update" | "delete" | "custom",
   "where": { /* conditions */ },
@@ -133,11 +133,28 @@ Read `spec/SPEC-data-access.md` and `spec/SPEC-jqel-syntax.md` for complete docu
 }
 ```
 
-### Reserved Schemas
-- `platform` - Routed to Backbone (n8n) for general platform operations
-- `backend` - Processed by Backend (Express) - used for portal/module/instance config
-- `system` - Configurable processing
-- Others - Application-specific, routed to Backbone
+### JQEL Schema Organization
+
+**CRITICAL**: See `spec/SPEC-jqel-schemas-organization.md` for complete schema rules.
+
+The platform uses schemas divided into two categories:
+
+#### Platform Schemas (Reserved - DO NOT CREATE NEW ONES)
+- `frontend` - Client-side resources (localStorage, no network)
+- `backend` - Backend-managed configuration (portals, modules, instances, realms)
+- `platform` - Platform system resources (routed to n8n)
+- `backbone` - Direct n8n resources (workflows, integrations)
+
+**It is FORBIDDEN to create additional platform schemas.**
+
+#### Application Schemas (User-Defined)
+- `system` - Application-wide data (cross-feature)
+- `{custom}` - Feature-specific data (e.g., `chat`, `forms`, `kanban`)
+
+Custom schemas MUST:
+- Use lowercase only
+- Follow pattern: `^[a-z][a-z0-9-]*$`
+- NOT conflict with platform schema names
 
 ### Usage Example
 ```typescript
@@ -163,7 +180,7 @@ mutation.mutate({
 
 ```
 platform/
-├── spec/                  # 33 formal specification files (SPEC-*.md)
+├── spec/                  # 34 formal specification files (SPEC-*.md)
 │   ├── SPEC-concepts.md           # Portal, Module, Instance definitions
 │   ├── SPEC-architecture.md       # Stack requirements, PWA, responsive
 │   ├── SPEC-modules.md            # Module system design
@@ -176,6 +193,7 @@ platform/
 │   ├── SPEC-data-access.md        # JQEL integration with TanStack Query
 │   ├── SPEC-jqel-syntax.md        # JQEL query language syntax
 │   ├── SPEC-jqel-schema.md        # JQEL schema routing rules
+│   ├── SPEC-jqel-schemas-organization.md  # JQEL schema naming and organization
 │   ├── SPEC-frontend-state.md     # Client-side state management
 │   ├── SPEC-error-handling.md     # Error boundaries and recovery
 │   ├── SPEC-module-*.md           # 15+ module specifications
@@ -262,10 +280,71 @@ Each story follows the format:
 - Follow UI/UX specifications in `spec/ui/` exactly
 
 ### Module Development
-- Modules MUST be lazy-loaded (React.lazy + dynamic import)
 - Modules MUST declare dependencies in manifest
 - Modules export routes, components, widgets
 - Routes are relative (portal prefixes injected automatically)
+
+### Lazy Loading de Módulos
+
+O sistema implementa lazy-loading em **dois níveis** para otimização de performance:
+
+**Nível 1: Registro de Módulos (Estático - Leve)**
+- Todos os módulos são importados estaticamente via `loader.ts`
+- Apenas metadados leves são carregados (~5-10KB total):
+  - Manifests (id, name, version, dependencies)
+  - Route definitions (paths, metadata)
+  - Type definitions
+- Não há problema em referenciar 18+ módulos (impacto mínimo)
+- Permite que ModuleRegistry tenha visibilidade completa dos módulos
+
+**Nível 2: Componentes e Páginas (Dinâmico - Pesado)**
+- Código pesado usa `React.lazy()` para lazy-loading
+- Componentes são baixados apenas quando a rota é acessada
+- Cada módulo gera chunks separados no build
+- Portal carrega apenas código dos módulos em `activeModules`
+
+**Resultado de Performance:**
+
+Um portal "website simples" com 3 módulos ativos (de 18 disponíveis):
+- ✅ Metadados de todos os 18 módulos: ~8KB
+- ✅ Código dos 3 módulos ativos: ~200KB total
+- ✅ Cada página baixa sob demanda: ~30-50KB
+- ❌ **NÃO** baixa código dos 15 módulos inativos: ~800KB economizados
+
+**Implementação:**
+
+```typescript
+// modules/index.ts - Lista central (importa todos os módulos)
+import './setup';
+import './chat';
+// ... todos os outros módulos
+
+// Cada módulo se auto-registra ao ser importado
+moduleRegistry.register(moduleExports);
+
+// PortalRouter - Renderiza rotas dinamicamente
+portal.activeModules.forEach(moduleId => {
+  const module = moduleRegistry.getModule(moduleId);
+  // Renderiza rotas (componentes já são lazy-loaded)
+});
+
+// routes.ts - Define rotas com lazy-loading
+const SetupDashboard = lazy(() => import('./pages/SetupDashboard'));
+export const routes = [
+  { path: '/', component: SetupDashboard }
+];
+```
+
+**Adicionando Novos Módulos:**
+
+1. Crie o módulo em `src/modules/nome-modulo/`
+2. Adicione import em `src/modules/index.ts` (lista central)
+3. O módulo será automaticamente descoberto e registrado
+4. PortalRouter renderizará suas rotas quando ativo no portal
+
+**Referências:**
+- `spec/SPEC-routing.md` - Seção 13: Lazy Loading de Módulos
+- `spec/SPEC-modules.md` - Seção 9: Ciclo de Vida do Módulo
 
 ### Specifications are Law
 - Read relevant `spec/SPEC-*.md` files before implementing features

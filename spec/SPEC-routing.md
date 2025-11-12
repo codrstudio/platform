@@ -433,4 +433,99 @@ Este documento define os requisitos do sistema de roteamento da plataforma, incl
 
 ---
 
+## 13. Lazy Loading de Módulos
+
+### Dois Níveis de Lazy Loading
+
+**SPEC-R-LM-001:** Módulos PODEM ser importados estaticamente (manifests, routes, types)
+
+**SPEC-R-LM-002:** Importação estática NÃO DEVE baixar código pesado (componentes, páginas)
+
+**SPEC-R-LM-003:** Código pesado (componentes, páginas) DEVE usar React.lazy() para lazy-loading
+
+**SPEC-R-LM-004:** PortalRouter DEVE renderizar rotas dinamicamente dos módulos ativos
+
+**SPEC-R-LM-005:** Apenas rotas de módulos em `portal.activeModules` DEVEM ser renderizadas
+
+**SPEC-R-LM-006:** Componentes e páginas DEVEM ser baixados sob demanda quando rota é acessada
+
+### Registro de Módulos
+
+**SPEC-R-LM-007:** Todos os módulos DEVEM ser registrados no ModuleRegistry ao serem importados
+
+**SPEC-R-LM-008:** Registro DEVE acontecer via auto-registro no `index.ts` do módulo
+
+**SPEC-R-LM-009:** Módulos DEVEM chamar `moduleRegistry.register()` ao serem importados
+
+**SPEC-R-LM-010:** Registro DEVE carregar apenas metadados leves (manifests, definições de rotas)
+
+### Module Loader
+
+**SPEC-R-LM-011:** DEVE existir arquivo `modules/index.ts` que importa todos os módulos
+
+**SPEC-R-LM-012:** `modules/index.ts` DEVE ser importado via `core/modules/loader.ts` no App.tsx
+
+**SPEC-R-LM-013:** Import DEVE garantir que todos os módulos estejam registrados
+
+**SPEC-R-LM-014:** Novos módulos DEVEM ser adicionados ao `modules/index.ts` para serem descobertos
+
+**SPEC-R-LM-015:** Lista de módulos DEVE estar centralizada dentro do pacote `modules/`
+
+**SPEC-R-LM-016:** Código fora do pacote `modules/` NÃO DEVE referenciar módulos individuais
+
+### Renderização Dinâmica
+
+**SPEC-R-LM-017:** PortalRouter DEVE buscar módulos do ModuleRegistry dinamicamente
+
+**SPEC-R-LM-018:** Para cada módulo em `portal.activeModules`, PortalRouter DEVE buscar suas rotas
+
+**SPEC-R-LM-019:** Rotas DEVEM ser renderizadas como elementos `<Route>` do React Router
+
+**SPEC-R-LM-020:** NÃO DEVE haver código hardcoded para módulos específicos no PortalRouter
+
+### Performance
+
+**SPEC-R-LM-021:** Portal com N módulos ativos DEVE baixar apenas código dos N módulos
+
+**SPEC-R-LM-022:** Portal NÃO DEVE baixar código de módulos inativos
+
+**SPEC-R-LM-023:** Metadados de todos os módulos (~5-10KB) PODEM ser carregados sem impacto
+
+**SPEC-R-LM-024:** Bundle inicial DEVE incluir apenas código da plataforma e metadados de módulos
+
+**SPEC-R-LM-025:** Código pesado de módulos DEVE estar em chunks separados
+
+### Exemplo de Fluxo
+
+**SPEC-R-LM-026:** Fluxo de carregamento completo:
+
+```
+1. App.tsx importa loader.ts
+   ↓ loader.ts importa modules/index.ts
+   ↓ Todos os módulos executam auto-registro
+   ↓ ModuleRegistry contém manifests e route definitions
+
+2. Portal carrega (ex: "website" com módulos: ["auth", "homepage", "forms"])
+   ↓ PortalRouter consulta portal.activeModules via JQEL
+   ↓ Para cada módulo ativo, busca do ModuleRegistry
+   ↓ Renderiza <Route> elements para cada rota
+
+3. Usuário acessa /homepage
+   ↓ React Router ativa a rota
+   ↓ React.lazy() baixa componente Homepage (primeira vez)
+   ↓ Componente é renderizado
+
+Resultado:
+- Metadados de 18 módulos carregados: ~8KB
+- Código de 3 módulos ativos baixado: ~200KB
+- Página Homepage baixada sob demanda: ~50KB
+
+Estrutura:
+- modules/index.ts: lista central dos módulos
+- core/modules/loader.ts: importa modules/index.ts
+- Código fora de modules/ não conhece módulos individuais
+```
+
+---
+
 *Esta especificação define requisitos do sistema de roteamento. Implementação de autenticação, eventos e configurações em especificações separadas.*
