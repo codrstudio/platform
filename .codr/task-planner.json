@@ -1,6 +1,9 @@
 {
   "exclusions": [
     "**/node_modules/**",
-    "**/.git/**"
+    "**/.git/**",
+    "use-cases",
+    ".tmp",
+    "lessons-learned"
   ]
 }
