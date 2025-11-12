@@ -11,7 +11,7 @@
  */
 
 import { authManifest } from './manifest';
-import routes from './routes';
+import routes from '@/routes';
 import type { ModuleExports } from '@/types/module';
 
 // Components

@@ -21,21 +21,65 @@ import { MessageList, MessageInput, QuickSuggestions } from '../components';
 import { useChat } from '../hooks/useChat';
 import type { ChatInstanceConfig } from '../types';
 import { Spinner } from '@/modules/loading';
+import { useJQELQuery } from '@/hooks/useJQEL';
 
 export interface ChatInterfaceProps {
-  config: ChatInstanceConfig;
+  config?: ChatInstanceConfig;
 }
 
 function generateUUID(): string {
   return crypto.randomUUID();
 }
 
-export function ChatInterface({ config }: ChatInterfaceProps) {
+const defaultConfig: ChatInstanceConfig = {
+  agentId: 'nic-assistant',
+  provider: 'n8n',
+  enableStreaming: true,
+  persistHistory: true,
+  contextWindow: 10,
+  showTimestamps: true,
+  showTypingIndicator: true,
+  placeholder: 'Digite sua mensagem...',
+  maxInputLength: 4000,
+  maxInputRows: 5,
+  allowFileUpload: false,
+};
+
+export function ChatInterface({ config: providedConfig }: ChatInterfaceProps) {
   // Get instanceId from URL - this is the conversationId
-  const { instanceId } = useParams<{ instanceId: string }>();
+  const { instanceId, portalId } = useParams<{ instanceId: string; portalId: string }>();
 
   // Use instanceId as conversationId, or generate one if not provided
   const conversationId = useMemo(() => instanceId || generateUUID(), [instanceId]);
+
+  // Fetch instance configuration from backend if not provided
+  const { data: instanceResult, isLoading: isLoadingInstance } = useJQELQuery(
+    {
+      schema: 'backend',
+      select: 'instance',
+      where: {
+        instanceId: { $eq: instanceId || '' },
+        portalId: { $eq: portalId || 'main' },
+        moduleId: { $eq: 'chat' },
+      },
+    },
+    {
+      enabled: !providedConfig && !!instanceId,
+    }
+  );
+
+  // Use provided config or fetched config or default config
+  const config: ChatInstanceConfig = useMemo(() => {
+    if (providedConfig) {
+      return providedConfig;
+    }
+
+    if (instanceResult?.data?.[0]?.config) {
+      return { ...defaultConfig, ...instanceResult.data[0].config };
+    }
+
+    return defaultConfig;
+  }, [providedConfig, instanceResult]);
 
   const {
     messages,
@@ -46,6 +90,15 @@ export function ChatInterface({ config }: ChatInterfaceProps) {
     sendMessage,
     cancelMessage,
   } = useChat(conversationId, config);
+
+  // Show loading while fetching instance config
+  if (isLoadingInstance && !providedConfig) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Spinner size="lg" label="Carregando configuração..." showLabel />
+      </div>
+    );
+  }
 
   const handleSendMessage = async (content: string, files?: File[]) => {
     await sendMessage(content, files);
