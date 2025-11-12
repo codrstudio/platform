@@ -1,0 +1,332 @@
+{
+  "name": "fn-task",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "### Função: Publicar Task\n\nPublica uma task (tarefa interativa) no sistema de eventos via Redis (Pub/Sub + Streams).\n\n**Input esperado:**\n```json\n{\n  \"userId\": \"user_123\" | [\"user_1\", \"user_2\"],\n  \"category\": \"email_approval\" | \"form_input\" | \"decision\",\n  \"priority\": \"low\" | \"normal\" | \"high\" | \"urgent\",\n  \"target\": \"user\" | \"portal\" | \"global\",\n  \"portalId\": \"main\" (opcional, se target=portal),\n  \"taskData\": {\n    \"action\": \"approve\" | \"reject\" | \"input\",\n    \"formSchema\": {} (opcional)\n  }\n}\n```\n\n**Output:**\n```json\n{\n  \"code\": 200,\n  \"message\": \"Task published\",\n  \"data\": {\n    \"eventId\": \"task_...\",\n    \"channel\": \"platform:events:user:123\",\n    \"streamId\": \"1234567890-0\"\n  }\n}\n```",
+        "height": 736,
+        "width": 720,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -128,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "1421e6c2-8f14-479f-a3e0-a3816740a31f",
+      "name": "Documentação"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1152,
+        1040
+      ],
+      "id": "1b64ebb2-9a8a-4ef2-9d67-4f844340e659",
+      "name": "Chamada via Workflow"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1152,
+        864
+      ],
+      "id": "ec89aaa1-4be0-4c62-acd9-e1b1513e1a94",
+      "name": "Teste Manual"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normaliza entrada (data/payload ou direto)\nconst input = $input.first().json;\nconst data = input.data?.payload || input.data || input.payload || input;\n\nreturn { json: data };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -960,
+        960
+      ],
+      "id": "de7fbc7c-c1fb-4501-98bb-4ef70bbbcdd7",
+      "name": "Normalizar Input"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "validation-userid",
+              "leftValue": "={{ $json.userId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "any",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "validation-category",
+              "leftValue": "={{ $json.category }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -768,
+        896
+      ],
+      "id": "4d6baafe-d7b0-4c93-a7fb-1e937683b26c",
+      "name": "Validar Parâmetros"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "error-code",
+              "name": "code",
+              "value": "400",
+              "type": "number"
+            },
+            {
+              "id": "error-message",
+              "name": "message",
+              "value": "Missing required fields: userId and category",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -560,
+        1024
+      ],
+      "id": "c6ec6640-7da8-445f-b9b6-1733c2f41f1d",
+      "name": "Erro - Validação"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ==========================================\n// Gera Evento de Task\n// ==========================================\n// SPEC-EV-CO-009 a 013: Task requer ação do usuário\nconst crypto = require('crypto');\n\nconst input = $input.first().json;\n\n// Gera ID único para o evento\nconst eventId = `task_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;\n\n// Timestamp ISO 8601\nconst timestamp = new Date().toISOString();\n\n// Prioridade padrão: normal\nconst priority = input.priority || 'normal';\n\n// Target padrão: user\nconst target = input.target || 'user';\n\n// Determina canal Redis baseado em target\nlet channel;\nif (target === 'global') {\n  channel = 'platform:events';\n} else if (target === 'portal' && input.portalId) {\n  channel = `platform:events:portal:${input.portalId}`;\n} else {\n  // user-specific\n  const userId = Array.isArray(input.userId) ? input.userId[0] : input.userId;\n  channel = `platform:events:user:${userId}`;\n}\n\n// Payload do evento (SPEC-EV-PL-017)\n// Tasks incluem apenas metadados, dados completos via JQEL\nconst event = {\n  type: 'task',\n  id: eventId,\n  userId: input.userId,\n  category: input.category,\n  priority: priority,\n  timestamp: timestamp,\n  target: target\n};\n\nif (target === 'portal' && input.portalId) {\n  event.portalId = input.portalId;\n}\n\n// taskData é opcional (metadados adicionais)\nif (input.taskData) {\n  event.taskData = input.taskData;\n}\n\nreturn {\n  json: {\n    event,\n    channel,\n    userIds: Array.isArray(input.userId) ? input.userId : [input.userId]\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        752
+      ],
+      "id": "9b56ddea-6f31-4c2b-9f1c-89bc50a920eb",
+      "name": "Construir Evento"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        752
+      ],
+      "id": "41b322de-b0b6-4025-91e4-e17dcf25e177",
+      "name": "Output"
+    },
+    {
+      "parameters": {
+        "content": "### Validação\n- userId: obrigatório (string ou array)\n- category: obrigatório (string)\n- priority: opcional (padrão: normal)\n- target: opcional (padrão: user)\n- portalId: obrigatório se target=portal\n- taskData: opcional (metadados adicionais)",
+        "height": 176,
+        "width": 384,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1168,
+        656
+      ],
+      "typeVersion": 1,
+      "id": "1a0c3eb8-0a53-407b-b783-dfa6556de753",
+      "name": "Info - Validação"
+    },
+    {
+      "parameters": {
+        "content": "### Task vs Notification\n\n**Task (SPEC-EV-CO-009 a 013):**\n- Requer ação do usuário\n- Tem status (pending, completed, etc)\n- Permite interação (aprovar, rejeitar)\n- Pode conter formulários\n- Exemplos: aprovar email, fornecer info\n\n**Notification:**\n- Apenas informativa\n- Não requer ação\n- Pode ser marcada como visualizada\n- Exemplos: processo iniciado, erro",
+        "height": 320,
+        "width": 480,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1168,
+        304
+      ],
+      "typeVersion": 1,
+      "id": "a7c5ab6d-f49f-4770-beb8-0d0567db6435",
+      "name": "Info - Task vs Notification"
+    },
+    {
+      "parameters": {
+        "content": "### Redis Pub/Sub + Streams\n\n**Pub/Sub:**\n- Entrega imediata para usuários online\n- Canal: platform:events:user:{userId}\n- Não persiste (se offline, perde)\n\n**Streams:**\n- Buffer de 24h / 1000 msgs\n- Key: events:{userId}\n- Permite recovery ao reconectar\n- XADD com MAXLEN ~1000\n\n**Importante:**\n- Event contém apenas metadados\n- Dados completos via JQEL (SPEC-EV-PL-009 a 012)\n\n**Nodo Redis do n8n:**\n- Não suporta PUBLISH e XADD nativamente\n- Usamos Code node com credenciais Redis",
+        "height": 448,
+        "width": 480,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "6e454467-4f1d-4cc3-bb1b-15ea085aa54f",
+      "name": "Info - Redis"
+    },
+    {
+      "parameters": {
+        "operation": "set"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        976
+      ],
+      "id": "8d8226b8-cb22-4fd5-b5e7-6e069be76688",
+      "name": "Redis (unused)",
+      "credentials": {
+        "redis": {
+          "id": "SCL4cZ8EcUx4qQS0",
+          "name": "Redis Local Cache"
+        }
+      },
+      "disabled": true,
+      "notes": "Nodo Redis do n8n não suporta PUBLISH/XADD.\nCredenciais mantidas para referência.\nUsar Code node abaixo com ioredis."
+    },
+    {
+      "parameters": {
+        "jsCode": "// ==========================================\n// Publica no Redis Pub/Sub + Streams\n// ==========================================\n// SPEC-EV-N8-001: Backbone publica diretamente no Redis\n// SPEC-EV-N8-002: Pub/Sub + Stream simultaneamente\n\n// NOTA: Nodo Redis do n8n não suporta PUBLISH e XADD\n// Por isso usamos ioredis diretamente\n\nconst Redis = require('ioredis');\n\nconst input = $input.first().json;\nconst { event, channel, userIds } = input;\n\n// Conecta ao Redis usando mesmas credenciais do nodo Redis\nconst redis = new Redis({\n  host: $env.REDIS_HOST || 'localhost',\n  port: parseInt($env.REDIS_PORT || '6379'),\n  password: $env.REDIS_PASSWORD || undefined,\n  db: parseInt($env.REDIS_DB || '0'),\n  lazyConnect: true,\n  enableOfflineQueue: false,\n  maxRetriesPerRequest: 3,\n  retryStrategy: (times) => {\n    if (times > 3) return null;\n    return Math.min(times * 200, 1000);\n  }\n});\n\ntry {\n  await redis.connect();\n  \n  const eventJson = JSON.stringify(event);\n  \n  // 1. Publica no Pub/Sub (entrega imediata)\n  await redis.publish(channel, eventJson);\n  \n  // 2. Adiciona ao Stream de cada usuário (buffer 24h)\n  const streamIds = [];\n  for (const userId of userIds) {\n    const streamKey = `events:${userId}`;\n    \n    // XADD com MAXLEN ~1000 (SPEC-EV-ST-006)\n    const streamId = await redis.xadd(\n      streamKey,\n      'MAXLEN', '~', '1000',\n      '*',\n      'event', eventJson\n    );\n    \n    streamIds.push(streamId);\n    \n    // Expira stream em 24h (SPEC-EV-ST-006)\n    await redis.expire(streamKey, 86400);\n  }\n  \n  await redis.quit();\n  \n  return {\n    json: {\n      code: 200,\n      message: 'Task published',\n      data: {\n        eventId: event.id,\n        channel: channel,\n        streamIds: streamIds,\n        userCount: userIds.length\n      }\n    }\n  };\n  \n} catch (error) {\n  // SPEC-EV-N8-008: Log erro mas não interrompe workflow\n  console.error('Redis publish error:', error);\n  \n  try {\n    await redis.quit();\n  } catch (e) {\n    // ignore\n  }\n  \n  return {\n    json: {\n      code: 500,\n      message: 'Failed to publish task',\n      error: error.message\n    }\n  };\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -336,
+        752
+      ],
+      "id": "16d84680-cf8b-4bda-ba05-2c595bf0f1f9",
+      "name": "Publicar no Redis (Pub/Sub + Streams)"
+    }
+  ],
+  "connections": {
+    "Chamada via Workflow": {
+      "main": [
+        [
+          {
+            "node": "Normalizar Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Teste Manual": {
+      "main": [
+        [
+          {
+            "node": "Normalizar Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar Input": {
+      "main": [
+        [
+          {
+            "node": "Validar Parâmetros",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar Parâmetros": {
+      "main": [
+        [
+          {
+            "node": "Construir Evento",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Erro - Validação",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Erro - Validação": {
+      "main": [
+        [
+          {
+            "node": "Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Construir Evento": {
+      "main": [
+        [
+          {
+            "node": "Publicar no Redis (Pub/Sub + Streams)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publicar no Redis (Pub/Sub + Streams)": {
+      "main": [
+        [
+          {
+            "node": "Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": false,
+    "saveDataErrorExecution": "none",
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false
+  }
+}

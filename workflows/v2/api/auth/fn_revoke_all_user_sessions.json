@@ -1,0 +1,71 @@
+{
+  "name": "fn_revoke_all_user_sessions",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "b8c7d6e5-4321-4321-4321-423456789abc",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "code",
+              "value": "200",
+              "type": "number"
+            },
+            {
+              "id": "2",
+              "name": "message",
+              "value": "All user sessions revoked successfully",
+              "type": "string"
+            },
+            {
+              "id": "3",
+              "name": "count",
+              "value": "3",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-5678-5678-5678-987654321de4",
+      "name": "Mock Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [470, 300],
+      "notes": "CLIENT IMPLEMENTATION:\n\nInput: {\n  user_id: string\n}\n\nOutput: {\n  code: 200 | 500,\n  message?: string,\n  count?: number (tokens revoked)\n}\n\nImplementation:\n- Bulk update: SET revoked = true\n- WHERE user_id = input.user_id\n- Return count of affected rows"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Mock Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "00000000-0000-0000-0000-000000000003",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "10b5862bd013b166478773eb182c3f8fe5bbf5f4341979a0e85c5bf9479228ad"
+  },
+  "id": "fn_revoke_all_user_sessions",
+  "tags": []
+}

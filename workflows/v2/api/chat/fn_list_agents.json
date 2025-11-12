@@ -1,0 +1,65 @@
+{
+  "name": "fn_list_agents",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "d0e9f8g7-6543-6543-6543-123456789ghi",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "object",
+              "value": "list",
+              "type": "string"
+            },
+            {
+              "id": "2",
+              "name": "data",
+              "value": "=[{\n  \"id\": \"general-assistant\",\n  \"name\": \"Assistente Geral\",\n  \"description\": \"Assistente de propósito geral\",\n  \"type\": \"agent\",\n  \"model\": \"gpt-4o\",\n  \"capabilities\": [\"chat\", \"analysis\"],\n  \"status\": \"active\",\n  \"enabled\": true,\n  \"title\": \"Assistente\",\n  \"icon\": \"MessageCircle\",\n  \"color\": \"blue\",\n  \"tags\": [\"geral\"],\n  \"reasoningEffort\": \"medium\",\n  \"requiresAuth\": false\n}]",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c3d4e5f6-7890-7890-7890-987654321gh0",
+      "name": "Mock Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [470, 300],
+      "notes": "CLIENT IMPLEMENTATION:\n\nInput: {}\n\nOutput: {\n  object: 'list',\n  data: Array<{\n    id: string,\n    name: string,\n    description: string,\n    type: 'agent',\n    model: string,\n    capabilities: string[],\n    status: 'active' | 'inactive',\n    enabled: boolean,\n    title: string,\n    icon: string,\n    color: string,\n    tags: string[],\n    reasoningEffort: 'low' | 'medium' | 'high' | 'default',\n    requiresAuth: boolean\n  }>\n}\n\nImplementation:\n- Query agent configuration from database/config\n- Return only active agents\n- Include metadata for UI rendering\n- Replace hardcoded agents from chat.json"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Mock Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "00000000-0000-0000-0000-000000000020",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "10b5862bd013b166478773eb182c3f8fe5bbf5f4341979a0e85c5bf9479228ad"
+  },
+  "id": "fn_list_agents",
+  "tags": []
+}

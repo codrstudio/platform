@@ -1,0 +1,65 @@
+{
+  "name": "fn_revoke_refresh_token",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "b8c7d6e5-4321-4321-4321-323456789abc",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "code",
+              "value": "200",
+              "type": "number"
+            },
+            {
+              "id": "2",
+              "name": "message",
+              "value": "Refresh token revoked successfully",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-5678-5678-5678-987654321de3",
+      "name": "Mock Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [470, 300],
+      "notes": "CLIENT IMPLEMENTATION:\n\nInput: {\n  token_hash: string (SHA-256)\n}\n\nOutput: {\n  code: 200 | 404 | 500,\n  message?: string\n}\n\nImplementation:\n- Update token record: SET revoked = true\n- WHERE token_hash = input.token_hash\n- Return 404 if token not found"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Mock Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "00000000-0000-0000-0000-000000000002",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "10b5862bd013b166478773eb182c3f8fe5bbf5f4341979a0e85c5bf9479228ad"
+  },
+  "id": "fn_revoke_refresh_token",
+  "tags": []
+}

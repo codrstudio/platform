@@ -1,0 +1,401 @@
+{
+  "updatedAt": "2025-11-09T02:56:41.000Z",
+  "createdAt": "2025-11-09T02:55:32.931Z",
+  "id": "NtzUjlgpeEDq36ot",
+  "name": "fn-jwt-emission",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "### Tokens Produzidos\n```json\n{\n  \"code\": 200,\n  \"data\": {\n    \"tokens\": {\n      \"access_token\": \"eyJhbG...\",\n      \"refresh_token\": \"d5f8f01...\",\n      \"token_type\": \"bearer\"\n    },\n    \"tokens_control\": {\n      \"refresh_token_hash\": \"2f3e3...\",\n      \"familia_id\": \"6d69...\"\n    },\n    \"payload\": {\n      \"sub\": \"5bba249e-56a0-47ca-998f-55f4301a24e1\",\n      \"iss\": \"ciacuidadores\",\n      \"aud\": \"primecare\",\n      \"exp\": 1761782457,\n      \"iat\": 1761696057,\n      \"jti\": \"316c75d2-44fc-4d21-ae4a-462519e37418\",\n      \"tenant\": [ 1, 18, 19, 12, 8, 13 ],\n      \"roles\": [ 'admin' ],\n      \"name\": \"GUGA CODER\",\n      \"email\": \"guga.coder@gmail.com\"\n    }\n  }\n}\n```\n",
+        "height": 672,
+        "width": 560,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -240,
+        -928
+      ],
+      "typeVersion": 1,
+      "id": "81649c82-ca5c-47fa-b66e-8736c3e36d1e",
+      "name": "Documentação"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1504,
+        -32
+      ],
+      "id": "179cb169-953f-4e32-a4a5-e26c86414d68",
+      "name": "Autenticação via Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ==========================================\n// Gera Tokens JWT\n// ==========================================\n// Cria access_token (JWT) e refresh_token\n// com rotação segura via família UUID\n  \nconst crypto = require('crypto');\n\nconst SECRET_KEY = $env[\"SECRET_KEY\"] || '73kZtS56JFkRuRpfuUj08cmOMtDzH8ZGMaKsfcZewQMqMvRIojf70toDGajiDJPm';\n\nconst payload = $input.first().json;\n\n// ==========================================\n// Funções auxiliares\n// ==========================================\n\nfunction base64urlEscape(str) {\n  return str.replace(/\\+/g, '-')\n    .replace(/\\//g, '_')\n    .replace(/=/g, '');\n}\n\nfunction generateJWT(payload, secret, expiresIn) {\n  const header = {\n    alg: 'HS256',\n    typ: 'JWT'\n  };\n  \n  payload.iat = Math.floor(Date.now() / 1000);\n  payload.exp = payload.iat + expiresIn;\n  \n  const encodedHeader = base64urlEscape(\n    Buffer.from(JSON.stringify(header)).toString('base64')\n  );\n  const encodedPayload = base64urlEscape(\n    Buffer.from(JSON.stringify(payload)).toString('base64')\n  );\n  \n  const signature = base64urlEscape(\n    crypto\n      .createHmac('sha256', secret)\n      .update(encodedHeader + '.' + encodedPayload)\n      .digest('base64')\n  );\n  \n  return encodedHeader + '.' + encodedPayload + '.' + signature;\n}\n\nfunction generateRefreshToken() {\n  return crypto.randomBytes(32).toString('hex');\n}\n\nfunction generateUUID() {\n  return crypto.randomUUID();\n}\n\n// ==========================================\n// Geração de Tokens\n// ==========================================\n\n// Access Token: JWT com 24 horas de validade\nconst access_token = generateJWT(payload, SECRET_KEY, 24 * 60 * 60);\n\n// Refresh Token: 32 bytes hex com hash SHA-256\nconst refresh_token = generateRefreshToken();\nconst refresh_token_hash = crypto.createHash('sha256').update(refresh_token).digest('hex');\n\n// Família de tokens para rotação segura\nconst familia_id = generateUUID();\n\n// Expiração do refresh_token: 7 dias\nconst expires_at = new Date();\nexpires_at.setDate(expires_at.getDate() + 7);\n\nreturn {\n  code: 200,\n  data: {\n    tokens: {\n      access_token,\n      refresh_token,\n      token_type: \"bearer\",\n    },\n    tokens_control: {\n      refresh_token_hash,\n      familia_id,\n      expires_at\n    },\n    payload\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -464,
+        -128
+      ],
+      "id": "dae115bb-6700-4cc9-b307-c609b169b2dc",
+      "name": "Gera os Tokens JWT",
+      "alwaysOutputData": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1504,
+        -208
+      ],
+      "id": "ad5311a5-8427-4239-abc0-cf9cde81b21c",
+      "name": "Teste Manual"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $('Gera os Tokens JWT').all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        -416
+      ],
+      "id": "9e7342eb-a89c-4b56-9621-677d687c208c",
+      "name": "Sucesso"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { error } = $input.first().json;\nreturn {\n  code: 500,\n  message: error\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        -32
+      ],
+      "id": "6ef1e9a2-400f-4425-a4c9-b4859244ff76",
+      "name": "Falha"
+    },
+    {
+      "parameters": {
+        "content": "### Response (Erro)\n```json\n{\n  \"code\": 500,\n  \"message\": \"Falha ocorrida\"\n}\n```",
+        "height": 352,
+        "width": 320,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -240,
+        -224
+      ],
+      "typeVersion": 1,
+      "id": "b897b202-54c5-4288-a15e-3c862d63ff37",
+      "name": "Documentação1"
+    },
+    {
+      "parameters": {
+        "content": "### Payload Esperado como Parâmetro\n\nO conteúdo pode ser enviado **diretamente** no corpo da requisição ou **encapsulado** em uma propriedade `data` ou `payload`.\n\n```json\n{\n  \"sub\": \"5bba249e-56a0-47ca-998f-55f4301a24e1\",\n  \"iss\": \"ciacuidadores\",\n  \"aud\": \"primecare\",\n  \"exp\": 1761782048,\n  \"iat\": 1761695648,\n  \"jti\": \"316c75d2-44fc-4d21-ae4a-462519e37418\",\n  \"tenant\": [1, 18, 19, 12, 8, 13],\n  \"roles\": [\"admin\"],\n  \"name\": \"GUGA CODER\",\n  \"email\": \"guga.coder@gmail.com\"\n}\n```\n\nou\n\n```json\n{\n  \"data\": { \"sub\"... }\n}\n```\n\nou\n\n```json\n{\n  \"payload\": { \"sub\"... }\n}\n```\n\nou\n\n```json\n{\n  \"data\": { \"payload\": { \"sub\"... } }\n}\n```\n",
+        "height": 1200,
+        "width": 800,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1568,
+        -1072
+      ],
+      "typeVersion": 1,
+      "id": "c652e617-6723-4c24-b6e9-aa1ba5b2247f",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json = item.json.data?.payload\n      || item.json.data\n      || item.json.payload\n      || item.json\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1296,
+        -112
+      ],
+      "id": "ed5d9e16-6c18-4ea1-ae2f-eabc1f462e2a",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "content": "### JWT Payload\n**Registered Claims (RFC 7519):**\n- `sub`: ID do usuário\n- `iss`: Emissor (ciacuidadores)\n- `aud`: Destinatário (primecare)\n- `exp`: Expiração (timestamp)\n- `iat`: Emitido em (timestamp)\n- `jti`: JWT ID (UUID v4)\n\n**Custom Claims:**\n- `tenant`: Array de tenant IDs\n- `roles`: Array de papéis\n- `name`: Nome de exibição\n- `email`: Email do usuário\n\n### Variáveis de Ambiente\n- `SECRET_KEY`: Chave para assinar JWT \n\n### Gera Tokens\n\n**Access Token (JWT):**\n- HS256 (SECRET_KEY)\n- 24 horas validade\n- Claims RFC 7519\n\n**Refresh Token:**\n- 32 bytes hex\n- Hash SHA-256\n- Família UUID\n- 7 dias validade\n- Salvo no SQL Server",
+        "height": 736,
+        "width": 464,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -736,
+        -608
+      ],
+      "typeVersion": 1,
+      "id": "387d8b4c-b542-45fb-989a-bfce1d6716b7",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a45cacca-a94b-49f5-a64a-6af77ffb9989",
+              "leftValue": "={{ $json.sub }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "a494bedd-a858-4484-9dfa-609db1bf5eff",
+              "leftValue": "={{ $json.exp }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "c6e008c5-b6f3-4c40-9acc-a81af861deaf",
+              "leftValue": "={{ $json.iat }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "33a21f59-b29e-49e1-a59c-f6b1bfbac833",
+              "leftValue": "={{ $json.name }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "892b3511-0288-4bcb-af54-93874744d86e",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1104,
+        -176
+      ],
+      "id": "fd49fa93-c8b1-4bfe-a439-0632da80ab7f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b53d8184-a40e-44c7-b04f-5a67f86b57b0",
+              "name": "code",
+              "value": "500",
+              "type": "string"
+            },
+            {
+              "id": "fc79be3d-712f-48cc-b4d3-cbf866893122",
+              "name": "message",
+              "value": "Parâmetros internos incorretos",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -928,
+        -48
+      ],
+      "id": "2c48a986-9b9e-4bf2-aa14-ac7bbf17e30c",
+      "name": "Edit Fields"
+    }
+  ],
+  "connections": {
+    "Autenticação via Workflow": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gera os Tokens JWT": {
+      "main": [
+        [
+          {
+            "node": "Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Falha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Teste Manual": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sucesso": {
+      "main": [
+        []
+      ]
+    },
+    "Falha": {
+      "main": [
+        []
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Gera os Tokens JWT",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": false,
+    "saveDataErrorExecution": "none",
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "0b9d6be9-133c-472d-8b29-a14a828a3750",
+  "versionCounter": 2,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2025-11-09T02:55:32.934Z",
+      "createdAt": "2025-11-09T02:55:32.934Z",
+      "role": "workflow:owner",
+      "workflowId": "NtzUjlgpeEDq36ot",
+      "projectId": "4HIAFr0a4MdDRfFg",
+      "project": {
+        "updatedAt": "2025-11-09T02:45:34.419Z",
+        "createdAt": "2025-11-09T02:42:59.126Z",
+        "id": "4HIAFr0a4MdDRfFg",
+        "name": "Guga Coder <guga.coder@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2025-11-09T02:42:59.126Z",
+            "createdAt": "2025-11-09T02:42:59.126Z",
+            "userId": "2fdb8036-aeb3-4e4d-bf53-0c7101fc944d",
+            "projectId": "4HIAFr0a4MdDRfFg",
+            "user": {
+              "updatedAt": "2025-11-11T05:12:17.000Z",
+              "createdAt": "2025-11-09T02:42:58.515Z",
+              "id": "2fdb8036-aeb3-4e4d-bf53-0c7101fc944d",
+              "email": "guga.coder@gmail.com",
+              "firstName": "Guga",
+              "lastName": "Coder",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-11-09T02:45:56.042Z",
+                "personalization_survey_n8n_version": "1.118.2",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "friend"
+              },
+              "settings": {
+                "userActivated": false,
+                "easyAIWorkflowOnboarded": true
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2025-11-11",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

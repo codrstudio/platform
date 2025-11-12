@@ -1,0 +1,65 @@
+{
+  "name": "fn_find_user",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "b8c7d6e5-4321-4321-4321-123456789abc",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "code",
+              "value": "200",
+              "type": "number"
+            },
+            {
+              "id": "2",
+              "name": "data",
+              "value": "={{ {\n  \"senha_hash\": \"$2a$10$abcdefghijklmnopqrstuv\",\n  \"payload\": {\n    \"sub\": \"user-123\",\n    \"iss\": \"platform\",\n    \"aud\": \"client\",\n    \"tenant\": [1],\n    \"roles\": [\"Administrador\"],\n    \"name\": \"Mock User\",\n    \"email\": $json.username || $json.email || \"mock@example.com\"\n  }\n} }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-5678-5678-5678-987654321def",
+      "name": "Mock Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [470, 300],
+      "notes": "CLIENT IMPLEMENTATION:\n\nInput: { id?, username?, email?, password? }\n\nOutput: {\n  code: 200 | 404 | 500,\n  message?: string,\n  data?: {\n    senha_hash: string (bcrypt $2a$ format),\n    payload: {\n      sub: string (user ID),\n      iss: string (issuer),\n      aud: string (audience),\n      tenant: number[] (tenant IDs),\n      roles: string[] (role names),\n      name: string,\n      email: string\n    }\n  }\n}\n\nReplace this node with:\n- MySQL query\n- PostgreSQL query\n- MongoDB query\n- REST API call\n- Or any data source"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Mock Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "00000000-0000-0000-0000-000000000000",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "10b5862bd013b166478773eb182c3f8fe5bbf5f4341979a0e85c5bf9479228ad"
+  },
+  "id": "fn_find_user",
+  "tags": []
+}
