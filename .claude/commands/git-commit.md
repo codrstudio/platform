@@ -8,6 +8,11 @@ Commits em pt-BR seguindo `conventional commits`, agrupando mudanças por **cont
 - `-1, --one`: Um único commit com todas mudanças
 - Sem opções: Usa apenas arquivos já no stage
 
+## O que commitar?
+
+- Commite somente alterações que já estão em stage
+- Somente adicionae arquivos no stage se indicado explicitamente a opção --all
+
 ## Regra de agrupamento
 
 **Um commit = Um objetivo funcional completo**
