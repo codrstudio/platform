@@ -154,30 +154,30 @@ export function validateBrandColorContrast(
 }
 
 /**
- * Get theme mode from localStorage (3-level resolution)
- * SPEC-TH-HC-005: Portal → Realm → System
- * NOTE: Theme mode is NOT customizable per portal, always comes from realm
+ * Get theme mode from localStorage (global preference)
+ * CHANGED: Theme mode is now GLOBAL (not realm-scoped)
+ * User preference applies to all portals and realms
  */
-export function getStoredTheme(realmId: string): ThemeMode {
+export function getStoredTheme(): ThemeMode {
   try {
-    // Theme mode is ONLY at realm level (not portal level)
-    const stored = localStorage.getItem(`realm:${realmId}:theme`)
+    const stored = localStorage.getItem('theme')
     if (stored === 'light' || stored === 'dark' || stored === 'system') {
       return stored
     }
   } catch {
     // localStorage not available
   }
-  return 'system' // SPEC-TH-HC-009: System default
+  return 'system' // Default to system preference
 }
 
 /**
- * Set theme mode in localStorage (realm level only)
- * SPEC-TH-HC-020, SPEC-TH-HC-021
+ * Set theme mode in localStorage (global preference)
+ * CHANGED: Theme mode is now GLOBAL (not realm-scoped)
+ * User preference applies to all portals and realms
  */
-export function setStoredTheme(realmId: string, mode: ThemeMode): void {
+export function setStoredTheme(mode: ThemeMode): void {
   try {
-    localStorage.setItem(`realm:${realmId}:theme`, mode)
+    localStorage.setItem('theme', mode)
   } catch {
     // localStorage not available
   }

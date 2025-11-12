@@ -30,8 +30,8 @@ interface ThemeProviderProps {
  * BREAKING CHANGE: settingsKey replaced with realmId + portalId (Realm System)
  */
 export function ThemeProvider({ children, realmId = 'default', portalId = '' }: ThemeProviderProps) {
-  // SPEC-TH-LD-008: Get theme from localStorage (realm level only)
-  const [mode, setModeState] = useState<ThemeMode>(() => getStoredTheme(realmId))
+  // CHANGED: Get theme from localStorage (global preference)
+  const [mode, setModeState] = useState<ThemeMode>(() => getStoredTheme())
 
   // SPEC-TH-BC-009: Get brand color from localStorage (3-level resolution)
   const [brandColor, setBrandColorState] = useState<BrandColor>(() =>
@@ -48,12 +48,12 @@ export function ThemeProvider({ children, realmId = 'default', portalId = '' }: 
 
   /**
    * Set theme mode
-   * SPEC-TH-LD-004: Instant update without reload
-   * SPEC-TH-HC-020: Theme mode is realm-level only
+   * CHANGED: Theme mode is now GLOBAL (not realm-scoped)
+   * Instant update without reload
    */
   const setMode = (newMode: ThemeMode) => {
     setModeState(newMode)
-    setStoredTheme(realmId, newMode) // SPEC-TH-LD-008
+    setStoredTheme(newMode) // Global preference
 
     // Resolve system theme
     if (newMode === 'system') {
@@ -157,13 +157,13 @@ export function ThemeProvider({ children, realmId = 'default', portalId = '' }: 
 
   /**
    * Sync theme across tabs
-   * SPEC-TH-LD-010
-   * SPEC-TH-HC-025: Portal customizations persist across realm changes
+   * CHANGED: Theme mode is now GLOBAL
+   * Brand colors remain realm/portal-scoped
    */
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-      // Theme mode changed (realm level)
-      if (e.key === `realm:${realmId}:theme` && e.newValue) {
+      // Theme mode changed (global)
+      if (e.key === 'theme' && e.newValue) {
         const newMode = e.newValue as ThemeMode
         setModeState(newMode)
 
