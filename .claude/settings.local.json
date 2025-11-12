@@ -12,19 +12,20 @@
       "Bash(node -e:*)",
       "WebFetch(domain:developer.chrome.com)",
       "Bash(git commit:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []
   },
   "enableAllProjectMcpServers": false,
-  "disabledMcpjsonServers": [
-    "shadcn"
-  ],
   "enabledMcpjsonServers": [
     "mysql",
     "mssql",
     "n8n",
     "postman"
+  ],
+  "disabledMcpjsonServers": [
+    "shadcn"
   ]
 }

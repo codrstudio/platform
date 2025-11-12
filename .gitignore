@@ -238,3 +238,4 @@ secrets/
 
 .worktrees/
 use-cases/
+.aider*

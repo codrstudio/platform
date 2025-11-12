@@ -70,11 +70,13 @@ src/modules/
 
 **SPEC-MO-MA-011:** Manifesto PODE incluir `category` (string, para organização)
 
-**SPEC-MO-MA-012:** Manifesto PODE incluir metadados customizados
+**SPEC-MO-MA-012:** Manifesto PODE incluir `instanceMode` ("single" ou "multiple", padrão: "multiple")
+
+**SPEC-MO-MA-013:** Manifesto PODE incluir metadados customizados
 
 ### Exemplo de Manifesto
 
-**SPEC-MO-MA-013:** Formato TypeScript:
+**SPEC-MO-MA-014:** Formato TypeScript (módulo multiple-instance):
 ```typescript
 export const manifest = {
   id: "chat",
@@ -85,7 +87,23 @@ export const manifest = {
   author: "Platform Team",
   dependencies: ["media-components", "export-components"],
   icon: "MessageSquare",
-  category: "communication"
+  category: "communication",
+  instanceMode: "multiple"  // Permite múltiplas instâncias (padrão)
+};
+```
+
+**SPEC-MO-MA-015:** Formato TypeScript (módulo single-instance):
+```typescript
+export const manifest = {
+  id: "auth",
+  name: "Auth",
+  version: "1.0.0",
+  type: "functionality",
+  description: "Sistema de autenticação",
+  author: "Platform Team",
+  icon: "Lock",
+  category: "security",
+  instanceMode: "single"  // Apenas UMA instância por portal
 };
 ```
 
@@ -351,15 +369,27 @@ export const routes = [
 
 **SPEC-MO-IN-012:** Configuração DEVE ser tipada (TypeScript)
 
+### Modo de Instância
+
+**SPEC-MO-IN-013:** Módulo "multiple-instance" DEVE suportar múltiplas instâncias no mesmo portal (comportamento padrão)
+
+**SPEC-MO-IN-014:** Módulo "single-instance" DEVE ter exatamente UMA instância por portal onde está ativo
+
+**SPEC-MO-IN-015:** Módulo "single-instance" DEVE criar automaticamente instância `"default"` ao ser ativado
+
+**SPEC-MO-IN-016:** Instância default de módulo "single-instance" DEVE ser criada ATIVA
+
+**SPEC-MO-IN-017:** Instância default de módulo "single-instance" NÃO PODE ser removida
+
+**SPEC-MO-IN-018:** Sistema DEVE prevenir criação de instâncias adicionais em módulos "single-instance"
+
 ### Múltiplas Instâncias
 
-**SPEC-MO-IN-013:** Módulo DEVE suportar múltiplas instâncias no mesmo portal
+**SPEC-MO-IN-019:** Cada instância DEVE ter configuração independente
 
-**SPEC-MO-IN-014:** Cada instância DEVE ter configuração independente
+**SPEC-MO-IN-020:** Instâncias PODEM ter rotas diferentes
 
-**SPEC-MO-IN-015:** Instâncias PODEM ter rotas diferentes
-
-**SPEC-MO-IN-016:** Instâncias NÃO DEVEM interferir entre si
+**SPEC-MO-IN-021:** Instâncias NÃO DEVEM interferir entre si
 
 ---
 

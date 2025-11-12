@@ -43,6 +43,8 @@ Este documento consolida e define os requisitos do módulo Setup, o configurador
 
 **SPEC-MS-IN-004:** Módulo Setup DEVE ter uma instância pré-criada no portal "setup"
 
+**SPEC-MS-IN-005:** Instância DEVE ter `instanceId="default"` (módulo setup é single-instance)
+
 ### Exemplo de configuração inicial
 ```json
 {
@@ -51,18 +53,18 @@ Este documento consolida e define os requisitos do módulo Setup, o configurador
   "removable": true,
   "modules": ["setup"],
   "instances": [
-    { "instanceId": "configurator", "moduleId": "setup", "config": {} }
+    { "instanceId": "default", "moduleId": "setup", "active": true, "config": {} }
   ]
 }
 ```
 
 ### Acesso Inicial
 
-**SPEC-MS-IN-005:** Portal Main DEVE ter link para `/setup` na página inicial (padrão)
+**SPEC-MS-IN-006:** Portal Main DEVE ter link para `/setup` na página inicial (padrão)
 
-**SPEC-MS-IN-006:** Link PODE ser removido após configuração
+**SPEC-MS-IN-007:** Link PODE ser removido após configuração
 
-**SPEC-MS-IN-007:** Rota `/setup` DEVE estar acessível diretamente via URL
+**SPEC-MS-IN-008:** Rota `/setup` DEVE estar acessível diretamente via URL
 
 ---
 
@@ -110,16 +112,25 @@ Detalhes adicionais da listagem:
 
 **SPEC-MS-FU-013:** DEVE permitir listar instâncias de um módulo
 
-**SPEC-MS-FU-014:** DEVE permitir criar nova instância
+**SPEC-MS-FU-014:** Para módulos "multiple-instance", DEVE permitir criar nova instância
 
 **SPEC-MS-FU-015:** DEVE permitir editar instância existente
 
-**SPEC-MS-FU-016:** DEVE permitir remover instância
+**SPEC-MS-FU-016:** Para módulos "multiple-instance", DEVE permitir remover instância
 
-**SPEC-MS-FU-017:** DEVE validar configuração conforme schema do módulo
+**SPEC-MS-FU-017:** Para módulos "single-instance", NÃO DEVE permitir criar instâncias adicionais
 
-Fluxo de criação:
+**SPEC-MS-FU-018:** Para módulos "single-instance", NÃO DEVE permitir remover instância "default"
+
+**SPEC-MS-FU-019:** Para módulos "single-instance", DEVE permitir apenas editar configuração e ativar/desativar
+
+**SPEC-MS-FU-020:** DEVE validar configuração conforme schema do módulo
+
+Fluxo de criação (módulos multiple-instance):
 1) Selecionar portal; 2) Selecionar módulo ativo naquele portal; 3) Definir `instanceId` (único no portal); 4) Configurar parâmetros específicos do módulo
+
+Fluxo para módulos single-instance:
+1) Instância "default" criada automaticamente ao ativar módulo; 2) Apenas configurar e ativar/desativar disponível; 3) Não há opção de criar ou remover
 
 ---
 
@@ -187,25 +198,29 @@ Listagens e formulários (detalhes adicionais):
 
 **SPEC-MS-UI-023:** DEVE mostrar: Nome, ID, Status, Configuração (resumo)
 
-**SPEC-MS-UI-024:** DEVE ter botão "Nova Instância"
+**SPEC-MS-UI-024:** Para módulos "multiple-instance", DEVE ter botão "Nova Instância"
 
-**SPEC-MS-UI-025:** DEVE ter ações: Editar, Remover
+**SPEC-MS-UI-025:** Para módulos "single-instance", NÃO DEVE exibir botão "Nova Instância"
 
-**SPEC-MS-UI-026:** DEVE permitir duplicar instância (copiar configuração)
+**SPEC-MS-UI-026:** Para módulos "multiple-instance", DEVE ter ações: Editar, Remover, Duplicar
+
+**SPEC-MS-UI-027:** Para módulos "single-instance", DEVE ter apenas ação: Configurar (não pode remover)
+
+**SPEC-MS-UI-028:** Para módulos "single-instance", DEVE mostrar badge indicando "Instância Única"
 
 ### Formulário de Instância
 
-**SPEC-MS-UI-027:** DEVE gerar formulário baseado no schema do módulo
+**SPEC-MS-UI-029:** DEVE gerar formulário baseado no schema do módulo
 
-**SPEC-MS-UI-028:** DEVE usar React Hook Form + Zod
+**SPEC-MS-UI-030:** DEVE usar React Hook Form + Zod
 
-**SPEC-MS-UI-029:** DEVE validar campos conforme schema
+**SPEC-MS-UI-031:** DEVE validar campos conforme schema
 
-**SPEC-MS-UI-030:** DEVE mostrar erros de validação inline
+**SPEC-MS-UI-032:** DEVE mostrar erros de validação inline
 
-**SPEC-MS-UI-031:** DEVE ter preview quando aplicável
+**SPEC-MS-UI-033:** DEVE ter preview quando aplicável
 
-**SPEC-MS-UI-032:** DEVE salvar via JQEL mutation
+**SPEC-MS-UI-034:** DEVE salvar via JQEL mutation
 
 ---
 
@@ -546,7 +561,8 @@ Validações adicionais:
   author: "Platform Team",
   dependencies: [],
   icon: "Settings",
-  category: "system"
+  category: "system",
+  instanceMode: "single"  // Apenas UMA instância por portal
 }
 ```
 
@@ -597,10 +613,15 @@ Ativar módulo:
 { schema: 'platform', operation: 'mutate', entity: 'module', action: 'activate', values: { portalId: 'app', moduleId: 'chat' } }
 ```
 
-Criar instância:
+Criar instância (módulo multiple-instance):
 ```typescript
 { schema: 'platform', operation: 'mutate', entity: 'instance', action: 'insert', values: { portalId: 'app', moduleId: 'chat', instanceId: 'support-chat', config: {} } }
 ```
+
+Observação sobre módulos single-instance:
+- Instâncias de módulos single-instance são criadas AUTOMATICAMENTE com `instanceId="default"` ao ativar o módulo
+- Não é necessário (nem permitido) criar instâncias manualmente via JQEL para módulos single-instance
+- Apenas edição de configuração é permitida: `{ schema: 'platform', operation: 'mutate', entity: 'instance', action: 'update', where: { instanceId: 'default', moduleId: 'auth' }, values: { config: {...} } }`
 
 Observações: Carregamento e salvamento DEVEM integrar com TanStack Query (cache e invalidação)
 

@@ -239,9 +239,9 @@ Instância é uma configuração específica de um módulo ativado em um portal.
 
 ### Requisitos de Múltiplas Instâncias
 
-**SPEC-C-I-006:** Um módulo PODE ter zero ou mais instâncias no mesmo portal
+**SPEC-C-I-006:** Um módulo PODE ter zero ou mais instâncias no mesmo portal, EXCETO módulos single-instance
 
-**SPEC-C-I-007:** Não há limite máximo de instâncias por módulo
+**SPEC-C-I-007:** Não há limite máximo de instâncias por módulo, EXCETO módulos single-instance
 
 **SPEC-C-I-008:** Cada instância DEVE ser configurada independentemente
 
@@ -249,31 +249,57 @@ Instância é uma configuração específica de um módulo ativado em um portal.
 
 **SPEC-C-I-010:** Instâncias do mesmo módulo PODEM gerar rotas diferentes
 
+### Requisitos de Modo de Instância
+
+**SPEC-C-I-011:** Módulos PODEM ser classificados como "single-instance" ou "multiple-instance"
+
+**SPEC-C-I-012:** Módulos "multiple-instance" PODEM ter zero ou mais instâncias por portal (comportamento padrão)
+
+**SPEC-C-I-013:** Módulos "single-instance" DEVEM ter exatamente UMA instância por portal
+
+**SPEC-C-I-014:** Módulos "single-instance" NÃO PODEM ter zero instâncias em portais onde estão ativos
+
+**SPEC-C-I-015:** Módulos "single-instance" NÃO PODEM ter mais de uma instância por portal
+
+**SPEC-C-I-016:** Ativação de módulo "single-instance" DEVE criar automaticamente instância com `instanceId="default"`
+
+**SPEC-C-I-017:** Instância default de módulo "single-instance" DEVE ser criada ATIVA
+
+**SPEC-C-I-018:** Instância default de módulo "single-instance" NÃO PODE ser removida
+
+**SPEC-C-I-019:** Instância default de módulo "single-instance" PODE ser desativada
+
+**SPEC-C-I-020:** Instância default de módulo "single-instance" PODE ser configurada
+
+**SPEC-C-I-021:** Sistema NÃO DEVE permitir criação de instâncias adicionais em módulos "single-instance"
+
+**SPEC-C-I-022:** Desativação de módulo "single-instance" DEVE remover automaticamente sua instância default
+
 ### Requisitos de Configuração
 
-**SPEC-C-I-011:** Cada instância DEVE armazenar suas configurações
+**SPEC-C-I-023:** Cada instância DEVE armazenar suas configurações
 
-**SPEC-C-I-012:** O módulo DEFINE a estrutura de configuração de suas instâncias
+**SPEC-C-I-024:** O módulo DEFINE a estrutura de configuração de suas instâncias
 
-**SPEC-C-I-013:** A plataforma NÃO DEVE impor estrutura de configuração específica
+**SPEC-C-I-025:** A plataforma NÃO DEVE impor estrutura de configuração específica
 
-**SPEC-C-I-014:** Configurações de instâncias DEVEM ser armazenadas via JQEL
+**SPEC-C-I-026:** Configurações de instâncias DEVEM ser armazenadas via JQEL
 
-**SPEC-C-I-015:** Configurações de instâncias DEVEM ser acessadas via JQEL
+**SPEC-C-I-027:** Configurações de instâncias DEVEM ser acessadas via JQEL
 
 ### Requisitos de Ciclo de Vida
 
-**SPEC-C-I-016:** Instâncias DEVEM ser criadas após ativação do módulo
+**SPEC-C-I-028:** Instâncias DEVEM ser criadas após ativação do módulo (ou automaticamente para single-instance)
 
-**SPEC-C-I-017:** Ativação de módulo NÃO cria instâncias automaticamente
+**SPEC-C-I-029:** Ativação de módulo "multiple-instance" NÃO cria instâncias automaticamente
 
-**SPEC-C-I-018:** Desativação de módulo DEVE remover todas as suas instâncias no portal
+**SPEC-C-I-030:** Desativação de módulo DEVE remover todas as suas instâncias no portal
 
-**SPEC-C-I-019:** Remoção de portal DEVE remover todas as instâncias daquele portal
+**SPEC-C-I-031:** Remoção de portal DEVE remover todas as instâncias daquele portal
 
-**SPEC-C-I-020:** Instâncias PODEM ser editadas sem desativar o módulo
+**SPEC-C-I-032:** Instâncias PODEM ser editadas sem desativar o módulo
 
-**SPEC-C-I-021:** Instâncias PODEM ser removidas sem desativar o módulo
+**SPEC-C-I-033:** Instâncias de módulos "multiple-instance" PODEM ser removidas sem desativar o módulo
 
 ---
 

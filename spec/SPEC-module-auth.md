@@ -1,387 +1,295 @@
 # SPEC-module-auth.md
 
-## Especificação: Módulo de Autenticação
+## Especificação: Módulo de Autenticação (Route Protection)
 
 ### Escopo
-Este documento especifica o módulo Auth, responsável pela experiência de usuário (UI/UX) do sistema de autenticação da plataforma.
+Este documento especifica o módulo Auth, responsável por ativar/desativar a proteção de rotas em portais da plataforma.
 
 ---
 
 ## 1. Definição
 
 ### Propósito
-O módulo Auth fornece interfaces visuais para login, logout, registro e gerenciamento de sessão, utilizando o Canal de Autenticação da plataforma.
+O módulo Auth funciona como um **mecanismo de proteção de rotas**. Quando ativo em um portal, ele exige que usuários estejam autenticados para acessar as rotas daquele portal. Quando inativo, o portal permite acesso público sem autenticação.
+
+**IMPORTANTE**: O módulo Auth **NÃO** fornece UI de autenticação (login pages, logout buttons, etc). Ele apenas controla se as rotas são protegidas ou públicas. A UI de login é fornecida globalmente pela aplicação.
 
 ### Natureza
 - **Tipo**: Módulo de Funcionalidade
+- **Modo de Instância**: Single (apenas UMA instância por portal)
 - **Dependências**: Nenhuma
-- **Opcional**: Sim (plataforma pode funcionar sem autenticação)
+- **Opcional**: Sim (portais podem funcionar sem proteção de rotas)
 
 ---
 
 ## 2. Responsabilidades
 
 ### SPEC-AUTH-R-001
-O módulo Auth DEVE fornecer componentes de interface para autenticação
+O módulo Auth DEVE controlar se as rotas de um portal são protegidas ou públicas
 
 ### SPEC-AUTH-R-002
-O módulo Auth NÃO DEVE implementar lógica de autenticação (responsabilidade do Canal de Autenticação)
+O módulo Auth NÃO DEVE fornecer UI de autenticação (login, logout, avatars)
 
 ### SPEC-AUTH-R-003
-O módulo Auth DEVE ser um wrapper sobre o Canal de Autenticação (`/api/1/auth/*`)
+O módulo Auth NÃO DEVE implementar lógica de autenticação (responsabilidade do AuthContext global)
 
 ### SPEC-AUTH-R-004
-O módulo Auth PODE criar múltiplas instâncias com diferentes experiências de usuário
+O módulo Auth DEVE ter exatamente UMA instância por portal (single-instance)
+
+### SPEC-AUTH-R-005
+Instância DEVE ser criada automaticamente com `instanceId="default"` ao ativar o módulo
 
 ---
 
-## 3. Funcionalidades Obrigatórias
-
-### Login
-
-**SPEC-AUTH-F-001:** Toda instância DEVE fornecer interface de login
-
-**SPEC-AUTH-F-002:** Interface de login DEVE aceitar:
-- `realm` (opcional, string)
-- `schema` (opcional, string)
-- `username` (obrigatório, string)
-- `password` (obrigatório, string)
-
-**SPEC-AUTH-F-003:** Interface de login DEVE chamar `/api/1/auth/login` via POST
-
-**SPEC-AUTH-F-004:** Ao receber tokens (access_token, refresh_token), o módulo DEVE armazená-los
-
-**SPEC-AUTH-F-005:** Armazenamento de tokens DEVE ser em memória ou cookie seguro (HttpOnly)
-
-**SPEC-AUTH-F-006:** Módulo NÃO DEVE armazenar tokens em localStorage
-
-### Logout
-
-**SPEC-AUTH-F-007:** Toda instância DEVE fornecer funcionalidade de logout
-
-**SPEC-AUTH-F-008:** Logout DEVE chamar `/api/1/auth/logout` com refresh_token
-
-**SPEC-AUTH-F-009:** Após logout, módulo DEVE remover tokens armazenados
-
-**SPEC-AUTH-F-010:** Logout PODE redirecionar para rota configurada na instância
-
-### Refresh Automático
-
-**SPEC-AUTH-F-011:** Módulo DEVE implementar renovação automática de tokens
-
-**SPEC-AUTH-F-012:** Renovação DEVE ocorrer antes do access_token expirar
-
-**SPEC-AUTH-F-013:** Renovação DEVE chamar `/api/1/auth/refresh` com refresh_token
-
-**SPEC-AUTH-F-014:** Se renovação falhar, módulo DEVE fazer logout automático
+## 3. Funcionalidades
 
 ### Proteção de Rotas
 
-**SPEC-AUTH-F-015:** Módulo DEVE fornecer mecanismo para proteger rotas
+**SPEC-AUTH-RP-001:** Se módulo Auth ESTÁ ativo no portal:
+- Todas as rotas do portal DEVEM exigir autenticação
+- Usuários não autenticados DEVEM ser redirecionados para `/login`
+- Após login bem-sucedido, usuário DEVE ser redirecionado para rota original
 
-**SPEC-AUTH-F-016:** Rotas protegidas DEVEM redirecionar para login se usuário não autenticado
+**SPEC-AUTH-RP-002:** Se módulo Auth NÃO ESTÁ ativo no portal:
+- Todas as rotas do portal DEVEM ser públicas (sem proteção)
+- Não há redirect para login
+- Acesso direto ao conteúdo do portal
 
-**SPEC-AUTH-F-017:** Após login bem-sucedido, módulo DEVE redirecionar para rota original solicitada
+**SPEC-AUTH-RP-003:** A verificação de proteção DEVE considerar:
+- Se módulo Auth está ativo no portal (`activeModules` inclui "auth")
+- Como módulo é singleInstance, sempre usa a instância "default"
+
+**SPEC-AUTH-RP-004:** Proteção de rotas DEVE ser implementada pelo componente global `<ProtectedRoute />`
+
+**SPEC-AUTH-RP-005:** `<ProtectedRoute />` DEVE verificar se módulo Auth está ativo usando `hasModule('auth')`
+
+**SPEC-AUTH-RP-006:** Rota `/login` DEVE sempre ser pública (não protegida)
 
 ---
 
-## 4. Funcionalidades Opcionais
+## 4. Infraestrutura de Autenticação
 
-### Registro (Sign Up)
+### Responsabilidade do AuthContext Global
 
-**SPEC-AUTH-O-001:** Instância PODE fornecer interface de registro
+**SPEC-AUTH-INF-001:** A infraestrutura de autenticação (login, logout, refresh, estado) É fornecida pelo `AuthContext` global da aplicação
 
-**SPEC-AUTH-O-002:** Registro DEVE ser implementado via JQEL (não há rota dedicada no Canal de Autenticação)
+**SPEC-AUTH-INF-002:** O módulo Auth NÃO fornece AuthContext (já existe globalmente)
 
-### Recuperação de Senha
+**SPEC-AUTH-INF-003:** O módulo Auth NÃO fornece LoginPage (já existe globalmente em `src/frontend/src/pages/LoginPage.tsx`)
 
-**SPEC-AUTH-O-003:** Instância PODE fornecer fluxo de recuperação de senha
+**SPEC-AUTH-INF-004:** O módulo Auth apenas controla SE a proteção está ativa, não COMO ela funciona
 
-**SPEC-AUTH-O-004:** Recuperação DEVE ser implementada via workflows n8n + Canal de Eventos
+### Canal de Autenticação
 
-### Logout de Todas as Sessões
+**SPEC-AUTH-INF-005:** Autenticação utiliza o Canal de Autenticação (`/api/1/auth/*`)
 
-**SPEC-AUTH-O-005:** Instância PODE fornecer opção "Logout de todos os dispositivos"
-
-**SPEC-AUTH-O-006:** Esta funcionalidade DEVE chamar `/api/1/auth/logout-all`
-
-### Seleção de Realm/Schema
-
-**SPEC-AUTH-O-007:** Instância PODE permitir usuário selecionar realm ou schema
-
-**SPEC-AUTH-O-008:** Se não fornecido, instância DEVE usar valores padrão configurados
+**SPEC-AUTH-INF-006:** Canal de Autenticação oferece rotas:
+- `POST /api/1/auth/login` - Autenticação
+- `POST /api/1/auth/refresh` - Renovação de tokens
+- `POST /api/1/auth/logout` - Logout
+- `POST /api/1/auth/logout-all` - Logout de todas as sessões
+- `POST /api/1/auth/authorize` - Validação de permissões
 
 ---
 
 ## 5. Configuração de Instância
 
-### Parâmetros Obrigatórios
+### Parâmetros
 
-**SPEC-AUTH-C-001:** Toda instância DEVE ter rota de login configurada
+**SPEC-AUTH-C-001:** Instância do módulo Auth PODE ter configuração mínima ou vazia
 
-**SPEC-AUTH-C-002:** Rota de login DEVE ser única no portal
+**SPEC-AUTH-C-002:** Configuração NÃO é necessária para o funcionamento básico (apenas ativo/inativo)
 
-### Parâmetros Opcionais
-
-**SPEC-AUTH-C-003:** Instância PODE configurar:
+**SPEC-AUTH-C-003:** Instância PODE ter configuração futura para:
 ```typescript
 {
-  loginRoute: string;              // Rota da página de login
-  logoutRedirect: string;          // Para onde redirecionar após logout
-  realm?: string;                  // Realm padrão
-  schema?: string;                 // Schema padrão
-  allowRealmSelection: boolean;    // Permitir escolher realm
-  allowSchemaSelection: boolean;   // Permitir escolher schema
-  enableSignup: boolean;           // Habilitar registro
-  enablePasswordRecovery: boolean; // Habilitar recuperação de senha
-  sessionTimeout: number;          // Tempo de inatividade para logout (ms)
+  // Configurações futuras (se necessário)
+  // Ex: timeout de sessão, compartilhamento entre portals, etc.
 }
 ```
 
----
-
-## 6. Estado e Contexto
-
-### Context Provider
-
-**SPEC-AUTH-S-001:** Módulo DEVE fornecer React Context para estado de autenticação
-
-**SPEC-AUTH-S-002:** Context DEVE expor:
-```typescript
-{
-  user: User | null;           // Usuário autenticado
-  isAuthenticated: boolean;    // Se está autenticado
-  isLoading: boolean;          // Se está carregando
-  login: (credentials) => Promise<void>;
-  logout: () => Promise<void>;
-  refresh: () => Promise<void>;
-}
-```
-
-**SPEC-AUTH-S-003:** Context DEVE estar disponível para todos os componentes do portal
-
-### Persistência
-
-**SPEC-AUTH-S-004:** Estado de autenticação DEVE sobreviver refresh da página
-
-**SPEC-AUTH-S-005:** Ao carregar página, módulo DEVE verificar se há tokens válidos
-
-**SPEC-AUTH-S-006:** Se tokens existem mas estão expirados, módulo DEVE tentar refresh
+**SPEC-AUTH-C-004:** Ativar/desativar proteção depende apenas de:
+- Módulo "auth" estar em `portal.activeModules`
+- Instância "default" estar com `active: true`
 
 ---
 
-## 7. Componentes Exportados
+## 6. Componentes Fornecidos
 
-### Obrigatórios
+### Único Componente
 
-**SPEC-AUTH-E-001:** Módulo DEVE exportar:
-- `<LoginForm />` - Formulário de login
-- `<ProtectedRoute />` - Wrapper para rotas protegidas
-- `<AuthProvider />` - Context provider
-- `useAuth()` - Hook para acessar contexto
+**SPEC-AUTH-E-001:** Módulo Auth PODE fornecer componente `<ProtectedRoute />` (opcional)
 
-### Opcionais
+**SPEC-AUTH-E-002:** Componente `<ProtectedRoute />` do módulo é OPCIONAL porque já existe versão global
 
-**SPEC-AUTH-E-002:** Módulo PODE exportar:
-- `<SignupForm />` - Formulário de registro
-- `<PasswordRecoveryForm />` - Recuperação de senha
-- `<LogoutButton />` - Botão de logout
-- `<UserAvatar />` - Avatar do usuário logado
-- `<RequirePermission />` - Wrapper para permissões específicas
+**SPEC-AUTH-E-003:** Versão global de `<ProtectedRoute />` já implementa a lógica de verificação via `hasModule('auth')`
 
 ---
 
-## 8. Integração com Canal de Autenticação
+## 7. Single Instance
 
-### Fluxo de Login
+### Comportamento
 
-**SPEC-AUTH-I-001:** Login DEVE seguir este fluxo:
-```
-1. Usuário preenche formulário
-2. Módulo valida campos (client-side)
-3. POST /api/1/auth/login com { realm?, schema?, username, password }
-4. Backend/Backbone valida credenciais
-5. Retorna { access_token, refresh_token, payload }
-6. Módulo armazena tokens
-7. Atualiza contexto com usuário autenticado
-8. Redireciona para rota protegida ou dashboard
-```
+**SPEC-AUTH-M-001:** Cada portal PODE ter no máximo UMA instância do módulo auth
 
-### Fluxo de Refresh
+**SPEC-AUTH-M-002:** Instância DEVE ter `instanceId="default"` (fixo)
 
-**SPEC-AUTH-I-002:** Refresh DEVE seguir este fluxo:
-```
-1. Access token próximo de expirar (ou já expirado)
-2. POST /api/1/auth/refresh com refresh_token
-3. Backend valida refresh_token
-4. Retorna novos access_token e refresh_token
-5. Módulo atualiza tokens armazenados
-6. Continua operação normalmente
-```
+**SPEC-AUTH-M-003:** Instância DEVE ser criada automaticamente ao ativar módulo no portal
 
-### Fluxo de Logout
+**SPEC-AUTH-M-004:** Instância default NÃO PODE ser removida manualmente
 
-**SPEC-AUTH-I-003:** Logout DEVE seguir este fluxo:
-```
-1. Usuário clica em logout
-2. POST /api/1/auth/logout com refresh_token
-3. Backend revoga refresh_token
-4. Módulo remove tokens armazenados
-5. Atualiza contexto (user = null)
-6. Redireciona para página de login
-```
+**SPEC-AUTH-M-005:** Instância default PODE ser desativada (mas não removida)
+
+### Isolamento entre Portais
+
+**SPEC-AUTH-M-006:** Instâncias em portais diferentes DEVEM ser independentes
+
+**SPEC-AUTH-M-007:** Portal "main" com auth ativo NÃO afeta proteção do portal "setup" sem auth
+
+**SPEC-AUTH-M-008:** Cada portal controla independentemente se suas rotas são protegidas
 
 ---
 
-## 9. Validação de Permissões
+## 8. Exemplos de Uso
 
-### Hook usePermission
+**Nota**: Como auth é single-instance, todas as instâncias usam `instanceId="default"` (criado automaticamente).
 
-**SPEC-AUTH-P-001:** Módulo PODE fornecer hook `usePermission(permission: string)`
-
-**SPEC-AUTH-P-002:** Hook DEVE chamar `/api/1/auth/authorize` com access_token e permission
-
-**SPEC-AUTH-P-003:** Hook DEVE retornar:
-```typescript
-{
-  hasPermission: boolean;
-  isLoading: boolean;
-  error: Error | null;
-}
-```
-
-### Componente RequirePermission
-
-**SPEC-AUTH-P-004:** Módulo PODE fornecer componente:
-```typescript
-<RequirePermission permission="read.usuarios">
-  <ConteudoProtegido />
-</RequirePermission>
-```
-
-**SPEC-AUTH-P-005:** Se usuário não tem permissão, componente DEVE renderizar fallback ou nada
-
----
-
-## 10. Tratamento de Erros
-
-### Erros de Login
-
-**SPEC-AUTH-E-001:** Módulo DEVE exibir mensagens claras para:
-- Credenciais inválidas
-- Usuário bloqueado
-- Erro de rede
-- Erro do servidor
-
-**SPEC-AUTH-E-002:** Mensagens NÃO DEVEM expor detalhes de segurança
-
-### Sessão Expirada
-
-**SPEC-AUTH-E-003:** Se refresh falhar, módulo DEVE:
-1. Fazer logout automático
-2. Exibir notificação "Sessão expirada"
-3. Redirecionar para login
-
-### Múltiplas Tentativas
-
-**SPEC-AUTH-E-004:** Módulo PODE implementar rate limiting client-side
-
-**SPEC-AUTH-E-005:** Após N tentativas falhas, módulo PODE bloquear temporariamente
-
----
-
-## 11. Múltiplas Instâncias
-
-### Isolamento
-
-**SPEC-AUTH-M-001:** Múltiplas instâncias em portais diferentes DEVEM ser independentes
-
-**SPEC-AUTH-M-002:** Login em uma instância NÃO DEVE autenticar em outra automaticamente
-
-### Compartilhamento (Opcional)
-
-**SPEC-AUTH-M-003:** Instâncias PODEM compartilhar sessão via mesmo realm/schema
-
-**SPEC-AUTH-M-004:** Compartilhamento DEVE usar storage do browser (cookies ou sessionStorage)
-
-**SPEC-AUTH-M-005:** Configuração de compartilhamento DEVE ser explícita na instância
-
----
-
-## 12. Acessibilidade
-
-**SPEC-AUTH-A-001:** Formulários DEVEM ser acessíveis via teclado
-
-**SPEC-AUTH-A-002:** Campos DEVEM ter labels apropriados
-
-**SPEC-AUTH-A-003:** Erros DEVEM ser anunciados para screen readers
-
-**SPEC-AUTH-A-004:** Campos de senha DEVEM ter opção "mostrar/ocultar"
-
----
-
-## 13. Segurança
-
-**SPEC-AUTH-SEC-001:** Módulo NÃO DEVE armazenar senhas em nenhum momento
-
-**SPEC-AUTH-SEC-002:** Tokens DEVEM ser transmitidos apenas via HTTPS
-
-**SPEC-AUTH-SEC-003:** Refresh tokens DEVEM ser HttpOnly cookies quando possível
-
-**SPEC-AUTH-SEC-004:** Access tokens PODEM ser armazenados em memória (React state)
-
-**SPEC-AUTH-SEC-005:** Módulo NÃO DEVE expor tokens em console.log ou URLs
-
----
-
-## 14. Exemplos de Uso
-
-### Instância Básica (Login Simples)
+### Portal COM Proteção - "main"
 ```json
 {
-  "instanceId": "login-main",
-  "moduleId": "auth",
-  "config": {
-    "loginRoute": "/login",
-    "logoutRedirect": "/",
-    "realm": "default",
-    "schema": "app"
-  }
+  "portalId": "main",
+  "activeModules": ["dashboard", "auth"]  // auth está ativo
 }
 ```
 
-### Instância Completa (Com Registro e Recuperação)
 ```json
 {
-  "instanceId": "auth-portal-sac",
+  "instanceId": "default",
   "moduleId": "auth",
-  "config": {
-    "loginRoute": "/sac/login",
-    "logoutRedirect": "/sac",
-    "realm": "clientes",
-    "schema": "sac",
-    "allowRealmSelection": false,
-    "enableSignup": true,
-    "enablePasswordRecovery": true,
-    "sessionTimeout": 1800000
-  }
+  "portalId": "main",
+  "active": true,
+  "config": {}
 }
 ```
 
-### Instância Multi-Realm
-```json
-{
-  "instanceId": "login-admin",
-  "moduleId": "auth",
-  "config": {
-    "loginRoute": "/admin/login",
-    "allowRealmSelection": true,
-    "allowSchemaSelection": true,
-    "sessionTimeout": 900000
-  }
-}
-```
+**Resultado**: Todas as rotas do portal "main" exigem autenticação. Redirect para `/login` se não autenticado.
 
 ---
 
-*Esta especificação define os requisitos do módulo Auth. Implementação técnica em documentação separada.*
+### Portal SEM Proteção - "setup"
+```json
+{
+  "portalId": "setup",
+  "activeModules": ["setup"]  // auth NÃO está ativo
+}
+```
+
+**Resultado**: Todas as rotas do portal "setup" são públicas. Sem redirect para login.
+
+---
+
+### Portal com Auth Desativado - "sandbox"
+```json
+{
+  "portalId": "sandbox",
+  "activeModules": ["auth"]  // auth está na lista
+}
+```
+
+```json
+{
+  "instanceId": "default",
+  "moduleId": "auth",
+  "portalId": "sandbox",
+  "active": false,  // mas instância está INATIVA
+  "config": {}
+}
+```
+
+**Resultado**: Rotas do portal "sandbox" são públicas (instância inativa = sem proteção).
+
+---
+
+## 9. Fluxo de Verificação de Proteção
+
+### Lógica Implementada
+
+**SPEC-AUTH-FL-001:** Componente global `<ProtectedRoute />` implementa esta lógica:
+
+```typescript
+// 1. Verifica se módulo auth está ativo no portal atual
+const authModuleActive = hasModule('auth');
+
+// 2. Se auth NÃO está ativo → rotas são públicas
+if (!authModuleActive) {
+  return <>{children}</>;  // Renderiza sem proteção
+}
+
+// 3. Se auth ESTÁ ativo → verifica autenticação
+const { isAuthenticated } = useAuth();
+
+if (!isAuthenticated) {
+  // Salva URL atual para redirect após login
+  sessionStorage.setItem('returnUrl', location.pathname);
+  return <Navigate to="/login" replace />;
+}
+
+// 4. Usuário autenticado → renderiza conteúdo protegido
+return <>{children}</>;
+```
+
+**SPEC-AUTH-FL-002:** Como módulo é singleInstance, não precisa verificar qual instância (sempre "default")
+
+---
+
+## 10. Integração com Aplicação
+
+### App.tsx
+
+**SPEC-AUTH-INT-001:** Estrutura de rotas globais:
+```tsx
+<Routes>
+  {/* Rota pública: Login */}
+  <Route path="/login" element={<LoginPage />} />
+
+  {/* Rotas de portais: Proteção condicional */}
+  <Route path="/*" element={
+    <ProtectedRoute>
+      <PortalRouter />
+    </ProtectedRoute>
+  } />
+</Routes>
+```
+
+**SPEC-AUTH-INT-002:** `<ProtectedRoute />` envolve `<PortalRouter />` para proteger condicionalmente
+
+**SPEC-AUTH-INT-003:** Dentro de cada portal, a proteção é determinada pelo módulo auth daquele portal
+
+---
+
+## 11. Diferença Conceitual
+
+### Antes da Reformulação
+
+O módulo Auth fornecia:
+- ✓ UI de login (LoginPage, layouts variados)
+- ✓ Componentes de UI (LogoutButton, UserAvatar)
+- ✓ Rotas próprias (`/login`, `/signup`, etc.)
+- ✓ Proteção de rotas
+
+### Depois da Reformulação (Atual)
+
+O módulo Auth fornece:
+- ✓ **APENAS** controle de proteção de rotas (ativo/inativo)
+
+A aplicação global fornece:
+- ✓ UI de login (`src/frontend/src/pages/LoginPage.tsx`)
+- ✓ AuthContext para gerenciar autenticação
+- ✓ Rota `/login` global
+- ✓ Componente `<ProtectedRoute />` global
+
+**Resultado**: Módulo Auth se torna um "switch" para proteção de rotas, não um fornecedor de UI.
+
+---
+
+*Esta especificação define os requisitos do módulo Auth como mecanismo de proteção de rotas. Implementação técnica em documentação separada.*

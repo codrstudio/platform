@@ -15,7 +15,7 @@ Este documento define a arquitetura de interface e padrões de UI/UX para o mód
 ┌─────────────────────────────────────────────────────────┐
 │  PLATAFORMA                                             │
 │  └── Portal: setup (/setup)                            │
-│      └── Módulo: setup (instância: configurator)       │
+│      └── Módulo: setup (instância: default)            │
 │          ├── Dashboard (/)                             │
 │          ├── Portals (/portals)                        │
 │          │   ├── List                                  │
@@ -614,7 +614,50 @@ const portalSchema = z.object({
 └────────────────────────────────────────────────────────────────┘
 ```
 
-### 6.2 Estado Vazio
+### 6.2 Módulo Single-Instance
+
+Para módulos com `instanceMode: "single"` (como auth e setup), a interface é simplificada:
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│  [←] Instância: auth (portal: main)                            │
+├────────────────────────────────────────────────────────────────┤
+│  Home > Portais > main > Módulos > auth > Instância           │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│  ┌──────────────────────────────────────────────────────────┐ │
+│  │  ℹ️  Este módulo permite apenas UMA instância por portal  │ │
+│  └──────────────────────────────────────────────────────────┘ │
+│                                                                │
+│  ┌──────────────────────────────────────────────────────────┐ │
+│  │  ┌────────────────────────────────────────────────────┐  │ │
+│  │  │  [⚙️] default                   [🔵 Instância Única]│  │ │
+│  │  │  ─────────────────────────────────────────────────  │  │ │
+│  │  │  Status: Ativo                                     │  │ │
+│  │  │  Configuração:                                     │  │ │
+│  │  │    • loginRoute: /login                            │  │ │
+│  │  │    • logoutRedirect: /                             │  │ │
+│  │  │    • realm: default                                │  │ │
+│  │  │    • enableSignup: true                            │  │ │
+│  │  │                                                    │  │ │
+│  │  │  [✏️ Configurar] [⚪ Ativar/Desativar]              │  │ │
+│  │  └────────────────────────────────────────────────────┘  │ │
+│  └──────────────────────────────────────────────────────────┘ │
+│                                                                │
+│  Obs: Instância "default" não pode ser removida. Apenas       │
+│  configuração e ativação/desativação são permitidas.          │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
+```
+
+**Diferenças visuais**:
+- Badge "🔵 Instância Única" no card
+- Sem botão "+ Nova Instância"
+- Sem botão "🗑️ Remover" na instância
+- Aviso informativo no topo
+- Apenas ações: Configurar e Ativar/Desativar
+
+### 6.3 Estado Vazio (Módulos Multiple-Instance)
 
 ```
 ┌────────────────────────────────────┐
