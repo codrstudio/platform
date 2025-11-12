@@ -4,8 +4,8 @@ import { Navigation } from './Navigation'
 import { BottomControls } from './BottomControls'
 import { useTheme } from '../../hooks/useTheme'
 import { useSidebar } from '../../hooks/useSidebar'
-import logoLight from '../../../../../../assets/nic-logo-light.svg'
-import logoDark from '../../../../../../assets/nic-logo-dark.svg'
+import logoLight from '../../assets/nic-logo-light.svg'
+import logoDark from '../../assets/nic-logo-dark.svg'
 
 /**
  * Sidebar Chatify
