@@ -3,7 +3,7 @@
  * SPEC-MARKBROWSER-J-001, SPEC-MARKBROWSER-J-002
  */
 
-import { useJQEL, useJQELMutation } from '@/hooks/useJQEL';
+import { useJQELQuery, useJQELMutation } from '@/hooks/useJQEL';
 import type { Document, DataSourceConfig } from '../types';
 
 interface UseDocumentsOptions {
@@ -13,7 +13,7 @@ interface UseDocumentsOptions {
 
 export function useDocuments({ dataSource, rootPath }: UseDocumentsOptions) {
   // Query to fetch document list
-  const { data, isLoading, error, refetch } = useJQEL<Document[]>({
+  const { data, isLoading, error, refetch } = useJQELQuery<Document[]>({
     schema: dataSource.schema,
     select: dataSource.documentsEntity,
     where: rootPath ? { path: { $startsWith: rootPath } } : {},
@@ -35,13 +35,12 @@ interface UseDocumentOptions {
 }
 
 export function useDocument({ dataSource, documentId, enabled = true }: UseDocumentOptions) {
-  const { data, isLoading, error, refetch } = useJQEL<Document>({
+  const { data, isLoading, error, refetch } = useJQELQuery<Document>({
     schema: dataSource.schema,
     select: dataSource.documentsEntity,
     where: { id: { $eq: documentId } },
     output: ['id', 'path', 'name', 'title', 'content', 'lastModified', 'size'],
-    enabled,
-  });
+  }, { enabled });
 
   return {
     document: data,

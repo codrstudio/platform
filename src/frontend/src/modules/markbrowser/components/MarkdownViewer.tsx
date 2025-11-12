@@ -15,7 +15,7 @@ import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/pris
 import mermaid from 'mermaid';
 import { Copy, Check, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useTheme } from '@/hooks/useTheme';
+import { useTheme } from '@/contexts/ThemeContext';
 import { cn } from '@/lib/utils';
 import { resolveRelativeLink } from '../utils/tree';
 import 'katex/dist/katex.min.css';
