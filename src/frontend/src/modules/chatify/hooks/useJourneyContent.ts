@@ -54,8 +54,8 @@ export function useJourneyContent(contentPath: string | undefined): StepContent 
     // Função async para fetch + parse
     async function loadContent() {
       try {
-        // Fetch do arquivo Markdown
-        const response = await fetch(contentPath)
+        // Fetch do arquivo Markdown (contentPath já foi validado acima)
+        const response = await fetch(contentPath!)
 
         if (!response.ok) {
           throw new Error(`Failed to load content: ${response.statusText}`)

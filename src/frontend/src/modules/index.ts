@@ -31,7 +31,7 @@ import './auth';
 
 // Functionality Modules (alphabetical order)
 // import './chat';
-// import './chatify';
+import './chatify';
 // import './command-palette';
 // import './dashboard';
 // import './forms';
