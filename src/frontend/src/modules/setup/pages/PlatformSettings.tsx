@@ -1,13 +1,17 @@
 // Platform Settings Page
 // Based on spec/ui/setup-module-interfaces.md Section 3
 
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Server, Database, Activity, Info, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Server, Database, Activity, Info, Loader2, Palette } from 'lucide-react';
 import { PageBreadcrumb } from '@/components/navigation';
 import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb';
 import { usePortals } from '@/hooks/useJQEL';
+import { LoginBrandingEditor } from '../components/LoginBrandingEditor';
 
 function useSystemHealth() {
   // Test backend connectivity by querying portals
@@ -22,6 +26,7 @@ function useSystemHealth() {
 export function PlatformSettings() {
   const breadcrumbItems = useSetupBreadcrumb('Configurações');
   const { backendStatus, isLoading: healthLoading } = useSystemHealth();
+  const [showBrandingEditor, setShowBrandingEditor] = useState(false);
 
   const systemInfo = {
     version: '1.0.0',
@@ -128,6 +133,33 @@ export function PlatformSettings() {
         </CardContent>
       </Card>
 
+      {/* Login Branding Customization */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Palette className="h-5 w-5 text-primary" />
+            <CardTitle>Personalização da Página de Login</CardTitle>
+          </div>
+          <CardDescription>
+            Customize a aparência da tela de login com sua marca
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Branding do Login</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Logo, cores e textos personalizados para a página de autenticação
+              </p>
+            </div>
+            <Button onClick={() => setShowBrandingEditor(true)}>
+              <Palette className="h-4 w-4 mr-2" />
+              Customizar
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Services Health */}
       <Card>
         <CardHeader>
@@ -204,6 +236,18 @@ export function PlatformSettings() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Login Branding Editor Dialog */}
+      <Dialog open={showBrandingEditor} onOpenChange={setShowBrandingEditor}>
+        <DialogContent className="max-w-[95vw] w-full h-[90vh] p-0 overflow-hidden">
+          <div className="h-full overflow-auto">
+            <LoginBrandingEditor
+              realmId="default"
+              onClose={() => setShowBrandingEditor(false)}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

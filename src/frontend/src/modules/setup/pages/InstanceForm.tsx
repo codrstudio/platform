@@ -7,7 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft } from 'lucide-react';
+import { TagInput } from '@/components/ui/tag-input';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ArrowLeft, Info, Lock } from 'lucide-react';
 import { useInstance, useModule, useCreateInstance, useUpdateInstance } from '@/hooks/useJQEL';
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 import { toastError } from '@/lib/toast';
@@ -194,7 +196,34 @@ export function InstanceForm() {
                       </span>
                     </div>
                   )}
-                  {schema.description && schema.type !== 'boolean' && (
+                  {schema.type === 'array' && schema.ui === 'tag-input' && (
+                    <div className="space-y-3">
+                      <TagInput
+                        value={(formData.config[key] as string[]) || []}
+                        onChange={(values) => handleConfigChange(key, values)}
+                        label=""
+                        description={schema.description}
+                        placeholder="Digite um papel e pressione Enter"
+                      />
+                      {/* Info card dinâmico */}
+                      {(!formData.config[key] || !Array.isArray(formData.config[key]) || (formData.config[key] as string[]).length === 0) ? (
+                        <Alert variant="default" className="border-green-200 bg-green-50 text-green-900 dark:border-green-800 dark:bg-green-950 dark:text-green-100">
+                          <Info className="h-4 w-4 text-green-600 dark:text-green-400" />
+                          <AlertDescription>
+                            <strong>Acesso Autenticado:</strong> Somente usuários autenticados têm acesso ao sistema.
+                          </AlertDescription>
+                        </Alert>
+                      ) : (
+                        <Alert variant="default" className="border-yellow-200 bg-yellow-50 text-yellow-900 dark:border-yellow-800 dark:bg-yellow-950 dark:text-yellow-100">
+                          <Lock className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                          <AlertDescription>
+                            <strong>Acesso Restrito:</strong> Apenas usuários com os papéis listados podem acessar este portal.
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                    </div>
+                  )}
+                  {schema.description && schema.type !== 'boolean' && schema.type !== 'array' && (
                     <p className="text-sm text-muted-foreground mt-1">
                       {schema.description}
                     </p>

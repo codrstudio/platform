@@ -7,6 +7,7 @@
     "dependencies": [],
     "version": "1.0.0",
     "enabled": true,
+    "singleInstance": true,
     "metadata": {}
   },
   {
@@ -15,9 +16,21 @@
     "description": "Módulo de autenticação com login/logout",
     "type": "functionality",
     "dependencies": [],
-    "version": "1.0.0",
+    "version": "2.0.0",
     "enabled": true,
-    "metadata": {}
+    "singleInstance": true,
+    "metadata": {
+      "configSchema": {
+        "allowedRoles": {
+          "type": "array",
+          "items": { "type": "string" },
+          "label": "Papéis Permitidos",
+          "description": "Liste os papéis que podem acessar este portal. Deixe vazio para permitir qualquer usuário autenticado.",
+          "ui": "tag-input",
+          "default": []
+        }
+      }
+    }
   },
   {
     "moduleId": "chat",

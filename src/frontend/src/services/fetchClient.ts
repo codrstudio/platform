@@ -3,6 +3,7 @@
 // Implements automatic token injection and refresh on 401
 
 import { authService } from './auth.service';
+import { saveReturnUrl, shouldSkipRedirectSave } from '@/lib/auth-redirect';
 
 /**
  * Request configuration
@@ -122,6 +123,12 @@ class FetchClient {
 
         // Retry original request with new token
         return await this.request(url, { ...config, skipRefresh: true });
+      }
+
+      // Save current URL before redirecting to login
+      const currentPath = window.location.pathname + window.location.search;
+      if (!shouldSkipRedirectSave(window.location.pathname)) {
+        saveReturnUrl(currentPath);
       }
 
       // Refresh failed - clear queue

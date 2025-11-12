@@ -8,6 +8,8 @@ export interface User {
   email?: string;
   roles?: string[];
   permissions?: string[];
+  sub?: string;      // JWT subject (same as userId)
+  guest?: boolean;   // Guest flag from JWT
   [key: string]: unknown;
 }
 

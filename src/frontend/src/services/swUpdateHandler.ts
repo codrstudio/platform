@@ -17,6 +17,7 @@ type UpdateCallback = () => void;
 class SWUpdateHandler {
   private autoReload: boolean;
   private updateAvailableCallbacks: Set<UpdateCallback> = new Set();
+  private skipWaitingRequested: boolean = false;
 
   constructor(autoReload = false) {
     this.autoReload = autoReload;
@@ -33,6 +34,14 @@ class SWUpdateHandler {
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       console.log('[SWUpdate] New service worker activated');
 
+      // Se o usuário clicou em "Atualizar agora", sempre recarrega
+      if (this.skipWaitingRequested) {
+        console.log('[SWUpdate] User-initiated update, forcing reload');
+        this.forceReload();
+        return;
+      }
+
+      // Comportamento padrão baseado em autoReload
       if (this.autoReload) {
         this.forceReload();
       } else {
@@ -128,6 +137,9 @@ class SWUpdateHandler {
     }
 
     console.log('[SWUpdate] Activating waiting service worker');
+
+    // Marca que o skipWaiting foi solicitado pelo usuário
+    this.skipWaitingRequested = true;
 
     // Envia mensagem para o SW em espera pedir skipWaiting
     registration.waiting.postMessage({ type: 'SKIP_WAITING' });

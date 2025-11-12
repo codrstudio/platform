@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,7 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Plus, Settings, Trash2, Layers } from 'lucide-react';
+import { ArrowLeft, Plus, Settings, Trash2, Layers, Info } from 'lucide-react';
 import { usePortal, useInstances, useUpdateInstance, useDeleteInstance, useModule } from '@/hooks/useJQEL';
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 export function InstanceList() {
@@ -117,18 +118,40 @@ export function InstanceList() {
             {portal.name} - {moduleId}
           </p>
         </div>
-        <Button onClick={() => navigate(`/setup/portals/${portalId}/modules/${moduleId}/instances/new`)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nova Instância
-        </Button>
+        {/* SPEC-MS-UI-025: Ocultar botão Nova Instância para módulos single-instance */}
+        {!module?.singleInstance && (
+          <Button onClick={() => navigate(`/setup/portals/${portalId}/modules/${moduleId}/instances/new`)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nova Instância
+          </Button>
+        )}
       </div>
+      {/* SPEC-MS-UI-028: Aviso informativo para módulos single-instance */}
+      {module?.singleInstance && (
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            Este módulo permite apenas UMA instância por portal. A instância é criada automaticamente ao ativar o módulo.
+          </AlertDescription>
+        </Alert>
+      )}
       {/* Info Card */}
       <Card>
         <CardHeader>
           <CardTitle>Sobre Instâncias</CardTitle>
           <CardDescription>
-            Uma instância representa uma configuração específica de um módulo.
-            O mesmo módulo pode ter múltiplas instâncias com configurações diferentes.
+            {module?.singleInstance ? (
+              <>
+                Este é um módulo <strong>single-instance</strong>. Apenas uma instância é permitida por portal,
+                criada automaticamente com o ID "default". Você pode configurar e ativar/desativar a instância,
+                mas não pode criar instâncias adicionais ou remover a instância default.
+              </>
+            ) : (
+              <>
+                Uma instância representa uma configuração específica de um módulo.
+                O mesmo módulo pode ter múltiplas instâncias com configurações diferentes.
+              </>
+            )}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -148,6 +171,13 @@ export function InstanceList() {
                       <Badge variant={instance.active ? 'default' : 'secondary'}>
                         {instance.active ? 'Ativo' : 'Inativo'}
                       </Badge>
+                      {/* SPEC-MS-UI-028: Badge "Instância Única" para módulos single-instance */}
+                      {module?.singleInstance && (
+                        <Badge variant="outline" className="gap-1">
+                          <Layers className="h-3 w-3" />
+                          Instância Única
+                        </Badge>
+                      )}
                     </div>
                     {instance.createdAt && (
                       <CardDescription className="mt-1">
@@ -185,14 +215,17 @@ export function InstanceList() {
                   >
                     {instance.active ? 'Desativar' : 'Ativar'}
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-destructive"
-                    onClick={() => deleteInstance(instance.instanceId)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  {/* SPEC-MS-UI-027: Ocultar botão deletar para instância default de módulo single-instance */}
+                  {!(module?.singleInstance && instance.instanceId === 'default') && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-destructive"
+                      onClick={() => deleteInstance(instance.instanceId)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
             </CardContent>

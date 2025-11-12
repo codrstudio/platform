@@ -20,6 +20,7 @@ export interface ModuleRoute {
 /**
  * Module manifest
  * Defines the metadata and capabilities of a module
+ * SPEC-MO-MA-012: Campo singleInstance para módulos que permitem apenas uma instância por portal
  */
 export interface ModuleManifest {
   id: string; // Module ID (alias for moduleId)
@@ -31,6 +32,7 @@ export interface ModuleManifest {
   category: 'system' | 'business' | 'productivity' | 'communication' | 'core';
   author?: string;
   dependencies: string[];
+  singleInstance?: boolean; // SPEC-MO-IN-014: Se true, módulo permite apenas UMA instância por portal
   capabilities?: {
     providesAuth?: boolean;
     providesRoutes?: boolean;

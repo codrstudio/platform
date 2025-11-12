@@ -1,25 +1,10 @@
 [
   {
-    "instanceId": "main-setup",
-    "portalId": "main",
-    "moduleId": "setup",
-    "config": {},
-    "active": false,
-    "metadata": {}
-  },
-  {
-    "instanceId": "setup-setup",
+    "instanceId": "default",
     "portalId": "setup",
     "moduleId": "setup",
     "config": {},
     "active": true,
     "metadata": {}
-  },
-  {
-    "instanceId": "auth",
-    "portalId": "sandbox",
-    "moduleId": "auth",
-    "config": {},
-    "active": true
   }
 ]

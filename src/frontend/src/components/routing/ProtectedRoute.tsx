@@ -1,11 +1,11 @@
 // Protected Route Component
 // Based on SPEC-authentication.md (SPEC-AU-MA-014 to SPEC-AU-MA-018)
 
-import { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useConfig } from '@/hooks/useConfig';
 import { Loader2 } from 'lucide-react';
+import { saveReturnUrl, shouldSkipRedirectSave } from '@/lib/auth-redirect';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -26,19 +26,12 @@ export function ProtectedRoute({
   children,
   requiredPermission,
 }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { hasModule, isLoading: configLoading } = useConfig();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { hasActiveInstance, getActiveAuthInstance, isLoading: configLoading } = useConfig();
   const location = useLocation();
 
-  // Check if auth module is active in current portal
-  const authModuleActive = hasModule('auth');
-
-  useEffect(() => {
-    // Save return URL when redirecting to login
-    if (!authLoading && !configLoading && authModuleActive && !isAuthenticated) {
-      sessionStorage.setItem('returnUrl', location.pathname + location.search);
-    }
-  }, [authLoading, configLoading, authModuleActive, isAuthenticated, location]);
+  // Check if auth module has at least one active instance in current portal
+  const authModuleActive = hasActiveInstance('auth');
 
   // Show loading state while checking configuration and authentication
   if (authLoading || configLoading) {
@@ -60,8 +53,39 @@ export function ProtectedRoute({
   }
 
   // Auth module is active - require authentication
-  if (!isAuthenticated) {
+  // Guest users cannot access protected routes
+  // Check both: guest flag in JWT payload OR sub starting with "guest_"
+  const isGuest = user?.guest === true || user?.sub?.startsWith('guest_') || false;
+
+  if (!isAuthenticated || isGuest) {
+    // Save return URL before redirecting to login (hybrid approach)
+    // Skip if already on login/logout pages
+    if (!shouldSkipRedirectSave(location.pathname)) {
+      const encodedUrl = saveReturnUrl(location.pathname, location.search);
+      return <Navigate to={`/login?redirect=${encodedUrl}`} replace />;
+    }
+
     return <Navigate to="/login" replace />;
+  }
+
+  // First layer authorization: Check instance roles (admin/configurator level)
+  // If instance has roles configured, user MUST have at least one matching role
+  const authInstance = getActiveAuthInstance();
+
+  if (authInstance?.config?.roles) {
+    const instanceRoles = authInstance.config.roles as string[];
+
+    if (Array.isArray(instanceRoles) && instanceRoles.length > 0) {
+      const userRoles = user?.roles || [];
+      const hasRequiredRole = instanceRoles.some((role: string) =>
+        userRoles.includes(role)
+      );
+
+      if (!hasRequiredRole) {
+        // User doesn't have required role for this portal
+        return <Navigate to="/unauthorized" replace />;
+      }
+    }
   }
 
   // If permission required, verify it (future implementation)
@@ -71,7 +95,7 @@ export function ProtectedRoute({
     console.warn(`Permission check not yet implemented for: ${requiredPermission}`);
   }
 
-  // Render children if authenticated
+  // Render children if authenticated and authorized
   return <>{children}</>;
 }
 

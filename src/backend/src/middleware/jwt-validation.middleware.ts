@@ -12,6 +12,11 @@ export interface JWTPayload {
   exp?: number
   iat?: number
   iss?: string
+  username?: string
+  email?: string
+  roles?: string[]
+  permissions?: string[]
+  [key: string]: unknown
 }
 
 /**

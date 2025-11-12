@@ -4,7 +4,10 @@
     "name": "Portal Principal",
     "description": "Portal principal da plataforma",
     "realmId": "default",
-    "availableModules": [],
+    "availableModules": [
+      "dashboard",
+      "auth"
+    ],
     "activeModules": [],
     "removable": false,
     "metadata": {}
@@ -32,9 +35,7 @@
       "auth",
       "chat"
     ],
-    "activeModules": [
-      "auth"
-    ],
+    "activeModules": [],
     "removable": true
   }
 ]

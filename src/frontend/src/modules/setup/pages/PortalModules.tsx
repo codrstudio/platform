@@ -48,6 +48,7 @@ import { usePortal, useModules, useInstances, useUpdatePortal, type Module as Mo
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 import { ModuleBrowser } from '../components/ModuleBrowser';
 import { toastSuccess, toastError } from '@/lib/toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface ModuleWithStatus extends ModuleType {
   instanceCount: number;
@@ -260,6 +261,7 @@ function UnifiedModuleCard({
 export function PortalModules() {
   const { portalId } = useParams<{ portalId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // UI State
   const [showBrowser, setShowBrowser] = useState(false);
@@ -344,12 +346,8 @@ export function PortalModules() {
       filtered = filtered.filter(m => !m.isActive);
     }
 
-    // Sort: active modules first, then inactive
-    filtered.sort((a, b) => {
-      if (a.isActive && !b.isActive) return -1;
-      if (!a.isActive && b.isActive) return 1;
-      return a.name.localeCompare(b.name);
-    });
+    // Sort: alphabetically by name (fixed order)
+    filtered.sort((a, b) => a.name.localeCompare(b.name));
 
     return filtered;
   }, [allEnrichedModules, searchQuery, typeFilter, statusFilter]);
@@ -433,6 +431,13 @@ export function PortalModules() {
         values: { activeModules: newActiveModules },
         where: { portalId: { $eq: portalId! } },
       });
+
+      // IMPORTANTE: Invalidar cache de instâncias para refletir instâncias criadas automaticamente
+      // (especialmente para módulos single-instance que criam instância "default" automaticamente)
+      queryClient.invalidateQueries({
+        queryKey: ['backend', 'instance'],
+      });
+
       const depCount = missingDeps.length;
       toastSuccess(
         'Módulo ativado',
@@ -460,6 +465,13 @@ export function PortalModules() {
         values: { activeModules: newActiveModules },
         where: { portalId: { $eq: portalId! } },
       });
+
+      // IMPORTANTE: Invalidar cache de instâncias para refletir instâncias removidas automaticamente
+      // (especialmente para módulos single-instance que removem instância "default" automaticamente)
+      queryClient.invalidateQueries({
+        queryKey: ['backend', 'instance'],
+      });
+
       toastSuccess('Módulo desativado', { description: `${module.name} desativado com sucesso` });
       setConfirmDialog({ type: null, module: null });
     } catch (error) {
