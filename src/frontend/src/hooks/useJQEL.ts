@@ -344,43 +344,28 @@ export function useDeleteInstance() {
 
 /**
  * Realm Hooks
- * Realm uses REST API (/api/realms), not JQEL
+ * MIGRATED: Now uses JQEL instead of REST API
  */
-
-const API_BASE_URL = 'http://localhost:3000'
 
 /**
  * Get all realms
  */
 export function useRealms() {
-  return useQuery<JResult<Realm[]>>({
-    queryKey: ['realms'],
-    queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/api/realms`)
-      if (!response.ok) {
-        throw new Error(`Failed to fetch realms: ${response.statusText}`)
-      }
-      return response.json()
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  })
+  return useJQELList<Realm>('backend', 'realm')
 }
 
 /**
  * Get realm by ID
+ * NOTE: Returns Realm[] (array) because JQEL always returns arrays
+ * Access single realm with: realm.data?.[0]
  */
 export function useRealm(realmId: string) {
-  return useQuery<JResult<Realm>>({
-    queryKey: ['realms', realmId],
-    queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/api/realms/${realmId}`)
-      if (!response.ok) {
-        throw new Error(`Failed to fetch realm: ${response.statusText}`)
-      }
-      return response.json()
-    },
+  return useJQELQuery<Realm[]>({
+    schema: 'backend',
+    select: 'realm',
+    where: { realmId: { $eq: realmId } },
+  }, {
     enabled: !!realmId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
   })
 }
 
@@ -388,51 +373,14 @@ export function useRealm(realmId: string) {
  * Create realm
  */
 export function useCreateRealm() {
-  const queryClient = useQueryClient()
-
-  return useMutation<JResult<Realm>, Error, Partial<Realm>>({
-    mutationFn: async (realm) => {
-      const response = await fetch(`${API_BASE_URL}/api/realms`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(realm),
-      })
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Failed to create realm')
-      }
-      return response.json()
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['realms'] })
-    },
-  })
+  return useJQELInsert<Realm>('backend', 'realm')
 }
 
 /**
  * Update realm
  */
 export function useUpdateRealm() {
-  const queryClient = useQueryClient()
-
-  return useMutation<JResult<Realm>, Error, { realmId: string; updates: Partial<Realm> }>({
-    mutationFn: async ({ realmId, updates }) => {
-      const response = await fetch(`${API_BASE_URL}/api/realms/${realmId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      })
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Failed to update realm')
-      }
-      return response.json()
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['realms'] })
-      queryClient.invalidateQueries({ queryKey: ['realms', variables.realmId] })
-    },
-  })
+  return useJQELUpdate<Realm>('backend', 'realm')
 }
 
 /**
@@ -441,20 +389,18 @@ export function useUpdateRealm() {
 export function useDeleteRealm() {
   const queryClient = useQueryClient()
 
-  return useMutation<JResult<null>, Error, string>({
-    mutationFn: async (realmId) => {
-      const response = await fetch(`${API_BASE_URL}/api/realms/${realmId}`, {
-        method: 'DELETE',
-      })
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Failed to delete realm')
-      }
-      return response.json()
+  return useJQELMutation<null, { where: JQELMutateQuery['where'] }>(
+    {
+      schema: 'backend',
+      mutate: 'realm',
+      action: 'delete',
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['realms'] })
-      queryClient.invalidateQueries({ queryKey: ['portals'] }) // Portals may have changed
-    },
-  })
+    {
+      onSuccess: () => {
+        // Invalidate both realms and portals since portals reference realms
+        queryClient.invalidateQueries({ queryKey: ['backend', 'realm'] })
+        queryClient.invalidateQueries({ queryKey: ['backend', 'portal'] })
+      },
+    }
+  )
 }

@@ -20,21 +20,21 @@ export function RealmForm() {
   const updateRealmMutation = useUpdateRealm();
   // Breadcrumb dinâmico
   const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => {
-    const realmName = realmResult?.data?.name || 'Novo Ambiente';
+    const realmName = realmResult?.data?.[0]?.name || 'Novo Ambiente';
     return [
       { label: 'Setup', href: '/setup' },
       { label: 'Ambientes', href: '/setup/realms' },
       { label: isEditing ? realmName : 'Novo Ambiente' }
     ];
-  }, [isEditing, realmResult?.data?.name]);
+  }, [isEditing, realmResult?.data]);
   const [formData, setFormData] = useState({
     realmId: '',
     name: '',
     description: '',
   });
   useEffect(() => {
-    if (isEditing && realmResult?.data) {
-      const realm = realmResult.data;
+    if (isEditing && realmResult?.data?.[0]) {
+      const realm = realmResult.data[0];
       setFormData({
         realmId: realm.realmId,
         name: realm.name,
@@ -47,18 +47,22 @@ export function RealmForm() {
     try {
       if (isEditing) {
         await updateRealmMutation.mutateAsync({
-          realmId: realmId!,
-          updates: {
+          values: {
             name: formData.name,
             description: formData.description,
+          },
+          where: {
+            realmId: { $eq: realmId! },
           },
         });
       } else {
         await createRealmMutation.mutateAsync({
-          realmId: formData.realmId,
-          name: formData.name,
-          description: formData.description,
-          removable: true,
+          values: {
+            realmId: formData.realmId,
+            name: formData.name,
+            description: formData.description,
+            removable: true,
+          },
         });
       }
       navigate('/setup/realms');

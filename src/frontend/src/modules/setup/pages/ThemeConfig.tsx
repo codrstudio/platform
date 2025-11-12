@@ -5,6 +5,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,7 +36,7 @@ export function ThemeConfig() {
   const { data: portalResult, isLoading: portalLoading } = usePortal(portalId || '');
   const portal = portalResult?.data?.[0] || null;
   const { data: realmResult, isLoading: realmLoading } = useRealm(portal?.realmId || '');
-  const realm = realmResult?.data;
+  const realm = realmResult?.data?.[0];
 
   // Breadcrumb dinâmico
   const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => {

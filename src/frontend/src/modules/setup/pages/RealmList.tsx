@@ -64,7 +64,11 @@ export function RealmList() {
 
   const confirmDeleteRealm = async () => {
     try {
-      await deleteRealmMutation.mutateAsync(deleteDialog.realmId);
+      await deleteRealmMutation.mutateAsync({
+        where: {
+          realmId: { $eq: deleteDialog.realmId },
+        },
+      });
       setDeleteDialog({ open: false, realmId: '', realmName: '', portalCount: 0 });
     } catch (error) {
       console.error('Error deleting realm:', error);

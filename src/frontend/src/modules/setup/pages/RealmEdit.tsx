@@ -28,7 +28,7 @@ export function RealmEdit() {
   const { realmId } = useParams<{ realmId: string }>();
   const navigate = useNavigate();
   const { data: realmResult, isLoading: realmLoading } = useRealm(realmId || '');
-  const realm = realmResult?.data;
+  const realm = realmResult?.data?.[0];
   const { data: portalsResult, isLoading: portalsLoading } = usePortals();
   const allPortals = portalsResult?.data || [];
 
