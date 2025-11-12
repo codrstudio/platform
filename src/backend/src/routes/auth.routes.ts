@@ -113,24 +113,37 @@ router.post('/login', async (req: Request, res: Response) => {
       schema,
     });
 
-    // If login successful, set httpOnly cookie for refresh_token (SPEC-AU-ST-005 to SPEC-AU-ST-008)
-    if (response.status === 200 && response.data?.refresh_token) {
-      res.cookie('refresh_token', response.data.refresh_token, {
-        httpOnly: true,                            // SPEC-AU-ST-006: Protect against XSS
-        secure: env.NODE_ENV === 'production',     // SPEC-AU-ST-007: HTTPS only in production
-        sameSite: 'strict',                        // SPEC-AU-ST-008: Protect against CSRF
-        maxAge: 7 * 24 * 60 * 60 * 1000,          // 7 days (SPEC-AU-RF-020)
-        path: '/api/1/auth',                       // Restrict cookie scope
-      });
+    // Unwrap nested n8n response structure
+    // n8n returns: { code: 200, data: { access_token, refresh_token, ... } }
+    const n8nResponse = response.data;
+    const isSuccess = n8nResponse.code === 200 && n8nResponse.data;
+
+    if (isSuccess) {
+      const loginData = n8nResponse.data;
+
+      // Set httpOnly cookie for refresh_token (SPEC-AU-ST-005 to SPEC-AU-ST-008)
+      if (loginData.refresh_token) {
+        res.cookie('refresh_token', loginData.refresh_token, {
+          httpOnly: true,                            // SPEC-AU-ST-006: Protect against XSS
+          secure: env.NODE_ENV === 'production',     // SPEC-AU-ST-007: HTTPS only in production
+          sameSite: 'strict',                        // SPEC-AU-ST-008: Protect against CSRF
+          maxAge: 7 * 24 * 60 * 60 * 1000,          // 7 days (SPEC-AU-RF-020)
+          path: '/api/1/auth',                       // Restrict cookie scope
+        });
+      }
 
       // Remove refresh_token from response body (SPEC-AU-ST-005)
-      const { refresh_token, ...dataWithoutRefreshToken } = response.data;
+      const { refresh_token, ...dataWithoutRefreshToken } = loginData;
 
-      return res.status(response.status || 200).json(dataWithoutRefreshToken);
+      // Return flat structure with string code (frontend expectation)
+      return res.status(200).json({
+        code: '200',
+        ...dataWithoutRefreshToken
+      });
     }
 
-    // Return response from n8n (error or non-200)
-    return res.status(response.status || 200).json(response.data);
+    // Return error response from n8n
+    return res.status(response.status || 400).json(n8nResponse);
   } catch (error: any) {
     return handleN8nError(error, res, 'Internal server error');
   }
@@ -169,23 +182,35 @@ router.post('/refresh', async (req: Request, res: Response) => {
       }
     );
 
-    // If refresh successful, renew httpOnly cookie with new refresh_token
-    if (response.status === 200 && response.data?.refresh_token) {
-      res.cookie('refresh_token', response.data.refresh_token, {
-        httpOnly: true,                            // SPEC-AU-ST-006: Protect against XSS
-        secure: env.NODE_ENV === 'production',     // SPEC-AU-ST-007: HTTPS only in production
-        sameSite: 'strict',                        // SPEC-AU-ST-008: Protect against CSRF
-        maxAge: 7 * 24 * 60 * 60 * 1000,          // 7 days (SPEC-AU-RF-020)
-        path: '/api/1/auth',                       // Restrict cookie scope
-      });
+    // Unwrap nested n8n response structure
+    const n8nResponse = response.data;
+    const isSuccess = n8nResponse.code === 200 && n8nResponse.data;
+
+    if (isSuccess) {
+      const refreshData = n8nResponse.data;
+
+      // Renew httpOnly cookie with new refresh_token
+      if (refreshData.refresh_token) {
+        res.cookie('refresh_token', refreshData.refresh_token, {
+          httpOnly: true,                            // SPEC-AU-ST-006: Protect against XSS
+          secure: env.NODE_ENV === 'production',     // SPEC-AU-ST-007: HTTPS only in production
+          sameSite: 'strict',                        // SPEC-AU-ST-008: Protect against CSRF
+          maxAge: 7 * 24 * 60 * 60 * 1000,          // 7 days (SPEC-AU-RF-020)
+          path: '/api/1/auth',                       // Restrict cookie scope
+        });
+      }
 
       // Remove refresh_token from response body (SPEC-AU-ST-005)
-      const { refresh_token, ...dataWithoutRefreshToken } = response.data;
+      const { refresh_token, ...dataWithoutRefreshToken } = refreshData;
 
-      return res.status(response.status || 200).json(dataWithoutRefreshToken);
+      // Return flat structure with string code
+      return res.status(200).json({
+        code: '200',
+        ...dataWithoutRefreshToken
+      });
     }
 
-    return res.status(response.status || 200).json(response.data);
+    return res.status(response.status || 400).json(n8nResponse);
   } catch (error: any) {
     return handleN8nError(error, res, 'Token refresh failed');
   }

@@ -35,7 +35,10 @@
       "auth",
       "chat"
     ],
-    "activeModules": [],
+    "activeModules": [
+      "chat",
+      "auth"
+    ],
     "removable": true
   }
 ]

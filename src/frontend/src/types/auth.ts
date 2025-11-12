@@ -23,10 +23,11 @@ export interface LoginRequest {
 }
 
 // Login response (SPEC-AU-LI-012 to SPEC-AU-LI-018)
+// Note: refresh_token is stored in httpOnly cookie (SPEC-AU-ST-005)
+// and is not included in the response body for security
 export interface LoginResponse {
   code: string;
   access_token: string;
-  refresh_token: string;
   token_type: string;
   expires_in: number;
   payload: User;
@@ -38,10 +39,11 @@ export interface RefreshRequest {
 }
 
 // Refresh response (SPEC-AU-RF-013 to SPEC-AU-RF-017)
+// Note: refresh_token is stored in httpOnly cookie (SPEC-AU-ST-005)
+// and is not included in the response body for security
 export interface RefreshResponse {
   code: string;
   access_token: string;
-  refresh_token: string;
   token_type: string;
   expires_in: number;
   payload?: User;

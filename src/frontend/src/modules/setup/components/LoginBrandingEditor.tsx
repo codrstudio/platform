@@ -18,10 +18,9 @@ import type { BrandColor } from '@/types/theme';
 import {
   getLoginBranding,
   setLoginBranding,
-  getLoginBrandColor,
   resetLoginBranding,
 } from '@/lib/login-branding';
-import { getStoredBrandColor, applyBrandColor } from '@/lib/theme';
+import { getStoredBrandColor } from '@/lib/theme';
 import { LoginPreview } from './LoginPreview';
 import { BrandColorSelector } from './BrandColorSelector';
 import { LogoUploader } from './LogoUploader';
@@ -56,7 +55,7 @@ export function LoginBrandingEditor({
   const [hasChanges, setHasChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Cor do tema (para exibição)
+  // Cor do tema (apenas para exibição no selector)
   const themeColor = getStoredBrandColor(realmId, portalId);
 
   // Sincroniza mudanças
@@ -69,20 +68,14 @@ export function LoginBrandingEditor({
   // Handlers
   const handleConfigChange = (updated: LoginBrandingConfig) => {
     setConfig(updated);
-
-    // Aplica brand color em tempo real para preview
-    const brandColor = updated.useBrandColorFromTheme
-      ? themeColor
-      : updated.brandColorOverride || themeColor;
-
-    applyBrandColor(brandColor);
+    // LoginThemeProvider aplica a cor automaticamente no preview
   };
 
   const handleBrandColorModeChange = (useTheme: boolean) => {
     handleConfigChange({
       ...config,
       useBrandColorFromTheme: useTheme,
-      brandColorOverride: useTheme ? null : config.brandColorOverride || themeColor,
+      brandColorOverride: useTheme ? null : config.brandColorOverride,
     });
   };
 
@@ -175,7 +168,12 @@ export function LoginBrandingEditor({
           {/* Preview Panel */}
           <ResizablePanel defaultSize={60} minSize={40}>
             <div className="h-full overflow-auto">
-              <LoginPreview config={config} onChange={handleConfigChange} />
+              <LoginPreview
+                config={config}
+                realmId={realmId}
+                portalId={portalId}
+                onChange={handleConfigChange}
+              />
             </div>
           </ResizablePanel>
 

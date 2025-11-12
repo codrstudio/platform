@@ -7,7 +7,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLoginBranding } from '@/hooks/useLoginBranding';
+import { LoginThemeProvider } from '@/contexts/LoginThemeContext';
+import { getLoginBranding } from '@/lib/login-branding';
 import { getReturnUrl } from '@/lib/auth-redirect';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,7 +33,7 @@ export function LoginPage() {
   const { login, isAuthenticated, isLoading: authLoading } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { config: brandingConfig } = useLoginBranding('default');
+  const brandingConfig = getLoginBranding('default');
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -96,8 +97,9 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
-      <div className="w-full max-w-md space-y-8">
+    <LoginThemeProvider config={brandingConfig} realmId="default">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+        <div className="w-full max-w-md space-y-8">
         {/* Logo and Header */}
         <div className="text-center space-y-2">
           <div className="flex justify-center">
@@ -234,5 +236,6 @@ export function LoginPage() {
         </p>
       </div>
     </div>
+    </LoginThemeProvider>
   );
 }

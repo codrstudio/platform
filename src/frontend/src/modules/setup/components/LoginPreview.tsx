@@ -9,11 +9,18 @@ import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Eye, EyeOff, Palette, Upload, Type } from 'lucide-react';
 import type { LoginBrandingConfig } from '@/types/login-branding';
+import { LoginThemeProvider } from '@/contexts/LoginThemeContext';
 import { cn } from '@/lib/utils';
 
 interface LoginPreviewProps {
   /** Configuração de branding */
   config: LoginBrandingConfig;
+
+  /** ID do realm (para resolver brand color) */
+  realmId: string;
+
+  /** ID do portal (opcional, para resolver brand color) */
+  portalId?: string;
 
   /** Callback quando configuração muda */
   onChange?: (config: LoginBrandingConfig) => void;
@@ -31,6 +38,8 @@ interface LoginPreviewProps {
  */
 export function LoginPreview({
   config,
+  realmId,
+  portalId,
   onChange,
   readonly = false,
   className,
@@ -69,7 +78,8 @@ export function LoginPreview({
     : 'cursor-pointer hover:border-dashed hover:border-2 hover:border-primary/50 hover:bg-muted/20 transition-all rounded-md px-2 py-1';
 
   return (
-    <div className={cn('min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 relative', className)}>
+    <LoginThemeProvider config={config} realmId={realmId} portalId={portalId}>
+      <div className={cn('min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 relative', className)}>
       {/* Badge Preview Mode */}
       {!readonly && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
@@ -309,5 +319,6 @@ export function LoginPreview({
         </Popover>
       </div>
     </div>
+    </LoginThemeProvider>
   );
 }
