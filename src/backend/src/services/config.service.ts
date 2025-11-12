@@ -4,8 +4,8 @@
 import fs from 'fs/promises'
 import path from 'path'
 import { existsSync } from 'fs'
-import { RealmSchema, PortalSchema, ModuleSchema, InstanceSchema } from '../types/config.types.js'
-import type { Realm, Portal, Module, Instance, ConfigType, ConfigData } from '../types/config.types.js'
+import { RealmSchema, PortalSchema, ModuleSchema, InstanceSchema, LoginBrandingSchema } from '../types/config.types.js'
+import type { Realm, Portal, Module, Instance, LoginBranding, ConfigType, ConfigData } from '../types/config.types.js'
 
 /**
  * Configuration Service
@@ -193,14 +193,15 @@ class ConfigService {
       return this.cache
     }
 
-    const [realms, portals, modules, instances] = await Promise.all([
+    const [realms, portals, modules, instances, loginBranding] = await Promise.all([
       this.loadRealms(),
       this.loadFile<Portal>('portals', PortalSchema),
       this.loadFile<Module>('modules', ModuleSchema),
       this.loadFile<Instance>('instances', InstanceSchema),
+      this.loadLoginBranding(),
     ])
 
-    this.cache = { realms, portals, modules, instances }
+    this.cache = { realms, portals, modules, instances, loginBranding }
     return this.cache
   }
 
@@ -427,6 +428,120 @@ class ConfigService {
    */
   async setRealmConfig(realmId: string, config: Realm['config']): Promise<void> {
     await this.updateRealm(realmId, { config })
+  }
+
+  // ============================================================
+  // LOGIN BRANDING METHODS
+  // ============================================================
+
+  /**
+   * Load login branding from file
+   * Stored as object: { "default": {...}, "realm2": {...} }
+   */
+  private async loadLoginBranding(): Promise<LoginBranding[]> {
+    const filePath = this.getFilePath('login-branding')
+
+    try {
+      if (!existsSync(filePath)) {
+        // Return empty array if file doesn't exist
+        return []
+      }
+
+      const content = await fs.readFile(filePath, 'utf-8')
+      const data = JSON.parse(content)
+
+      // Convert object to array
+      const brandingArray = Object.entries(data).map(([realmId, config]) => ({
+        realmId,
+        ...(config as any),
+      }))
+
+      // Validate with Zod schema
+      const validated = brandingArray.map((item: unknown) => LoginBrandingSchema.parse(item))
+      return validated
+    } catch (error) {
+      console.error('Error loading login-branding config:', error)
+      return []
+    }
+  }
+
+  /**
+   * Save login branding to file
+   * Convert array back to object format for storage
+   */
+  private async saveLoginBranding(loginBranding: LoginBranding[]): Promise<void> {
+    await this.ensureConfigDir()
+
+    const filePath = this.getFilePath('login-branding')
+
+    try {
+      // Convert array to object: { "default": {...}, ... }
+      const brandingObj = loginBranding.reduce(
+        (acc, branding) => {
+          const { realmId, ...config } = branding
+          acc[realmId] = config
+          return acc
+        },
+        {} as Record<string, any>
+      )
+
+      const content = JSON.stringify(brandingObj, null, 2)
+      await fs.writeFile(filePath, content, 'utf-8')
+
+      // Invalidate cache
+      this.cache = null
+    } catch (error) {
+      console.error('Error saving login-branding config:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Get all login branding configs
+   */
+  async getLoginBranding(): Promise<LoginBranding[]> {
+    const config = await this.loadAll()
+    return config.loginBranding
+  }
+
+  /**
+   * Get login branding by realm ID
+   */
+  async getLoginBrandingByRealm(realmId: string): Promise<LoginBranding | null> {
+    const brandings = await this.getLoginBranding()
+    return brandings.find((b) => b.realmId === realmId) || null
+  }
+
+  /**
+   * Save login branding for a realm
+   */
+  async saveLoginBrandingForRealm(realmId: string, branding: Omit<LoginBranding, 'realmId'>): Promise<void> {
+    const brandings = await this.getLoginBranding()
+    const index = brandings.findIndex((b) => b.realmId === realmId)
+
+    const newBranding: LoginBranding = {
+      realmId,
+      ...branding,
+    }
+
+    if (index === -1) {
+      // Insert new
+      brandings.push(newBranding)
+    } else {
+      // Update existing
+      brandings[index] = newBranding
+    }
+
+    await this.saveLoginBranding(brandings)
+  }
+
+  /**
+   * Delete login branding for a realm
+   */
+  async deleteLoginBrandingForRealm(realmId: string): Promise<void> {
+    const brandings = await this.getLoginBranding()
+    const filtered = brandings.filter((b) => b.realmId !== realmId)
+    await this.saveLoginBranding(filtered)
   }
 }
 

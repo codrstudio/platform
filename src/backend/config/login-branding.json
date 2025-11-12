@@ -1,0 +1,13 @@
+{
+  "default": {
+    "useBrandColorFromTheme": true,
+    "brandColorOverride": null,
+    "logoUrl": null,
+    "logoHeight": 64,
+    "texts": {
+      "title": "Bem-vindo de volta",
+      "subtitle": "Entre com suas credenciais",
+      "footer": "Plataforma Modular v1.0"
+    }
+  }
+}

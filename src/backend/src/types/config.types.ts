@@ -49,6 +49,7 @@ export type Portal = z.infer<typeof PortalSchema>
 /**
  * Module Configuration Schema
  * SPEC-C-M-001 to SPEC-C-M-013
+ * SPEC-MO-MA-012: Campo instanceMode (single ou multiple)
  */
 export const ModuleSchema = z.object({
   moduleId: z.string().min(1),
@@ -58,6 +59,7 @@ export const ModuleSchema = z.object({
   dependencies: z.array(z.string()).default([]),
   version: z.string().default('1.0.0'),
   enabled: z.boolean().default(true),
+  singleInstance: z.boolean().optional(), // SPEC-MO-IN-014: Módulo single-instance permite apenas UMA instância por portal
   metadata: z.record(z.string(), z.unknown()).optional(),
 })
 
@@ -79,9 +81,32 @@ export const InstanceSchema = z.object({
 export type Instance = z.infer<typeof InstanceSchema>
 
 /**
+ * Login Branding Configuration Schema
+ * Customização da página de login por realm
+ */
+export const LoginBrandingSchema = z.object({
+  realmId: z.string().min(1),
+  useBrandColorFromTheme: z.boolean().default(true),
+  brandColorOverride: z.object({
+    hue: z.number().min(0).max(360),
+    saturation: z.number().min(0).max(100),
+    lightness: z.number().min(0).max(100),
+  }).nullable(),
+  logoUrl: z.string().nullable(),
+  logoHeight: z.number().min(40).max(120).default(64),
+  texts: z.object({
+    title: z.string().max(100),
+    subtitle: z.string().max(100),
+    footer: z.string().max(100),
+  }),
+})
+
+export type LoginBranding = z.infer<typeof LoginBrandingSchema>
+
+/**
  * Config Type Union
  */
-export type ConfigType = 'realms' | 'portals' | 'modules' | 'instances'
+export type ConfigType = 'realms' | 'portals' | 'modules' | 'instances' | 'login-branding'
 
 /**
  * Config Data Structure
@@ -91,4 +116,5 @@ export interface ConfigData {
   portals: Portal[]
   modules: Module[]
   instances: Instance[]
+  loginBranding: LoginBranding[]
 }
