@@ -1,9 +1,9 @@
 {
-  "updatedAt": "2025-10-31T13:19:28.000Z",
-  "createdAt": "2025-10-30T02:04:24.305Z",
-  "id": "DOs7pbycAZBQfLGK",
+  "updatedAt": "2025-11-09T13:08:14.000Z",
+  "createdAt": "2025-11-09T13:08:14.082Z",
+  "id": "Lvfrmv37t0F7ZO32",
   "name": "chat",
-  "active": true,
+  "active": false,
   "isArchived": false,
   "nodes": [
     {
@@ -13,10 +13,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        832,
-        224
+        1408,
+        880
       ],
-      "id": "ff120a72-7669-4150-bb6f-e420a1b28ae7",
+      "id": "01b98e4d-4199-4307-b262-5210d65accbd",
       "name": "Transform to chatInput"
     },
     {
@@ -30,10 +30,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2.2,
       "position": [
-        1056,
-        320
+        1632,
+        976
       ],
-      "id": "8fd41cf8-291c-4d29-920b-21f587cc0159",
+      "id": "5b695ffc-0a9b-40f0-9c78-1531716fb590",
       "name": "AI Agent"
     },
     {
@@ -43,10 +43,10 @@
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
       "typeVersion": 1.3,
       "position": [
-        832,
-        416
+        1408,
+        1072
       ],
-      "id": "6c2dd5fa-1be1-4b96-9c4f-f67ffdccd659",
+      "id": "bba03ede-77d7-4103-a3ae-fb37906ec7d0",
       "name": "When chat message received",
       "webhookId": "08074ade-5ac6-47b9-baaa-c9eb4e8e47b9"
     },
@@ -58,17 +58,11 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        976,
-        544
+        1552,
+        1200
       ],
-      "id": "343c8e1e-55f9-4bf5-92ab-864b35118260",
-      "name": "Groq",
-      "credentials": {
-        "groqApi": {
-          "id": "nyyfKznEjXd5UWUn",
-          "name": "cia-cuidadores"
-        }
-      }
+      "id": "7016993f-f09a-483a-9a48-ab9f15b68d7e",
+      "name": "Groq"
     },
     {
       "parameters": {
@@ -83,17 +77,11 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
       "typeVersion": 1.3,
       "position": [
-        1104,
-        544
+        1680,
+        1200
       ],
-      "id": "ea5668b4-7010-40ee-91a6-a6ce3755bb5b",
-      "name": "Anthropic",
-      "credentials": {
-        "anthropicApi": {
-          "id": "UG8q7UM90YsbC6Zn",
-          "name": "Guga Coder Claude Account"
-        }
-      }
+      "id": "4210d106-8076-4784-99d3-146a4cc2b845",
+      "name": "Anthropic"
     },
     {
       "parameters": {
@@ -104,10 +92,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        608,
-        -80
+        1184,
+        576
       ],
-      "id": "9060f037-d0c8-4fbc-a0ae-2e92bd0a9eff",
+      "id": "7ec8281d-402b-4482-9933-b64775c51f51",
       "name": "api/1/models",
       "webhookId": "models-webhook-id-123456"
     },
@@ -120,27 +108,27 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        608,
-        -288
+        1184,
+        368
       ],
-      "id": "2d29f08a-f454-4e57-b212-fe9a8b03fd17",
+      "id": "8f275e5e-f8b1-49e6-98a9-52577126ca3d",
       "name": "api/1/agents",
       "webhookId": "0602971c-f5da-4992-913e-8b723ecc84ec"
     },
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "api/1/chats/completion",
+        "path": "api/1/agents/completion",
         "responseMode": "streaming",
         "options": {}
       },
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        608,
-        304
+        1184,
+        960
       ],
-      "id": "198b1a72-fde7-430f-b338-e46670fc261e",
+      "id": "de23000f-9feb-4eaf-b3aa-b707eef7b87b",
       "name": "api/1/agents/completion",
       "webhookId": "0602971c-f5da-4992-913e-8b723ecc84ec"
     },
@@ -153,10 +141,10 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        832,
-        -288
+        1408,
+        368
       ],
-      "id": "4fb43f13-67f6-4612-bed3-cfdcf2857127",
+      "id": "14278df1-ee26-4f0e-a68a-d5e326a9a38e",
       "name": "result agents"
     },
     {
@@ -168,10 +156,10 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        832,
-        -80
+        1408,
+        576
       ],
-      "id": "267b73b1-14a8-43f9-bc4d-c63ed6627f1a",
+      "id": "4ad76dca-bffc-48a6-926d-867590253aa9",
       "name": "result models"
     },
     {
@@ -184,10 +172,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        608,
-        128
+        1184,
+        784
       ],
-      "id": "164cb54c-6502-4b0a-99fd-38c760c71c36",
+      "id": "5b5f22d1-8056-40ca-b45a-df761c5f9501",
       "name": "api/1/chat/completion",
       "webhookId": "0602971c-f5da-4992-913e-8b723ecc84ec"
     },
@@ -199,11 +187,11 @@
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        -384,
-        -704
+        192,
+        -48
       ],
       "typeVersion": 1,
-      "id": "e3f3289f-5833-44b2-b923-3077abd096ae",
+      "id": "6aa12937-4f7f-40b2-b402-bf597d3941b3",
       "name": "Sticky Note"
     },
     {
@@ -214,11 +202,11 @@
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        544,
-        -704
+        1120,
+        -48
       ],
       "typeVersion": 1,
-      "id": "6bc2ad1e-640f-48e5-9c33-4ee9f21d7a75",
+      "id": "22870dc9-10ff-4f4f-af13-20d2abdd6957",
       "name": "Sticky Note1"
     },
     {
@@ -227,11 +215,11 @@
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        1232,
-        -432
+        1808,
+        224
       ],
       "typeVersion": 1,
-      "id": "49dee1fa-1202-466b-8213-ab0651041808",
+      "id": "28b6bee8-8ba4-4856-a884-b58211037c9e",
       "name": "Sticky Note2"
     }
   ],
@@ -329,63 +317,55 @@
     "executionOrder": "v1"
   },
   "staticData": null,
-  "meta": {
-    "templateCredsSetupCompleted": true
-  },
+  "meta": null,
   "pinData": {},
-  "versionId": "1b78cc07-5260-4e58-aa18-1cbada23d50c",
-  "triggerCount": 5,
+  "versionId": "ddb039bc-850c-47f7-a16c-a94ee4b24f26",
+  "versionCounter": 2,
+  "triggerCount": 0,
   "shared": [
     {
-      "updatedAt": "2025-10-30T02:04:24.314Z",
-      "createdAt": "2025-10-30T02:04:24.314Z",
+      "updatedAt": "2025-11-09T13:08:14.087Z",
+      "createdAt": "2025-11-09T13:08:14.087Z",
       "role": "workflow:owner",
-      "workflowId": "DOs7pbycAZBQfLGK",
-      "projectId": "IA9oo7szBC1GndRN",
+      "workflowId": "Lvfrmv37t0F7ZO32",
+      "projectId": "4HIAFr0a4MdDRfFg",
       "project": {
-        "updatedAt": "2025-10-05T13:15:53.136Z",
-        "createdAt": "2025-10-05T13:15:26.895Z",
-        "id": "IA9oo7szBC1GndRN",
+        "updatedAt": "2025-11-09T02:45:34.419Z",
+        "createdAt": "2025-11-09T02:42:59.126Z",
+        "id": "4HIAFr0a4MdDRfFg",
         "name": "Guga Coder <guga.coder@gmail.com>",
         "type": "personal",
         "icon": null,
         "description": null,
         "projectRelations": [
           {
-            "updatedAt": "2025-10-05T13:15:26.896Z",
-            "createdAt": "2025-10-05T13:15:26.896Z",
-            "userId": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
-            "projectId": "IA9oo7szBC1GndRN",
+            "updatedAt": "2025-11-09T02:42:59.126Z",
+            "createdAt": "2025-11-09T02:42:59.126Z",
+            "userId": "2fdb8036-aeb3-4e4d-bf53-0c7101fc944d",
+            "projectId": "4HIAFr0a4MdDRfFg",
             "user": {
-              "updatedAt": "2025-11-02T04:56:15.000Z",
-              "createdAt": "2025-10-05T13:15:26.419Z",
-              "id": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+              "updatedAt": "2025-11-11T05:12:17.000Z",
+              "createdAt": "2025-11-09T02:42:58.515Z",
+              "id": "2fdb8036-aeb3-4e4d-bf53-0c7101fc944d",
               "email": "guga.coder@gmail.com",
               "firstName": "Guga",
               "lastName": "Coder",
               "personalizationAnswers": {
                 "version": "v4",
-                "personalization_survey_submitted_at": "2025-10-05T13:16:06.256Z",
-                "personalization_survey_n8n_version": "1.107.3",
+                "personalization_survey_submitted_at": "2025-11-09T02:45:56.042Z",
+                "personalization_survey_n8n_version": "1.118.2",
                 "companySize": "<20",
                 "companyType": "saas",
                 "role": "business-owner",
-                "reportedSource": "other",
-                "reportedSourceOther": "KeepNomad"
+                "reportedSource": "friend"
               },
               "settings": {
-                "userActivated": true,
-                "firstSuccessfulWorkflowId": "vW3Gx7OZdi98Dfao",
-                "userActivatedAt": 1759671855172,
-                "easyAIWorkflowOnboarded": true,
-                "npsSurvey": {
-                  "responded": true,
-                  "lastShownAt": 1761574956378
-                }
+                "userActivated": false,
+                "easyAIWorkflowOnboarded": true
               },
               "disabled": false,
               "mfaEnabled": false,
-              "lastActiveAt": "2025-11-02",
+              "lastActiveAt": "2025-11-11",
               "isPending": false
             }
           }

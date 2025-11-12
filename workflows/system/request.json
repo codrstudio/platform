@@ -1,9 +1,9 @@
 {
-  "updatedAt": "2025-11-01T02:10:01.000Z",
-  "createdAt": "2025-10-31T19:18:33.669Z",
-  "id": "ZgP84jIkJI1kNpRI",
+  "updatedAt": "2025-11-09T13:08:55.000Z",
+  "createdAt": "2025-11-09T13:08:51.091Z",
+  "id": "ATVrPjDWQ9D2dvHo",
   "name": "request",
-  "active": true,
+  "active": false,
   "isArchived": false,
   "nodes": [
     {
@@ -16,10 +16,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -560,
-        464
+        -624,
+        1728
       ],
-      "id": "c63d2e57-c838-495d-84bc-267e90a6199f",
+      "id": "cfcba4e8-5c0e-4c16-8de8-2933d8c7fb9a",
       "name": "Webhook",
       "webhookId": "fe5b7da7-4d55-4709-bac7-73baeea8f81e"
     },
@@ -38,10 +38,10 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1,
       "position": [
-        112,
-        464
+        272,
+        1728
       ],
-      "id": "233943cd-8c50-45fc-a451-8cdcbb220e35",
+      "id": "93662059-c087-4e83-a271-ea8b2a550a59",
       "name": "permission"
     },
     {
@@ -67,10 +67,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        336,
-        272
+        496,
+        1536
       ],
-      "id": "66f72df1-36fe-4e06-93ac-ff927284d2e3",
+      "id": "8c896e11-1ea9-4f9f-ae72-aefd7cf065f1",
       "name": "role projection"
     },
     {
@@ -96,10 +96,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        336,
-        464
+        496,
+        1728
       ],
-      "id": "a6819c22-fa1f-41b3-be82-2cd8613faf08",
+      "id": "6e972cad-7800-467d-89a5-36fd50cf7378",
       "name": "permission projection"
     },
     {
@@ -109,10 +109,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        560,
-        272
+        720,
+        1536
       ],
-      "id": "2808bf5b-e853-4a07-88b0-abf85273a21f",
+      "id": "773cc369-5e41-4d23-a9c2-ac63b10dc467",
       "name": "role result"
     },
     {
@@ -122,23 +122,21 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        560,
-        464
+        720,
+        1728
       ],
-      "id": "7a59c77f-abd2-4532-9af2-6bca1a14015c",
+      "id": "fb380968-b11f-4279-b708-bec95b1ca185",
       "name": "permission result"
     },
     {
-      "parameters": {
-        "jsCode": "return {\n  \"code\": 200,\n  \"data\": [\n    {\n      \"name\": \"select.entity\",\n      \"schema\": \"platform\",\n      \"operation\": \"select\",\n      \"entity\": \"entity\",\n      \"returns\": {\n        \"type\": \"array\",\n        \"items\": {\n          \"ref\": \"entity\"\n        }\n      }\n    },\n    {\n      \"name\": \"select.action\",\n      \"schema\": \"platform\",\n      \"operation\": \"select\",\n      \"entity\": \"action\",\n      \"returns\": {\n        \"type\": \"array\",\n        \"items\": {\n          \"ref\": \"action\"\n        }\n      }\n    },\n    {\n      \"name\": \"select.role\",\n      \"schema\": \"cia\",\n      \"operation\": \"select\",\n      \"entity\": \"role\",\n      \"supports\": {\n        \"limit\": true\n      },\n      \"returns\": {\n        \"type\": \"array\",\n        \"items\": {\n          \"ref\": \"role\"\n        }\n      }\n    },\n    {\n      \"name\": \"select.permission\",\n      \"schema\": \"cia\",\n      \"operation\": \"select\",\n      \"entity\": \"permission\",\n      \"supports\": {\n        \"limit\": true\n      },\n      \"returns\": {\n        \"type\": \"array\",\n        \"items\": {\n          \"ref\": \"permission\"\n        }\n      }\n    }\n  ]\n}"
-      },
+      "parameters": {},
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        112,
-        -112
+        496,
+        544
       ],
-      "id": "1ede1f38-4218-4d1b-a3c2-7bf248d77eee",
+      "id": "fe6d2e80-5111-4ccf-984a-528c5ab9c7ab",
       "name": "action"
     },
     {
@@ -156,10 +154,10 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1,
       "position": [
-        112,
-        272
+        272,
+        1536
       ],
-      "id": "6b0d8142-8449-4047-9a1e-f5e5dc020406",
+      "id": "6aa62aaa-1e6e-4fde-8ad8-49db3e2e938c",
       "name": "role"
     },
     {
@@ -177,7 +175,7 @@
                 "conditions": [
                   {
                     "id": "ac57971d-ec98-446c-9b9d-1bd161eaecd9",
-                    "leftValue": "={{ $json.body.schema }}",
+                    "leftValue": "={{ $json.query.schema }}",
                     "rightValue": "platform",
                     "operator": {
                       "type": "string",
@@ -202,7 +200,7 @@
                 "conditions": [
                   {
                     "id": "6658478b-ba24-4ac4-a261-e5ff09b13169",
-                    "leftValue": "={{ $json.body.schema }}",
+                    "leftValue": "={{ $json.query.schema }}",
                     "rightValue": "=cia",
                     "operator": {
                       "type": "string",
@@ -225,10 +223,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.3,
       "position": [
-        -336,
-        448
+        -176,
+        1712
       ],
-      "id": "57283257-a13e-4f67-a04b-aaf2c9bcc240",
+      "id": "e442d3a4-71c1-450f-bcad-efb8dcb2241e",
       "name": "switch schema"
     },
     {
@@ -246,7 +244,7 @@
                 "conditions": [
                   {
                     "id": "4ed427c2-af6c-43d9-af36-129a3d1a5e01",
-                    "leftValue": "={{ $json.body.select }}",
+                    "leftValue": "={{ $json.query.select }}",
                     "rightValue": "schema",
                     "operator": {
                       "type": "string",
@@ -271,7 +269,7 @@
                 "conditions": [
                   {
                     "id": "6658478b-ba24-4ac4-a261-e5ff09b13169",
-                    "leftValue": "={{ $json.body.select }}",
+                    "leftValue": "={{ $json.query.select }}",
                     "rightValue": "=entity",
                     "operator": {
                       "type": "string",
@@ -296,7 +294,7 @@
                 "conditions": [
                   {
                     "id": "ac57971d-ec98-446c-9b9d-1bd161eaecd9",
-                    "leftValue": "={{ $json.body.select }}",
+                    "leftValue": "={{ $json.query.select }}",
                     "rightValue": "action",
                     "operator": {
                       "type": "string",
@@ -309,6 +307,31 @@
               },
               "renameOutput": true,
               "outputKey": "action"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a98e962f-8fc4-472f-8fad-1a5d021a0bbd",
+                    "leftValue": "={{ $json.query.select }}",
+                    "rightValue": "datatable",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "datatable"
             }
           ]
         },
@@ -319,10 +342,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.3,
       "position": [
-        -112,
-        -336
+        48,
+        432
       ],
-      "id": "ade55aff-f2c5-400a-a314-00b50ac12625",
+      "id": "6a6e7b0b-c7a7-47dd-9901-72539767c488",
       "name": "switch platform entity"
     },
     {
@@ -339,7 +362,7 @@
                 },
                 "conditions": [
                   {
-                    "leftValue": "={{ $json.body.select }}",
+                    "leftValue": "={{ $json.query.select }}",
                     "rightValue": "role",
                     "operator": {
                       "type": "string",
@@ -364,7 +387,7 @@
                 "conditions": [
                   {
                     "id": "5bef7504-ad4b-483d-ba87-b3ccbd964527",
-                    "leftValue": "={{ $json.body.select }}",
+                    "leftValue": "={{ $json.query.select }}",
                     "rightValue": "permission",
                     "operator": {
                       "type": "string",
@@ -387,10 +410,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.3,
       "position": [
-        -112,
-        448
+        48,
+        1712
       ],
-      "id": "0d1bcc5f-ab32-4912-a5e6-0326cee2dbdd",
+      "id": "69451971-a04f-44a2-9acf-5400011e04e3",
       "name": "switch cia entity"
     },
     {
@@ -416,10 +439,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -112,
-        672
+        48,
+        1936
       ],
-      "id": "756e7d90-324a-488e-88e1-55a749f7034c",
+      "id": "7bd55a53-3a98-41fd-acf4-f3e0eee86d31",
       "name": "bad schema request"
     },
     {
@@ -445,10 +468,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        112,
-        80
+        272,
+        1344
       ],
-      "id": "39fc8676-2831-4dbe-be21-af222408a5b2",
+      "id": "da31d3dc-621e-43a5-bd2c-65a058a25822",
       "name": "bad platform request"
     },
     {
@@ -460,17 +483,11 @@
       "type": "n8n-nodes-base.mySql",
       "typeVersion": 2.5,
       "position": [
-        112,
-        -496
+        272,
+        384
       ],
-      "id": "75b0983b-2953-49a2-ac5d-2a7b27584adb",
-      "name": "database entity",
-      "credentials": {
-        "mySql": {
-          "id": "RPrzQQHhCIwyA9UK",
-          "name": "mysql-homologacao"
-        }
-      }
+      "id": "d8e560d1-bd86-4061-b98b-22a5d20bf61f",
+      "name": "database entity"
     },
     {
       "parameters": {
@@ -479,37 +496,24 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        112,
-        -688
+        272,
+        0
       ],
-      "id": "5961d5b7-bcb6-4006-b5c0-94a57e096f1c",
+      "id": "7c0bd75c-db69-4345-bf2e-075622b1ecfd",
       "name": "schema"
     },
     {
       "parameters": {
-        "jsCode": "return [\n  {\n    \"name\": \"entity\",\n    \"schema\": \"platform\",\n    \"properties\": {\n      \"name\": {\n        \"type\": \"string\",\n        \"description\": \"Nome único da entidade no schema\"\n      },\n      \"schema\": {\n        \"type\": \"string\",\n        \"description\": \"Schema ao qual a entidade pertence\"\n      },\n      \"properties\": {\n        \"type\": \"object\",\n        \"description\": \"Definição dos campos da entidade (JSON Schema standard)\"\n      },\n      \"required\": {\n        \"type\": \"array\",\n        \"items\": {\n          \"type\": \"string\"\n        },\n        \"description\": \"Lista de campos obrigatórios\"\n      }\n    },\n    \"required\": [\"name\", \"schema\", \"properties\"]\n  },\n  {\n    \"name\": \"action\",\n    \"schema\": \"platform\",\n    \"properties\": {\n      \"name\": {\n        \"type\": \"string\",\n        \"description\": \"Nome único da action (formato: operation.entity[.action])\"\n      },\n      \"schema\": {\n        \"type\": \"string\",\n        \"description\": \"Schema ao qual a action pertence\"\n      },\n      \"operation\": {\n        \"type\": \"string\",\n        \"enum\": [\"select\", \"mutate\"],\n        \"description\": \"Tipo de operação\"\n      },\n      \"entity\": {\n        \"type\": \"string\",\n        \"description\": \"Nome da entidade alvo\"\n      },\n      \"action\": {\n        \"type\": \"string\",\n        \"description\": \"Ação específica para mutate (ex: insert, update, delete)\"\n      },\n      \"supports\": {\n        \"type\": \"object\",\n        \"description\": \"Capacidades JQEL suportadas\",\n        \"properties\": {\n          \"limit\": {\n            \"type\": \"boolean\",\n            \"description\": \"Suporte a limitação de registros\"\n          },\n          \"orderBy\": {\n            \"oneOf\": [\n              { \"type\": \"boolean\" },\n              { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n            ],\n            \"description\": \"Suporte a ordenação (true = todos os campos, array = campos específicos)\"\n          },\n          \"output\": {\n            \"oneOf\": [\n              { \"type\": \"boolean\" },\n              { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n            ],\n            \"description\": \"Suporte a projeção de inclusão\"\n          },\n          \"except\": {\n            \"oneOf\": [\n              { \"type\": \"boolean\" },\n              { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n            ],\n            \"description\": \"Suporte a projeção de exclusão\"\n          },\n          \"values\": {\n            \"oneOf\": [\n              { \"type\": \"boolean\" },\n              { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n            ],\n            \"description\": \"Campos que podem ser modificados (mutate)\"\n          }\n        }\n      },\n      \"returns\": {\n        \"type\": \"object\",\n        \"description\": \"Tipo de retorno da action\",\n        \"properties\": {\n          \"type\": {\n            \"type\": \"string\",\n            \"enum\": [\"array\", \"object\"],\n            \"description\": \"Tipo base do retorno\"\n          },\n          \"items\": {\n            \"type\": \"object\",\n            \"description\": \"Definição dos itens do array\",\n            \"properties\": {\n              \"ref\": {\n                \"type\": \"string\",\n                \"description\": \"Referência à entidade (formato: entity ou schema:entity)\"\n              }\n            }\n          },\n          \"properties\": {\n            \"type\": \"object\",\n            \"description\": \"Propriedades do objeto retornado (quando não é referência)\"\n          }\n        }\n      }\n    },\n    \"required\": [\"name\", \"schema\", \"operation\", \"entity\", \"returns\"]\n  },\n  {\n    \"name\": \"role\",\n    \"schema\": \"cia\",\n    \"properties\": {\n      \"id\": {\n        \"type\": \"integer\",\n        \"description\": \"Identificador único da função\"\n      },\n      \"role\": {\n        \"type\": \"string\",\n        \"description\": \"Nome legível da função\"\n      }\n    },\n    \"required\": [\"id\", \"role\"]\n  },\n  {\n    \"name\": \"permission\",\n    \"schema\": \"cia\",\n    \"properties\": {\n      \"role_id\": {\n        \"type\": \"integer\",\n        \"description\": \"Identificador que referencia o id da função\"\n      },\n      \"permission\": {\n        \"type\": \"string\",\n        \"description\": \"Permissão concedida; pode ser '*' para acesso total\"\n      }\n    },\n    \"required\": [\"role_id\", \"permission\"]\n  }\n]"
+        "jsCode": "return [\n  {\n    \"name\": \"entity\",\n    \"schema\": \"platform\",\n    \"properties\": {\n      \"name\": {\n        \"type\": \"string\",\n        \"description\": \"Nome único da entidade no schema\"\n      },\n      \"schema\": {\n        \"type\": \"string\",\n        \"description\": \"Schema ao qual a entidade pertence\"\n      },\n      \"properties\": {\n        \"type\": \"object\",\n        \"description\": \"Definição dos campos da entidade (JSON Schema standard)\"\n      },\n      \"required\": {\n        \"type\": \"array\",\n        \"items\": {\n          \"type\": \"string\"\n        },\n        \"description\": \"Lista de campos obrigatórios\"\n      }\n    },\n    \"required\": [\"name\", \"schema\", \"properties\"]\n  },\n  {\n    \"name\": \"action\",\n    \"schema\": \"platform\",\n    \"properties\": {\n      \"name\": {\n        \"type\": \"string\",\n        \"description\": \"Nome único da action (formato: operation.entity[.action])\"\n      },\n      \"schema\": {\n        \"type\": \"string\",\n        \"description\": \"Schema ao qual a action pertence\"\n      },\n      \"operation\": {\n        \"type\": \"string\",\n        \"enum\": [\"select\", \"mutate\"],\n        \"description\": \"Tipo de operação\"\n      },\n      \"entity\": {\n        \"type\": \"string\",\n        \"description\": \"Nome da entidade alvo\"\n      },\n      \"action\": {\n        \"type\": \"string\",\n        \"description\": \"Ação específica para mutate (ex: insert, update, delete)\"\n      },\n      \"supports\": {\n        \"type\": \"object\",\n        \"description\": \"Capacidades JQEL suportadas\",\n        \"properties\": {\n          \"limit\": {\n            \"type\": \"boolean\",\n            \"description\": \"Suporte a limitação de registros\"\n          },\n          \"orderBy\": {\n            \"oneOf\": [\n              { \"type\": \"boolean\" },\n              { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n            ],\n            \"description\": \"Suporte a ordenação (true = todos os campos, array = campos específicos)\"\n          },\n          \"output\": {\n            \"oneOf\": [\n              { \"type\": \"boolean\" },\n              { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n            ],\n            \"description\": \"Suporte a projeção de inclusão\"\n          },\n          \"except\": {\n            \"oneOf\": [\n              { \"type\": \"boolean\" },\n              { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n            ],\n            \"description\": \"Suporte a projeção de exclusão\"\n          },\n          \"values\": {\n            \"oneOf\": [\n              { \"type\": \"boolean\" },\n              { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n            ],\n            \"description\": \"Campos que podem ser modificados (mutate)\"\n          }\n        }\n      },\n      \"returns\": {\n        \"type\": \"object\",\n        \"description\": \"Tipo de retorno da action\",\n        \"properties\": {\n          \"type\": {\n            \"type\": \"string\",\n            \"enum\": [\"array\", \"object\"],\n            \"description\": \"Tipo base do retorno\"\n          },\n          \"items\": {\n            \"type\": \"object\",\n            \"description\": \"Definição dos itens do array\",\n            \"properties\": {\n              \"ref\": {\n                \"type\": \"string\",\n                \"description\": \"Referência à entidade (formato: entity ou schema:entity)\"\n              }\n            }\n          },\n          \"properties\": {\n            \"type\": \"object\",\n            \"description\": \"Propriedades do objeto retornado (quando não é referência)\"\n          }\n        }\n      }\n    },\n    \"required\": [\"name\", \"schema\", \"operation\", \"entity\", \"returns\"]\n  },\n  {\n    \"name\": \"role\",\n    \"schema\": \"cia\",\n    \"properties\": {\n      \"id\": {\n        \"type\": \"integer\",\n        \"description\": \"Identificador único da função\"\n      },\n      \"role\": {\n        \"type\": \"string\",\n        \"description\": \"Nome legível da função\"\n      }\n    },\n    \"required\": [\"id\", \"role\"]\n  },\n  {\n    \"name\": \"permission\",\n    \"schema\": \"cia\",\n    \"properties\": {\n      \"role_id\": {\n        \"type\": \"integer\",\n        \"description\": \"Identificador que referencia o id da função\"\n      },\n      \"permission\": {\n        \"type\": \"string\",\n        \"description\": \"Permissão concedida; pode ser '*' para acesso total\"\n      }\n    },\n    \"required\": [\"role_id\", \"permission\"]\n  }\n];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        112,
-        -304
+        272,
+        192
       ],
-      "id": "11f0c839-8bcb-474a-9545-2f81130177ad",
+      "id": "0d9519f3-4792-447d-92f3-6a0e04a2399c",
       "name": "datatable entity"
-    },
-    {
-      "parameters": {
-        "jsCode": "const arr1 = $(\"datatable entity\").all();\nconst arr2 = $(\"database entity\").all();\nreturn [...arr1, ...arr2];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        336,
-        -496
-      ],
-      "id": "e3d2006a-70ba-4066-a015-4bd421a096e1",
-      "name": "combined entity"
     },
     {
       "parameters": {
@@ -534,11 +538,311 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        112,
-        672
+        272,
+        1920
       ],
-      "id": "31a3e90e-be44-4eb9-8755-1608073f3740",
+      "id": "4c54b057-3ad2-46da-b611-3d1945ed4b07",
       "name": "bad cia request"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        496,
+        224
+      ],
+      "id": "43aa573d-a2b7-4798-9c32-d66fda6968b8",
+      "name": "combine entities",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.data;\nconst eq = $('jqel').first().json.query?.where?.name?.eq;\nconst like = $('jqel').first().json.query?.where?.name?.like;\nconst schemaEq = $('jqel').first().json.query?.where?.schema?.eq;\n\n// Função para converter padrão LIKE para regex\nfunction likeToRegex(pattern) {\n  if (!pattern) return null;\n  \n  // Escapa caracteres especiais do regex, exceto * e %\n  let regexPattern = pattern.replace(/[.+?^${}()|[\\]\\\\]/g, '\\\\$&');\n  \n  // Substitui wildcards SQL por equivalentes regex\n  // % ou * = qualquer sequência de caracteres (.*) \n  regexPattern = regexPattern.replace(/[%*]/g, '.*');\n  \n  // _ = um único caractere (.)\n  regexPattern = regexPattern.replace(/_/g, '.');\n  \n  // Ancora o padrão no início e fim\n  return new RegExp('^' + regexPattern + '$', 'i'); // 'i' para case-insensitive\n}\n\n// Filtra os dados\nlet filteredData = data;\n\n// Primeiro filtra por schema se existir\nif (schemaEq) {\n  filteredData = filteredData.filter(item => item.schema === schemaEq);\n}\n\n// Depois filtra por name (eq ou like)\nif (eq) {\n  // Filtro exato por name\n  filteredData = filteredData.filter(item => item.name === eq);\n} else if (like) {\n  // Filtro com wildcard por name usando regex\n  const regex = likeToRegex(like);\n  filteredData = filteredData.filter(item => regex.test(item.name));\n}\n\nreturn { data: filteredData || [] };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        224
+      ],
+      "id": "17c4c3fe-3bf2-435b-9acf-273700725b7c",
+      "name": "filter"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f518263d-c51a-4559-a322-7a30493ea79c",
+              "name": "query",
+              "value": "={{ $json.body }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -400,
+        1728
+      ],
+      "id": "335b68fa-452b-42e1-93e1-27b6c32479b7",
+      "name": "jqel"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.data;\nreturn { code: 200, data };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1616,
+        224
+      ],
+      "id": "37f8db9e-6169-4360-a2d8-fa7d190f8cff",
+      "name": "result"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.data;\nconst { offset, limit } = $('jqel').first().json.query.options || {};\n\n// Aplica OFFSET e LIMIT\nconst startIndex = offset || 0;\nconst endIndex = limit ? startIndex + limit : data.length;\n\nconst filteredData = data.slice(startIndex, endIndex);\n\n// Retorna o array paginado\nreturn { data: filteredData || [] };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        224
+      ],
+      "id": "23ba5f7f-9431-4fa8-9d7c-c8908cb91cf8",
+      "name": "paginate",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.all().map(item => item.json) || [];\nreturn { data };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        224
+      ],
+      "id": "4b96fe4e-f1b0-454e-b86c-b01212e52bd5",
+      "name": "standardize"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.data;\nconst output = $('jqel').first().json.query.output;\n\nif (!output) {\n  return { data };\n}\n\n// Função para filtrar campos de um objeto\nfunction filterFields(obj, fields) {\n  if (!fields || fields.length === 0) {\n    return obj; // Se não há campos especificados, retorna o objeto completo\n  }\n  \n  const filtered = {};\n  fields.forEach(field => {\n    if (field in obj) {\n      filtered[field] = obj[field];\n    }\n  });\n  return filtered;\n}\n\n// Aplica o filtro de campos se output estiver definido\nlet filteredData = data;\n\nif (output && Array.isArray(output) && output.length > 0) {\n  filteredData = data.map(item => filterFields(item, output));\n}\n\nreturn { data: filteredData };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        224
+      ],
+      "id": "a5b90ed5-123b-4eb6-98a2-892bbbae6883",
+      "name": "projection"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4ed427c2-af6c-43d9-af36-129a3d1a5e01",
+                    "leftValue": "={{ $json.query.action }}",
+                    "rightValue": "roles",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "roles"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ac57971d-ec98-446c-9b9d-1bd161eaecd9",
+                    "leftValue": "={{ $json.query.action }}",
+                    "rightValue": "permissions",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "permissions"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a98e962f-8fc4-472f-8fad-1a5d021a0bbd",
+                    "leftValue": "={{ $json.query.select }}",
+                    "rightValue": "user_sessions",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "user_sessions"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        272,
+        912
+      ],
+      "id": "aefe1dc5-c495-4d9b-a073-2e928c5233db",
+      "name": "switch platform entity1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4fddacfd-29c9-4f10-a7b4-2eb9140392f8",
+              "name": "code",
+              "value": 400,
+              "type": "number"
+            },
+            {
+              "id": "f2ad36bb-8cdd-46d4-9011-654a57670e88",
+              "name": "message",
+              "value": "Operação não suportada",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        496,
+        1328
+      ],
+      "id": "399ce8df-f41a-4777-8a03-76799414625c",
+      "name": "bad datatable request"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "cs8DRr4dNcnG0x00",
+          "mode": "list",
+          "cachedResultName": "roles",
+          "cachedResultUrl": "/projects/IA9oo7szBC1GndRN/datatables/cs8DRr4dNcnG0x00"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        496,
+        752
+      ],
+      "id": "1909bc98-c71a-4415-bf1e-395c0cd2261c",
+      "name": "roles datatable"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "BEmGygpOwcqEpO98",
+          "mode": "list",
+          "cachedResultName": "permissions",
+          "cachedResultUrl": "/projects/IA9oo7szBC1GndRN/datatables/BEmGygpOwcqEpO98"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        496,
+        944
+      ],
+      "id": "80a1112e-8870-4147-9dfd-48db9cb3801c",
+      "name": "permissions datatable"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "gpUfj6fYIY4KmLpB",
+          "mode": "list",
+          "cachedResultName": "user_session",
+          "cachedResultUrl": "/projects/IA9oo7szBC1GndRN/datatables/gpUfj6fYIY4KmLpB"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        496,
+        1136
+      ],
+      "id": "7a5c28cb-5cb8-40da-b007-91156b74a71f",
+      "name": "user_sessions datatable"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  code: 200,\n  data: $input.all().map(item => item.json)\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        864
+      ],
+      "id": "b8fff23a-8bb0-4d86-a226-f61886d235d1",
+      "name": "datatable result"
     }
   ],
   "connections": {
@@ -546,7 +850,7 @@
       "main": [
         [
           {
-            "node": "switch schema",
+            "node": "jqel",
             "type": "main",
             "index": 0
           }
@@ -580,6 +884,17 @@
         [
           {
             "node": "permission result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "action": {
+      "main": [
+        [
+          {
+            "node": "standardize",
             "type": "main",
             "index": 0
           }
@@ -622,31 +937,6 @@
         ]
       ]
     },
-    "switch cia entity": {
-      "main": [
-        [
-          {
-            "node": "role",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "permission",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "bad cia request",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "switch platform entity": {
       "main": [
         [
@@ -677,7 +967,39 @@
         ],
         [
           {
+            "node": "switch platform entity1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
             "node": "bad platform request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "switch cia entity": {
+      "main": [
+        [
+          {
+            "node": "role",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "permission",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "bad cia request",
             "type": "main",
             "index": 0
           }
@@ -688,9 +1010,9 @@
       "main": [
         [
           {
-            "node": "combined entity",
+            "node": "combine entities",
             "type": "main",
-            "index": 0
+            "index": 1
           }
         ]
       ]
@@ -699,7 +1021,138 @@
       "main": [
         [
           {
-            "node": "combined entity",
+            "node": "combine entities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "combine entities": {
+      "main": [
+        [
+          {
+            "node": "standardize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "filter": {
+      "main": [
+        [
+          {
+            "node": "paginate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "jqel": {
+      "main": [
+        [
+          {
+            "node": "switch schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "paginate": {
+      "main": [
+        [
+          {
+            "node": "projection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "standardize": {
+      "main": [
+        [
+          {
+            "node": "filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "projection": {
+      "main": [
+        [
+          {
+            "node": "result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "switch platform entity1": {
+      "main": [
+        [
+          {
+            "node": "roles datatable",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "permissions datatable",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "user_sessions datatable",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "bad datatable request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "roles datatable": {
+      "main": [
+        [
+          {
+            "node": "datatable result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "permissions datatable": {
+      "main": [
+        [
+          {
+            "node": "datatable result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "user_sessions datatable": {
+      "main": [
+        [
+          {
+            "node": "datatable result",
             "type": "main",
             "index": 0
           }
@@ -711,92 +1164,86 @@
     "executionOrder": "v1"
   },
   "staticData": null,
-  "meta": {
-    "templateCredsSetupCompleted": true
-  },
+  "meta": null,
   "pinData": {
     "Webhook": [
       {
         "json": {
           "headers": {
-            "host": "n8n.codrstudio.dev",
+            "host": "n8n.cia.codr.studio",
             "user-agent": "curl/8.16.0",
-            "content-length": "37",
+            "content-length": "39",
             "accept": "*/*",
             "content-type": "application/json",
-            "x-forwarded-for": "216.234.208.114",
-            "x-forwarded-host": "n8n.codrstudio.dev",
+            "cookie": "access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1YmJhMjQ5ZS01NmEwLTQ3Y2EtOTk4Zi01NWY0MzAxYTI0ZTEiLCJpc3MiOiJjaWFjdWlkYWRvcmVzIiwiYXVkIjoicHJpbWVjYXJlIiwiZXhwIjoxNzYyMTk0OTk4LCJpYXQiOjE3NjIxMDg1OTgsImp0aSI6IjE4MDIyODUzLTdhNzAtNDY2YS1iNTc3LThhNTE4NGRlMWQ1NyIsInRlbmFudCI6WzEsMTgsMTksMTIsOCwxM10sInJvbGVzIjpbIkRvbm8gZGEgRnJhbnF1aWEiXSwibmFtZSI6IkdVR0EgQ09ERVIiLCJlbWFpbCI6Imd1Z2EuY29kZXJAZ21haWwuY29tIn0.ziI6StqP1HLTYTy7TG85KOWKIrOtdzFKi7o7yPCIY0I",
+            "x-forwarded-for": "216.234.208.46",
+            "x-forwarded-host": "n8n.cia.codr.studio",
             "x-forwarded-port": "443",
             "x-forwarded-proto": "https",
-            "x-forwarded-server": "f03fd09cc87d",
-            "x-real-ip": "216.234.208.114",
+            "x-forwarded-server": "744e132a5c62",
+            "x-real-ip": "216.234.208.46",
             "accept-encoding": "gzip"
           },
           "params": {},
           "query": {},
           "body": {
             "schema": "platform",
-            "select": "entity"
+            "select": "datatable",
+            "action": "roles"
           },
-          "webhookUrl": "https://n8n.codrstudio.dev/webhook/api/1/request",
+          "webhookUrl": "https://n8n.cia.codr.studio/webhook/api/1/request",
           "executionMode": "production"
         }
       }
     ]
   },
-  "versionId": "458664d3-e646-48bb-8cc5-fb3bb83a99c3",
-  "triggerCount": 1,
+  "versionId": "f1b6be45-ecf6-401d-b7d7-a7987a26b969",
+  "versionCounter": 3,
+  "triggerCount": 0,
   "shared": [
     {
-      "updatedAt": "2025-10-31T19:18:33.677Z",
-      "createdAt": "2025-10-31T19:18:33.677Z",
+      "updatedAt": "2025-11-09T13:08:51.096Z",
+      "createdAt": "2025-11-09T13:08:51.096Z",
       "role": "workflow:owner",
-      "workflowId": "ZgP84jIkJI1kNpRI",
-      "projectId": "IA9oo7szBC1GndRN",
+      "workflowId": "ATVrPjDWQ9D2dvHo",
+      "projectId": "4HIAFr0a4MdDRfFg",
       "project": {
-        "updatedAt": "2025-10-05T13:15:53.136Z",
-        "createdAt": "2025-10-05T13:15:26.895Z",
-        "id": "IA9oo7szBC1GndRN",
+        "updatedAt": "2025-11-09T02:45:34.419Z",
+        "createdAt": "2025-11-09T02:42:59.126Z",
+        "id": "4HIAFr0a4MdDRfFg",
         "name": "Guga Coder <guga.coder@gmail.com>",
         "type": "personal",
         "icon": null,
         "description": null,
         "projectRelations": [
           {
-            "updatedAt": "2025-10-05T13:15:26.896Z",
-            "createdAt": "2025-10-05T13:15:26.896Z",
-            "userId": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
-            "projectId": "IA9oo7szBC1GndRN",
+            "updatedAt": "2025-11-09T02:42:59.126Z",
+            "createdAt": "2025-11-09T02:42:59.126Z",
+            "userId": "2fdb8036-aeb3-4e4d-bf53-0c7101fc944d",
+            "projectId": "4HIAFr0a4MdDRfFg",
             "user": {
-              "updatedAt": "2025-11-02T04:56:15.000Z",
-              "createdAt": "2025-10-05T13:15:26.419Z",
-              "id": "3ca1f527-ebd8-4028-9cbe-b84db3c45675",
+              "updatedAt": "2025-11-11T05:12:17.000Z",
+              "createdAt": "2025-11-09T02:42:58.515Z",
+              "id": "2fdb8036-aeb3-4e4d-bf53-0c7101fc944d",
               "email": "guga.coder@gmail.com",
               "firstName": "Guga",
               "lastName": "Coder",
               "personalizationAnswers": {
                 "version": "v4",
-                "personalization_survey_submitted_at": "2025-10-05T13:16:06.256Z",
-                "personalization_survey_n8n_version": "1.107.3",
+                "personalization_survey_submitted_at": "2025-11-09T02:45:56.042Z",
+                "personalization_survey_n8n_version": "1.118.2",
                 "companySize": "<20",
                 "companyType": "saas",
                 "role": "business-owner",
-                "reportedSource": "other",
-                "reportedSourceOther": "KeepNomad"
+                "reportedSource": "friend"
               },
               "settings": {
-                "userActivated": true,
-                "firstSuccessfulWorkflowId": "vW3Gx7OZdi98Dfao",
-                "userActivatedAt": 1759671855172,
-                "easyAIWorkflowOnboarded": true,
-                "npsSurvey": {
-                  "responded": true,
-                  "lastShownAt": 1761574956378
-                }
+                "userActivated": false,
+                "easyAIWorkflowOnboarded": true
               },
               "disabled": false,
               "mfaEnabled": false,
-              "lastActiveAt": "2025-11-02",
+              "lastActiveAt": "2025-11-11",
               "isPending": false
             }
           }

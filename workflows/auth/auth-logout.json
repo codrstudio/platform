@@ -1,5 +1,10 @@
 {
+  "updatedAt": "2025-11-09T03:01:44.000Z",
+  "createdAt": "2025-11-09T02:55:13.257Z",
+  "id": "h423fdbqK1dlF5a9",
   "name": "auth-logout",
+  "active": true,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {
@@ -445,5 +450,63 @@
     "saveDataErrorExecution": "none",
     "saveDataSuccessExecution": "none",
     "saveManualExecutions": false
-  }
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "719c14a4-71db-4298-8c4b-d85af4342f12",
+  "versionCounter": 4,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2025-11-09T02:55:13.260Z",
+      "createdAt": "2025-11-09T02:55:13.260Z",
+      "role": "workflow:owner",
+      "workflowId": "h423fdbqK1dlF5a9",
+      "projectId": "4HIAFr0a4MdDRfFg",
+      "project": {
+        "updatedAt": "2025-11-09T02:45:34.419Z",
+        "createdAt": "2025-11-09T02:42:59.126Z",
+        "id": "4HIAFr0a4MdDRfFg",
+        "name": "Guga Coder <guga.coder@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2025-11-09T02:42:59.126Z",
+            "createdAt": "2025-11-09T02:42:59.126Z",
+            "userId": "2fdb8036-aeb3-4e4d-bf53-0c7101fc944d",
+            "projectId": "4HIAFr0a4MdDRfFg",
+            "user": {
+              "updatedAt": "2025-11-11T05:12:17.000Z",
+              "createdAt": "2025-11-09T02:42:58.515Z",
+              "id": "2fdb8036-aeb3-4e4d-bf53-0c7101fc944d",
+              "email": "guga.coder@gmail.com",
+              "firstName": "Guga",
+              "lastName": "Coder",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-11-09T02:45:56.042Z",
+                "personalization_survey_n8n_version": "1.118.2",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "friend"
+              },
+              "settings": {
+                "userActivated": false,
+                "easyAIWorkflowOnboarded": true
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2025-11-11",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
 }
