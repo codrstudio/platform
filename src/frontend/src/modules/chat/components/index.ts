@@ -5,6 +5,8 @@
 export { Message, TypingIndicator } from './Message';
 export type { MessageProps } from './Message';
 
+export { MermaidBlock } from './MermaidBlock';
+
 export { MessageList } from './MessageList';
 export type { MessageListProps } from './MessageList';
 

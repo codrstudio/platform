@@ -178,8 +178,10 @@ export interface ChatHookState {
   currentConversation: string;
   isLoading: boolean;
   isSending: boolean;
+  isStreaming?: boolean;
   chatState: ChatState;
   sendMessage: (content: string, files?: File[]) => Promise<void>;
+  cancelMessage?: () => void;
   createConversation: () => string;
   switchConversation: (conversationId: string) => void;
   retryMessage: (messageId: string) => Promise<void>;

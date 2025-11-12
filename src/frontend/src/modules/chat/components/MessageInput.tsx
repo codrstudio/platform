@@ -15,7 +15,9 @@ import { cn } from '@/lib/utils';
 
 export interface MessageInputProps {
   onSend: (message: string, files?: File[]) => Promise<void>;
+  onCancel?: () => void; // Callback para cancelar streaming
   disabled?: boolean;
+  isStreaming?: boolean; // Indica se está em streaming
   placeholder?: string;
   maxLength?: number;
   maxRows?: number;
@@ -41,7 +43,9 @@ export interface MessageInputProps {
  */
 export function MessageInput({
   onSend,
+  onCancel,
   disabled = false,
+  isStreaming = false,
   placeholder = 'Digite sua mensagem...',
   maxLength = 4000,
   maxRows = 5,
@@ -130,7 +134,14 @@ export function MessageInput({
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const canSend = (message.trim() || files.length > 0) && !disabled && !isSending;
+  const canSend = (message.trim() || files.length > 0) && !disabled && !isSending && !isStreaming;
+
+  // Handle cancel (stop streaming)
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel();
+    }
+  };
 
   return (
     <div className={cn('border-t bg-background', className)}>
@@ -154,7 +165,7 @@ export function MessageInput({
                 size="sm"
                 variant="ghost"
                 onClick={() => removeFile(index)}
-                disabled={disabled || isSending}
+                disabled={disabled || isSending || isStreaming}
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -173,7 +184,7 @@ export function MessageInput({
               size="icon"
               variant="ghost"
               onClick={() => fileInputRef.current?.click()}
-              disabled={disabled || isSending}
+              disabled={disabled || isSending || isStreaming}
               className="flex-shrink-0"
             >
               <Paperclip className="h-4 w-4" />
@@ -196,7 +207,7 @@ export function MessageInput({
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          disabled={disabled || isSending}
+          disabled={disabled || isSending || isStreaming}
           maxLength={maxLength}
           rows={1}
           className={cn(
@@ -207,23 +218,29 @@ export function MessageInput({
           )}
         />
 
-        {/* Send button */}
+        {/* Send/Cancel button - Toggle based on streaming state */}
         <Button
-          onClick={handleSend}
-          disabled={!canSend}
+          onClick={isStreaming ? handleCancel : handleSend}
+          disabled={isStreaming ? false : !canSend}
           size="icon"
+          variant={isStreaming ? 'destructive' : 'default'}
           className="flex-shrink-0"
+          title={isStreaming ? 'Parar resposta' : 'Enviar mensagem'}
         >
-          <Send className="h-4 w-4" />
+          {isStreaming ? <X className="h-4 w-4" /> : <Send className="h-4 w-4" />}
         </Button>
       </div>
 
       {/* Hint */}
       <div className="px-4 pb-3 flex items-center justify-between text-xs text-muted-foreground">
-        <span>💡 Shift+Enter para nova linha • Enter para enviar</span>
         <span>
-          {message.length}/{maxLength}
+          {isStreaming ? '⏸️ Respondendo...' : '💡 Enter para enviar • Shift+Enter para nova linha'}
         </span>
+        {!isStreaming && (
+          <span>
+            {message.length}/{maxLength}
+          </span>
+        )}
       </div>
     </div>
   );

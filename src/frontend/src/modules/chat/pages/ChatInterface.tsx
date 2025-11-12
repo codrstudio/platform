@@ -6,11 +6,18 @@
  * SPEC Compliance:
  * - SPEC-CHAT-R-001: Real-time conversation interface
  * - SPEC-CHAT-F-001: Complete interface components
+ *
+ * Features:
+ * - Uses instanceId from URL (/:portal/chats/:instanceId)
+ * - Streaming support with cancel button
+ * - Quick suggestions sidebar
+ * - Welcome message on empty state
+ * - Responsive layout
  */
 
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { MessageList, MessageInput, QuickSuggestions, ConversationList } from '../components';
+import { useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+import { MessageList, MessageInput, QuickSuggestions } from '../components';
 import { useChat } from '../hooks/useChat';
 import type { ChatInstanceConfig } from '../types';
 import { Spinner } from '@/modules/loading';
@@ -24,35 +31,21 @@ function generateUUID(): string {
 }
 
 export function ChatInterface({ config }: ChatInterfaceProps) {
-  const { conversationId: urlConversationId } = useParams<{ conversationId?: string }>();
-  const navigate = useNavigate();
-  const [conversationId, setConversationId] = useState(
-    urlConversationId || generateUUID()
-  );
+  // Get instanceId from URL - this is the conversationId
+  const { instanceId } = useParams<{ instanceId: string }>();
+
+  // Use instanceId as conversationId, or generate one if not provided
+  const conversationId = useMemo(() => instanceId || generateUUID(), [instanceId]);
 
   const {
     messages,
-    conversations,
     isLoading,
     isSending,
+    isStreaming,
     chatState,
     sendMessage,
-    createConversation
+    cancelMessage,
   } = useChat(conversationId, config);
-
-  // Update URL when conversation changes
-  useEffect(() => {
-    if (config.route && conversationId !== urlConversationId) {
-      navigate(`${config.route}/${conversationId}`, { replace: true });
-    }
-  }, [conversationId, urlConversationId, config.route, navigate]);
-
-  // Add welcome message if empty
-  useEffect(() => {
-    if (messages.length === 0 && config.welcomeMessage) {
-      // Welcome message would be added here
-    }
-  }, [messages.length, config.welcomeMessage]);
 
   const handleSendMessage = async (content: string, files?: File[]) => {
     await sendMessage(content, files);
@@ -62,43 +55,33 @@ export function ChatInterface({ config }: ChatInterfaceProps) {
     sendMessage(suggestion);
   };
 
-  const handleNewConversation = () => {
-    const newId = createConversation();
-    setConversationId(newId);
+  const handleCancel = () => {
+    if (cancelMessage) {
+      cancelMessage();
+    }
   };
 
-  const handleSelectConversation = (id: string) => {
-    setConversationId(id);
-  };
+  // Determine empty message
+  const emptyMessage = config.welcomeMessage || 'Inicie uma conversa!';
 
   return (
-    <div className="flex h-screen">
-      {/* Sidebar - Conversation List */}
-      {config.enableMultipleConversations && (
-        <aside className="w-60 border-r bg-muted/10 hidden md:block">
-          <ConversationList
-            conversations={conversations}
-            activeConversationId={conversationId}
-            onSelectConversation={handleSelectConversation}
-            onNewConversation={handleNewConversation}
-          />
-        </aside>
-      )}
-
+    <div className="flex h-full max-h-screen">
       {/* Main Chat Area */}
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col min-w-0 max-w-4xl mx-auto w-full">
         {/* Header */}
-        <header className="border-b p-4">
-          <div>
-            <h1 className="text-xl font-semibold">{config.title || 'Chat'}</h1>
-            {config.description && (
-              <p className="text-sm text-muted-foreground">{config.description}</p>
-            )}
-          </div>
-        </header>
+        {(config.title || config.description) && (
+          <header className="border-b p-4 flex-shrink-0">
+            <div>
+              <h1 className="text-xl font-semibold">{config.title || 'Chat'}</h1>
+              {config.description && (
+                <p className="text-sm text-muted-foreground">{config.description}</p>
+              )}
+            </div>
+          </header>
+        )}
 
         {/* Message List */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden min-h-0">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
               <Spinner size="lg" label="Carregando histórico..." showLabel />
@@ -107,25 +90,19 @@ export function ChatInterface({ config }: ChatInterfaceProps) {
             <MessageList
               messages={messages}
               showTimestamps={config.showTimestamps}
-              isTyping={chatState === 'processing' && config.showTypingIndicator}
+              isTyping={isStreaming || (chatState === 'processing' && config.showTypingIndicator)}
+              emptyMessage={emptyMessage}
               className="h-full"
             />
           )}
         </div>
 
-        {/* Quick Suggestions */}
-        {config.quickSuggestions && config.quickSuggestions.length > 0 && (
-          <QuickSuggestions
-            suggestions={config.quickSuggestions}
-            onSelect={handleSuggestionClick}
-            disabled={isSending}
-          />
-        )}
-
         {/* Message Input */}
         <MessageInput
           onSend={handleSendMessage}
-          disabled={isSending}
+          onCancel={handleCancel}
+          disabled={isSending && !isStreaming}
+          isStreaming={isStreaming}
           placeholder={config.placeholder}
           maxLength={config.maxInputLength}
           maxRows={config.maxInputRows}
@@ -134,6 +111,20 @@ export function ChatInterface({ config }: ChatInterfaceProps) {
           maxFileSize={config.maxFileSize}
         />
       </main>
+
+      {/* Sidebar - Quick Suggestions */}
+      {config.quickSuggestions && config.quickSuggestions.length > 0 && (
+        <aside className="w-64 border-l bg-muted/5 hidden lg:block flex-shrink-0">
+          <div className="p-4">
+            <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Sugestões</h3>
+            <QuickSuggestions
+              suggestions={config.quickSuggestions}
+              onSelect={handleSuggestionClick}
+              disabled={isSending || isStreaming}
+            />
+          </div>
+        </aside>
+      )}
     </div>
   );
 }
