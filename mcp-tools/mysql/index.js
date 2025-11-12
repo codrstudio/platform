@@ -32,12 +32,15 @@ class MySQLServer {
       }
     );
 
-    this.sshConfig = {
+    // Check if SSH tunnel is configured
+    this.useSshTunnel = !!(process.env.SSH_HOST && process.env.SSH_USER);
+
+    this.sshConfig = this.useSshTunnel ? {
       host: process.env.SSH_HOST,
       port: parseInt(process.env.SSH_PORT) || 22,
       username: process.env.SSH_USER,
       password: process.env.SSH_PASSWORD,
-    };
+    } : null;
 
     this.dbConfig = {
       host: process.env.DB_HOST || '127.0.0.1',
@@ -61,7 +64,7 @@ class MySQLServer {
       tools: [
         {
           name: 'testConnection',
-          description: 'Test MySQL database connection via SSH tunnel',
+          description: 'Test MySQL database connection (via SSH tunnel if configured)',
           inputSchema: {
             type: 'object',
             properties: {},
@@ -174,17 +177,25 @@ class MySQLServer {
 
   async connectToDatabase() {
     try {
-      const { sshClient, stream } = await this.createSSHTunnel();
+      if (this.useSshTunnel) {
+        // Connect via SSH tunnel
+        const { sshClient, stream } = await this.createSSHTunnel();
 
-      const connection = await mysql.createConnection({
-        ...this.dbConfig,
-        stream,
-      });
+        const connection = await mysql.createConnection({
+          ...this.dbConfig,
+          stream,
+        });
 
-      this.sshClient = sshClient;
-      this.dbConnection = connection;
+        this.sshClient = sshClient;
+        this.dbConnection = connection;
 
-      return connection;
+        return connection;
+      } else {
+        // Direct connection (no SSH tunnel)
+        const connection = await mysql.createConnection(this.dbConfig);
+        this.dbConnection = connection;
+        return connection;
+      }
     } catch (error) {
       throw new Error(`Database connection failed: ${error.message}`);
     }
@@ -207,50 +218,62 @@ class MySQLServer {
       const [rows] = await connection.query('SELECT 1 as test, VERSION() as version');
       await this.closeConnection();
 
+      const response = {
+        success: true,
+        message: this.useSshTunnel
+          ? 'Connection successful (via SSH tunnel)'
+          : 'Connection successful (direct)',
+        database: {
+          host: this.dbConfig.host,
+          port: this.dbConfig.port,
+          database: this.dbConfig.database,
+          user: this.dbConfig.user,
+        },
+        testResult: rows[0],
+      };
+
+      if (this.useSshTunnel) {
+        response.ssh = {
+          host: this.sshConfig.host,
+          port: this.sshConfig.port,
+          username: this.sshConfig.username,
+        };
+      }
+
       return {
         content: [
           {
             type: 'text',
-            text: JSON.stringify({
-              success: true,
-              message: 'Connection successful (via SSH tunnel)',
-              ssh: {
-                host: this.sshConfig.host,
-                port: this.sshConfig.port,
-                username: this.sshConfig.username,
-              },
-              database: {
-                host: this.dbConfig.host,
-                port: this.dbConfig.port,
-                database: this.dbConfig.database,
-                user: this.dbConfig.user,
-              },
-              testResult: rows[0],
-            }, null, 2),
+            text: JSON.stringify(response, null, 2),
           },
         ],
       };
     } catch (error) {
+      const response = {
+        success: false,
+        message: 'Connection failed',
+        error: error.message,
+        database: {
+          host: this.dbConfig.host,
+          port: this.dbConfig.port,
+          database: this.dbConfig.database,
+          user: this.dbConfig.user,
+        },
+      };
+
+      if (this.useSshTunnel) {
+        response.ssh = {
+          host: this.sshConfig.host,
+          port: this.sshConfig.port,
+          username: this.sshConfig.username,
+        };
+      }
+
       return {
         content: [
           {
             type: 'text',
-            text: JSON.stringify({
-              success: false,
-              message: 'Connection failed',
-              error: error.message,
-              ssh: {
-                host: this.sshConfig.host,
-                port: this.sshConfig.port,
-                username: this.sshConfig.username,
-              },
-              database: {
-                host: this.dbConfig.host,
-                port: this.dbConfig.port,
-                database: this.dbConfig.database,
-                user: this.dbConfig.user,
-              },
-            }, null, 2),
+            text: JSON.stringify(response, null, 2),
           },
         ],
         isError: true,
@@ -441,7 +464,8 @@ class MySQLServer {
   async run() {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error('MySQL MCP server running on stdio (with SSH tunnel support)');
+    const connectionMode = this.useSshTunnel ? 'with SSH tunnel' : 'direct connection';
+    console.error(`MySQL MCP server running on stdio (${connectionMode})`);
   }
 }
 

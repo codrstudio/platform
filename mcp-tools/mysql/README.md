@@ -1,10 +1,11 @@
 # MySQL MCP Server
 
-MCP (Model Context Protocol) server for MySQL database operations with SSH tunnel support for CiaPrime API.
+MCP (Model Context Protocol) server for MySQL database operations with optional SSH tunnel support.
 
 ## Features
 
-- **SSH Tunnel Support** - Secure connection to remote MySQL databases via SSH
+- **Optional SSH Tunnel Support** - Secure connection to remote MySQL databases via SSH (automatic detection)
+- **Direct Connection Mode** - Connect directly to local or accessible MySQL servers
 - **Multi-Tenancy Validation** - Automatic validation of `tenant_id` filters
 - **Schema Introspection** - List tables and inspect column definitions
 - **Query Execution** - Execute SQL queries with tenant isolation
@@ -27,24 +28,45 @@ cp .env.example .env
 
 2. Configure your environment variables:
 
-```bash
-# SSH Tunnel Configuration (Hostinger)
-SSH_HOST=your-ssh-host.com
-SSH_PORT=22
-SSH_USER=your-ssh-user
-SSH_PASSWORD=your-ssh-password
+### Mode 1: Direct Connection (Local/Accessible Database)
 
+```bash
 # MySQL Database Configuration
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_USER=ciaprime
+DB_USER=your-db-user
 DB_PASSWORD=your-db-password
-DB_NAME=ciaprime
+DB_NAME=your-database
 
 # Multi-tenancy Configuration
 DEFAULT_TENANT_ID=1
 VALIDATE_TENANT_ID=true
 ```
+
+**Note**: If `SSH_HOST` and `SSH_USER` are NOT set, the server will connect directly to the database.
+
+### Mode 2: SSH Tunnel (Remote Database)
+
+```bash
+# SSH Tunnel Configuration
+SSH_HOST=your-ssh-host.com
+SSH_PORT=22
+SSH_USER=your-ssh-user
+SSH_PASSWORD=your-ssh-password
+
+# MySQL Database Configuration (via SSH tunnel)
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USER=your-db-user
+DB_PASSWORD=your-db-password
+DB_NAME=your-database
+
+# Multi-tenancy Configuration
+DEFAULT_TENANT_ID=1
+VALIDATE_TENANT_ID=true
+```
+
+**Note**: If `SSH_HOST` and `SSH_USER` are set, the server will automatically use SSH tunnel mode.
 
 ## Usage
 
@@ -66,7 +88,7 @@ Test the SSH tunnel and MySQL database connection.
 
 **Parameters:** None
 
-**Example Response:**
+**Example Response (SSH Tunnel Mode):**
 
 ```json
 {
@@ -80,8 +102,27 @@ Test the SSH tunnel and MySQL database connection.
   "database": {
     "host": "127.0.0.1",
     "port": 3306,
-    "database": "ciaprime",
-    "user": "ciaprime"
+    "database": "mydb",
+    "user": "myuser"
+  },
+  "testResult": {
+    "test": 1,
+    "version": "8.0.32"
+  }
+}
+```
+
+**Example Response (Direct Connection Mode):**
+
+```json
+{
+  "success": true,
+  "message": "Connection successful (direct)",
+  "database": {
+    "host": "127.0.0.1",
+    "port": 3306,
+    "database": "mydb",
+    "user": "myuser"
   },
   "testResult": {
     "test": 1,
@@ -199,10 +240,24 @@ Get detailed schema information for a specific table.
 
 ### Connection Flow
 
+**SSH Tunnel Mode (Remote Database):**
 ```
-Claude Code → MCP Server → SSH Tunnel → Hostinger → MySQL
-                (stdio)      (ssh2)      (mysql2)
+Claude Code → MCP Server → SSH Tunnel → Remote Host → MySQL
+                (stdio)      (ssh2)        (mysql2)
 ```
+
+**Direct Mode (Local/Accessible Database):**
+```
+Claude Code → MCP Server → MySQL
+                (stdio)    (mysql2)
+```
+
+### Automatic Mode Detection
+
+The server automatically detects which mode to use based on environment variables:
+
+- **SSH Tunnel Mode**: Activated when `SSH_HOST` and `SSH_USER` are set
+- **Direct Mode**: Used when SSH variables are not set
 
 ### Multi-Tenancy
 
@@ -219,10 +274,11 @@ The server implements **mandatory multi-tenancy** with `tenant_id` column isolat
 
 ## Security Considerations
 
-1. **SSH Tunnel**: All database connections go through encrypted SSH tunnel
+1. **SSH Tunnel (Optional)**: When configured, all database connections go through encrypted SSH tunnel
 2. **Environment Variables**: Never commit `.env` file with credentials
 3. **Query Validation**: Basic SQL injection protection via parameterized queries
 4. **Tenant Isolation**: Automatic validation of multi-tenant queries
+5. **Direct Connection**: Use only for local development or when MySQL server is on a trusted network
 
 ## Integration with .mcp.json
 
