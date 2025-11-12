@@ -6,7 +6,7 @@ import { Suspense } from 'react';
 import { usePortal } from '@/hooks/useJQEL';
 import { Loader2 } from 'lucide-react';
 import { PortalDefaultView } from '@/components/portal/PortalDefaultView';
-import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { renderSetupRoutes } from '@/modules/setup';
 
 interface PortalRouterProps {
@@ -20,20 +20,7 @@ interface PortalRouterProps {
 function PortalContentInner({ portal }: { portal: any }) {
   const { mode } = useTheme();
 
-  // If portal has no active modules, show PortalDefaultView
-  if (portal.activeModules.length === 0) {
-    return (
-      <PortalDefaultView
-        portalId={portal.portalId}
-        portalName={portal.name}
-        realmId={portal.realmId}
-        removable={portal.removable}
-        theme={mode}
-      />
-    );
-  }
-
-  // If portal has active modules, render module routes
+  // If portal has 'setup' module, render setup routes
   if (portal.activeModules.includes('setup')) {
     return (
       <Suspense fallback={
@@ -49,48 +36,27 @@ function PortalContentInner({ portal }: { portal: any }) {
   }
 
   // TODO: When other modules are implemented, add their routing logic here
-  return (
-    <div className="min-h-screen">
-      <div className="container mx-auto p-8">
-        <div className="space-y-4">
-          <div>
-            <h1 className="text-3xl font-bold">{portal.name}</h1>
-            {portal.description && (
-              <p className="text-muted-foreground">{portal.description}</p>
-            )}
-          </div>
+  // if (portal.activeModules.includes('chat')) {
+  //   return renderChatRoutes();
+  // }
 
-          <div className="border rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Informações do Portal</h2>
-            <dl className="space-y-2">
-              <div>
-                <dt className="text-sm font-medium text-muted-foreground">ID do Portal</dt>
-                <dd className="text-sm">{portal.portalId}</dd>
-              </div>
-              <div>
-                <dt className="text-sm font-medium text-muted-foreground">Módulos Ativos</dt>
-                <dd className="text-sm">
-                  {portal.activeModules.length > 0
-                    ? portal.activeModules.join(', ')
-                    : 'Nenhum módulo ativo'}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-sm font-medium text-muted-foreground">Realm ID</dt>
-                <dd className="text-sm">{portal.realmId}</dd>
-              </div>
-            </dl>
-          </div>
-        </div>
-      </div>
-    </div>
+  // Default: show PortalDefaultView for any other case
+  // (no modules, only 'auth', or unimplemented modules)
+  return (
+    <PortalDefaultView
+      portalId={portal.portalId}
+      portalName={portal.name}
+      realmId={portal.realmId}
+      removable={portal.removable}
+      theme={mode}
+    />
   );
 }
 
 /**
  * Portal Content Component
  * Displays content for a specific portal
- * Wraps content with ThemeProvider scoped to portal's realm
+ * CHANGED: ThemeProvider is now global (removed from here)
  */
 function PortalContent({ portalId }: { portalId: string }) {
   const { data: portalResult, isLoading, error } = usePortal(portalId);
@@ -123,13 +89,8 @@ function PortalContent({ portalId }: { portalId: string }) {
     );
   }
 
-  // Wrap content with ThemeProvider scoped to this portal's realm
-  // SPEC-TH-HC-020 to HC-029: 3-level theme resolution
-  return (
-    <ThemeProvider realmId={portal.realmId} portalId={portal.portalId}>
-      <PortalContentInner portal={portal} />
-    </ThemeProvider>
-  );
+  // ThemeProvider is now global in App.tsx
+  return <PortalContentInner portal={portal} />;
 }
 
 /**

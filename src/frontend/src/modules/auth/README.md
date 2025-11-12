@@ -1,46 +1,69 @@
 # Auth Module
 
-Módulo de autenticação da plataforma que fornece interfaces para login, logout, registro e gerenciamento de sessão.
+Módulo de proteção de rotas que ativa/desativa a autenticação em portais da plataforma.
 
 ## Visão Geral
 
-O módulo Auth é um **wrapper sobre o Canal de Autenticação** (`/api/1/auth/*`), fornecendo componentes de UI para interagir com o sistema de autenticação da plataforma. Ele **não implementa lógica de autenticação**, delegando toda a validação e processamento para o Backend/Backbone.
+O módulo Auth funciona como um **mecanismo de proteção de rotas**. Quando ativo em um portal, exige que usuários estejam autenticados para acessar as rotas daquele portal. Quando inativo, o portal permite acesso público sem autenticação.
+
+**IMPORTANTE**: Este módulo **NÃO fornece UI de autenticação** (login pages, logout buttons, user avatars). Ele apenas controla se as rotas são protegidas ou públicas. A UI de login é fornecida globalmente pela aplicação em `src/frontend/src/pages/LoginPage.tsx`.
+
+## Mudança Conceitual (v2.0.0)
+
+### Antes (v1.0.0)
+O módulo Auth fornecia:
+- ✓ UI de login (LoginPage, layouts variados)
+- ✓ Componentes de UI (LogoutButton, UserAvatar)
+- ✓ Rotas próprias (`/login`, `/signup`, etc.)
+- ✓ Proteção de rotas
+
+### Agora (v2.0.0)
+O módulo Auth fornece:
+- ✓ **APENAS** controle de proteção de rotas (ativo/inativo)
+
+A aplicação global fornece:
+- ✓ UI de login (`src/frontend/src/pages/LoginPage.tsx`)
+- ✓ AuthContext para gerenciar autenticação (`src/frontend/src/contexts/AuthContext.tsx`)
+- ✓ Rota `/login` global
+- ✓ Componente `<ProtectedRoute />` global
+
+**Resultado**: Módulo Auth se torna um "switch" para proteção de rotas, não um fornecedor de UI.
 
 ## SPEC Compliance
 
-- **SPEC-module-auth.md**: Especificação completa do módulo
-- **spec/ui/auth-module-interfaces.md**: UI/UX e wireframes
-- **SPEC-authentication.md**: Canal de autenticação e contratos
+- **spec/SPEC-module-auth.md**: Especificação completa do módulo (v2.0.0)
+- **spec/SPEC-authentication.md**: Canal de autenticação e contratos
+- **spec/SPEC-routing.md**: Sistema de roteamento e proteção
 
 ## Características
 
-### Obrigatórias (SPEC-AUTH-F-*)
+### Responsabilidades (SPEC-AUTH-R-*)
 
-- ✅ **Login** com credenciais (username/password)
-- ✅ **Logout** seguro com revogação de tokens
-- ✅ **Refresh automático** de tokens
-- ✅ **Proteção de rotas** com redirect inteligente
+- ✅ **Controlar proteção de rotas** (ativo/inativo)
+- ❌ **NÃO fornece UI** de autenticação
+- ❌ **NÃO implementa lógica** de autenticação (responsabilidade do AuthContext global)
+- ✅ **Single-instance** (apenas UMA instância por portal)
+- ✅ **Instância automática** com `instanceId="default"`
 
-### Opcionais (SPEC-AUTH-O-*)
+### Comportamento de Proteção (SPEC-AUTH-RP-*)
 
-- 🔲 **Registro** (signup) via JQEL
-- 🔲 **Recuperação de senha** via workflows n8n
-- 🔲 **Logout de todas as sessões**
-- ✅ **Seleção de Realm/Schema**
+**Se módulo Auth ESTÁ ativo no portal:**
+- Todas as rotas do portal exigem autenticação
+- Usuários não autenticados são redirecionados para `/login`
+- Após login bem-sucedido, usuário é redirecionado para rota original
 
-## Componentes Exportados
+**Se módulo Auth NÃO ESTÁ ativo no portal:**
+- Todas as rotas do portal são públicas (sem proteção)
+- Não há redirect para login
+- Acesso direto ao conteúdo
 
-### Obrigatórios (SPEC-AUTH-E-001)
+## Componentes Fornecidos
 
-- **`<LoginPage />`**: Página completa de login
-- **`<ProtectedRoute />`**: Wrapper para rotas protegidas
-- **`useAuth()`**: Hook do AuthContext (já existe em `/contexts/AuthContext`)
+### `<ProtectedRoute />` (Opcional)
 
-### Opcionais (SPEC-AUTH-E-002)
+O módulo **PODE** fornecer seu próprio componente `<ProtectedRoute />`, mas é **opcional** porque já existe uma versão global.
 
-- **`<LogoutButton />`**: Botão de logout com confirmação opcional
-- **`<UserAvatar />`**: Avatar do usuário com dropdown menu
-- **`<RequirePermission />`**: Wrapper para permissões (já existe em `/components/auth/RequirePermission`)
+A versão global (`src/frontend/src/components/routing/ProtectedRoute.tsx`) já implementa a lógica de verificação usando `hasModule('auth')`.
 
 ## Instalação
 
@@ -52,306 +75,248 @@ import { authModule } from '@/modules/auth';
 
 ## Configuração de Instância
 
-### Exemplo Básico
+### Configuração Mínima
+
+Como o módulo Auth é single-instance e funciona como um simples "switch" de proteção, a configuração é mínima ou vazia:
 
 ```json
 {
-  "instanceId": "login-main",
+  "instanceId": "default",
   "moduleId": "auth",
   "portalId": "main",
-  "config": {
-    "loginRoute": "/login",
-    "logoutRedirect": "/",
-    "realm": "default",
-    "schema": "app",
-    "layout": "centered"
-  }
+  "active": true,
+  "config": {}
 }
 ```
 
-### Exemplo Completo
+**SPEC-AUTH-C-001 a C-004**: Configuração NÃO é necessária para o funcionamento básico. Ativar/desativar proteção depende apenas de:
+- Módulo "auth" estar em `portal.activeModules`
+- Instância "default" estar com `active: true`
+
+### Configurações Futuras
+
+O módulo PODE suportar configurações adicionais no futuro, como:
 
 ```json
 {
-  "instanceId": "auth-portal-app",
-  "moduleId": "auth",
-  "portalId": "app",
   "config": {
-    "loginRoute": "/app/login",
-    "logoutRedirect": "/app/login",
-    "realm": "clientes",
-    "schema": "app",
-    "allowRealmSelection": false,
-    "allowSchemaSelection": false,
-    "enableSignup": false,
-    "enablePasswordRecovery": false,
-    "enableRememberMe": true,
     "sessionTimeout": 1800000,
-    "autoRefresh": true,
-    "layout": "card",
-    "logo": "/assets/logo.svg",
-    "brandColor": "#3B82F6",
-    "texts": {
-      "loginTitle": "Acesse sua conta",
-      "loginSubtitle": "Continue de onde parou"
-    }
+    "sharedAcrossPortals": false
   }
 }
 ```
 
-### Parâmetros de Configuração
+Mas atualmente, essas configurações não são implementadas.
 
-| Parâmetro | Tipo | Padrão | Descrição |
-|-----------|------|--------|-----------|
-| `loginRoute` | string | `/login` | Rota da página de login |
-| `logoutRedirect` | string | `/login` | Rota após logout |
-| `realm` | string | `default` | Realm padrão |
-| `schema` | string | `app` | Schema padrão |
-| `allowRealmSelection` | boolean | `false` | Permitir seleção de realm |
-| `allowSchemaSelection` | boolean | `false` | Permitir seleção de schema |
-| `enableRememberMe` | boolean | `true` | Habilitar "Lembrar de mim" |
-| `sessionTimeout` | number | `1800000` | Timeout em ms (30 min) |
-| `autoRefresh` | boolean | `true` | Auto-refresh de tokens |
-| `layout` | enum | `centered` | Layout: `centered`, `split`, `minimal`, `card` |
-| `logo` | string | `` | URL da logo |
-| `brandColor` | string | `#3B82F6` | Cor principal |
+## Exemplos de Uso
 
-## Uso
+### Portal COM Proteção - "main"
 
-### Login Page
-
-```typescript
-import { LoginPage } from '@/modules/auth';
-
-// Standalone (sem instância)
-<LoginPage />
-
-// Com instância configurada
-<LoginPage
-  instanceId="login-main"
-  portalId="main"
-  moduleId="auth"
-/>
+**Configuração do Portal:**
+```json
+{
+  "portalId": "main",
+  "activeModules": ["dashboard", "auth"]  // auth está ativo
+}
 ```
 
-### Protected Route
+**Configuração da Instância:**
+```json
+{
+  "instanceId": "default",
+  "moduleId": "auth",
+  "portalId": "main",
+  "active": true,
+  "config": {}
+}
+```
+
+**Resultado**: Todas as rotas do portal "main" exigem autenticação. Redirect para `/login` se não autenticado.
+
+---
+
+### Portal SEM Proteção - "setup"
+
+**Configuração do Portal:**
+```json
+{
+  "portalId": "setup",
+  "activeModules": ["setup"]  // auth NÃO está ativo
+}
+```
+
+**Resultado**: Todas as rotas do portal "setup" são públicas. Sem redirect para login.
+
+---
+
+### Portal com Auth Desativado - "sandbox"
+
+**Configuração do Portal:**
+```json
+{
+  "portalId": "sandbox",
+  "activeModules": ["auth"]  // auth está na lista
+}
+```
+
+**Configuração da Instância:**
+```json
+{
+  "instanceId": "default",
+  "moduleId": "auth",
+  "portalId": "sandbox",
+  "active": false,  // mas instância está INATIVA
+  "config": {}
+}
+```
+
+**Resultado**: Rotas do portal "sandbox" são públicas (instância inativa = sem proteção).
+
+## Fluxo de Verificação de Proteção
+
+### Lógica Implementada (SPEC-AUTH-FL-001)
+
+Componente global `<ProtectedRoute />` implementa esta lógica:
 
 ```typescript
-import { ProtectedRoute } from '@/modules/auth';
+// 1. Verifica se módulo auth está ativo no portal atual
+const authModuleActive = hasModule('auth');
 
+// 2. Se auth NÃO está ativo → rotas são públicas
+if (!authModuleActive) {
+  return <>{children}</>;  // Renderiza sem proteção
+}
+
+// 3. Se auth ESTÁ ativo → verifica autenticação
+const { isAuthenticated } = useAuth();
+
+if (!isAuthenticated) {
+  // Salva URL atual para redirect após login
+  sessionStorage.setItem('returnUrl', location.pathname);
+  return <Navigate to="/login" replace />;
+}
+
+// 4. Usuário autenticado → renderiza conteúdo protegido
+return <>{children}</>;
+```
+
+**SPEC-AUTH-FL-002**: Como módulo é singleInstance, não precisa verificar qual instância (sempre "default").
+
+## Integração com Aplicação
+
+### App.tsx
+
+Estrutura de rotas globais:
+
+```tsx
 <Routes>
+  {/* Rota pública: Login */}
   <Route path="/login" element={<LoginPage />} />
-  <Route
-    path="/dashboard"
-    element={
-      <ProtectedRoute>
-        <DashboardPage />
-      </ProtectedRoute>
-    }
-  />
+
+  {/* Rotas de portais: Proteção condicional */}
+  <Route path="/*" element={
+    <ProtectedRoute>
+      <PortalRouter />
+    </ProtectedRoute>
+  } />
 </Routes>
 ```
 
-### Logout Button
+- `<ProtectedRoute />` envolve `<PortalRouter />` para proteger condicionalmente
+- Dentro de cada portal, a proteção é determinada pelo módulo auth daquele portal
+- Rota `/login` é sempre pública (não protegida)
+
+## Single Instance
+
+### Comportamento (SPEC-AUTH-M-*)
+
+- Cada portal PODE ter no máximo UMA instância do módulo auth
+- Instância DEVE ter `instanceId="default"` (fixo)
+- Instância DEVE ser criada automaticamente ao ativar módulo no portal
+- Instância default NÃO PODE ser removida manualmente
+- Instância default PODE ser desativada (mas não removida)
+
+### Isolamento entre Portais
+
+- Instâncias em portais diferentes DEVEM ser independentes
+- Portal "main" com auth ativo NÃO afeta proteção do portal "setup" sem auth
+- Cada portal controla independentemente se suas rotas são protegidas
+
+## Infraestrutura de Autenticação
+
+### Responsabilidade do AuthContext Global (SPEC-AUTH-INF-*)
+
+A infraestrutura de autenticação (login, logout, refresh, estado) É fornecida pelo `AuthContext` global:
 
 ```typescript
-import { LogoutButton } from '@/modules/auth';
-
-// Simples
-<LogoutButton />
-
-// Com confirmação
-<LogoutButton confirmLogout />
-
-// Customizado
-<LogoutButton
-  variant="ghost"
-  showIcon={false}
-  text="Sign out"
-/>
+// src/frontend/src/contexts/AuthContext.tsx
+const {
+  user,
+  isAuthenticated,
+  isLoading,
+  login,
+  logout,
+  refresh
+} = useAuth();
 ```
 
-### User Avatar
+O módulo Auth **NÃO** fornece:
+- AuthContext (já existe globalmente)
+- LoginPage (já existe globalmente em `src/frontend/src/pages/LoginPage.tsx`)
+- Lógica de autenticação (responsabilidade do AuthContext)
 
-```typescript
-import { UserAvatar } from '@/modules/auth';
+O módulo Auth apenas controla **SE** a proteção está ativa, não **COMO** ela funciona.
 
-// Avatar simples
-<UserAvatar />
+### Canal de Autenticação (SPEC-AUTH-INF-005, INF-006)
 
-// Com dropdown menu
-<UserAvatar showDropdown />
+Autenticação utiliza o Canal de Autenticação (`/api/1/auth/*`):
 
-// Tamanho customizado
-<UserAvatar size="lg" showDropdown />
-```
-
-## Fluxos
-
-### Fluxo de Login (SPEC-AUTH-I-001)
-
-```
-1. Usuário preenche formulário
-2. Validação client-side (React Hook Form + Zod)
-3. POST /api/1/auth/login { realm?, schema?, username, password }
-4. Backend/Backbone valida credenciais
-5. Retorna { access_token, refresh_token, payload }
-6. AuthContext armazena tokens (memória + sessionStorage)
-7. Atualiza estado com usuário autenticado
-8. Redireciona para rota original (returnUrl)
-```
-
-### Fluxo de Logout (SPEC-AUTH-I-003)
-
-```
-1. Usuário clica em logout
-2. POST /api/1/auth/logout { refresh_token }
-3. Backend revoga refresh_token
-4. AuthContext remove tokens locais
-5. Atualiza estado (user = null)
-6. Redireciona para página de login
-```
-
-### Fluxo de Refresh (SPEC-AUTH-I-002)
-
-```
-1. Access token próximo de expirar (timer de 5 min antes)
-2. POST /api/1/auth/refresh { refresh_token }
-3. Backend valida refresh_token
-4. Retorna novos access_token e refresh_token
-5. AuthContext atualiza tokens
-6. Continua operação normalmente
-```
-
-## Layouts Suportados
-
-### Centered (Padrão)
-Card centralizado em fundo neutro. Ideal para aplicações simples.
-
-### Split
-Tela dividida 50/50: marketing à esquerda, formulário à direita. Para landing pages.
-
-### Minimal
-Layout mínimo sem distrações. Para painéis administrativos.
-
-### Card
-Card flutuante com background decorativo. Para apps modernos/SaaS.
-
-## Segurança
-
-### ✅ Implementado
-
-- Tokens em memória (access) + sessionStorage (refresh)
-- HTTPS obrigatório via Backend
-- Validação client-side e server-side
-- Rate limiting (Backend)
-- CSRF protection (Backend)
-- Auto-logout em refresh failure
-
-### ❌ Proibido
-
-- Armazenar senhas em qualquer lugar
-- Armazenar tokens em localStorage
-- Expor tokens em console.log ou URLs
-- Enviar tokens em query params
-
-## Acessibilidade
-
-- ✅ Navegação por teclado completa
-- ✅ Labels apropriados para screen readers
-- ✅ Erros anunciados via `role="alert"`
-- ✅ Show/hide password com `aria-label`
-- ✅ Loading states com `aria-busy`
-
-## Roadmap
-
-### Fase 1: Login Básico ✅
-- [x] LoginForm component
-- [x] AuthProvider integration (já existe)
-- [x] Token storage (já existe)
-- [x] Login API integration
-- [x] Redirect após login
-- [x] Validação (React Hook Form + Zod)
-
-### Fase 2: Protected Routes ✅
-- [x] ProtectedRoute component
-- [x] Loading state
-- [x] Redirect para login
-- [x] Return URL preservation
-
-### Fase 3: Logout ✅
-- [x] Logout API integration (já existe)
-- [x] LogoutButton component
-- [x] Clear tokens
-- [x] Confirmação opcional
-
-### Fase 4: Auto-Refresh ✅
-- [x] Token expiry detection (já existe)
-- [x] Refresh API integration (já existe)
-- [x] Auto-refresh timer (já existe)
-- [x] Logout on failure (já existe)
-
-### Fase 5: Features Opcionais 🔲
-- [ ] Signup page
-- [ ] Password recovery flow
-- [ ] Remember me functionality
-- [ ] Realm/Schema selection (UI pronta)
-
-### Fase 6: Session Management 🔲
-- [ ] Session list page
-- [ ] Revoke individual session
-- [ ] Logout all devices
-
-### Fase 7: Permissions ✅
-- [x] RequirePermission component (já existe)
-- [x] usePermission hook (já existe)
-- [x] Authorize API integration (já existe)
+- `POST /api/1/auth/login` - Autenticação
+- `POST /api/1/auth/refresh` - Renovação de tokens
+- `POST /api/1/auth/logout` - Logout
+- `POST /api/1/auth/logout-all` - Logout de todas as sessões
+- `POST /api/1/auth/authorize` - Validação de permissões
 
 ## Estrutura de Arquivos
 
 ```
 src/modules/auth/
-├── manifest.ts              # Manifesto do módulo
-├── routes.ts                # Rotas do módulo
+├── manifest.ts              # Manifesto do módulo (v2.0.0)
 ├── index.ts                 # Exportações principais
 ├── README.md                # Esta documentação
-├── components/
-│   ├── index.ts             # Barrel export
-│   ├── ProtectedRoute.tsx   # Proteção de rotas
-│   ├── LogoutButton.tsx     # Botão de logout
-│   └── UserAvatar.tsx       # Avatar do usuário
-└── pages/
-    └── LoginPage.tsx        # Página de login
+└── components/
+    ├── index.ts             # Barrel export
+    └── ProtectedRoute.tsx   # Proteção de rotas (opcional)
 ```
+
+**Removido em v2.0.0:**
+- `pages/LoginPage.tsx` (movido para global)
+- `components/LogoutButton.tsx` (UI não é mais responsabilidade)
+- `components/UserAvatar.tsx` (UI não é mais responsabilidade)
+- `routes.ts` (não tem mais rotas próprias)
 
 ## Dependências
 
-### React Ecosystem
-- React 19
-- React Router
-- React Hook Form + Zod
+### Nenhuma
 
-### UI Components (shadcn/ui)
-- Button, Input, Label
-- Alert, AlertDialog
-- Avatar, DropdownMenu
+O módulo Auth é completamente **independente** (sem dependências de outros módulos).
 
-### Icons
-- Lucide React (Eye, EyeOff, LogOut, User, Loader2, AlertCircle)
+### Integrações
 
-### Contextos
-- AuthContext (já existe em `/contexts/AuthContext`)
-- ThemeContext (opcional, para branding)
-
-## Integração com Outros Módulos
-
-O módulo Auth é **independente** (sem dependências de outros módulos), mas pode ser **utilizado** por:
-
-- **Setup Module**: Gerenciamento de portais e módulos
-- **Sidebar Module**: Menu com UserAvatar
-- **Todos os módulos**: Uso de ProtectedRoute e RequirePermission
+O módulo Auth é **utilizado** por:
+- **ProtectedRoute global**: Verifica se módulo está ativo via `hasModule('auth')`
+- **Portal configuration**: Define quais portais têm proteção ativa
+- **Todos os módulos**: Herdam proteção do portal onde estão ativos
 
 ## Changelog
+
+### v2.0.0 (2025-11-11)
+- **BREAKING CHANGE**: Módulo reformulado como mecanismo de proteção de rotas
+- Removido: LoginPage, LogoutButton, UserAvatar (movidos para global)
+- Removido: routes.ts (não tem mais rotas próprias)
+- Removido: Configuração complexa (agora é mínima/vazia)
+- Simplificado: Manifest com foco em proteção de rotas
+- Atualizado: SPEC-module-auth.md para refletir novo propósito
 
 ### v1.0.0 (2025-11-07)
 - Implementação inicial do módulo Auth

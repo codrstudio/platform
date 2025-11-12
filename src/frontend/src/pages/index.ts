@@ -19,5 +19,9 @@ export const NotFoundPage = lazy(() =>
   import('./NotFoundPage').then((module) => ({ default: module.NotFoundPage }))
 );
 
+export const UnauthorizedPage = lazy(() =>
+  import('./UnauthorizedPage').then((module) => ({ default: module.UnauthorizedPage }))
+);
+
 // Re-export non-lazy components if needed
 // (currently none, but structure allows for future expansion)

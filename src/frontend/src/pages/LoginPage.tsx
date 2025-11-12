@@ -2,11 +2,13 @@
 // Based on spec/ui/auth-module-interfaces.md
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLoginBranding } from '@/hooks/useLoginBranding';
+import { getReturnUrl } from '@/lib/auth-redirect';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,7 +30,9 @@ type LoginFormValues = z.infer<typeof loginSchema>;
  */
 export function LoginPage() {
   const { login, isAuthenticated, isLoading: authLoading } = useAuth();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { config: brandingConfig } = useLoginBranding('default');
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,11 +50,10 @@ export function LoginPage() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
-      const returnUrl = sessionStorage.getItem('returnUrl') || '/';
-      sessionStorage.removeItem('returnUrl');
+      const returnUrl = getReturnUrl(searchParams.get('redirect'));
       navigate(returnUrl, { replace: true });
     }
-  }, [isAuthenticated, authLoading, navigate]);
+  }, [isAuthenticated, authLoading, navigate, searchParams]);
 
   const onSubmit = async (data: LoginFormValues) => {
     try {
@@ -98,13 +101,22 @@ export function LoginPage() {
         {/* Logo and Header */}
         <div className="text-center space-y-2">
           <div className="flex justify-center">
-            <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-2xl font-bold text-primary-foreground">P</span>
-            </div>
+            {brandingConfig.logoUrl ? (
+              <img
+                src={brandingConfig.logoUrl}
+                alt="Logo"
+                style={{ height: `${brandingConfig.logoHeight}px` }}
+                className="object-contain"
+              />
+            ) : (
+              <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center">
+                <span className="text-2xl font-bold text-primary-foreground">P</span>
+              </div>
+            )}
           </div>
-          <h1 className="text-2xl font-bold">Bem-vindo de volta</h1>
+          <h1 className="text-2xl font-bold">{brandingConfig.texts.title}</h1>
           <p className="text-sm text-muted-foreground">
-            Entre com suas credenciais
+            {brandingConfig.texts.subtitle}
           </p>
         </div>
 
@@ -218,7 +230,7 @@ export function LoginPage() {
 
         {/* Footer */}
         <p className="text-center text-sm text-muted-foreground">
-          Plataforma Modular v1.0
+          {brandingConfig.texts.footer}
         </p>
       </div>
     </div>

@@ -2,10 +2,10 @@
  * Auth Module - Component Exports
  *
  * SPEC Compliance:
- * - SPEC-AUTH-E-001: Exporta componentes obrigatórios
- * - SPEC-AUTH-E-002: Exporta componentes opcionais
+ * - SPEC-AUTH-E-001: Exporta ProtectedRoute (opcional, já existe versão global)
+ *
+ * Note: Módulo Auth agora serve apenas como mecanismo de proteção de rotas.
+ * Componentes de UI (LogoutButton, UserAvatar) foram removidos.
  */
 
 export { ProtectedRoute } from './ProtectedRoute';
-export { LogoutButton, LogoutMenuItem } from './LogoutButton';
-export { UserAvatar, UserAvatarCompact } from './UserAvatar';
