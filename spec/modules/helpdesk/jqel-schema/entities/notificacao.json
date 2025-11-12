@@ -1,0 +1,161 @@
+{
+  "name": "notificacao",
+  "schema": "sac",
+  "properties": {
+    "id_notificacao": {
+      "type": "integer",
+      "description": "ID único da notificação"
+    },
+    "titulo_notificacao": {
+      "type": "string",
+      "description": "Título da notificação"
+    },
+    "conteudo_notificacao": {
+      "type": "string",
+      "description": "Conteúdo da notificação"
+    },
+    "tipo_notificacao": {
+      "type": "string",
+      "description": "Tipo da notificação (I=Info, A=Alerta, E=Erro, S=Sucesso)"
+    },
+    "tipo_destinatario": {
+      "type": "string",
+      "description": "Tipo do destinatário (A=Atendente, C=Contato)"
+    },
+    "data_envio": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de envio"
+    },
+    "data_leitura": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de leitura"
+    },
+    "data_expiracao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de expiração"
+    },
+    "prioridade": {
+      "type": "string",
+      "description": "Prioridade da notificação (B=Baixa, N=Normal, A=Alta, U=Urgente)"
+    },
+    "log_envio": {
+      "type": "string",
+      "description": "Log das tentativas de envio"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observações sobre a notificação"
+    }
+  },
+  "required": [
+    "id_notificacao",
+    "titulo_notificacao",
+    "conteudo_notificacao",
+    "tipo_notificacao",
+    "tipo_destinatario"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBnotificacao",
+    "columns": {
+      "id_notificacao": {
+        "column": "DFid_notificacao",
+        "type": "integer"
+      },
+      "titulo_notificacao": {
+        "column": "DFtitulo_notificacao",
+        "type": "string"
+      },
+      "conteudo_notificacao": {
+        "column": "DFconteudo_notificacao",
+        "type": "string"
+      },
+      "tipo_notificacao": {
+        "column": "DFtipo_notificacao",
+        "type": "string"
+      },
+      "tipo_destinatario": {
+        "column": "DFtipo_destinatario",
+        "type": "string"
+      },
+      "data_envio": {
+        "column": "DFdata_envio",
+        "type": "datetime"
+      },
+      "data_leitura": {
+        "column": "DFdata_leitura",
+        "type": "datetime"
+      },
+      "data_expiracao": {
+        "column": "DFdata_expiracao",
+        "type": "datetime"
+      },
+      "prioridade": {
+        "column": "DFprioridade",
+        "type": "string"
+      },
+      "log_envio": {
+        "column": "DFlog_envio",
+        "type": "string"
+      },
+      "observacoes": {
+        "column": "DFobservacoes",
+        "type": "string"
+      }
+    },
+    "queryableFields": [
+      "id_remetente",
+      "status_notificacao",
+      "data_criacao",
+      "data_envio",
+      "data_expiracao",
+      "prioridade",
+      "canal_notificacao",
+      "id_chamado",
+      "id_atendimento"
+    ],
+    "relationships": {
+      "usuario": {
+        "type": "one",
+        "column": "id_remetente",
+        "target": {
+          "entity": "usuario",
+          "schema": "sac"
+        }
+      },
+      "chamado": {
+        "type": "one",
+        "column": "id_chamado",
+        "target": {
+          "entity": "chamado",
+          "schema": "sac"
+        }
+      },
+      "atendimento": {
+        "type": "one",
+        "column": "id_atendimento",
+        "target": {
+          "entity": "atendimento",
+          "schema": "sac"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
+    "title": "Notificacao",
+    "description": "Define as notificações do sistema para atendentes e contatos",
+    "icon": "bell",
+    "keywords": [
+      "notificacao"
+    ],
+    "categories": [
+      "operacao",
+      "sistema"
+    ]
+  }
+}

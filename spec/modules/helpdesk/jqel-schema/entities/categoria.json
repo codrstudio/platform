@@ -1,0 +1,146 @@
+{
+  "name": "categoria",
+  "schema": "sac",
+  "properties": {
+    "id_categoria": {
+      "type": "integer",
+      "description": "Código único da categoria"
+    },
+    "nome_categoria": {
+      "type": "string",
+      "description": "Nome da categoria"
+    },
+    "codigo_categoria": {
+      "type": "string",
+      "description": "Código único identificador da categoria"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descrição detalhada da categoria"
+    },
+    "id_categoria_pai": {
+      "type": "integer",
+      "description": "ID da categoria pai (para hierarquia)"
+    },
+    "icone": {
+      "type": "string",
+      "description": "Nome do ícone para exibição em interfaces"
+    },
+    "prioridade_padrao": {
+      "type": "string",
+      "description": "Prioridade padrão para chamados desta categoria (B=Baixa, N=Normal, A=Alta, U=Urgente)"
+    },
+    "ativo": {
+      "type": "boolean",
+      "description": "Indica se a categoria está ativa (1=Sim, 0=Não)"
+    },
+    "data_criacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de criação do registro"
+    },
+    "data_ultima_atualizacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da última atualização"
+    },
+    "ordem_exibicao": {
+      "type": "integer",
+      "description": "Ordem de exibição em interfaces"
+    },
+    "template_descricao": {
+      "type": "string",
+      "description": "Template padrão para descrição de chamados desta categoria"
+    }
+  },
+  "required": [
+    "id_categoria",
+    "nome_categoria",
+    "codigo_categoria"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBcategoria",
+    "columns": {
+      "id_categoria": {
+        "column": "DFid_categoria",
+        "type": "integer"
+      },
+      "nome_categoria": {
+        "column": "DFnome_categoria",
+        "type": "string"
+      },
+      "codigo_categoria": {
+        "column": "DFcodigo_categoria",
+        "type": "string"
+      },
+      "descricao": {
+        "column": "DFdescricao",
+        "type": "string"
+      },
+      "id_categoria_pai": {
+        "column": "DFid_categoria_pai",
+        "type": "integer"
+      },
+      "icone": {
+        "column": "DFicone",
+        "type": "string"
+      },
+      "prioridade_padrao": {
+        "column": "DFprioridade_padrao",
+        "type": "string"
+      },
+      "ativo": {
+        "column": "DFativo",
+        "type": "boolean"
+      },
+      "data_criacao": {
+        "column": "DFdata_criacao",
+        "type": "datetime"
+      },
+      "data_ultima_atualizacao": {
+        "column": "DFdata_ultima_atualizacao",
+        "type": "datetime"
+      },
+      "ordem_exibicao": {
+        "column": "DFordem_exibicao",
+        "type": "integer"
+      },
+      "template_descricao": {
+        "column": "DFtemplate_descricao",
+        "type": "string"
+      }
+    },
+    "queryableFields": [
+      "codigo_categoria",
+      "nome_categoria",
+      "id_categoria_pai",
+      "ativo",
+      "ordem_exibicao",
+      "data_criacao"
+    ],
+    "relationships": {
+      "categoria": {
+        "type": "one",
+        "column": "id_categoria_pai",
+        "target": {
+          "entity": "categoria",
+          "schema": "sac"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
+    "title": "Categoria",
+    "description": "Define as categorias/tipos de assunto disponíveis para classificação de chamados",
+    "icon": "tag",
+    "keywords": [
+      "categoria"
+    ],
+    "categories": [
+      "configuracao"
+    ]
+  }
+}

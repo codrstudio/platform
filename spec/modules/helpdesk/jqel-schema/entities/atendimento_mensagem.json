@@ -1,0 +1,190 @@
+{
+  "name": "atendimento_mensagem",
+  "schema": "sac",
+  "properties": {
+    "id_mensagem": {
+      "type": "integer",
+      "description": "ID único da mensagem"
+    },
+    "id_atendimento": {
+      "type": "integer",
+      "description": "ID do atendimento ao qual a mensagem pertence"
+    },
+    "conteudo_mensagem": {
+      "type": "string",
+      "description": "Conteúdo da mensagem"
+    },
+    "data_hora_envio": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de envio da mensagem"
+    },
+    "tipo_remetente": {
+      "type": "string",
+      "description": "Tipo do remetente (V=Visitante, A=Atendente, S=Sistema)"
+    },
+    "tipo_conteudo": {
+      "type": "string",
+      "description": "Tipo do conteúdo (T=Texto, I=Imagem, A=Arquivo, E=Emoji)"
+    },
+    "tamanho_arquivo_bytes": {
+      "type": "integer",
+      "description": "Tamanho do arquivo em bytes"
+    },
+    "tipo_mime": {
+      "type": "string",
+      "description": "Tipo MIME do arquivo"
+    },
+    "metadados_mensagem": {
+      "type": "string",
+      "description": "Metadados extras da mensagem em formato JSON"
+    },
+    "data_edicao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da última edição"
+    },
+    "excluida": {
+      "type": "boolean",
+      "description": "Indica se a mensagem foi excluída (0=Não, 1=Sim)"
+    },
+    "data_exclusao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da exclusão"
+    },
+    "endereco_ip": {
+      "type": "string",
+      "description": "Endereço IP de origem da mensagem"
+    },
+    "user_agent": {
+      "type": "string",
+      "description": "User agent do navegador/aplicação"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observações sobre a mensagem"
+    }
+  },
+  "required": [
+    "id_mensagem",
+    "id_atendimento",
+    "conteudo_mensagem",
+    "tipo_remetente"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBatendimento_mensagem",
+    "columns": {
+      "id_mensagem": {
+        "column": "DFid_mensagem",
+        "type": "integer"
+      },
+      "id_atendimento": {
+        "column": "DFid_atendimento",
+        "type": "integer"
+      },
+      "conteudo_mensagem": {
+        "column": "DFconteudo_mensagem",
+        "type": "string"
+      },
+      "data_hora_envio": {
+        "column": "DFdata_hora_envio",
+        "type": "datetime"
+      },
+      "tipo_remetente": {
+        "column": "DFtipo_remetente",
+        "type": "string"
+      },
+      "tipo_conteudo": {
+        "column": "DFtipo_conteudo",
+        "type": "string"
+      },
+      "tamanho_arquivo_bytes": {
+        "column": "DFtamanho_arquivo_bytes",
+        "type": "integer"
+      },
+      "tipo_mime": {
+        "column": "DFtipo_mime",
+        "type": "string"
+      },
+      "metadados_mensagem": {
+        "column": "DFmetadados_mensagem",
+        "type": "string"
+      },
+      "data_edicao": {
+        "column": "DFdata_edicao",
+        "type": "datetime"
+      },
+      "excluida": {
+        "column": "DFexcluida",
+        "type": "boolean"
+      },
+      "data_exclusao": {
+        "column": "DFdata_exclusao",
+        "type": "datetime"
+      },
+      "endereco_ip": {
+        "column": "DFendereco_ip",
+        "type": "string"
+      },
+      "user_agent": {
+        "column": "DFuser_agent",
+        "type": "string"
+      },
+      "observacoes": {
+        "column": "DFobservacoes",
+        "type": "string"
+      }
+    },
+    "queryableFields": [
+      "id_atendimento",
+      "data_hora_envio",
+      "tipo_remetente",
+      "id_remetente",
+      "status_mensagem",
+      "resposta_para_id_mensagem",
+      "excluida"
+    ],
+    "relationships": {
+      "atendimento": {
+        "type": "one",
+        "column": "id_atendimento",
+        "target": {
+          "entity": "atendimento",
+          "schema": "sac"
+        }
+      },
+      "atendente": {
+        "type": "one",
+        "column": "id_remetente",
+        "target": {
+          "entity": "atendente",
+          "schema": "sac"
+        }
+      },
+      "atendimento_mensagem": {
+        "type": "one",
+        "column": "resposta_para_id_mensagem",
+        "target": {
+          "entity": "atendimento_mensagem",
+          "schema": "sac"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
+    "title": "Atendimento Mensagem",
+    "description": "Define as mensagens individuais dentro dos atendimentos/conversas de chat",
+    "icon": "message-circle",
+    "keywords": [
+      "atendimento mensagem"
+    ],
+    "categories": [
+      "operacao",
+      "dados"
+    ]
+  }
+}

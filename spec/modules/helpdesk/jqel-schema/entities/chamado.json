@@ -1,0 +1,281 @@
+{
+  "name": "chamado",
+  "schema": "sac",
+  "properties": {
+    "id_chamado": {
+      "type": "integer",
+      "description": "Código único do ticket/chamado"
+    },
+    "protocolo_chamado": {
+      "type": "string",
+      "description": "Protocolo único do chamado em formato YYYY-NNNNNN"
+    },
+    "descricao_inicial": {
+      "type": "string",
+      "description": "Descrição inicial/detalhada do problema"
+    },
+    "id_contato": {
+      "type": "integer",
+      "description": "Contato que criou o chamado"
+    },
+    "id_cliente": {
+      "type": "integer",
+      "description": "Cliente ao qual o chamado pertence"
+    },
+    "id_departamento": {
+      "type": "integer",
+      "description": "Departamento responsável pelo atendimento"
+    },
+    "id_categoria": {
+      "type": "integer",
+      "description": "Categoria/tipo de assunto do chamado"
+    },
+    "id_status_chamado": {
+      "type": "integer",
+      "description": "Status atual do chamado"
+    },
+    "prioridade": {
+      "type": "string",
+      "description": "Prioridade do chamado (B=Baixa, N=Normal, A=Alta, U=Urgente)"
+    },
+    "id_atendente_criador": {
+      "type": "integer",
+      "description": "Atendente que criou o chamado (se criado internamente)"
+    },
+    "data_ultima_atualizacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da última atualização"
+    },
+    "data_primeira_resposta": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da primeira resposta"
+    },
+    "data_resolucao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da resolução"
+    },
+    "data_fechamento": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora do fechamento definitivo"
+    },
+    "tempo_primeira_resposta_minutos": {
+      "type": "integer",
+      "description": "Tempo até primeira resposta em minutos"
+    },
+    "tempo_resolucao_minutos": {
+      "type": "integer",
+      "description": "Tempo total de resolução em minutos"
+    },
+    "sla_vencimento_primeira_resposta": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data/hora limite para primeira resposta (SLA)"
+    },
+    "sla_vencimento_resolucao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data/hora limite para resolução (SLA)"
+    },
+    "sla_primeira_resposta_vencido": {
+      "type": "boolean",
+      "description": "Indica se SLA de primeira resposta foi vencido (S=Sim, N=Não)"
+    },
+    "sla_resolucao_vencido": {
+      "type": "boolean",
+      "description": "Indica se SLA de resolução foi vencido (S=Sim, N=Não)"
+    },
+    "observacao_resolucao": {
+      "type": "string",
+      "description": "Observações sobre a resolução do chamado"
+    },
+    "origem_chamado": {
+      "type": "string",
+      "description": "Origem do chamado (PORTAL, EMAIL, CHAT, API, INTERNO)"
+    }
+  },
+  "required": [
+    "id_chamado",
+    "descricao_inicial",
+    "id_contato",
+    "id_cliente",
+    "id_departamento",
+    "id_status_chamado"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBchamado",
+    "columns": {
+      "id_chamado": {
+        "column": "DFid_chamado",
+        "type": "integer"
+      },
+      "protocolo_chamado": {
+        "column": "DFprotocolo_chamado",
+        "type": "string"
+      },
+      "descricao_inicial": {
+        "column": "DFdescricao_inicial",
+        "type": "string"
+      },
+      "id_contato": {
+        "column": "DFid_contato",
+        "type": "integer"
+      },
+      "id_cliente": {
+        "column": "DFid_cliente",
+        "type": "integer"
+      },
+      "id_departamento": {
+        "column": "DFid_departamento",
+        "type": "integer"
+      },
+      "id_categoria": {
+        "column": "DFid_categoria",
+        "type": "integer"
+      },
+      "id_status_chamado": {
+        "column": "DFid_status_chamado",
+        "type": "integer"
+      },
+      "prioridade": {
+        "column": "DFprioridade",
+        "type": "string"
+      },
+      "id_atendente_criador": {
+        "column": "DFid_atendente_criador",
+        "type": "integer"
+      },
+      "data_ultima_atualizacao": {
+        "column": "DFdata_ultima_atualizacao",
+        "type": "datetime"
+      },
+      "data_primeira_resposta": {
+        "column": "DFdata_primeira_resposta",
+        "type": "datetime"
+      },
+      "data_resolucao": {
+        "column": "DFdata_resolucao",
+        "type": "datetime"
+      },
+      "data_fechamento": {
+        "column": "DFdata_fechamento",
+        "type": "datetime"
+      },
+      "tempo_primeira_resposta_minutos": {
+        "column": "DFtempo_primeira_resposta_minutos",
+        "type": "integer"
+      },
+      "tempo_resolucao_minutos": {
+        "column": "DFtempo_resolucao_minutos",
+        "type": "integer"
+      },
+      "sla_vencimento_primeira_resposta": {
+        "column": "DFsla_vencimento_primeira_resposta",
+        "type": "datetime"
+      },
+      "sla_vencimento_resolucao": {
+        "column": "DFsla_vencimento_resolucao",
+        "type": "datetime"
+      },
+      "sla_primeira_resposta_vencido": {
+        "column": "DFsla_primeira_resposta_vencido",
+        "type": "boolean"
+      },
+      "sla_resolucao_vencido": {
+        "column": "DFsla_resolucao_vencido",
+        "type": "boolean"
+      },
+      "observacao_resolucao": {
+        "column": "DFobservacao_resolucao",
+        "type": "string"
+      },
+      "origem_chamado": {
+        "column": "DForigem_chamado",
+        "type": "string"
+      }
+    },
+    "queryableFields": [
+      "protocolo_chamado",
+      "id_contato",
+      "id_cliente",
+      "id_departamento",
+      "id_categoria",
+      "id_status_chamado",
+      "id_atendente_responsavel",
+      "prioridade",
+      "data_criacao",
+      "data_ultima_atualizacao",
+      "sla_vencimento_primeira_resposta",
+      "sla_vencimento_resolucao",
+      "origem_chamado"
+    ],
+    "relationships": {
+      "contato": {
+        "type": "one",
+        "column": "id_contato",
+        "target": {
+          "entity": "contato",
+          "schema": "sac"
+        }
+      },
+      "cliente": {
+        "type": "one",
+        "column": "id_cliente",
+        "target": {
+          "entity": "cliente",
+          "schema": "sac"
+        }
+      },
+      "departamento": {
+        "type": "one",
+        "column": "id_departamento",
+        "target": {
+          "entity": "departamento",
+          "schema": "sac"
+        }
+      },
+      "categoria": {
+        "type": "one",
+        "column": "id_categoria",
+        "target": {
+          "entity": "categoria",
+          "schema": "sac"
+        }
+      },
+      "status_chamado": {
+        "type": "one",
+        "column": "id_status_chamado",
+        "target": {
+          "entity": "status_chamado",
+          "schema": "sac"
+        }
+      },
+      "atendente": {
+        "type": "one",
+        "column": "id_atendente_criador",
+        "target": {
+          "entity": "atendente",
+          "schema": "sac"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
+    "title": "Chamado",
+    "description": "Define os chamados/tickets principais do sistema de helpdesk",
+    "icon": "ticket",
+    "keywords": [
+      "chamado"
+    ],
+    "categories": [
+      "operacao",
+      "dados"
+    ]
+  }
+}

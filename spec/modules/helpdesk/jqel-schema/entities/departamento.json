@@ -1,0 +1,176 @@
+{
+  "name": "departamento",
+  "schema": "sac",
+  "properties": {
+    "id_departamento": {
+      "type": "integer",
+      "description": "Código único do departamento"
+    },
+    "nome_departamento": {
+      "type": "string",
+      "description": "Nome do departamento"
+    },
+    "codigo_departamento": {
+      "type": "string",
+      "description": "Código único identificador do departamento"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descrição detalhada do departamento"
+    },
+    "email_departamento": {
+      "type": "string",
+      "description": "Email do departamento para notificações"
+    },
+    "cor_hexadecimal": {
+      "type": "string",
+      "description": "Cor em formato hexadecimal para identificação visual"
+    },
+    "icone": {
+      "type": "string",
+      "description": "Nome do ícone para exibição em interfaces"
+    },
+    "ativo": {
+      "type": "boolean",
+      "description": "Indica se o departamento está ativo (1=Sim, 0=Não)"
+    },
+    "data_criacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de criação do registro"
+    },
+    "data_ultima_atualizacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da última atualização"
+    },
+    "template_email_criacao": {
+      "type": "string",
+      "description": "Template de email para criação de chamados"
+    },
+    "template_email_atualizacao": {
+      "type": "string",
+      "description": "Template de email para atualizações de chamados"
+    },
+    "template_email_finalizacao": {
+      "type": "string",
+      "description": "Template de email para finalização de chamados"
+    },
+    "mensagem_inicial_padrao": {
+      "type": "string",
+      "description": "Mensagem inicial padrão para novos chamados"
+    },
+    "sla_padrao_horas": {
+      "type": "integer",
+      "description": "SLA padrão em horas para chamados do departamento"
+    },
+    "privativo": {
+      "type": "boolean",
+      "description": "Indica se apenas atendentes específicos podem acessar (1=Sim, 0=Não)"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observações gerais sobre o departamento"
+    }
+  },
+  "required": [
+    "id_departamento",
+    "nome_departamento",
+    "codigo_departamento"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBdepartamento",
+    "columns": {
+      "id_departamento": {
+        "column": "DFid_departamento",
+        "type": "integer"
+      },
+      "nome_departamento": {
+        "column": "DFnome_departamento",
+        "type": "string"
+      },
+      "codigo_departamento": {
+        "column": "DFcodigo_departamento",
+        "type": "string"
+      },
+      "descricao": {
+        "column": "DFdescricao",
+        "type": "string"
+      },
+      "email_departamento": {
+        "column": "DFemail_departamento",
+        "type": "string"
+      },
+      "cor_hexadecimal": {
+        "column": "DFcor_hexadecimal",
+        "type": "string"
+      },
+      "icone": {
+        "column": "DFicone",
+        "type": "string"
+      },
+      "ativo": {
+        "column": "DFativo",
+        "type": "boolean"
+      },
+      "data_criacao": {
+        "column": "DFdata_criacao",
+        "type": "datetime"
+      },
+      "data_ultima_atualizacao": {
+        "column": "DFdata_ultima_atualizacao",
+        "type": "datetime"
+      },
+      "template_email_criacao": {
+        "column": "DFtemplate_email_criacao",
+        "type": "string"
+      },
+      "template_email_atualizacao": {
+        "column": "DFtemplate_email_atualizacao",
+        "type": "string"
+      },
+      "template_email_finalizacao": {
+        "column": "DFtemplate_email_finalizacao",
+        "type": "string"
+      },
+      "mensagem_inicial_padrao": {
+        "column": "DFmensagem_inicial_padrao",
+        "type": "string"
+      },
+      "sla_padrao_horas": {
+        "column": "DFsla_padrao_horas",
+        "type": "integer"
+      },
+      "privativo": {
+        "column": "DFprivativo",
+        "type": "boolean"
+      },
+      "observacoes": {
+        "column": "DFobservacoes",
+        "type": "string"
+      }
+    },
+    "queryableFields": [
+      "codigo_departamento",
+      "nome_departamento",
+      "ativo",
+      "privativo",
+      "data_criacao"
+    ],
+    "relationships": {}
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
+    "title": "Departamento",
+    "description": "Define os departamentos/produtos disponíveis no sistema para organização dos atendimentos",
+    "icon": "folder",
+    "keywords": [
+      "departamento"
+    ],
+    "categories": [
+      "configuracao"
+    ]
+  }
+}

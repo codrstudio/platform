@@ -1,0 +1,88 @@
+{
+  "name": "usuario_permissao",
+  "schema": "sac",
+  "properties": {
+    "id_usuario": {
+      "type": "integer",
+      "description": "ID do usuário"
+    },
+    "id_permissao": {
+      "type": "integer",
+      "description": "ID da permissão"
+    },
+    "permitido": {
+      "type": "boolean",
+      "description": "Status da permissão (true=Permitido, false=Negado, null=Indefinido)"
+    },
+    "data_expiracao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data de expiração da permissão (NULL = sem expiração)"
+    }
+  },
+  "required": [
+    "id_usuario",
+    "id_permissao"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBusuario_permissao",
+    "columns": {
+      "id_usuario": {
+        "column": "DFid_usuario",
+        "type": "integer"
+      },
+      "id_permissao": {
+        "column": "DFid_permissao",
+        "type": "integer"
+      },
+      "permitido": {
+        "column": "DFpermitido",
+        "type": "boolean"
+      },
+      "data_expiracao": {
+        "column": "DFdata_expiracao",
+        "type": "datetime"
+      }
+    },
+    "queryableFields": [
+      "id_permissao",
+      "permitido",
+      "data_atribuicao",
+      "data_expiracao",
+      "id_usuario_atribuicao"
+    ],
+    "relationships": {
+      "usuario": {
+        "type": "one",
+        "column": "id_usuario_atribuicao",
+        "target": {
+          "entity": "usuario",
+          "schema": "sac"
+        }
+      },
+      "permissao": {
+        "type": "one",
+        "column": "id_permissao",
+        "target": {
+          "entity": "permissao",
+          "schema": "sac"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
+    "title": "Usuario Permissao",
+    "description": "Define permissões específicas por usuário que sobrescrevem as permissões do papel",
+    "icon": "lock",
+    "keywords": [
+      "usuario permissao"
+    ],
+    "categories": [
+      "configuracao",
+      "sistema"
+    ]
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "name": "usuario_papel",
+  "schema": "sac",
+  "properties": {
+    "id_usuario": {
+      "type": "integer",
+      "description": "ID do usuário"
+    },
+    "id_papel": {
+      "type": "integer",
+      "description": "ID do papel atribuído"
+    },
+    "data_atribuicao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da atribuição do papel"
+    },
+    "data_expiracao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data de expiração do papel (NULL = sem expiração)"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observações sobre a atribuição do papel"
+    }
+  },
+  "required": [
+    "id_usuario",
+    "id_papel"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBusuario_papel",
+    "columns": {
+      "id_usuario": {
+        "column": "DFid_usuario",
+        "type": "integer"
+      },
+      "id_papel": {
+        "column": "DFid_papel",
+        "type": "integer"
+      },
+      "data_atribuicao": {
+        "column": "DFdata_atribuicao",
+        "type": "datetime"
+      },
+      "data_expiracao": {
+        "column": "DFdata_expiracao",
+        "type": "datetime"
+      },
+      "observacoes": {
+        "column": "DFobservacoes",
+        "type": "string"
+      }
+    },
+    "queryableFields": [
+      "id_papel",
+      "ativo",
+      "data_atribuicao",
+      "data_expiracao",
+      "id_usuario_atribuicao"
+    ],
+    "relationships": {
+      "usuario": {
+        "type": "one",
+        "column": "id_usuario_atribuicao",
+        "target": {
+          "entity": "usuario",
+          "schema": "sac"
+        }
+      },
+      "papel": {
+        "type": "one",
+        "column": "id_papel",
+        "target": {
+          "entity": "papel",
+          "schema": "sac"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
+    "title": "Usuario Papel",
+    "description": "Define o relacionamento N:N entre usuários e papéis do sistema",
+    "icon": "link",
+    "keywords": [
+      "usuario papel"
+    ],
+    "categories": [
+      "configuracao",
+      "sistema"
+    ]
+  }
+}

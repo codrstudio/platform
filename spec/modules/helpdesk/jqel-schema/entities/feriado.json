@@ -1,0 +1,96 @@
+{
+  "name": "feriado",
+  "schema": "sac",
+  "properties": {
+    "id_feriado": {
+      "type": "integer",
+      "description": "ID único do feriado"
+    },
+    "nome_feriado": {
+      "type": "string",
+      "description": "Nome do feriado"
+    },
+    "data_feriado": {
+      "type": "string",
+      "format": "date",
+      "description": "Data do feriado"
+    },
+    "tipo_feriado": {
+      "type": "string",
+      "description": "Tipo do feriado (N=Nacional, E=Estadual, M=Municipal, C=Corporativo)"
+    },
+    "data_criacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de criação do registro"
+    },
+    "data_ultima_atualizacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da última atualização"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observações sobre o feriado"
+    }
+  },
+  "required": [
+    "id_feriado",
+    "nome_feriado",
+    "data_feriado"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBferiado",
+    "columns": {
+      "id_feriado": {
+        "column": "DFid_feriado",
+        "type": "integer"
+      },
+      "nome_feriado": {
+        "column": "DFnome_feriado",
+        "type": "string"
+      },
+      "data_feriado": {
+        "column": "DFdata_feriado",
+        "type": "date"
+      },
+      "tipo_feriado": {
+        "column": "DFtipo_feriado",
+        "type": "string"
+      },
+      "data_criacao": {
+        "column": "DFdata_criacao",
+        "type": "datetime"
+      },
+      "data_ultima_atualizacao": {
+        "column": "DFdata_ultima_atualizacao",
+        "type": "datetime"
+      },
+      "observacoes": {
+        "column": "DFobservacoes",
+        "type": "string"
+      }
+    },
+    "queryableFields": [
+      "data_feriado",
+      "tipo_feriado",
+      "ativo",
+      "recorrente"
+    ],
+    "relationships": {}
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
+    "title": "Feriado",
+    "description": "Define os feriados que devem ser considerados no cálculo de SLA",
+    "icon": "calendar",
+    "keywords": [
+      "feriado"
+    ],
+    "categories": [
+      "configuracao"
+    ]
+  }
+}

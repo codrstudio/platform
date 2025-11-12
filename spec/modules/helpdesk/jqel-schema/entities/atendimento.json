@@ -1,0 +1,218 @@
+{
+  "name": "atendimento",
+  "schema": "sac",
+  "properties": {
+    "id_atendimento": {
+      "type": "integer",
+      "description": "ID único do atendimento"
+    },
+    "id_contato": {
+      "type": "integer",
+      "description": "ID do contato (se identificado)"
+    },
+    "id_atendente": {
+      "type": "integer",
+      "description": "Atendente responsável pelo atendimento"
+    },
+    "data_primeiro_atendimento": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora do primeiro atendimento"
+    },
+    "data_finalizacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de finalização"
+    },
+    "tempo_espera_minutos": {
+      "type": "integer",
+      "description": "Tempo de espera até primeiro atendimento em minutos"
+    },
+    "tempo_atendimento_minutos": {
+      "type": "integer",
+      "description": "Tempo total de atendimento em minutos"
+    },
+    "avaliacao_atendimento": {
+      "type": "string",
+      "description": "Avaliação do atendimento (E=Excelente, B=Bom, R=Regular, P=Péssimo)"
+    },
+    "observacao_atendimento": {
+      "type": "string",
+      "description": "Observações sobre o atendimento"
+    },
+    "pagina_origem": {
+      "type": "string",
+      "description": "Página de onde o chat foi iniciado"
+    },
+    "user_agent": {
+      "type": "string",
+      "description": "User agent do navegador"
+    },
+    "cidade_acesso": {
+      "type": "string",
+      "description": "Cidade de acesso (geolocalização)"
+    },
+    "estado_acesso": {
+      "type": "string",
+      "description": "Estado de acesso (geolocalização)"
+    },
+    "pais_acesso": {
+      "type": "string",
+      "description": "País de acesso (geolocalização)"
+    },
+    "fuso_horario": {
+      "type": "string",
+      "description": "Fuso horário do visitante"
+    },
+    "idioma_navegador": {
+      "type": "string",
+      "description": "Idioma do navegador"
+    },
+    "dispositivo_tipo": {
+      "type": "string",
+      "description": "Tipo de dispositivo (DESKTOP, MOBILE, TABLET)"
+    },
+    "sistema_operacional": {
+      "type": "string",
+      "description": "Sistema operacional"
+    },
+    "campos_personalizados": {
+      "type": "string",
+      "description": "Campos extras em formato JSON"
+    }
+  },
+  "required": [
+    "id_atendimento"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBatendimento",
+    "columns": {
+      "id_atendimento": {
+        "column": "DFid_atendimento",
+        "type": "integer"
+      },
+      "id_contato": {
+        "column": "DFid_contato",
+        "type": "integer"
+      },
+      "id_atendente": {
+        "column": "DFid_atendente",
+        "type": "integer"
+      },
+      "data_primeiro_atendimento": {
+        "column": "DFdata_primeiro_atendimento",
+        "type": "datetime"
+      },
+      "data_finalizacao": {
+        "column": "DFdata_finalizacao",
+        "type": "datetime"
+      },
+      "tempo_espera_minutos": {
+        "column": "DFtempo_espera_minutos",
+        "type": "integer"
+      },
+      "tempo_atendimento_minutos": {
+        "column": "DFtempo_atendimento_minutos",
+        "type": "integer"
+      },
+      "avaliacao_atendimento": {
+        "column": "DFavaliacao_atendimento",
+        "type": "string"
+      },
+      "observacao_atendimento": {
+        "column": "DFobservacao_atendimento",
+        "type": "string"
+      },
+      "pagina_origem": {
+        "column": "DFpagina_origem",
+        "type": "string"
+      },
+      "user_agent": {
+        "column": "DFuser_agent",
+        "type": "string"
+      },
+      "cidade_acesso": {
+        "column": "DFcidade_acesso",
+        "type": "string"
+      },
+      "estado_acesso": {
+        "column": "DFestado_acesso",
+        "type": "string"
+      },
+      "pais_acesso": {
+        "column": "DFpais_acesso",
+        "type": "string"
+      },
+      "fuso_horario": {
+        "column": "DFfuso_horario",
+        "type": "string"
+      },
+      "idioma_navegador": {
+        "column": "DFidioma_navegador",
+        "type": "string"
+      },
+      "dispositivo_tipo": {
+        "column": "DFdispositivo_tipo",
+        "type": "string"
+      },
+      "sistema_operacional": {
+        "column": "DFsistema_operacional",
+        "type": "string"
+      },
+      "campos_personalizados": {
+        "column": "DFcampos_personalizados",
+        "type": "string"
+      }
+    },
+    "queryableFields": [
+      "id_contato",
+      "id_atendente",
+      "id_departamento",
+      "status_atendimento",
+      "data_inicio",
+      "email_visitante",
+      "endereco_ip"
+    ],
+    "relationships": {
+      "contato": {
+        "type": "one",
+        "column": "id_contato",
+        "target": {
+          "entity": "contato",
+          "schema": "sac"
+        }
+      },
+      "atendente": {
+        "type": "one",
+        "column": "id_atendente",
+        "target": {
+          "entity": "atendente",
+          "schema": "sac"
+        }
+      },
+      "departamento": {
+        "type": "one",
+        "column": "id_departamento",
+        "target": {
+          "entity": "departamento",
+          "schema": "sac"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
+    "title": "Atendimento",
+    "description": "Define os atendimentos/conversas via chat entre visitantes/contatos e atendentes",
+    "icon": "message-circle",
+    "keywords": [
+      "atendimento"
+    ],
+    "categories": [
+      "operacao",
+      "dados"
+    ]
+  }
+}

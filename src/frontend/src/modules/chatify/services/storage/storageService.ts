@@ -3,17 +3,17 @@
  * StorageService - Facade centralizado para persistência
  *
  * Singleton que encapsula o StorageDriver e fornece API simplificada
- * para todos os contextos da aplicação.
+ * para todos os hooks da aplicação.
  *
  * Benefícios:
- * - API única e consistente para todos os contextos
+ * - API única e consistente para todos os hooks
  * - Troca de driver transparente (localStorage → servidor)
  * - Listeners para sincronização entre abas
  * - Type-safe com TypeScript generics
  *
  * @example
  * ```ts
- * import { storageService } from '@/services/storage'
+ * import { storageService } from '@/modules/chatify/services/storage'
  *
  * // Salvar dados
  * storageService.set('journey-progress', progressData)
@@ -38,9 +38,9 @@ class StorageService {
   private listeners: Map<string, Set<StorageListener<any>>> = new Map()
 
   constructor() {
-    // Driver padrão: LocalStorageDriver com namespace "nic-chat-"
+    // Driver padrão: LocalStorageDriver com namespace "chatify-"
     this.driver = new LocalStorageDriver({
-      namespace: 'nic-chat-',
+      namespace: 'chatify-',
       debounceMs: 1000, // Debounce de 1s para writes frequentes
       onError: (error, operation) => {
         console.error(`[StorageService] Error in ${operation}:`, error)
@@ -138,12 +138,12 @@ class StorageService {
     // Storage event nativo (disparado por outras abas)
     window.addEventListener('storage', (event) => {
       // Ignorar eventos que não são do nosso namespace
-      if (!event.key || !event.key.startsWith('nic-chat-')) {
+      if (!event.key || !event.key.startsWith('chatify-')) {
         return
       }
 
       // Extrair chave sem namespace
-      const key = event.key.replace('nic-chat-', '')
+      const key = event.key.replace('chatify-', '')
 
       // Parsear novo valor
       let value = null
@@ -161,11 +161,11 @@ class StorageService {
 
     // Custom event para sincronização na mesma aba
     window.addEventListener('local-storage-change', ((event: CustomEvent) => {
-      if (!event.detail?.key || !event.detail.key.startsWith('nic-chat-')) {
+      if (!event.detail?.key || !event.detail.key.startsWith('chatify-')) {
         return
       }
 
-      const key = event.detail.key.replace('nic-chat-', '')
+      const key = event.detail.key.replace('chatify-', '')
       const value = event.detail.value
 
       // Notificar listeners

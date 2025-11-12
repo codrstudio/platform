@@ -1,0 +1,130 @@
+{
+  "name": "tipo_status_atendimento",
+  "schema": "sac",
+  "properties": {
+    "tipo_status_atendimento": {
+      "type": "string",
+      "description": "Código do status (chave natural)"
+    },
+    "nome_status": {
+      "type": "string",
+      "description": "Nome do status"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descrição detalhada do status"
+    },
+    "cor": {
+      "type": "string",
+      "description": "Cor semântica do status"
+    },
+    "icone": {
+      "type": "string",
+      "description": "Ícone para exibição do status"
+    },
+    "status_ativo": {
+      "type": "boolean",
+      "description": "Indica se é status ativo/em andamento (1=Sim, 0=Não)"
+    },
+    "ativo": {
+      "type": "boolean",
+      "description": "Indica se o status está ativo (1=Sim, 0=Não)"
+    },
+    "data_criacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de criação do registro"
+    },
+    "data_ultima_atualizacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da última atualização"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observações sobre o status"
+    }
+  },
+  "required": [
+    "tipo_status_atendimento",
+    "nome_status"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBtipo_status_atendimento",
+    "columns": {
+      "tipo_status_atendimento": {
+        "column": "DFtipo_status_atendimento",
+        "type": "string"
+      },
+      "nome_status": {
+        "column": "DFnome_status",
+        "type": "string"
+      },
+      "descricao": {
+        "column": "DFdescricao",
+        "type": "string"
+      },
+      "cor": {
+        "column": "DFcor",
+        "type": "string"
+      },
+      "icone": {
+        "column": "DFicone",
+        "type": "string"
+      },
+      "status_ativo": {
+        "column": "DFstatus_ativo",
+        "type": "boolean"
+      },
+      "ativo": {
+        "column": "DFativo",
+        "type": "boolean"
+      },
+      "data_criacao": {
+        "column": "DFdata_criacao",
+        "type": "datetime"
+      },
+      "data_ultima_atualizacao": {
+        "column": "DFdata_ultima_atualizacao",
+        "type": "datetime"
+      },
+      "observacoes": {
+        "column": "DFobservacoes",
+        "type": "string"
+      }
+    },
+    "queryableFields": [
+      "tipo_status_atendimento",
+      "nome_status",
+      "cor",
+      "status_ativo",
+      "status_final",
+      "peso_ordenacao",
+      "ativo"
+    ],
+    "relationships": {
+      "cor_semantica": {
+        "type": "one",
+        "column": "cor",
+        "target": {
+          "entity": "cor_semantica",
+          "schema": "sac"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
+    "title": "Tipo Status Atendimento",
+    "description": "Define os tipos de status disponíveis para atendimentos via chat",
+    "icon": "circle",
+    "keywords": [
+      "tipo status atendimento"
+    ],
+    "categories": [
+      "configuracao"
+    ]
+  }
+}

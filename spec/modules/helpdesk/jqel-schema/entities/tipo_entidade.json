@@ -1,0 +1,139 @@
+{
+  "name": "tipo_entidade",
+  "schema": "sac",
+  "properties": {
+    "tipo_entidade": {
+      "type": "string",
+      "description": "Código do tipo de entidade (nome da tabela sem prefixo TB)"
+    },
+    "nome_tabela": {
+      "type": "string",
+      "description": "Nome completo da tabela (com prefixo TB)"
+    },
+    "nome_exibicao": {
+      "type": "string",
+      "description": "Nome de exibição da entidade"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descrição da entidade"
+    },
+    "cor": {
+      "type": "string",
+      "description": "Cor semântica da entidade"
+    },
+    "icone": {
+      "type": "string",
+      "description": "Ícone para exibição da entidade"
+    },
+    "permite_tags": {
+      "type": "boolean",
+      "description": "Indica se a entidade permite associação com tags (1=Sim, 0=Não)"
+    },
+    "ativo": {
+      "type": "boolean",
+      "description": "Indica se o tipo de entidade está ativo (1=Sim, 0=Não)"
+    },
+    "data_criacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de criação do registro"
+    },
+    "data_ultima_atualizacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da última atualização"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observações sobre o tipo de entidade"
+    }
+  },
+  "required": [
+    "tipo_entidade",
+    "nome_tabela",
+    "nome_exibicao"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBtipo_entidade",
+    "columns": {
+      "tipo_entidade": {
+        "column": "DFtipo_entidade",
+        "type": "string"
+      },
+      "nome_tabela": {
+        "column": "DFnome_tabela",
+        "type": "string"
+      },
+      "nome_exibicao": {
+        "column": "DFnome_exibicao",
+        "type": "string"
+      },
+      "descricao": {
+        "column": "DFdescricao",
+        "type": "string"
+      },
+      "cor": {
+        "column": "DFcor",
+        "type": "string"
+      },
+      "icone": {
+        "column": "DFicone",
+        "type": "string"
+      },
+      "permite_tags": {
+        "column": "DFpermite_tags",
+        "type": "boolean"
+      },
+      "ativo": {
+        "column": "DFativo",
+        "type": "boolean"
+      },
+      "data_criacao": {
+        "column": "DFdata_criacao",
+        "type": "datetime"
+      },
+      "data_ultima_atualizacao": {
+        "column": "DFdata_ultima_atualizacao",
+        "type": "datetime"
+      },
+      "observacoes": {
+        "column": "DFobservacoes",
+        "type": "string"
+      }
+    },
+    "queryableFields": [
+      "tipo_entidade",
+      "nome_tabela",
+      "nome_exibicao",
+      "cor",
+      "permite_tags",
+      "ativo"
+    ],
+    "relationships": {
+      "cor_semantica": {
+        "type": "one",
+        "column": "cor",
+        "target": {
+          "entity": "cor_semantica",
+          "schema": "sac"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
+    "title": "Tipo Entidade",
+    "description": "Define os tipos de entidade válidos no sistema para controle de integridade",
+    "icon": "database",
+    "keywords": [
+      "tipo entidade"
+    ],
+    "categories": [
+      "configuracao",
+      "sistema"
+    ]
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "name": "refresh_token",
+  "schema": "sac",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "Código único do registro (BIGINT para suportar alto volume)"
+    },
+    "id_usuario": {
+      "type": "integer",
+      "description": "Referência ao usuário proprietário do token"
+    },
+    "token_hash": {
+      "type": "string",
+      "description": "Hash SHA-256 do refresh token (64 chars hex)"
+    },
+    "familia_id": {
+      "type": "string",
+      "description": "UUID da família de tokens (chain de rotação)"
+    },
+    "expira_em": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de expiração do token (padrão: 7 dias)"
+    },
+    "criado_em": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de criação do token"
+    },
+    "usado_em": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora do uso (NULL = não usado, preenchido = usado uma vez)"
+    },
+    "revogado": {
+      "type": "boolean",
+      "description": "Se o token foi revogado (1=Sim, 0=Não)"
+    },
+    "device_info": {
+      "type": "string",
+      "description": "Informações opcionais do dispositivo (User-Agent)"
+    },
+    "ip_origem": {
+      "type": "string",
+      "description": "IP de origem da criação do token (IPv4 ou IPv6)"
+    }
+  },
+  "required": [
+    "id",
+    "id_usuario",
+    "token_hash",
+    "familia_id",
+    "expira_em"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBrefresh_token",
+    "columns": {
+      "id": {
+        "column": "DFid",
+        "type": "integer"
+      },
+      "id_usuario": {
+        "column": "DFid_usuario",
+        "type": "integer"
+      },
+      "token_hash": {
+        "column": "DFtoken_hash",
+        "type": "string"
+      },
+      "familia_id": {
+        "column": "DFfamilia_id",
+        "type": "string"
+      },
+      "expira_em": {
+        "column": "DFexpira_em",
+        "type": "datetime"
+      },
+      "criado_em": {
+        "column": "DFcriado_em",
+        "type": "datetime"
+      },
+      "usado_em": {
+        "column": "DFusado_em",
+        "type": "datetime"
+      },
+      "revogado": {
+        "column": "DFrevogado",
+        "type": "boolean"
+      },
+      "device_info": {
+        "column": "DFdevice_info",
+        "type": "string"
+      },
+      "ip_origem": {
+        "column": "DFip_origem",
+        "type": "string"
+      }
+    },
+    "queryableFields": [
+      "token_hash",
+      "id_usuario",
+      "familia_id",
+      "expira_em",
+      "revogado",
+      "usado_em"
+    ],
+    "relationships": {
+      "usuario": {
+        "type": "one",
+        "column": "id_usuario",
+        "target": {
+          "entity": "usuario",
+          "schema": "sac"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "warning",
+    "title": "Refresh Token",
+    "description": "Armazena refresh tokens com suporte a rotation, detecção de reuso e revogação em família",
+    "icon": "key",
+    "keywords": [
+      "refresh token"
+    ],
+    "categories": [
+      "sistema"
+    ]
+  }
+}

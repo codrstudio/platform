@@ -1,0 +1,114 @@
+{
+  "name": "chamado_satisfacao",
+  "schema": "sac",
+  "properties": {
+    "id_satisfacao": {
+      "type": "integer",
+      "description": "ID único da avaliação de satisfação"
+    },
+    "id_chamado": {
+      "type": "integer",
+      "description": "ID do chamado avaliado"
+    },
+    "id_contato": {
+      "type": "integer",
+      "description": "ID do contato que realizou a avaliação"
+    },
+    "nota_avaliacao": {
+      "type": "integer",
+      "description": "Nota da avaliação (ex: 1 a 5)"
+    },
+    "token_avaliacao": {
+      "type": "string",
+      "description": "Token único para acesso à avaliação pelo cliente"
+    },
+    "ip_avaliacao": {
+      "type": "string",
+      "description": "Endereço IP de onde a avaliação foi realizada"
+    },
+    "data_criacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de criação do registro"
+    }
+  },
+  "required": [
+    "id_satisfacao",
+    "id_chamado",
+    "id_contato",
+    "nota_avaliacao"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBchamado_satisfacao",
+    "columns": {
+      "id_satisfacao": {
+        "column": "DFid_satisfacao",
+        "type": "integer"
+      },
+      "id_chamado": {
+        "column": "DFid_chamado",
+        "type": "integer"
+      },
+      "id_contato": {
+        "column": "DFid_contato",
+        "type": "integer"
+      },
+      "nota_avaliacao": {
+        "column": "DFnota_avaliacao",
+        "type": "integer"
+      },
+      "token_avaliacao": {
+        "column": "DFtoken_avaliacao",
+        "type": "string"
+      },
+      "ip_avaliacao": {
+        "column": "DFip_avaliacao",
+        "type": "string"
+      },
+      "data_criacao": {
+        "column": "DFdata_criacao",
+        "type": "datetime"
+      }
+    },
+    "queryableFields": [
+      "id_chamado",
+      "token_avaliacao",
+      "id_contato",
+      "data_avaliacao",
+      "nota_avaliacao"
+    ],
+    "relationships": {
+      "chamado": {
+        "type": "one",
+        "column": "id_chamado",
+        "target": {
+          "entity": "chamado",
+          "schema": "sac"
+        }
+      },
+      "contato": {
+        "type": "one",
+        "column": "id_contato",
+        "target": {
+          "entity": "contato",
+          "schema": "sac"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
+    "title": "Chamado Satisfacao",
+    "description": "Armazena as avaliações de satisfação dos contatos sobre os chamados resolvidos",
+    "icon": "star",
+    "keywords": [
+      "chamado satisfacao"
+    ],
+    "categories": [
+      "operacao",
+      "dados"
+    ]
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "name": "cor_semantica",
+  "schema": "sac",
+  "properties": {
+    "cor": {
+      "type": "string",
+      "description": "Código da cor (chave natural)"
+    },
+    "nome_exibicao": {
+      "type": "string",
+      "description": "Nome de exibição da cor"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descrição do uso da cor"
+    },
+    "hex_claro": {
+      "type": "string",
+      "description": "Código hexadecimal para tema claro"
+    },
+    "ativo": {
+      "type": "boolean",
+      "description": "Indica se a cor está ativa (1=Sim, 0=Não)"
+    },
+    "data_criacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de criação do registro"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observações sobre a cor"
+    }
+  },
+  "required": [
+    "cor",
+    "nome_exibicao",
+    "hex_claro"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBcor_semantica",
+    "columns": {
+      "cor": {
+        "column": "DFcor",
+        "type": "string"
+      },
+      "nome_exibicao": {
+        "column": "DFnome_exibicao",
+        "type": "string"
+      },
+      "descricao": {
+        "column": "DFdescricao",
+        "type": "string"
+      },
+      "hex_claro": {
+        "column": "DFhex_claro",
+        "type": "string"
+      },
+      "ativo": {
+        "column": "DFativo",
+        "type": "boolean"
+      },
+      "data_criacao": {
+        "column": "DFdata_criacao",
+        "type": "datetime"
+      },
+      "observacoes": {
+        "column": "DFobservacoes",
+        "type": "string"
+      }
+    },
+    "queryableFields": [
+      "cor",
+      "ativo",
+      "ordem_exibicao"
+    ],
+    "relationships": {}
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
+    "title": "Cor Semantica",
+    "description": "Define as cores semânticas e nomeadas do sistema com suporte a temas claro/escuro",
+    "icon": "palette",
+    "keywords": [
+      "cor semantica"
+    ],
+    "categories": [
+      "configuracao"
+    ]
+  }
+}

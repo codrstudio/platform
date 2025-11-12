@@ -1,0 +1,157 @@
+{
+  "name": "chamado_anexo",
+  "schema": "sac",
+  "properties": {
+    "id_anexo": {
+      "type": "integer",
+      "description": "ID único do anexo"
+    },
+    "id_chamado": {
+      "type": "integer",
+      "description": "ID do chamado ao qual o anexo pertence"
+    },
+    "id_historico": {
+      "type": "integer",
+      "description": "ID da mensagem específica à qual o anexo está vinculado"
+    },
+    "nome_arquivo_storage": {
+      "type": "string",
+      "description": "Nome do arquivo no sistema de storage"
+    },
+    "extensao_arquivo": {
+      "type": "string",
+      "description": "Extensão do arquivo"
+    },
+    "tamanho_arquivo_bytes": {
+      "type": "integer",
+      "description": "Tamanho do arquivo em bytes"
+    },
+    "hash_arquivo": {
+      "type": "string",
+      "description": "Hash do arquivo para deduplicação e integridade"
+    },
+    "data_upload": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora do upload do arquivo"
+    },
+    "id_usuario_upload": {
+      "type": "integer",
+      "description": "ID do usuário que fez o upload"
+    },
+    "user_agent": {
+      "type": "string",
+      "description": "User agent do navegador/aplicação"
+    },
+    "ativo": {
+      "type": "boolean",
+      "description": "Indica se o anexo está ativo (1=Sim, 0=Não)"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observações sobre o anexo"
+    }
+  },
+  "required": [
+    "id_anexo",
+    "id_chamado",
+    "nome_arquivo_storage",
+    "tamanho_arquivo_bytes"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBchamado_anexo",
+    "columns": {
+      "id_anexo": {
+        "column": "DFid_anexo",
+        "type": "integer"
+      },
+      "id_chamado": {
+        "column": "DFid_chamado",
+        "type": "integer"
+      },
+      "id_historico": {
+        "column": "DFid_historico",
+        "type": "integer"
+      },
+      "nome_arquivo_storage": {
+        "column": "DFnome_arquivo_storage",
+        "type": "string"
+      },
+      "extensao_arquivo": {
+        "column": "DFextensao_arquivo",
+        "type": "string"
+      },
+      "tamanho_arquivo_bytes": {
+        "column": "DFtamanho_arquivo_bytes",
+        "type": "integer"
+      },
+      "hash_arquivo": {
+        "column": "DFhash_arquivo",
+        "type": "string"
+      },
+      "data_upload": {
+        "column": "DFdata_upload",
+        "type": "datetime"
+      },
+      "id_usuario_upload": {
+        "column": "DFid_usuario_upload",
+        "type": "integer"
+      },
+      "user_agent": {
+        "column": "DFuser_agent",
+        "type": "string"
+      },
+      "ativo": {
+        "column": "DFativo",
+        "type": "boolean"
+      },
+      "observacoes": {
+        "column": "DFobservacoes",
+        "type": "string"
+      }
+    },
+    "queryableFields": [
+      "id_chamado",
+      "id_historico",
+      "hash_arquivo",
+      "status_virus_scan",
+      "data_upload",
+      "visibilidade",
+      "ativo",
+      "tipo_mime"
+    ],
+    "relationships": {
+      "chamado": {
+        "type": "one",
+        "column": "id_chamado",
+        "target": {
+          "entity": "chamado",
+          "schema": "sac"
+        }
+      },
+      "chamado_historico": {
+        "type": "one",
+        "column": "id_historico",
+        "target": {
+          "entity": "chamado_historico",
+          "schema": "sac"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
+    "title": "Chamado Anexo",
+    "description": "Anexos/arquivos associados aos chamados e suas mensagens",
+    "icon": "paperclip",
+    "keywords": [
+      "chamado anexo"
+    ],
+    "categories": [
+      "operacao",
+      "dados"
+    ]
+  }
+}

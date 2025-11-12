@@ -643,3 +643,91 @@ cd src/frontend && npm run type-check
 - Converter NextStepWidgetContext → useNextStepWidget (storageService)
 - Migrar hooks utilitários (useAgents, useModels, useChatWidget, etc)
 
+
+### Fase 2 - HOOKS ✅ CONCLUÍDO (2025-11-12)
+
+**Status**: Todas as tarefas da Fase 2 foram concluídas com sucesso.
+
+#### Hooks Criados (10 hooks)
+
+**Hooks Principais de Context Convertidos (5 hooks)**
+- ✅ `hooks/useChatify.ts` - Gerenciamento de chat + JQEL (substituiu ChatContext)
+  - useJQELQuery para carregar mensagens
+  - useJQELMutation para persist
+  - Streaming SSE para respostas de IA
+  - Optimistic updates
+  - Sistema de agentes com system prompts
+
+- ✅ `hooks/useJourneyProgress.ts` - Progresso da jornada (substituiu JourneyProgressContext)
+  - Tracking automático de páginas visitadas
+  - Cálculo de porcentagem de conclusão
+  - Persistência via storageService
+  - Sincronização entre abas
+  - Sistema de conquistas/achievements
+
+- ✅ `hooks/useTheme.ts` - Tema light/dark (substituiu ThemeContext)
+  - Persiste preferência no localStorage
+  - Detecta preferência do sistema
+  - Aplica classe 'dark' no documentElement
+
+- ✅ `hooks/useSidebar.ts` - Sidebar expandida/colapsada (substituiu SidebarContext)
+  - Persiste estado no localStorage (apenas desktop)
+  - Detecta mobile via resize listener
+  - Em mobile: sidebar inicia fechada
+
+- ✅ `hooks/useNextStepWidget.ts` - Widget de próxima etapa (substituiu NextStepWidgetContext)
+  - Persistência via storageService
+  - Sincronização entre abas
+  - Controle de visibilidade temporária
+
+**Hooks Utilitários Migrados (5 hooks)**
+- ✅ `hooks/useAgents.ts` - Gerenciamento de agentes (built-in + N8N + custom)
+- ✅ `hooks/useModels.ts` - Gerenciamento de provedores IA e modelos
+- ✅ `hooks/useChatWidget.ts` - Estado do widget flutuante
+- ✅ `hooks/useMermaid.ts` - Renderização de diagramas Mermaid
+- ✅ `hooks/useAutoScroll.ts` - Scroll automático em chat
+- ⏸️ `hooks/useJourneyContent.ts.disabled` - Desabilitado (depende de gray-matter, será reativado na Fase 5)
+
+#### Utils Migrados (2 arquivos)
+
+- ✅ `utils/journeyMap.ts` - Mapa da jornada com 14 etapas
+- ✅ `utils/colorUtils.ts` - Utilidades de cores
+
+#### Ajustes Aplicados
+
+1. ✅ **Remoção de Contexts**: Todos os 5 React Contexts convertidos para hooks puros
+2. ✅ **Imports ajustados**: Todos os imports de `@/...` convertidos para caminhos relativos `../...`
+3. ✅ **Type-only imports**: Adicionado `import type` onde necessário
+4. ✅ **Storage namespace**: storageService usa namespace `'chatify-'` ao invés de `'nic-chat-'`
+
+#### Verificação TypeScript
+
+```bash
+cd src/frontend && npm run type-check
+# Resultado: ✅ Nenhum erro de TypeScript no módulo chatify
+```
+
+#### Checkpoints Atingidos
+
+- ✅ 2.1 - useChatify retorna mesmas propriedades que ChatContext
+- ✅ 2.2 - Todos os hooks de Context compilam e retornam interface esperada
+- ✅ 2.3 - Todos os hooks utilitários compilam
+- ✅ 2.4 - Verificação TypeScript sem erros
+
+**✅ CHECKPOINT FASE 2 COMPLETO**:
+- 5 Contexts convertidos para hooks puros
+- 5 Hooks utilitários migrados (+ 1 desabilitado temporariamente)
+- 2 Utils migrados
+- Todos os arquivos compilam sem erros TypeScript
+- Nenhuma dependência de Context API
+
+#### Próxima Fase
+
+**FASE 3: COMPONENTS** - Migrar componentes React
+- Components de Markdown (MarkdownContent + Mermaid optimization)
+- Components de Chat (ChatHistory, ChatInput, ChatMessage, etc)
+- Components de Agent (AgentManagement, CustomAgentEditor, etc)
+- Components de Gamification (ProgressBar, NextStepWidget, JourneyIndexModal, etc)
+- Components de Layout (Layout, Sidebar, Navigation, ThemeToggle, etc)
+- Components Adicionais (AgentModelSelector, FloatingActionStack)
+

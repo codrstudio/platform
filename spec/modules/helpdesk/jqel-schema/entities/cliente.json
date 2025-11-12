@@ -1,0 +1,202 @@
+{
+  "name": "cliente",
+  "schema": "sac",
+  "properties": {
+    "id_cliente": {
+      "type": "integer",
+      "description": "Código único do cliente"
+    },
+    "nome_cliente": {
+      "type": "string",
+      "description": "Nome fantasia do cliente"
+    },
+    "razao_social": {
+      "type": "string",
+      "description": "Razão social da empresa"
+    },
+    "cnpj": {
+      "type": "string",
+      "description": "CNPJ da empresa"
+    },
+    "site_web": {
+      "type": "string",
+      "description": "Website do cliente"
+    },
+    "telefone": {
+      "type": "string",
+      "description": "Telefone principal do cliente"
+    },
+    "email": {
+      "type": "string",
+      "description": "Email principal do cliente"
+    },
+    "endereco_completo": {
+      "type": "string",
+      "description": "Endereço completo do cliente"
+    },
+    "cidade": {
+      "type": "string",
+      "description": "Cidade do cliente"
+    },
+    "estado": {
+      "type": "string",
+      "description": "Estado/UF do cliente"
+    },
+    "cep": {
+      "type": "string",
+      "description": "CEP do cliente"
+    },
+    "segmento": {
+      "type": "string",
+      "description": "Segmento do cliente (A=Atacado, V=Varejo)"
+    },
+    "ativo": {
+      "type": "boolean",
+      "description": "Indica se o cliente está ativo (1=Sim, 0=Não)"
+    },
+    "data_criacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de criação do registro"
+    },
+    "data_ultima_atualizacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da última atualização"
+    },
+    "id_cliente_matriz": {
+      "type": "integer",
+      "description": "ID do cliente matriz (para hierarquia)"
+    },
+    "campos_personalizados": {
+      "type": "string",
+      "description": "Campos extras específicos do cliente em formato JSON"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observações gerais sobre o cliente"
+    }
+  },
+  "required": [
+    "id_cliente",
+    "nome_cliente"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBcliente",
+    "columns": {
+      "id_cliente": {
+        "column": "DFid_cliente",
+        "type": "integer"
+      },
+      "nome_cliente": {
+        "column": "DFnome_cliente",
+        "type": "string"
+      },
+      "razao_social": {
+        "column": "DFrazao_social",
+        "type": "string"
+      },
+      "cnpj": {
+        "column": "DFcnpj",
+        "type": "string"
+      },
+      "site_web": {
+        "column": "DFsite_web",
+        "type": "string"
+      },
+      "telefone": {
+        "column": "DFtelefone",
+        "type": "string"
+      },
+      "email": {
+        "column": "DFemail",
+        "type": "string"
+      },
+      "endereco_completo": {
+        "column": "DFendereco_completo",
+        "type": "string"
+      },
+      "cidade": {
+        "column": "DFcidade",
+        "type": "string"
+      },
+      "estado": {
+        "column": "DFestado",
+        "type": "string"
+      },
+      "cep": {
+        "column": "DFcep",
+        "type": "string"
+      },
+      "segmento": {
+        "column": "DFsegmento",
+        "type": "string"
+      },
+      "ativo": {
+        "column": "DFativo",
+        "type": "boolean"
+      },
+      "data_criacao": {
+        "column": "DFdata_criacao",
+        "type": "datetime"
+      },
+      "data_ultima_atualizacao": {
+        "column": "DFdata_ultima_atualizacao",
+        "type": "datetime"
+      },
+      "id_cliente_matriz": {
+        "column": "DFid_cliente_matriz",
+        "type": "integer"
+      },
+      "campos_personalizados": {
+        "column": "DFcampos_personalizados",
+        "type": "string"
+      },
+      "observacoes": {
+        "column": "DFobservacoes",
+        "type": "string"
+      }
+    },
+    "queryableFields": [
+      "nome_cliente",
+      "segmento",
+      "ativo",
+      "id_cliente_matriz",
+      "id_atendente_responsavel",
+      "data_criacao"
+    ],
+    "relationships": {
+      "cliente": {
+        "type": "one",
+        "column": "id_cliente_matriz",
+        "target": {
+          "entity": "cliente",
+          "schema": "sac"
+        }
+      },
+      "atendente": {
+        "type": "one",
+        "column": "id_atendente_responsavel",
+        "target": {
+          "entity": "atendente",
+          "schema": "sac"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
+    "title": "Cliente",
+    "description": "Define os clientes/empresas que contratam suporte no sistema HelpDesk",
+    "icon": "building",
+    "keywords": [
+      "cliente"
+    ],
+    "categories": [
+      "cliente",
+      "dados"
+    ]
+  }
+}

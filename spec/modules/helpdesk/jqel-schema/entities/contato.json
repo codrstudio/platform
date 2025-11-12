@@ -1,0 +1,162 @@
+{
+  "name": "contato",
+  "schema": "sac",
+  "properties": {
+    "id_contato": {
+      "type": "integer",
+      "description": "Código único do contato"
+    },
+    "id_usuario": {
+      "type": "integer",
+      "description": "Usuário vinculado (NULL = contato sem login no portal)"
+    },
+    "nome_contato": {
+      "type": "string",
+      "description": "Nome completo do contato"
+    },
+    "email_contato": {
+      "type": "string",
+      "description": "Email do contato"
+    },
+    "telefone_contato": {
+      "type": "string",
+      "description": "Telefone do contato"
+    },
+    "cargo_contato": {
+      "type": "string",
+      "description": "Cargo do contato na empresa"
+    },
+    "departamento_contato": {
+      "type": "string",
+      "description": "Departamento do contato na empresa"
+    },
+    "contato_principal": {
+      "type": "boolean",
+      "description": "Indica se é o contato principal do cliente (1=Sim, 0=Não)"
+    },
+    "recebe_notificacoes": {
+      "type": "boolean",
+      "description": "Indica se recebe notificações (1=Sim, 0=Não)"
+    },
+    "ativo": {
+      "type": "boolean",
+      "description": "Indica se o contato está ativo (1=Sim, 0=Não)"
+    },
+    "data_criacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de criação do registro"
+    },
+    "data_ultima_atualizacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da última atualização"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observações sobre o contato"
+    }
+  },
+  "required": [
+    "id_contato",
+    "nome_contato",
+    "email_contato"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBcontato",
+    "columns": {
+      "id_contato": {
+        "column": "DFid_contato",
+        "type": "integer"
+      },
+      "id_usuario": {
+        "column": "DFid_usuario",
+        "type": "integer"
+      },
+      "nome_contato": {
+        "column": "DFnome_contato",
+        "type": "string"
+      },
+      "email_contato": {
+        "column": "DFemail_contato",
+        "type": "string"
+      },
+      "telefone_contato": {
+        "column": "DFtelefone_contato",
+        "type": "string"
+      },
+      "cargo_contato": {
+        "column": "DFcargo_contato",
+        "type": "string"
+      },
+      "departamento_contato": {
+        "column": "DFdepartamento_contato",
+        "type": "string"
+      },
+      "contato_principal": {
+        "column": "DFcontato_principal",
+        "type": "boolean"
+      },
+      "recebe_notificacoes": {
+        "column": "DFrecebe_notificacoes",
+        "type": "boolean"
+      },
+      "ativo": {
+        "column": "DFativo",
+        "type": "boolean"
+      },
+      "data_criacao": {
+        "column": "DFdata_criacao",
+        "type": "datetime"
+      },
+      "data_ultima_atualizacao": {
+        "column": "DFdata_ultima_atualizacao",
+        "type": "datetime"
+      },
+      "observacoes": {
+        "column": "DFobservacoes",
+        "type": "string"
+      }
+    },
+    "queryableFields": [
+      "email_contato",
+      "id_cliente",
+      "ativo",
+      "contato_principal",
+      "data_criacao"
+    ],
+    "relationships": {
+      "usuario": {
+        "type": "one",
+        "column": "id_usuario",
+        "target": {
+          "entity": "usuario",
+          "schema": "sac"
+        }
+      },
+      "cliente": {
+        "type": "one",
+        "column": "id_cliente",
+        "target": {
+          "entity": "cliente",
+          "schema": "sac"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
+    "title": "Contato",
+    "description": "Define os contatos dos clientes com vínculo opcional a usuário",
+    "icon": "user",
+    "keywords": [
+      "contato"
+    ],
+    "categories": [
+      "cliente",
+      "dados"
+    ]
+  }
+}

@@ -1,0 +1,205 @@
+{
+  "name": "usuario",
+  "schema": "sac",
+  "properties": {
+    "id_usuario": {
+      "type": "integer",
+      "description": "Código único do usuário"
+    },
+    "email_usuario": {
+      "type": "string",
+      "description": "Email único para login"
+    },
+    "nome_exibicao": {
+      "type": "string",
+      "description": "Nome de exibição do usuário"
+    },
+    "hash_senha": {
+      "type": "string",
+      "description": "Hash da senha do usuário"
+    },
+    "avatar_url": {
+      "type": "string",
+      "description": "URL do avatar do usuário"
+    },
+    "telefone": {
+      "type": "string",
+      "description": "Telefone do usuário"
+    },
+    "fuso_horario": {
+      "type": "string",
+      "description": "Fuso horário preferido do usuário"
+    },
+    "idioma": {
+      "type": "string",
+      "description": "Idioma preferido do usuário"
+    },
+    "tema_interface": {
+      "type": "string",
+      "description": "Tema da interface (claro, escuro, auto)"
+    },
+    "notificacoes_push": {
+      "type": "boolean",
+      "description": "Receber notificações push (1=Sim, 0=Não)"
+    },
+    "ultimo_login": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora do último login"
+    },
+    "ip_ultimo_login": {
+      "type": "string",
+      "description": "IP do último login"
+    },
+    "tentativas_login_falhadas": {
+      "type": "integer",
+      "description": "Contador de tentativas de login falhadas"
+    },
+    "data_bloqueio": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data de bloqueio da conta (se aplicável)"
+    },
+    "token_recuperacao_senha": {
+      "type": "string",
+      "description": "Token para recuperação de senha"
+    },
+    "data_expiracao_token": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data de expiração do token de recuperação"
+    },
+    "ativo": {
+      "type": "boolean",
+      "description": "Indica se o usuário está ativo (1=Sim, 0=Não)"
+    },
+    "data_criacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de criação do registro"
+    },
+    "data_ultima_atualizacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da última atualização"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observações sobre o usuário"
+    }
+  },
+  "required": [
+    "id_usuario",
+    "email_usuario",
+    "nome_exibicao",
+    "hash_senha"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBusuario",
+    "columns": {
+      "id_usuario": {
+        "column": "DFid_usuario",
+        "type": "integer"
+      },
+      "email_usuario": {
+        "column": "DFemail_usuario",
+        "type": "string"
+      },
+      "nome_exibicao": {
+        "column": "DFnome_exibicao",
+        "type": "string"
+      },
+      "hash_senha": {
+        "column": "DFhash_senha",
+        "type": "string"
+      },
+      "avatar_url": {
+        "column": "DFavatar_url",
+        "type": "string"
+      },
+      "telefone": {
+        "column": "DFtelefone",
+        "type": "string"
+      },
+      "fuso_horario": {
+        "column": "DFfuso_horario",
+        "type": "string"
+      },
+      "idioma": {
+        "column": "DFidioma",
+        "type": "string"
+      },
+      "tema_interface": {
+        "column": "DFtema_interface",
+        "type": "string"
+      },
+      "notificacoes_push": {
+        "column": "DFnotificacoes_push",
+        "type": "boolean"
+      },
+      "ultimo_login": {
+        "column": "DFultimo_login",
+        "type": "datetime"
+      },
+      "ip_ultimo_login": {
+        "column": "DFip_ultimo_login",
+        "type": "string"
+      },
+      "tentativas_login_falhadas": {
+        "column": "DFtentativas_login_falhadas",
+        "type": "integer"
+      },
+      "data_bloqueio": {
+        "column": "DFdata_bloqueio",
+        "type": "datetime"
+      },
+      "token_recuperacao_senha": {
+        "column": "DFtoken_recuperacao_senha",
+        "type": "string"
+      },
+      "data_expiracao_token": {
+        "column": "DFdata_expiracao_token",
+        "type": "datetime"
+      },
+      "ativo": {
+        "column": "DFativo",
+        "type": "boolean"
+      },
+      "data_criacao": {
+        "column": "DFdata_criacao",
+        "type": "datetime"
+      },
+      "data_ultima_atualizacao": {
+        "column": "DFdata_ultima_atualizacao",
+        "type": "datetime"
+      },
+      "observacoes": {
+        "column": "DFobservacoes",
+        "type": "string"
+      }
+    },
+    "queryableFields": [
+      "email_usuario",
+      "ativo",
+      "ultimo_login",
+      "data_criacao",
+      "token_recuperacao_senha"
+    ],
+    "relationships": {}
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
+    "title": "Usuario",
+    "description": "Define os usuários do sistema com autenticação e perfis",
+    "icon": "user",
+    "keywords": [
+      "usuario"
+    ],
+    "categories": [
+      "usuario",
+      "sistema"
+    ]
+  }
+}

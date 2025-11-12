@@ -1,0 +1,138 @@
+{
+  "name": "automacao_regra",
+  "schema": "sac",
+  "properties": {
+    "id_automacao_regra": {
+      "type": "integer",
+      "description": "ID único da regra de automação"
+    },
+    "nome_regra": {
+      "type": "string",
+      "description": "Nome da regra de automação"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descrição da regra de automação"
+    },
+    "tipo_regra": {
+      "type": "string",
+      "description": "Tipo da regra (A=Auto-assignment, E=Escalação, T=Trigger, N=Notificação)"
+    },
+    "data_criacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora de criação do registro"
+    },
+    "data_ultima_atualizacao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da última atualização"
+    },
+    "data_ultima_execucao": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da última execução"
+    },
+    "contador_execucoes": {
+      "type": "integer",
+      "description": "Contador total de execuções"
+    },
+    "contador_sucessos": {
+      "type": "integer",
+      "description": "Contador de execuções bem-sucedidas"
+    },
+    "contador_falhas": {
+      "type": "integer",
+      "description": "Contador de execuções com falha"
+    },
+    "log_ultima_execucao": {
+      "type": "string",
+      "description": "Log da última execução"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observações sobre a regra"
+    }
+  },
+  "required": [
+    "id_automacao_regra",
+    "nome_regra",
+    "tipo_regra"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBautomacao_regra",
+    "columns": {
+      "id_automacao_regra": {
+        "column": "DFid_automacao_regra",
+        "type": "integer"
+      },
+      "nome_regra": {
+        "column": "DFnome_regra",
+        "type": "string"
+      },
+      "descricao": {
+        "column": "DFdescricao",
+        "type": "string"
+      },
+      "tipo_regra": {
+        "column": "DFtipo_regra",
+        "type": "string"
+      },
+      "data_criacao": {
+        "column": "DFdata_criacao",
+        "type": "datetime"
+      },
+      "data_ultima_atualizacao": {
+        "column": "DFdata_ultima_atualizacao",
+        "type": "datetime"
+      },
+      "data_ultima_execucao": {
+        "column": "DFdata_ultima_execucao",
+        "type": "datetime"
+      },
+      "contador_execucoes": {
+        "column": "DFcontador_execucoes",
+        "type": "integer"
+      },
+      "contador_sucessos": {
+        "column": "DFcontador_sucessos",
+        "type": "integer"
+      },
+      "contador_falhas": {
+        "column": "DFcontador_falhas",
+        "type": "integer"
+      },
+      "log_ultima_execucao": {
+        "column": "DFlog_ultima_execucao",
+        "type": "string"
+      },
+      "observacoes": {
+        "column": "DFobservacoes",
+        "type": "string"
+      }
+    },
+    "queryableFields": [
+      "nome_regra",
+      "tipo_regra",
+      "evento_trigger",
+      "ativo",
+      "prioridade_execucao",
+      "data_ultima_execucao"
+    ],
+    "relationships": {}
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
+    "title": "Automacao Regra",
+    "description": "Define as regras de automação do sistema",
+    "icon": "zap",
+    "keywords": [
+      "automacao regra"
+    ],
+    "categories": [
+      "configuracao"
+    ]
+  }
+}

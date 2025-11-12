@@ -1,0 +1,148 @@
+{
+  "name": "chamado_historico",
+  "schema": "sac",
+  "properties": {
+    "id_historico": {
+      "type": "integer",
+      "description": "ID único do registro de histórico"
+    },
+    "id_chamado": {
+      "type": "integer",
+      "description": "ID do chamado ao qual o histórico pertence"
+    },
+    "conteudo_mensagem": {
+      "type": "string",
+      "description": "Conteúdo da mensagem ou descrição da alteração"
+    },
+    "data_hora_mensagem": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da mensagem/alteração"
+    },
+    "tipo_mensagem": {
+      "type": "string",
+      "description": "Tipo da entrada (M=Mensagem, S=Sistema, A=Alteração)"
+    },
+    "endereco_ip": {
+      "type": "string",
+      "description": "Endereço IP de origem da mensagem"
+    },
+    "user_agent": {
+      "type": "string",
+      "description": "User agent do navegador/aplicação"
+    },
+    "canal_origem": {
+      "type": "string",
+      "description": "Canal de origem da mensagem (WEB, EMAIL, API, CHAT)"
+    }
+  },
+  "required": [
+    "id_historico",
+    "id_chamado",
+    "conteudo_mensagem"
+  ],
+  "sqlMapping": {
+    "schema": "sac",
+    "table": "TBchamado_historico",
+    "columns": {
+      "id_historico": {
+        "column": "DFid_historico",
+        "type": "integer"
+      },
+      "id_chamado": {
+        "column": "DFid_chamado",
+        "type": "integer"
+      },
+      "conteudo_mensagem": {
+        "column": "DFconteudo_mensagem",
+        "type": "string"
+      },
+      "data_hora_mensagem": {
+        "column": "DFdata_hora_mensagem",
+        "type": "datetime"
+      },
+      "tipo_mensagem": {
+        "column": "DFtipo_mensagem",
+        "type": "string"
+      },
+      "endereco_ip": {
+        "column": "DFendereco_ip",
+        "type": "string"
+      },
+      "user_agent": {
+        "column": "DFuser_agent",
+        "type": "string"
+      },
+      "canal_origem": {
+        "column": "DFcanal_origem",
+        "type": "string"
+      }
+    },
+    "queryableFields": [
+      "id_chamado",
+      "data_hora_mensagem",
+      "tipo_mensagem",
+      "visibilidade",
+      "id_contato",
+      "id_atendente",
+      "id_usuario_alteracao",
+      "canal_origem"
+    ],
+    "relationships": {
+      "chamado": {
+        "type": "one",
+        "column": "id_chamado",
+        "target": {
+          "entity": "chamado",
+          "schema": "sac"
+        }
+      },
+      "contato": {
+        "type": "one",
+        "column": "id_contato",
+        "target": {
+          "entity": "contato",
+          "schema": "sac"
+        }
+      },
+      "atendente": {
+        "type": "one",
+        "column": "id_atendente_novo",
+        "target": {
+          "entity": "atendente",
+          "schema": "sac"
+        }
+      },
+      "usuario": {
+        "type": "one",
+        "column": "id_usuario_alteracao",
+        "target": {
+          "entity": "usuario",
+          "schema": "sac"
+        }
+      },
+      "status_chamado": {
+        "type": "one",
+        "column": "id_status_chamado_novo",
+        "target": {
+          "entity": "status_chamado",
+          "schema": "sac"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "discoverable": true,
+    "severity": "normal",
+    "title": "Chamado Historico",
+    "description": "Histórico completo de mensagens e alterações dos chamados",
+    "icon": "clock",
+    "keywords": [
+      "chamado historico"
+    ],
+    "categories": [
+      "operacao",
+      "dados"
+    ]
+  }
+}
