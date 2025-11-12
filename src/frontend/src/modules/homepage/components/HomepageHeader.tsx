@@ -8,7 +8,7 @@
  */
 
 import { useAuth } from '@/contexts/AuthContext';
-import { UserAvatar, LogoutMenuItem } from '@/modules/auth';
+import { UserAvatar, LogoutMenuItem } from '@/components/auth';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import {
