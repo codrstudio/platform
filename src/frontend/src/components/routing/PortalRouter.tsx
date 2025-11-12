@@ -7,41 +7,85 @@ import { usePortal } from '@/hooks/useJQEL';
 import { Loader2 } from 'lucide-react';
 import { PortalDefaultView } from '@/components/portal/PortalDefaultView';
 import { useTheme } from '@/contexts/ThemeContext';
-import { renderSetupRoutes } from '@/modules/setup';
+import { moduleRegistry } from '@/core/modules';
 
 interface PortalRouterProps {
   children?: React.ReactNode;
 }
 
 /**
+ * Helper function to render routes from active modules
+ * SPEC-R-RM-011: Portal prefixes routes with its own path
+ * SPEC-R-LM-004: Dynamic rendering based on activeModules
+ */
+function renderActiveModuleRoutes(activeModules: string[]) {
+  const routes: JSX.Element[] = [];
+
+  activeModules.forEach((moduleId) => {
+    const module = moduleRegistry.getModule(moduleId);
+
+    if (!module) {
+      if (import.meta.env.DEV) {
+        console.warn(`[PortalRouter] Module "${moduleId}" not found in registry`);
+      }
+      return;
+    }
+
+    if (!module.routes || module.routes.length === 0) {
+      if (import.meta.env.DEV) {
+        console.log(`[PortalRouter] Module "${moduleId}" has no routes`);
+      }
+      return;
+    }
+
+    // SPEC-R-LM-006: Components are lazy-loaded when route is accessed
+    module.routes.forEach((route) => {
+      routes.push(
+        <Route
+          key={`${moduleId}-${route.path}`}
+          path={route.path}
+          element={<route.component />}
+          index={route.index}
+        />
+      );
+    });
+  });
+
+  return routes;
+}
+
+/**
  * Portal Content Inner Component
  * Renders portal content with theme context available
+ * SPEC-R-LM-005: Only render routes from modules in activeModules
  */
 function PortalContentInner({ portal }: { portal: any }) {
   const { mode } = useTheme();
 
-  // If portal has 'setup' module, render setup routes
-  if (portal.activeModules.includes('setup')) {
-    return (
-      <Suspense fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      }>
-        <Routes>
-          {renderSetupRoutes()}
-        </Routes>
-      </Suspense>
-    );
+  // Check if portal has any modules with routes
+  const hasActiveModules = portal.activeModules && portal.activeModules.length > 0;
+
+  if (hasActiveModules) {
+    const routes = renderActiveModuleRoutes(portal.activeModules);
+
+    // If we have routes to render, show them
+    if (routes.length > 0) {
+      return (
+        <Suspense fallback={
+          <div className="min-h-screen flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        }>
+          <Routes>
+            {routes}
+          </Routes>
+        </Suspense>
+      );
+    }
   }
 
-  // TODO: When other modules are implemented, add their routing logic here
-  // if (portal.activeModules.includes('chat')) {
-  //   return renderChatRoutes();
-  // }
-
-  // Default: show PortalDefaultView for any other case
-  // (no modules, only 'auth', or unimplemented modules)
+  // Default: show PortalDefaultView if no routes available
+  // (no modules, only modules without routes, or unimplemented modules)
   return (
     <PortalDefaultView
       portalId={portal.portalId}

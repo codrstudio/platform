@@ -13,6 +13,10 @@ import { Loader2 } from 'lucide-react';
 import { Toaster } from '@/components/ui/sonner';
 import { cacheValidator } from './services/cacheValidator';
 
+// Import module loader to auto-register all modules
+// SPEC-R-LM-001: Static import of module metadata
+import './core/modules/loader';
+
 /**
  * TanStack Query Client Configuration
  * SPEC-DA-TQ-006 to SPEC-DA-TQ-007: Query client configuration
