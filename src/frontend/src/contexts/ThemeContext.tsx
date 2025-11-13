@@ -100,6 +100,59 @@ export function ThemeProvider({ children, realmId = 'default', portalId = '' }: 
   }, [brandColor])
 
   /**
+   * Sync realm theme configuration from backend to localStorage
+   * SPEC-TH-HC-014: Portals inherit realm configurations
+   */
+  useEffect(() => {
+    const syncRealmTheme = async () => {
+      try {
+        // Fetch realm configuration from backend
+        const response = await fetch('/api/jqel', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            schema: 'backend',
+            select: 'realm',
+            where: {
+              realmId: { $eq: realmId }
+            }
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success && result.data?.[0]?.config?.theme?.brandColor) {
+          const backendBrandColor = result.data[0].config.theme.brandColor;
+
+          // Check if localStorage already has this realm's brand color
+          const storedColor = localStorage.getItem(`realm:${realmId}:brand-color`);
+
+          // Only update if different (avoid unnecessary re-renders)
+          if (storedColor !== backendBrandColor) {
+            localStorage.setItem(`realm:${realmId}:brand-color`, backendBrandColor);
+
+            // Update state if no portal override exists
+            if (!portalId || !localStorage.getItem(`portal:${portalId}:brand-color`)) {
+              const parsedColor = getStoredBrandColor(realmId, portalId || undefined);
+              setBrandColorState(parsedColor);
+              applyBrandColor(parsedColor);
+            }
+          }
+        }
+      } catch (error) {
+        // Silently fail - localStorage values will be used as fallback
+        if (import.meta.env.DEV) {
+          console.warn(`[ThemeProvider] Failed to sync realm theme for "${realmId}":`, error);
+        }
+      }
+    };
+
+    syncRealmTheme();
+  }, [realmId, portalId])
+
+  /**
    * Listen to system theme changes
    * SPEC-TH-LD-015, SPEC-TH-LD-017
    */

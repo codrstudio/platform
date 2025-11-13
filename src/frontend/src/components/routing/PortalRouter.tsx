@@ -6,7 +6,7 @@ import { Suspense } from 'react';
 import { usePortal } from '@/hooks/useJQEL';
 import { Loader2 } from 'lucide-react';
 import { PortalDefaultView } from '@/components/portal/PortalDefaultView';
-import { useTheme } from '@/contexts/ThemeContext';
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { moduleRegistry } from '@/core/modules';
 
 interface PortalRouterProps {
@@ -100,7 +100,7 @@ function PortalContentInner({ portal }: { portal: any }) {
 /**
  * Portal Content Component
  * Displays content for a specific portal
- * CHANGED: ThemeProvider is now global (removed from here)
+ * SPEC-TH-HC-014: ThemeProvider wraps portal content with portal's realmId
  */
 function PortalContent({ portalId }: { portalId: string }) {
   const { data: portalResult, isLoading, error } = usePortal(portalId);
@@ -133,8 +133,12 @@ function PortalContent({ portalId }: { portalId: string }) {
     );
   }
 
-  // ThemeProvider is now global in App.tsx
-  return <PortalContentInner portal={portal} />;
+  // SPEC-TH-HC-014: Each portal gets its own ThemeProvider with its realmId
+  return (
+    <ThemeProvider realmId={portal.realmId || 'default'} portalId={portalId}>
+      <PortalContentInner portal={portal} />
+    </ThemeProvider>
+  );
 }
 
 /**

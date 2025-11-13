@@ -3,7 +3,6 @@ import { Suspense, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import { EventProvider } from './contexts/EventContext';
-import { ThemeProvider } from './contexts/ThemeContext';
 import { ProtectedRoute } from './components/routing/ProtectedRoute';
 import { PortalRouter } from './components/routing/PortalRouter';
 import { LoginPage, NotFoundPage, UnauthorizedPage } from './pages';
@@ -81,65 +80,63 @@ function CacheEpochSync() {
  *
  * Architecture:
  * - BrowserRouter: Client-side routing
- * - ThemeProvider: CHANGED - Now global with theme mode shared across all portals
  * - QueryClientProvider: TanStack Query data management
  * - AuthProvider: Global authentication state
+ * - EventProvider: Real-time events via SSE
  * - Suspense: Lazy loading fallback
  * - Routes: Application routing structure
  *
  * SPEC-R-PM-001: Main portal uses "/"
  * SPEC-R-PO-001: Other portals use "/:portalId/*"
  * SPEC-DA-P-005: TanStack Query encapsulates JQEL
- * CHANGED: Theme mode is now global, brand colors use realm 'default'
+ * SPEC-TH-HC-014: ThemeProvider moved to PortalRouter for per-portal realm theming
  */
 function App() {
   return (
     <BrowserRouter>
-      <ThemeProvider realmId="default">
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <EventProvider>
-              <CacheEpochSync />
-              <Suspense fallback={<LoadingFallback />}>
-                {/* Global toast notifications - SPEC-ERR-UI-001 */}
-                <Toaster
-                  position="bottom-right"
-                  expand={false}
-                  richColors
-                  closeButton
-                  duration={5000}
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <EventProvider>
+            <CacheEpochSync />
+            <Suspense fallback={<LoadingFallback />}>
+              {/* Global toast notifications - SPEC-ERR-UI-001 */}
+              <Toaster
+                position="bottom-right"
+                expand={false}
+                richColors
+                closeButton
+                duration={5000}
+              />
+
+              {/* Event system UI components */}
+              <EventNotification />
+              <ConnectionStatus />
+
+              {/* Cache update notification - PLAN_4 FASE 3 */}
+              <UpdateNotification />
+
+              <Routes>
+                {/* Public routes */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
+                {/* Protected routes: Portal navigation */}
+                <Route
+                  path="/*"
+                  element={
+                    <ProtectedRoute>
+                      <PortalRouter>
+                        {/* 404 fallback */}
+                        <Route path="*" element={<NotFoundPage />} />
+                      </PortalRouter>
+                    </ProtectedRoute>
+                  }
                 />
-
-                {/* Event system UI components */}
-                <EventNotification />
-                <ConnectionStatus />
-
-                {/* Cache update notification - PLAN_4 FASE 3 */}
-                <UpdateNotification />
-
-                <Routes>
-                  {/* Public routes */}
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/unauthorized" element={<UnauthorizedPage />} />
-
-                  {/* Protected routes: Portal navigation */}
-                  <Route
-                    path="/*"
-                    element={
-                      <ProtectedRoute>
-                        <PortalRouter>
-                          {/* 404 fallback */}
-                          <Route path="*" element={<NotFoundPage />} />
-                        </PortalRouter>
-                      </ProtectedRoute>
-                    }
-                  />
-                </Routes>
-              </Suspense>
-            </EventProvider>
-          </AuthProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
+              </Routes>
+            </Suspense>
+          </EventProvider>
+        </AuthProvider>
+      </QueryClientProvider>
     </BrowserRouter>
   );
 }
