@@ -7,6 +7,32 @@
  * Each module's index.ts calls moduleRegistry.register() when imported,
  * making the module available for dynamic routing.
  *
+ * ╔═══════════════════════════════════════════════════════════════════════════╗
+ * ║              ✅  ESTE ARQUIVO É A FONTE DA VERDADE  ✅                    ║
+ * ╠═══════════════════════════════════════════════════════════════════════════╣
+ * ║  Este arquivo controla quais módulos estão disponíveis no sistema!       ║
+ * ║                                                                           ║
+ * ║  📄 Arquivo relacionado: src/backend/config/modules.json                  ║
+ * ║  └─ Deve conter os mesmos módulos (mas pode ter extras desabilitados)    ║
+ * ║                                                                           ║
+ * ║  🎯 COMPORTAMENTO AUTOMÁTICO:                                             ║
+ * ║  • O backend FILTRA modules.json e retorna apenas módulos importados aqui║
+ * ║  • Se um módulo está comentado aqui, NÃO aparece na UI (mesmo se estiver ║
+ * ║    no modules.json)                                                       ║
+ * ║  • Se um módulo está ativo aqui, mas NÃO está no modules.json, precisa   ║
+ * ║    adicionar entrada no JSON com metadados (name, description, etc.)     ║
+ * ║                                                                           ║
+ * ║  ✅ Adicionar módulo:                                                     ║
+ * ║     1. Descomentar/adicionar import aqui                                  ║
+ * ║     2. Adicionar entrada em modules.json (se não existir)                ║
+ * ║     3. PRONTO! O backend filtra automaticamente                          ║
+ * ║                                                                           ║
+ * ║  ✅ Remover módulo:                                                       ║
+ * ║     1. Comentar import aqui                                               ║
+ * ║     2. PRONTO! O backend filtra automaticamente                          ║
+ * ║     3. (Opcional) Marcar "enabled": false no modules.json para referência║
+ * ╚═══════════════════════════════════════════════════════════════════════════╝
+ *
  * SPEC Compliance:
  * - SPEC-R-LM-007: All modules registered in ModuleRegistry
  * - SPEC-R-LM-008: Auto-registration via module index.ts
@@ -15,31 +41,42 @@
  *
  * When adding a new module:
  * 1. Create the module in src/modules/nome-modulo/
- * 2. Ensure the module exports a ModuleExports object
- * 3. Add the import below (in alphabetical order)
- * 4. The module will be automatically discovered and available
+ * 2. Add moduleId to ACTIVE_MODULES array below
+ * 3. Add import statement
+ * 4. Add corresponding entry in src/backend/config/modules.json
+ * 5. The module will be automatically discovered and available
 */
 
-// Core Modules
+/**
+ * ACTIVE MODULES LIST
+ * This array defines which modules are available in the system.
+ * The backend reads this list to filter modules.json automatically.
+ */
+export const ACTIVE_MODULES = [
+  'setup',
+  'auth',
+  'chatify',
+] as const;
+
+// Module imports - keep in sync with ACTIVE_MODULES above
 import './setup';
 import './auth';
-
-// Component Modules
-// import './app-components';
-// import './export-components';
-// import './media-components';
-
-// Functionality Modules (alphabetical order)
-// import './chat';
 import './chatify';
+// import './helpdesk';
+
+// Inactive modules (not in ACTIVE_MODULES):
+// import './app-components';
+// import './chat';
 // import './command-palette';
 // import './dashboard';
+// import './export-components';
 // import './forms';
 // import './homepage';
 // import './journey';
 // import './kanban';
 // import './loading';
 // import './markbrowser';
+// import './media-components';
 // import './notifications';
 // import './sidebar';
 // import './tasks';
