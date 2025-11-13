@@ -17,7 +17,12 @@
       "name": "Sandbox",
       "description": "Ambiente de Estudos",
       "removable": true,
-      "config": {}
+      "config": {
+        "theme": {
+          "mode": "system",
+          "brandColor": "160 84% 39%"
+        }
+      }
     }
   }
 }
