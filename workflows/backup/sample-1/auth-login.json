@@ -1,0 +1,533 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -448,
+        864
+      ],
+      "id": "1196b5d0-498a-43de-9afc-8599fa603cf6",
+      "name": "Resposta Web"
+    },
+    {
+      "parameters": {
+        "content": "## Autenticação\n\nAutenticar neste contexto significa:\n\n1. Consultar o usuário na base de dados via procedure `sac.n8n_get_usuario_autenticacao`\n\n2. Validar sua senha baseado nos parâmetros de hash escolhidos para este processo de autenticação.\n\n3. Gerar do Token JWT embutindo nele o Payload de Usuário, que contém os dados recebidos da procedure\n",
+        "height": 304,
+        "width": 512
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3504,
+        1056
+      ],
+      "typeVersion": 1,
+      "id": "589fc47e-f02f-47cf-959b-2794884f7f9a",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3de3a0c4-a092-4690-8d24-85b113978df6",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1872,
+        784
+      ],
+      "id": "9628a0b6-0ff5-4763-a5c4-daf795df9571",
+      "name": "Se Usuário Encontrado"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1fa846bc-ccfd-4bd6-af05-8a5dcfa2e655",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -2496,
+        1088
+      ],
+      "id": "f5afc33c-09f2-4074-b82a-6948e8737370",
+      "name": "Se Credencial Válida"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -2928,
+        1168
+      ],
+      "id": "21cc26f3-75f3-4c0a-acfc-b5c8cc9e4eb9",
+      "name": "Autenticação via Workflow"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "coletivos/api/1/auth/login",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2928,
+        1344
+      ],
+      "id": "8e5eec4e-03cb-4781-8002-ca26012e9c8f",
+      "name": "Autenticação via HTTP",
+      "webhookId": "0d8af890-896f-48e6-b4bb-dda2f5053a6f",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "EXEC [sac].[n8n_get_usuario_autenticacao] '{{ $json.data.username }}'"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        -2288,
+        992
+      ],
+      "id": "ec8ac3cd-b266-402b-bc5b-5f6f33c3b273",
+      "name": "Consulta dados do Usuário",
+      "credentials": {
+        "microsoftSql": {
+          "id": "eZardlsxJzkcymmN",
+          "name": "DBcoletivos"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const json = $input.first().json;\nconst firstKey = Object.keys(json)[0];\n\n// destacando o objeto recebido da base\nconst data = JSON.parse(json[firstKey]);\n\n// removendo propriedades nulas recursivamente\nconst cleaned = JSON.parse(JSON.stringify(data, (k, v) => v === null ? undefined : v));\n\nreturn { json: cleaned };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2080,
+        880
+      ],
+      "id": "16b995ae-d843-4d7d-89d5-390486d64816",
+      "name": "Constrói o Payload de Usuário em JSON",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\n\n// Pega os dados da validação\nconst user = $('Extrai a Credencial').first().json.data;\nconst data = $input.first().json.data;\n\nconst { username, password } = user;\nconst { senha_hash, payload } = data;\n\n// Validação básica\nif (!username || !password) {\n  throw new Error('Credenciais não informadas');\n}\n\nif (!senha_hash) {\n  throw new Error('Autenticação negada para este usuário');\n}\n\n// Gera hash da senha fornecida (usando SHA-256)\nconst hash = crypto.createHash('sha256').update(password).digest('hex');\n\n// Compara com o hash salvo\nif (hash !== senha_hash) {\n  throw new Error('Senha incorreta');\n}\n\n// Monta o objeto de retorno com os dados necessários\nreturn {\n  code: 200,\n  data: payload\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1680,
+        672
+      ],
+      "id": "52e3e57b-208f-43db-806b-65e404e111a3",
+      "name": "Valida Usuário e Senha",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\n\nconst SECRET_KEY = $env[\"SECRET_KEY\"] || 'your-secret-key-here';\n\nconst payload = $input.first().json.data;\nconst two_factor_enabled = !!payload.two_factor_enabled;\n\nfunction base64urlEscape(str) {\n  return str.replace(/\\+/g, '-')\n    .replace(/\\//g, '_')\n    .replace(/=/g, '');\n}\n\nfunction generateJWT(payload, secret, expiresIn) {\n  const header = {\n    alg: 'HS256',\n    typ: 'JWT'\n  };\n  \n  payload.iat = Math.floor(Date.now() / 1000);\n  payload.exp = payload.iat + expiresIn;\n  \n  const encodedHeader = base64urlEscape(\n    Buffer.from(JSON.stringify(header)).toString('base64')\n  );\n  const encodedPayload = base64urlEscape(\n    Buffer.from(JSON.stringify(payload)).toString('base64')\n  );\n  \n  const signature = base64urlEscape(\n    crypto\n      .createHmac('sha256', secret)\n      .update(encodedHeader + '.' + encodedPayload)\n      .digest('base64')\n  );\n  \n  return encodedHeader + '.' + encodedPayload + '.' + signature;\n}\n\nfunction generateRefreshToken() {\n  return crypto.randomBytes(32).toString('hex');\n}\n\nfunction generateUUID() {\n  return crypto.randomUUID();\n}\n\n// Gera access_token com 30 minutos de validade\n//const access_token = generateJWT(payload, SECRET_KEY, 30 * 60);\nconst access_token = generateJWT(payload, SECRET_KEY, 24 * 60 * 60);\n\n// Gera refresh_token\nconst refresh_token = generateRefreshToken();\nconst refresh_token_hash = crypto.createHash('sha256').update(refresh_token).digest('hex');\n\n// Cria família de tokens para rotação\nconst familia_id = generateUUID();\n\n// Define expiração do refresh_token (7 dias)\nconst expira_em = new Date();\nexpira_em.setDate(expira_em.getDate() + 7);\n\nreturn {\n  code: 200,\n  data: {\n    access_token,\n    refresh_token,\n    refresh_token_hash,\n    familia_id,\n    id_usuario: payload.id_usuario,\n    expira_em: expira_em.toISOString(),\n    token_type: \"bearer\",\n    expires_in: 1800,\n    requires_2fa: two_factor_enabled,\n    payload\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1456,
+        576
+      ],
+      "id": "14469f94-856b-49c8-b026-a39daf21522f",
+      "name": "Gera os Tokens JWT",
+      "alwaysOutputData": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "EXEC sac.n8n_refresh_token_salvar\n    @id_usuario = {{ $json.data.id_usuario }},\n    @token_hash = '{{ $json.data.refresh_token_hash }}',\n    @familia_id = '{{ $json.data.familia_id }}',\n    @expira_em = '{{ $json.data.expira_em }}'"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        -1248,
+        496
+      ],
+      "id": "3eeb4196-9d97-4260-b443-ce88a1380b8e",
+      "name": "Salva Refresh Token",
+      "credentials": {
+        "microsoftSql": {
+          "id": "eZardlsxJzkcymmN",
+          "name": "DBcoletivos"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { error } = $input.first().json;\nreturn {\n  code: 500,\n  message: error\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        960
+      ],
+      "id": "a4545422-a35e-437e-943b-47a355750f94",
+      "name": "Formata Erro"
+    },
+    {
+      "parameters": {
+        "jsCode": "const json = $input.first().json;\nconst { username, password } = (json.body || json);\n\nif (!username) {\n  return { code: 400, field: 'username', message: 'Usuário não informado' };\n}\n// Validação de email\nif (!username.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/)) {\n  return { code: 400, field: 'username', username: 'Email inválido' };\n}\nif (!password) {\n  return { code: 400, field: 'password', message: 'Senha não informada' };\n}\n\nreturn {\n  code: 200,\n  data: {\n    username: username.toLowerCase().trim(),\n    password\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2720,
+        1168
+      ],
+      "id": "20d29ebf-e353-465c-a44e-7131b6e405ff",
+      "name": "Extrai a Credencial",
+      "notesInFlow": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Resposta\n\nA resposta é um objeto de status na forma:\n\n```json\n{\n  \"code\": 0,\n  \"message\": \"\",\n  \"data\": []\n}\n```\n\n**Mensagem em geral é emitida para erros das séries:**\n- 400 — Erros da parte do usuário\n- 500 — Erros da parte do servidor\n\n```json\n{\n  \"code\": 401,\n  \"message\": \"Usuário e senha não conferem\"\n}\n```\n\n**Mensagem de sucesso, da série 200, contém:**\n- o Token JWT gerado\n- informações adicionais de segurança\n- o Payload de Usuário extraído do token:\n\n```json\n{\n  \"code\": 200,\n  \"data\": {\n    \"access_token\": \"eyJhbGciOi...\",\n    \"token_type\": \"bearer\",\n    \"expires_in\": 86400,\n    \"requires_2fa\": false,\n    \"payload\": {\n      \"id_usuario\": 3,\n      \"email\": \"convidado@processa.com\",\n      \"nome_exibicao\": \"Convidado\",\n      \"is_admin\": false,\n      \"preferencias\": {\n        \"fuso_horario\": \"America/Sao_Paulo\",\n        \"idioma\": \"pt-BR\",\n        \"tema\": \"claro\",\n        \"notificacoes_email\": true,\n        \"notificacoes_push\": true\n      },\n      \"papeis\": [\n        {\n          \"codigo\": \"espectador\",\n          \"nome\": \"Espectador\",\n          \"permissoes\": {\n            \"explorar\": true,\n            \"alterar\": false,\n            \"configurar\": false\n          },\n          \"cor\": \"trivial\",\n          \"icone\": \"eye\"\n        }\n      ],\n      \"ativo\": true,\n      \"iat\": 1759412319,\n      \"exp\": 1759498719\n    }\n  }\n}\n```\n",
+        "height": 1264,
+        "width": 528
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -272,
+        176
+      ],
+      "typeVersion": 1,
+      "id": "d10340e9-a79a-4c7d-94be-d624a1ba7040",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const json = $input.first().json;\n\n// Se for resposta de sucesso com tokens, pegar dados do node \"Gera os Tokens JWT\"\nif (json.code === 200 && json.data && json.data.access_token) {\n  const {\n    access_token,\n    refresh_token,\n    token_type,\n    expires_in,\n    requires_2fa,\n    payload\n  } = json.data;\n\n  return {\n    code: 200,\n    data: { access_token, refresh_token, token_type, expires_in, requires_2fa, payload }\n  };\n}\n\n// Para outros casos (erros, etc)\nif (json.data) {\n  return json;\n} else {\n  const { code, field, message, warnings, ...data } = json;\n  return { \n    code, field, message, \n    data: Object.keys(data).length === 0 ? undefined : data, \n    warnings \n  };\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -624,
+        864
+      ],
+      "id": "fc47a103-f2b4-4110-87c3-2abb9abc425d",
+      "name": "Formata Resposta Final"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2928,
+        992
+      ],
+      "id": "ce90e990-3ca6-426b-8c6d-6016998e95b2",
+      "name": "Teste Manual"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $('Gera os Tokens JWT').all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1056,
+        496
+      ],
+      "id": "f4720832-cca0-4f3b-8183-28b31d53c6cd",
+      "name": "Formata Tokens",
+      "onError": "continueErrorOutput"
+    }
+  ],
+  "connections": {
+    "Se Usuário Encontrado": {
+      "main": [
+        [
+          {
+            "node": "Valida Usuário e Senha",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Resposta Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Se Credencial Válida": {
+      "main": [
+        [
+          {
+            "node": "Consulta dados do Usuário",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Resposta Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Autenticação via Workflow": {
+      "main": [
+        [
+          {
+            "node": "Extrai a Credencial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Autenticação via HTTP": {
+      "main": [
+        [
+          {
+            "node": "Extrai a Credencial",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consulta dados do Usuário": {
+      "main": [
+        [
+          {
+            "node": "Constrói o Payload de Usuário em JSON",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Constrói o Payload de Usuário em JSON": {
+      "main": [
+        [
+          {
+            "node": "Se Usuário Encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valida Usuário e Senha": {
+      "main": [
+        [
+          {
+            "node": "Gera os Tokens JWT",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gera os Tokens JWT": {
+      "main": [
+        [
+          {
+            "node": "Salva Refresh Token",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salva Refresh Token": {
+      "main": [
+        [
+          {
+            "node": "Formata Tokens",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formata Erro": {
+      "main": [
+        [
+          {
+            "node": "Formata Resposta Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrai a Credencial": {
+      "main": [
+        [
+          {
+            "node": "Se Credencial Válida",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formata Resposta Final": {
+      "main": [
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Teste Manual": {
+      "main": [
+        [
+          {
+            "node": "Extrai a Credencial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formata Tokens": {
+      "main": [
+        [
+          {
+            "node": "Formata Resposta Final",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "Teste Manual": [
+      {
+        "username": "admin@processa.com",
+        "password": "admin"
+      }
+    ]
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a942cbf49e979d06f323f2c1aad967b52a468b53d480eb4de519dff8a501bff2"
+  }
+}

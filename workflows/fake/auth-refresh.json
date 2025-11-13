@@ -1,0 +1,121 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "coletivos/api/1/auth/refresh",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -3360,
+        320
+      ],
+      "id": "aa82b88b-bbe6-4241-8773-b1e3441e6665",
+      "name": "Webhook Refresh",
+      "webhookId": "refresh-webhook-id"
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\n\ntry {\n  const SECRET_KEY = $env[\"SECRET_KEY\"] || 'your-secret-key-here';\n  const json = $input.first().json;\n  const body = json.body || {};\n  const headers = json.headers || {};\n\n  // Extrai refresh_token do body ou cookie\n  function getRefreshTokenFromCookie(cookieHeader) {\n    if (!cookieHeader) return null;\n    const cookies = cookieHeader.split(\";\").reduce((acc, cookie) => {\n      const [name, value] = cookie.trim().split(\"=\");\n      acc[name] = value;\n      return acc;\n    }, {});\n    return cookies[\"refresh_token\"] || null;\n  }\n\n  const refresh_token = body.refresh_token || getRefreshTokenFromCookie(headers?.cookie);\n\n  // Validação\n  if (!refresh_token) {\n    return {\n      code: 401,\n      message: 'Refresh token não fornecido'\n    };\n  }\n\n  // Simula usuário válido (no fake, qualquer refresh_token é válido)\n  const payload = {\n    sub: 1,\n    iss: 'platform',\n    aud: 'platform',\n    exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60),\n    iat: Math.floor(Date.now() / 1000),\n    jti: crypto.randomUUID(),\n    name: 'fake-user',\n    email: 'fake-user@example.com',\n    roles: ['admin']\n  };\n\n  function base64urlEscape(str) {\n    return str.replace(/\\+/g, '-')\n      .replace(/\\//g, '_')\n      .replace(/=/g, '');\n  }\n\n  function generateJWT(payload, secret) {\n    const header = {\n      alg: 'HS256',\n      typ: 'JWT'\n    };\n    \n    const encodedHeader = base64urlEscape(\n      Buffer.from(JSON.stringify(header)).toString('base64')\n    );\n    const encodedPayload = base64urlEscape(\n      Buffer.from(JSON.stringify(payload)).toString('base64')\n    );\n    \n    const signature = base64urlEscape(\n      crypto\n        .createHmac('sha256', secret)\n        .update(encodedHeader + '.' + encodedPayload)\n        .digest('base64')\n    );\n    \n    return encodedHeader + '.' + encodedPayload + '.' + signature;\n  }\n\n  function generateRefreshToken() {\n    return crypto.randomBytes(32).toString('hex');\n  }\n\n  const access_token = generateJWT(payload, SECRET_KEY);\n  const new_refresh_token = generateRefreshToken();\n\n  return {\n    code: 200,\n    data: {\n      access_token,\n      refresh_token: new_refresh_token,\n      token_type: 'bearer',\n      payload\n    }\n  };\n\n} catch (error) {\n  return {\n    code: 500,\n    message: error.message || 'Erro ao renovar token'\n  };\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3152,
+        320
+      ],
+      "id": "c525f81f-1b26-4b78-8db1-8ad08df28df4",
+      "name": "Generate Fake JWT Refresh",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Allow All Refresh\n\nRefresh temporário aceitando qualquer refresh_token válido",
+        "height": 432,
+        "width": 688,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3424,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "e4471dd7-5413-4e9d-97a5-d5ebc4385140",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { error } = $input.first().json;\nreturn {\n  code: 500,\n  message: error\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2944,
+        416
+      ],
+      "id": "1e94a166-f23a-4c6f-a954-41db9672ebf4",
+      "name": "Formata Erro1"
+    }
+  ],
+  "connections": {
+    "Webhook Refresh": {
+      "main": [
+        [
+          {
+            "node": "Generate Fake JWT Refresh",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Fake JWT Refresh": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Formata Erro1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "Webhook Refresh": [
+      {
+        "headers": {
+          "host": "n8n.codrstudio.dev",
+          "user-agent": "axios/1.13.2",
+          "content-length": "89",
+          "accept": "application/json, text/plain, */*",
+          "accept-encoding": "gzip, compress, deflate, br",
+          "content-type": "application/json",
+          "x-forwarded-for": "143.105.25.49",
+          "x-forwarded-host": "n8n.codrstudio.dev",
+          "x-forwarded-port": "443",
+          "x-forwarded-proto": "https",
+          "x-forwarded-server": "744e132a5c62",
+          "x-platform-key": "development_secret_min_32_characters_for_testing_only",
+          "x-real-ip": "143.105.25.49"
+        },
+        "params": {},
+        "query": {},
+        "body": {
+          "refresh_token": "abc123def456ghi789jkl012mno345pqr678stu901vwx234yz567890abcdef12"
+        },
+        "webhookUrl": "https://n8n.codrstudio.dev/webhook/coletivos/api/1/auth/refresh",
+        "executionMode": "production"
+      }
+    ]
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a942cbf49e979d06f323f2c1aad967b52a468b53d480eb4de519dff8a501bff2"
+  }
+}
