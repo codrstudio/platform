@@ -6,9 +6,12 @@
     "realmId": "default",
     "availableModules": [
       "dashboard",
-      "auth"
+      "auth",
+      "helpdesk"
     ],
-    "activeModules": [],
+    "activeModules": [
+      "helpdesk"
+    ],
     "removable": false,
     "metadata": {}
   },
@@ -33,11 +36,10 @@
     "availableModules": [
       "setup",
       "auth",
-      "chat"
+      "chatify"
     ],
     "activeModules": [
-      "auth",
-      "chat"
+      "auth"
     ],
     "removable": true
   }

@@ -1,0 +1,58 @@
+--- a/config.service.ts
++++ b/config.service.ts
+@@ -231,10 +231,51 @@ class ConfigService {
+   /**
+    * Get all modules
++   * Automatically filters by modules that are actually imported in src/frontend/src/modules/index.ts
+    */
+   async getModules(): Promise<Module[]> {
+     const config = await this.loadAll()
+-    return config.modules
++
++    try {
++      // Get list of registered modules from index.ts
++      const registeredModules = await this.getRegisteredModules()
++
++      // Filter modules.json by those actually imported
++      const filteredModules = config.modules.filter(module =>
++        registeredModules.includes(module.moduleId)
++      )
++
++      return filteredModules
++    } catch (error) {
++      // Fallback: if can't read index.ts, return all enabled modules
++      console.error('Failed to filter modules by registered list, returning all enabled:', error)
++      return config.modules.filter(m => m.enabled !== false)
++    }
++  }
++
++  /**
++   * Get list of module IDs that are registered in src/frontend/src/modules/index.ts
++   */
++  private async getRegisteredModules(): Promise<string[]> {
++    const fs = await import('fs/promises')
++    const path = await import('path')
++
++    const indexPath = path.join(process.cwd(), 'src', 'frontend', 'src', 'modules', 'index.ts')
++    const content = await fs.readFile(indexPath, 'utf-8')
++
++    // Extract active imports (not commented)
++    const lines = content.split('\n')
++    const registeredModules: string[] = []
++
++    for (const line of lines) {
++      const trimmed = line.trim()
++      // Match: import './module-name';
++      // Ignore commented lines
++      if (trimmed.startsWith('import ') && !trimmed.startsWith('//')) {
++        const match = trimmed.match(/import\s+['"]\.\/([^'"]+)['"]/)
++        if (match && match[1]) {
++          registeredModules.push(match[1])
++        }
++      }
++    }
++
++    return registeredModules
+   }
+ 
+   /**

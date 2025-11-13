@@ -12,6 +12,7 @@ import cacheRoutes from './routes/cache.routes.js'
 import assetsRoutes from './routes/assets.routes.js'
 import manifestRoutes from './routes/manifest.routes.js'
 import agentRoutes from './routes/agent.routes.js'
+import modulesRoutes from './routes/modules.routes.js'
 import { cacheEpochMiddleware } from './middleware/cache-epoch.middleware.js'
 import { clearSiteDataMiddleware } from './middleware/clear-site-data.middleware.js'
 
@@ -90,6 +91,9 @@ app.use('/api/1/assets', assetsRoutes)
 
 // Manifest routes - dynamic PWA manifest
 app.use('/', manifestRoutes)
+
+// Modules routes - registered modules discovery
+app.use('/api/modules', modulesRoutes)
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

@@ -654,7 +654,10 @@ async function handleDelete(query: JQELQuery, entity: 'portal' | 'module' | 'ins
 async function handleN8nSchema(query: JQELQuery, res: Response) {
   try {
     // Forward to n8n JQEL endpoint
-    const response = await n8nProxy.post('/webhook/jqel', query)
+    // Note: The n8n BASE_URL is https://n8n.codrstudio.dev/webhook/coletivos/api/1
+    // The active workflow "request" expects POST /webhook/api/1/request
+    // So we need to adjust the base URL or the path
+    const response = await n8nProxy.post('/request', query)
 
     return res.status(response.status || 200).json(response.data)
   } catch (error: any) {

@@ -1,0 +1,23 @@
+  private async getRegisteredModules(): Promise<string[]> {
+    const indexPath = path.join(process.cwd(), 'src', 'frontend', 'src', 'modules', 'index.ts')
+    const content = await fs.readFile(indexPath, 'utf-8')
+
+    // Extract ACTIVE_MODULES array
+    // Match: export const ACTIVE_MODULES = [ 'module1', 'module2', ... ] as const;
+    const match = content.match(/export\s+const\s+ACTIVE_MODULES\s*=\s*\[([\s\S]*?)\]\s*as\s+const/)
+
+    if (!match) {
+      throw new Error('ACTIVE_MODULES array not found in index.ts')
+    }
+
+    // Parse module IDs from array
+    const arrayContent = match[1]
+    const moduleIds = arrayContent
+      .split(',')
+      .map(line => line.trim())
+      .filter(line => line.startsWith("'") || line.startsWith('"'))
+      .map(line => line.replace(/['"]/g, '').trim())
+      .filter(id => id.length > 0)
+
+    return moduleIds
+  }

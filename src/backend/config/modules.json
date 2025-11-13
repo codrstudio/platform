@@ -23,7 +23,9 @@
       "configSchema": {
         "allowedRoles": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "label": "Papéis Permitidos",
           "description": "Liste os papéis que podem acessar este portal. Deixe vazio para permitir qualquer usuário autenticado.",
           "ui": "tag-input",
@@ -33,13 +35,37 @@
     }
   },
   {
-    "moduleId": "chat",
-    "name": "Chat",
-    "description": "Sistema de mensagens em tempo real",
+    "moduleId": "chatify",
+    "name": "Chatify",
+    "description": "Sistema de mensagens em tempo real (versão atualizada)",
     "type": "functionality",
-    "dependencies": ["auth"],
+    "dependencies": [
+      "auth"
+    ],
+    "version": "2.0.0",
+    "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "helpdesk",
+    "name": "Helpdesk",
+    "description": "Sistema de atendimento ao cliente (SAC) com gestão de tickets, categorias e clientes",
+    "type": "functionality",
+    "dependencies": [],
     "version": "1.0.0",
     "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "chat",
+    "name": "Chat",
+    "description": "Sistema de mensagens em tempo real (versão legada)",
+    "type": "functionality",
+    "dependencies": [
+      "auth"
+    ],
+    "version": "1.0.0",
+    "enabled": false,
     "metadata": {}
   },
   {
@@ -49,7 +75,7 @@
     "type": "functionality",
     "dependencies": [],
     "version": "1.0.0",
-    "enabled": true,
+    "enabled": false,
     "metadata": {}
   },
   {
@@ -59,7 +85,7 @@
     "type": "functionality",
     "dependencies": [],
     "version": "1.0.0",
-    "enabled": true,
+    "enabled": false,
     "metadata": {}
   },
   {
@@ -67,9 +93,11 @@
     "name": "Kanban",
     "description": "Quadro Kanban para gestão visual de tarefas",
     "type": "functionality",
-    "dependencies": ["tasks"],
+    "dependencies": [
+      "tasks"
+    ],
     "version": "1.0.0",
-    "enabled": true,
+    "enabled": false,
     "metadata": {}
   },
   {
@@ -79,7 +107,7 @@
     "type": "functionality",
     "dependencies": [],
     "version": "1.0.0",
-    "enabled": true,
+    "enabled": false,
     "metadata": {}
   },
   {
@@ -89,7 +117,7 @@
     "type": "functionality",
     "dependencies": [],
     "version": "1.0.0",
-    "enabled": true,
+    "enabled": false,
     "metadata": {}
   },
   {
@@ -99,7 +127,7 @@
     "type": "functionality",
     "dependencies": [],
     "version": "1.0.0",
-    "enabled": true,
+    "enabled": false,
     "metadata": {}
   },
   {
@@ -109,7 +137,7 @@
     "type": "component",
     "dependencies": [],
     "version": "1.0.0",
-    "enabled": true,
+    "enabled": false,
     "metadata": {}
   },
   {
@@ -119,7 +147,7 @@
     "type": "component",
     "dependencies": [],
     "version": "1.0.0",
-    "enabled": true,
+    "enabled": false,
     "metadata": {}
   },
   {
@@ -129,7 +157,7 @@
     "type": "component",
     "dependencies": [],
     "version": "1.0.0",
-    "enabled": true,
+    "enabled": false,
     "metadata": {}
   },
   {
@@ -139,7 +167,7 @@
     "type": "component",
     "dependencies": [],
     "version": "1.0.0",
-    "enabled": true,
+    "enabled": false,
     "metadata": {}
   },
   {
@@ -149,7 +177,7 @@
     "type": "functionality",
     "dependencies": [],
     "version": "1.0.0",
-    "enabled": true,
+    "enabled": false,
     "metadata": {}
   },
   {
@@ -159,7 +187,7 @@
     "type": "component",
     "dependencies": [],
     "version": "1.0.0",
-    "enabled": true,
+    "enabled": false,
     "metadata": {}
   },
   {
@@ -169,7 +197,7 @@
     "type": "component",
     "dependencies": [],
     "version": "1.0.0",
-    "enabled": true,
+    "enabled": false,
     "metadata": {}
   },
   {
@@ -179,7 +207,7 @@
     "type": "component",
     "dependencies": [],
     "version": "1.0.0",
-    "enabled": true,
+    "enabled": false,
     "metadata": {}
   }
 ]
