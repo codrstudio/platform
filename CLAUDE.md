@@ -732,3 +732,20 @@ curl https://n8n.codrstudio.dev/webhook/health
 
 **Remember**: The specifications are the source of truth. All implementation decisions have already been made and documented. Your job is to bring them to life with quality code that follows the architectural boundaries and technology stack requirements.
 - **NÃO USE EMOJI** — A menos que solicitado explicitamente, não use emojis.
+
+---
+
+**PROIBIDO EXECUTAR COMANDOS git checkout, git restore OU QUALQUER OUTRO COMANDO GIT QUE POSSA REVERTER ARQUIVOS**
+**EXISTEM MULTIPLOS USUARIOS USANDO ESTE PROJETO, NAO REVERTA AUTOMATICAMENTE ALTERACOES SEM AUTORIZACAO EXPLICITA**
+
+
+**proibido executar git restore, git checkout ou qualquer outro comando que possa reverter arquivos**
+**proibido executar git restore, git checkout ou qualquer outro comando que possa reverter arquivos**
+**proibido executar git restore, git checkout ou qualquer outro comando que possa reverter arquivos**
+**proibido executar git restore, git checkout ou qualquer outro comando que possa reverter arquivos**
+**proibido executar git restore, git checkout ou qualquer outro comando que possa reverter arquivos**
+**proibido executar git restore, git checkout ou qualquer outro comando que possa reverter arquivos**
+
+- **ALWAYS save files in UTF-8 encoding**
+- **ALWAYS save files in UTF-8 encoding**
+- **ALWAYS save files in UTF-8 encoding**

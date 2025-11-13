@@ -35,7 +35,6 @@ Não acrescente geração de testes unitários ou testes automatizados.
   - [ ] [Sub-ação 2a]
   - [ ] [Sub-ação 2b]
 - [ ] [Ação específica 3]
-- [ ] ✅ **Checkpoint**: [Validação específica]
 
 **Leitura de Referência (Se aplicável)**
 - [Link ou título da referência relevante]
@@ -59,8 +58,6 @@ Não acrescente geração de testes unitários ou testes automatizados.
 - [ ] **Teste 2: [Descrição do Teste]**
   - [ ] [Passo 1]
   - [ ] ✅ **Resultado**: [Output esperado]
-
-**✅ CHECKPOINT FASE [N]**: [Resumo do que foi alcançado]
 
 ---
 
