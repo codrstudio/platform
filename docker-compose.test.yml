@@ -1,0 +1,107 @@
+version: '3.8'
+
+# =============================================================================
+# Test Environment - Alternative ports to avoid conflicts
+# =============================================================================
+
+services:
+  # =============================================================================
+  # Redis - Using port 6380 to avoid conflict with existing Redis on 6379
+  # =============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: platform-redis-test
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis-test-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - platform-test-network
+
+  # =============================================================================
+  # Redis Commander
+  # =============================================================================
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: platform-redis-commander-test
+    restart: unless-stopped
+    ports:
+      - "8082:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - platform-test-network
+
+  # =============================================================================
+  # Backend - Development with hot-reload on port 3001
+  # =============================================================================
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: development
+    container_name: platform-backend-test
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - N8N_URL=https://n8n.codrstudio.dev
+      - JWT_SECRET=test-secret-key
+      - JWT_REFRESH_SECRET=test-refresh-secret-key
+      - LOG_LEVEL=debug
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./src/backend:/app/backend:cached
+      - /app/backend/node_modules
+      - backend-test-logs:/app/backend/logs
+    command: sh -c "cd /app/backend && npm run dev"
+    networks:
+      - platform-test-network
+
+  # =============================================================================
+  # Frontend - Vite dev server on port 5174
+  # =============================================================================
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: development
+    container_name: platform-frontend-test
+    restart: unless-stopped
+    ports:
+      - "5174:5173"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3001
+      - VITE_N8N_URL=https://n8n.codrstudio.dev
+    volumes:
+      - ./src/frontend:/app/frontend:cached
+      - /app/frontend/node_modules
+    command: sh -c "cd /app/frontend && npm run dev -- --host 0.0.0.0"
+    networks:
+      - platform-test-network
+
+volumes:
+  redis-test-data:
+    driver: local
+  backend-test-logs:
+    driver: local
+
+networks:
+  platform-test-network:
+    driver: bridge

@@ -1,0 +1,98 @@
+# Dependencies
+**/node_modules
+**/npm-debug.log
+**/yarn-error.log
+**/yarn.lock
+**/package-lock.json
+
+# Build outputs
+**/dist
+**/build
+**/.next
+**/.vite
+**/out
+
+# Development
+**/.env
+**/.env.*
+!**/.env.example
+**/.vscode
+**/.idea
+**/.DS_Store
+**/Thumbs.db
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+docker-compose*.yml
+**/Dockerfile
+**/.dockerignore
+
+# Documentation
+README.md
+MANIFESTO.md
+CLAUDE.md
+**/docs
+**/spec
+**/lessons-learned
+
+# Testing
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+**/coverage
+**/.nyc_output
+
+# Temporary files
+**/.tmp
+**/tmp
+**/temp
+**/*.log
+**/*.pid
+**/*.seed
+**/*.pid.lock
+
+# Workflows (n8n - already implemented)
+workflows
+
+# MCP Tools
+mcp-tools
+
+# Editor config
+.editorconfig
+.prettierrc
+.prettierignore
+.eslintrc*
+.eslintignore
+
+# CI/CD
+.github
+.gitlab-ci.yml
+azure-pipelines.yml
+**/.travis.yml
+
+# OS
+**/.DS_Store
+**/Thumbs.db
+**/*.swp
+**/*.swo
+**/~*
+
+# Cache
+**/.cache
+**/.parcel-cache
+**/.eslintcache
+**/.stylelintcache
+
+# Assets (if needed, copy explicitly)
+**/assets
+
+# Config files not needed in production
+tsconfig.json
+vite.config.ts
+tailwind.config.js
+postcss.config.js

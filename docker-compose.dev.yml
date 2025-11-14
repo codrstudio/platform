@@ -1,0 +1,109 @@
+version: '3.8'
+
+# =============================================================================
+# Development-only Docker Compose
+# =============================================================================
+# Use: docker-compose -f docker-compose.dev.yml up
+# Optimized for local development with hot-reload
+
+services:
+  # =============================================================================
+  # Redis - Cache, Pub/Sub, Streams
+  # =============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: platform-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-dev-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - platform-dev-network
+
+  # =============================================================================
+  # Redis Commander - Redis Management UI
+  # =============================================================================
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: platform-redis-commander-dev
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - platform-dev-network
+
+  # =============================================================================
+  # Backend - Development with hot-reload
+  # =============================================================================
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: development
+    container_name: platform-backend-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - N8N_URL=https://n8n.codrstudio.dev
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-key}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-dev-refresh-secret-key}
+      - LOG_LEVEL=debug
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./src/backend:/app/backend:cached
+      - /app/backend/node_modules
+      - backend-dev-logs:/app/backend/logs
+    command: sh -c "cd /app/backend && npm run dev"
+    networks:
+      - platform-dev-network
+
+  # =============================================================================
+  # Frontend - Vite dev server with hot-reload
+  # =============================================================================
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: development
+    container_name: platform-frontend-dev
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3000
+      - VITE_N8N_URL=https://n8n.codrstudio.dev
+    volumes:
+      - ./src/frontend:/app/frontend:cached
+      - /app/frontend/node_modules
+    command: sh -c "cd /app/frontend && npm run dev -- --host 0.0.0.0"
+    networks:
+      - platform-dev-network
+
+volumes:
+  redis-dev-data:
+    driver: local
+  backend-dev-logs:
+    driver: local
+
+networks:
+  platform-dev-network:
+    driver: bridge
