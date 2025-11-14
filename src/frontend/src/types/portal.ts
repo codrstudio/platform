@@ -14,6 +14,10 @@ export interface Portal {
   availableModules: string[]; // Modules added to portal (may be inactive)
   activeModules: string[];    // Currently active modules (subset of availableModules)
   removable: boolean;         // Can be deleted
+  homepage?: {                // Homepage configuration
+    type: 'none' | 'subroute';
+    value?: string;           // Subroute path (e.g., "/ola")
+  };
   metadata?: Record<string, unknown>;
 }
 

@@ -70,6 +70,17 @@ function PortalContentInner({ portal }: { portal: any }) {
 
     // If we have routes to render, show them
     if (routes.length > 0) {
+      // Homepage redirect: if homepage is configured, add redirect route at the beginning
+      if (portal.homepage?.type === 'subroute' && portal.homepage.value) {
+        routes.unshift(
+          <Route
+            key="homepage-redirect"
+            path="/"
+            element={<Navigate to={portal.homepage.value} replace />}
+          />
+        );
+      }
+
       return (
         <Suspense fallback={
           <div className="min-h-screen flex items-center justify-center">
