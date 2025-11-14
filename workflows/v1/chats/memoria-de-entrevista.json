@@ -1,0 +1,282 @@
+{
+  "name": "memoria-de-entrevista",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "api/1/cia/memoria/transcrever",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [200, 300],
+      "id": "webhook-memoria-001",
+      "name": "Webhook Memoria",
+      "webhookId": "memoria-webhook-id"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extrai audio/transcricao e metadados\nconst body = $input.item.json.body || $input.item.json;\n\nif (!body.audio_url && !body.transcricao) {\n  throw new Error('audio_url ou transcricao é obrigatório');\n}\n\nconst {\n  audio_url = '',\n  transcricao = '',\n  candidato = {},\n  entrevistador = {},\n  vaga = {},\n  tipo = 'completa', // completa | rapida | seguimento\n  incluir_analise = true,\n  incluir_pontos_atencao = true,\n  gerar_resumo_executivo = true\n} = body;\n\nreturn {\n  audio_url,\n  transcricao,\n  candidato,\n  entrevistador,\n  vaga,\n  tipo,\n  incluir_analise,\n  incluir_pontos_atencao,\n  gerar_resumo_executivo\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [400, 300],
+      "id": "extract-memoria-001",
+      "name": "Extrai Dados"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-audio-exists",
+              "leftValue": "={{ $json.audio_url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [600, 300],
+      "id": "check-audio-001",
+      "name": "Tem Audio?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Transcrição de áudio (placeholder - requer integração real)\nconst { audio_url } = $input.item.json;\n\n// NOTA: Aqui você integraria com serviços de transcrição:\n// - OpenAI Whisper API\n// - Google Speech-to-Text\n// - AWS Transcribe\n// - Azure Speech Services\n\n// Por ora, retornamos placeholder\nreturn {\n  transcricao: '[TRANSCRICAO DO AUDIO SERA PROCESSADA AQUI]',\n  audio_url,\n  duracao_segundos: 0,\n  idioma_detectado: 'pt-BR',\n  confianca: 0.95,\n  nota: 'Integração com serviço de transcrição necessária'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [800, 200],
+      "id": "transcribe-audio-001",
+      "name": "Transcreve Audio",
+      "notes": "Integrar com OpenAI Whisper, Google STT, etc."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Passa a transcrição existente\nreturn $input.item.json;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [800, 400],
+      "id": "passthrough-001",
+      "name": "Usa Transcricao Existente"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Mescla dados e prepara para processamento\nconst dadosOriginais = $('Extrai Dados').first().json;\nconst transcricaoNode = $input.first().json;\n\nconst transcricao = transcricaoNode.transcricao || dadosOriginais.transcricao;\n\nif (!transcricao || transcricao.includes('[TRANSCRICAO DO AUDIO')) {\n  throw new Error('Transcrição não disponível. Forneça audio_url válido ou transcricao direta.');\n}\n\n// Constrói system message para análise\nconst systemMessage = [\n  `Você é um especialista em análise de entrevistas de recrutamento.`,\n  ``,\n  `TAREFA: Processar a transcrição de entrevista e gerar uma memória estruturada.`,\n  ``,\n  `CONTEXTO DA ENTREVISTA:`,\n  dadosOriginais.candidato?.nome ? `- Candidato: ${dadosOriginais.candidato.nome}` : '',\n  dadosOriginais.vaga?.titulo ? `- Vaga: ${dadosOriginais.vaga.titulo}` : '',\n  dadosOriginais.entrevistador?.nome ? `- Entrevistador: ${dadosOriginais.entrevistador.nome}` : '',\n  dadosOriginais.tipo ? `- Tipo: ${dadosOriginais.tipo}` : '',\n  ``,\n  `ESTRUTURA DA MEMÓRIA:`,\n  ``,\n  `## 1. Dados Gerais`,\n  `- Data/hora`,\n  `- Participantes`,\n  `- Duração`,\n  `- Tipo de entrevista`,\n  ``,\n  `## 2. Resumo Executivo`,\n  dadosOriginais.gerar_resumo_executivo ? `[Resumo de 3-5 linhas com principais destaques]` : '[Não solicitado]',\n  ``,\n  `## 3. Tópicos Discutidos`,\n  `[Liste os principais tópicos abordados]`,\n  ``,\n  `## 4. Respostas Relevantes`,\n  `[Extraia respostas-chave do candidato organizadas por tema]`,\n  `- Experiência profissional`,\n  `- Competências técnicas`,\n  `- Situações desafiadoras`,\n  `- Motivações`,\n  `- Expectativas`,\n  ``,\n  `## 5. Observações do Entrevistador`,\n  `[Extraia comentários, impressões e observações]`,\n  ``,\n  dadosOriginais.incluir_pontos_atencao ? `## 6. Pontos de Atenção\\n[Red flags, inconsistências, pontos a esclarecer]\\n` : '',\n  dadosOriginais.incluir_analise ? `## 7. Análise Técnica\\n- Adequação à vaga: [1-10]\\n- Experiência técnica: [1-10]\\n- Habilidades interpessoais: [1-10]\\n- Comunicação: [1-10]\\n- Motivação: [1-10]\\n- Recomendação: [Contratar/Avançar/Rejeitar]\\n` : '',\n  `## 8. Próximos Passos`,\n  `[Ações recomendadas baseadas na entrevista]`,\n  ``,\n  `DIRETRIZES:`,\n  `- Seja objetivo e factual`,\n  `- Preserve citações importantes`,\n  `- Identifique padrões de resposta`,\n  `- Destaque competências demonstradas`,\n  `- Sinalize inconsistências`,\n  `- Use linguagem profissional`,\n  `- Mantenha confidencialidade`\n].filter(Boolean).join('\\n');\n\nreturn {\n  transcricao,\n  systemMessage,\n  metadados: dadosOriginais\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 300],
+      "id": "prepare-analysis-001",
+      "name": "Prepara Analise"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { transcricao, systemMessage } = $input.item.json;\n\nconst prompt = [\n  systemMessage,\n  ``,\n  `TRANSCRIÇÃO DA ENTREVISTA:`,\n  ``,\n  `---`,\n  transcricao,\n  `---`,\n  ``,\n  `Por favor, gere a memória de entrevista seguindo a estrutura definida acima.`\n].join('\\n');\n\nreturn { prompt };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 300],
+      "id": "build-prompt-memoria-001",
+      "name": "Constroi Prompt"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "temperature": 0.3,
+          "maxTokens": 4000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [1400, 400],
+      "id": "model-memoria-001",
+      "name": "GPT-4o"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [1400, 300],
+      "id": "chain-memoria-001",
+      "name": "Processa Memoria"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Formata resposta final\nconst memoria = $('Processa Memoria').first().json.output;\nconst dadosOriginais = $('Extrai Dados').first().json;\nconst analiseData = $('Prepara Analise').first().json;\n\nreturn {\n  code: 200,\n  data: {\n    memoria_estruturada: memoria,\n    transcricao_original: analiseData.transcricao,\n    metadados: {\n      candidato: dadosOriginais.candidato,\n      vaga: dadosOriginais.vaga,\n      entrevistador: dadosOriginais.entrevistador,\n      tipo: dadosOriginais.tipo,\n      data_processamento: new Date().toISOString(),\n      audio_url: dadosOriginais.audio_url || null\n    },\n    acoes_sugeridas: [\n      'Adicionar candidato ao banco de talentos',\n      'Agendar segunda entrevista se recomendado',\n      'Verificar referências profissionais',\n      'Compartilhar memória com equipe de recrutamento',\n      'Arquivar para consultas futuras'\n    ]\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1600, 300],
+      "id": "format-response-memoria-001",
+      "name": "Formata Resposta"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [1800, 300],
+      "id": "respond-memoria-001",
+      "name": "Resposta Web"
+    },
+    {
+      "parameters": {
+        "content": "## Memória de Entrevista\n\n### Endpoint\nPOST /api/1/cia/memoria/transcrever\n\n### Request (com áudio)\n```json\n{\n  \"audio_url\": \"https://storage.../entrevista-maria-silva.mp3\",\n  \"candidato\": {\n    \"nome\": \"Maria Silva\",\n    \"id\": \"CAND-12345\"\n  },\n  \"vaga\": {\n    \"titulo\": \"Cuidador Sênior\",\n    \"id\": \"VAGA-001\"\n  },\n  \"entrevistador\": {\n    \"nome\": \"João Santos\",\n    \"id\": \"USER-789\"\n  },\n  \"tipo\": \"completa\",\n  \"incluir_analise\": true,\n  \"incluir_pontos_atencao\": true,\n  \"gerar_resumo_executivo\": true\n}\n```\n\n### Request (com transcrição)\n```json\n{\n  \"transcricao\": \"Entrevistador: Bom dia Maria...\\nCandidato: Bom dia...\",\n  \"candidato\": {...},\n  \"vaga\": {...},\n  \"tipo\": \"completa\"\n}\n```\n\n### Response\n```json\n{\n  \"code\": 200,\n  \"data\": {\n    \"memoria_estruturada\": \"# Memória de Entrevista...\",\n    \"transcricao_original\": \"...\",\n    \"metadados\": {...},\n    \"acoes_sugeridas\": [...]\n  }\n}\n```\n\n### Tipos de Entrevista\n- **completa**: Entrevista detalhada (45-60 min)\n- **rapida**: Triagem inicial (15-20 min)\n- **seguimento**: Entrevista de follow-up\n\n### Integrações de Transcrição\n- OpenAI Whisper API (recomendado)\n- Google Speech-to-Text\n- AWS Transcribe\n- Azure Speech Services\n\n### Funcionalidades\n- Transcrição automática de áudio\n- Estruturação de memória\n- Análise de adequação\n- Identificação de red flags\n- Resumo executivo\n- Pontuação automática\n- Recomendações de próximos passos\n\n### Benefícios\n- Documentação completa\n- Consistência no processo\n- Facilita revisões\n- Compartilhamento com equipe\n- Base para decisões\n- Compliance e auditoria",
+        "height": 1050,
+        "width": 500,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [80, -200],
+      "typeVersion": 1,
+      "id": "doc-memoria-001",
+      "name": "Documentação"
+    }
+  ],
+  "connections": {
+    "Webhook Memoria": {
+      "main": [
+        [
+          {
+            "node": "Extrai Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrai Dados": {
+      "main": [
+        [
+          {
+            "node": "Tem Audio?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tem Audio?": {
+      "main": [
+        [
+          {
+            "node": "Transcreve Audio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Usa Transcricao Existente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcreve Audio": {
+      "main": [
+        [
+          {
+            "node": "Prepara Analise",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Usa Transcricao Existente": {
+      "main": [
+        [
+          {
+            "node": "Prepara Analise",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepara Analise": {
+      "main": [
+        [
+          {
+            "node": "Constroi Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Constroi Prompt": {
+      "main": [
+        [
+          {
+            "node": "Processa Memoria",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT-4o": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Processa Memoria",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Processa Memoria": {
+      "main": [
+        [
+          {
+            "node": "Formata Resposta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formata Resposta": {
+      "main": [
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": ["cia-cuidadores", "memoria", "entrevista", "transcricao", "ai", "recrutamento"]
+}

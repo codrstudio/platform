@@ -1,0 +1,112 @@
+{
+  "name": "recrutamento-automatizado",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "api/1/cia/recrutamento/entrevista",
+        "responseMode": "streaming",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [200, 300],
+      "id": "webhook-recrutamento-001",
+      "name": "Webhook Recrutamento",
+      "webhookId": "recrutamento-webhook-id"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extrai dados do candidato e contexto da entrevista\nconst body = $input.item.json.body || $input.item.json;\n\n// Validações\nif (!body.candidato) {\n  throw new Error('Dados do candidato são obrigatórios');\n}\n\nconst { candidato, vaga, etapa = 'inicial' } = body;\n\n// Constrói contexto para o agente\nconst contexto = [\n  `Você é um entrevistador especializado em recrutamento de cuidadores.`,\n  ``,\n  `DADOS DO CANDIDATO:`,\n  `- Nome: ${candidato.nome || 'Não informado'}`,\n  `- Experiência: ${candidato.experiencia || 'Não informada'}`,\n  `- Formação: ${candidato.formacao || 'Não informada'}`,\n  candidato.observacoes ? `- Observações: ${candidato.observacoes}` : '',\n  ``,\n  vaga ? `VAGA ALVO: ${vaga.titulo || 'Vaga geral'}` : '',\n  vaga?.requisitos ? `Requisitos: ${vaga.requisitos}` : '',\n  ``,\n  `ETAPA: ${etapa}`,\n  ``,\n  `Conduza uma entrevista empática, profissional e estruturada.`,\n  `Faça perguntas relevantes sobre experiência, habilidades técnicas,`,\n  `capacidade de lidar com situações difíceis e motivação.`,\n  ``,\n  `Ao final, forneça uma avaliação com pontuação de 0 a 10 nos critérios:`,\n  `- Experiência técnica`,\n  `- Habilidades interpessoais`,\n  `- Empatia e cuidado`,\n  `- Adequação à vaga`,\n  `- Recomendação geral`\n].filter(Boolean).join('\\n');\n\nreturn {\n  chatInput: body.messages?.[body.messages.length - 1]?.content || body.message || '',\n  systemMessage: contexto,\n  candidato,\n  vaga,\n  etapa\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [400, 300],
+      "id": "transform-recrutamento-001",
+      "name": "Prepara Contexto"
+    },
+    {
+      "parameters": {
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "={{ $json.systemMessage }}",
+          "enableStreaming": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [600, 300],
+      "id": "agent-recrutamento-001",
+      "name": "Agente Recrutamento"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514",
+          "cachedResultName": "Claude 4 Sonnet"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [600, 480],
+      "id": "model-recrutamento-001",
+      "name": "Claude Sonnet"
+    },
+    {
+      "parameters": {
+        "content": "## Recrutamento Automatizado\n\n### Endpoint\nPOST /api/1/cia/recrutamento/entrevista\n\n### Request\n```json\n{\n  \"candidato\": {\n    \"nome\": \"Maria Silva\",\n    \"experiencia\": \"5 anos como cuidadora\",\n    \"formacao\": \"Técnica em Enfermagem\",\n    \"observacoes\": \"Especializada em cuidados de idosos\"\n  },\n  \"vaga\": {\n    \"titulo\": \"Cuidador Idoso - Período Integral\",\n    \"requisitos\": \"Experiência mínima 2 anos, paciência, empatia\"\n  },\n  \"etapa\": \"inicial\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Olá, gostaria de participar do processo seletivo\"\n    }\n  ]\n}\n```\n\n### Funcionalidades\n- Conduz entrevista estruturada\n- Avalia competências técnicas e comportamentais\n- Gera pontuação automática\n- Identifica fit cultural\n- Recomenda próximos passos\n\n### Critérios de Avaliação\n1. Experiência técnica (0-10)\n2. Habilidades interpessoais (0-10)\n3. Empatia e cuidado (0-10)\n4. Adequação à vaga (0-10)\n5. Recomendação geral (0-10)",
+        "height": 600,
+        "width": 400,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [80, -80],
+      "typeVersion": 1,
+      "id": "doc-recrutamento-001",
+      "name": "Documentação"
+    }
+  ],
+  "connections": {
+    "Webhook Recrutamento": {
+      "main": [
+        [
+          {
+            "node": "Prepara Contexto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepara Contexto": {
+      "main": [
+        [
+          {
+            "node": "Agente Recrutamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Sonnet": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente Recrutamento",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": ["cia-cuidadores", "recrutamento", "ai", "entrevistas"]
+}

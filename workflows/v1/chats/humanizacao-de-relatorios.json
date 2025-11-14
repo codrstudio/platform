@@ -1,0 +1,171 @@
+{
+  "name": "humanizacao-de-relatorios",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "api/1/cia/humanizacao/relatorio",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [200, 300],
+      "id": "webhook-humanizacao-001",
+      "name": "Webhook Humanizacao",
+      "webhookId": "humanizacao-webhook-id"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extrai relatório técnico e contexto\nconst body = $input.item.json.body || $input.item.json;\n\nif (!body.relatorio_tecnico) {\n  throw new Error('relatorio_tecnico é obrigatório');\n}\n\nconst {\n  relatorio_tecnico,\n  tipo = 'evolucao',\n  destinatario = 'familia',\n  tom = 'empatico',\n  incluir_recomendacoes = true\n} = body;\n\n// Constrói prompt para humanização\nconst systemMessage = [\n  `Você é um especialista em humanização de relatórios de cuidado.`,\n  ``,\n  `TAREFA: Transformar o relatório técnico a seguir em um texto humanizado,`,\n  `empático e acessível para ${destinatario}.`,\n  ``,\n  `TIPO DE RELATÓRIO: ${tipo}`,\n  `TOM DESEJADO: ${tom}`,\n  incluir_recomendacoes ? `INCLUIR: Recomendações práticas e empáticas` : '',\n  ``,\n  `DIRETRIZES:`,\n  `- Use linguagem simples e acessível`,\n  `- Mantenha tom empático e acolhedor`,\n  `- Preserve informações técnicas importantes`,\n  `- Destaque progressos e conquistas`,\n  `- Seja transparente sobre desafios`,\n  `- Ofereça contexto e explicações quando necessário`,\n  `- Evite jargões médicos sem explicação`,\n  `- Mantenha profissionalismo com calor humano`,\n  ``,\n  `ESTRUTURA SUGERIDA:`,\n  `1. Introdução acolhedora`,\n  `2. Resumo do período`,\n  `3. Destaques positivos`,\n  `4. Pontos de atenção (se houver)`,\n  `5. Recomendações práticas`,\n  `6. Mensagem de apoio/encerramento`\n].filter(Boolean).join('\\n');\n\nreturn {\n  relatorio_tecnico,\n  tipo,\n  destinatario,\n  tom,\n  systemMessage\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [400, 300],
+      "id": "transform-humanizacao-001",
+      "name": "Prepara Humanizacao"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 2000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [600, 400],
+      "id": "model-humanizacao-001",
+      "name": "GPT-4o"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Formata prompt com relatório técnico\nconst { relatorio_tecnico, systemMessage } = $input.item.json;\n\nconst prompt = [\n  systemMessage,\n  ``,\n  `RELATÓRIO TÉCNICO A SER HUMANIZADO:`,\n  ``,\n  relatorio_tecnico,\n  ``,\n  `---`,\n  ``,\n  `Por favor, gere o relatório humanizado seguindo as diretrizes acima.`\n].join('\\n');\n\nreturn { prompt };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [600, 300],
+      "id": "build-prompt-001",
+      "name": "Constroi Prompt"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [800, 300],
+      "id": "chain-humanizacao-001",
+      "name": "Processa Humanizacao"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Formata resposta\nconst relatorio_humanizado = $('Processa Humanizacao').first().json.output;\nconst input = $('Prepara Humanizacao').first().json;\n\nreturn {\n  code: 200,\n  data: {\n    relatorio_humanizado,\n    relatorio_original: input.relatorio_tecnico,\n    metadados: {\n      tipo: input.tipo,\n      destinatario: input.destinatario,\n      tom: input.tom,\n      data_processamento: new Date().toISOString()\n    }\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 300],
+      "id": "format-response-001",
+      "name": "Formata Resposta"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [1200, 300],
+      "id": "respond-humanizacao-001",
+      "name": "Resposta Web"
+    },
+    {
+      "parameters": {
+        "content": "## Humanização de Relatórios\n\n### Endpoint\nPOST /api/1/cia/humanizacao/relatorio\n\n### Request\n```json\n{\n  \"relatorio_tecnico\": \"Paciente apresentou quadro de hipertensão controlada. PA: 130/85. Deambulação com auxílio. AVDs parcialmente preservadas. Episódio de confusão mental noturna dia 15/01.\",\n  \"tipo\": \"evolucao\",\n  \"destinatario\": \"familia\",\n  \"tom\": \"empatico\",\n  \"incluir_recomendacoes\": true\n}\n```\n\n### Response\n```json\n{\n  \"code\": 200,\n  \"data\": {\n    \"relatorio_humanizado\": \"Texto humanizado...\",\n    \"relatorio_original\": \"...\",\n    \"metadados\": {\n      \"tipo\": \"evolucao\",\n      \"destinatario\": \"familia\",\n      \"tom\": \"empatico\",\n      \"data_processamento\": \"2025-01-14T...\"\n    }\n  }\n}\n```\n\n### Tipos Suportados\n- evolucao: Evolução do paciente\n- incidente: Relatório de incidente\n- alta: Relatório de alta\n- admissao: Relatório de admissão\n- rotina: Relatório de rotina\n\n### Destinatários\n- familia: Familiares do paciente\n- gestor: Gestores/coordenadores\n- medico: Profissionais da saúde\n- paciente: Próprio paciente\n\n### Tons\n- empatico: Acolhedor e empático\n- profissional: Formal e técnico\n- educativo: Didático e explicativo\n- celebratorio: Positivo e motivador",
+        "height": 800,
+        "width": 450,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [80, -120],
+      "typeVersion": 1,
+      "id": "doc-humanizacao-001",
+      "name": "Documentação"
+    }
+  ],
+  "connections": {
+    "Webhook Humanizacao": {
+      "main": [
+        [
+          {
+            "node": "Prepara Humanizacao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepara Humanizacao": {
+      "main": [
+        [
+          {
+            "node": "Constroi Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Constroi Prompt": {
+      "main": [
+        [
+          {
+            "node": "Processa Humanizacao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT-4o": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Processa Humanizacao",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Processa Humanizacao": {
+      "main": [
+        [
+          {
+            "node": "Formata Resposta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formata Resposta": {
+      "main": [
+        [
+          {
+            "node": "Resposta Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": ["cia-cuidadores", "humanizacao", "relatorios", "ai"]
+}
