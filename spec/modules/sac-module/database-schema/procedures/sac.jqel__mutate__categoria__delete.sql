@@ -44,7 +44,7 @@ BEGIN
 
     BEGIN TRY
         -- Extrair where do JSQL
-        DECLARE @where_id INT = TRY_CAST(JSON_VALUE(@jsql, '$.where.id.$$eq') AS INT);
+        DECLARE @where_id INT = TRY_CAST(JSON_VALUE(@jsql, '$.where.id.eq') AS INT);
 
         -- Validar where.id obrigatorio
         IF @where_id IS NULL

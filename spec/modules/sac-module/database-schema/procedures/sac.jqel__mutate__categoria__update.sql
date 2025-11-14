@@ -50,7 +50,7 @@ BEGIN
 
     BEGIN TRY
         -- Extrair where e values do JSQL
-        DECLARE @where_id INT = TRY_CAST(JSON_VALUE(@jsql, '$.where.id.$$eq') AS INT);
+        DECLARE @where_id INT = TRY_CAST(JSON_VALUE(@jsql, '$.where.id.eq') AS INT);
         DECLARE @values NVARCHAR(MAX) = JSON_QUERY(@jsql, '$.values');
 
         -- Validar where.id obrigatorio

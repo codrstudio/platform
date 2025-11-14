@@ -45,16 +45,18 @@ BEGIN
         DECLARE @orderBy NVARCHAR(MAX) = JSON_QUERY(@jsql, '$.options.orderBy');
 
         -- Extrair filtros WHERE
-        DECLARE @where_ativo BIT = TRY_CAST(JSON_VALUE(@jsql, '$.where.ativo.$$eq') AS BIT);
-        DECLARE @where_id INT = TRY_CAST(JSON_VALUE(@jsql, '$.where.id.$$eq') AS INT);
-        DECLARE @where_categoria_pai INT = TRY_CAST(JSON_VALUE(@jsql, '$.where.id_categoria_pai.$$eq') AS INT);
+        DECLARE @where_ativo BIT = TRY_CAST(JSON_VALUE(@jsql, '$.where.ativo.eq') AS BIT);
+        DECLARE @where_id INT = TRY_CAST(JSON_VALUE(@jsql, '$.where.id.eq') AS INT);
+        DECLARE @where_categoria_pai INT = TRY_CAST(JSON_VALUE(@jsql, '$.where.id_categoria_pai.eq') AS INT);
 
         -- Definir valores padrao
         SET @limit = ISNULL(@limit, 100);
         SET @offset = ISNULL(@offset, 0);
 
-        -- Construir query dinamica
-        DECLARE @sql NVARCHAR(MAX) = N'
+        -- Consultar diretamente com filtros (sem dynamic SQL)
+        DECLARE @json_result NVARCHAR(MAX);
+
+        SELECT @json_result = (
             SELECT
                 DFid_categoria AS id,
                 DFnome_categoria AS nome,
@@ -73,43 +75,15 @@ BEGIN
                 DFtemplate_descricao AS template_descricao,
                 DFobservacoes AS observacoes
             FROM sac.TBcategoria
-            WHERE 1=1';
-
-        -- Aplicar filtros WHERE
-        IF @where_id IS NOT NULL
-        BEGIN
-            SET @sql = @sql + N' AND DFid_categoria = ' + CAST(@where_id AS NVARCHAR(10));
-        END
-
-        IF @where_ativo IS NOT NULL
-        BEGIN
-            SET @sql = @sql + N' AND DFativo = ' + CAST(@where_ativo AS NVARCHAR(1));
-        END
-
-        IF @where_categoria_pai IS NOT NULL
-        BEGIN
-            SET @sql = @sql + N' AND DFid_categoria_pai = ' + CAST(@where_categoria_pai AS NVARCHAR(10));
-        END
-
-        -- Aplicar ordenacao
-        SET @sql = @sql + N' ORDER BY DFordem_exibicao, DFnome_categoria';
-
-        -- Aplicar paginacao
-        SET @sql = @sql + N' OFFSET ' + CAST(@offset AS NVARCHAR(10)) + N' ROWS';
-        SET @sql = @sql + N' FETCH NEXT ' + CAST(@limit AS NVARCHAR(10)) + N' ROWS ONLY';
-
-        -- Adicionar FOR JSON PATH
-        SET @sql = @sql + N' FOR JSON PATH';
-
-        -- Executar query e capturar resultado
-        DECLARE @json_result NVARCHAR(MAX);
-        CREATE TABLE #temp_result (json_data NVARCHAR(MAX));
-
-        INSERT INTO #temp_result
-        EXEC sp_executesql @sql;
-
-        SELECT @json_result = json_data FROM #temp_result;
-        DROP TABLE #temp_result;
+            WHERE 1=1
+                AND (@where_id IS NULL OR DFid_categoria = @where_id)
+                AND (@where_ativo IS NULL OR DFativo = @where_ativo)
+                AND (@where_categoria_pai IS NULL OR DFid_categoria_pai = @where_categoria_pai)
+            ORDER BY DFordem_exibicao, DFnome_categoria
+            OFFSET @offset ROWS
+            FETCH NEXT @limit ROWS ONLY
+            FOR JSON PATH
+        );
 
         -- Se nao houver resultados, retornar array vazio
         IF @json_result IS NULL
