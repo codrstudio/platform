@@ -9,6 +9,20 @@
   },
   {
     "instanceId": "default",
+    "portalId": "setup",
+    "moduleId": "blueprint",
+    "config": {
+      "title": "Blueprint Module",
+      "description": "Módulo de referência para desenvolvimento"
+    },
+    "active": true,
+    "metadata": {
+      "createdAt": "2025-01-14T00:00:00Z",
+      "createdBy": "system"
+    }
+  },
+  {
+    "instanceId": "default",
     "portalId": "sandbox",
     "moduleId": "auth",
     "config": {},
@@ -50,6 +64,13 @@
     "instanceId": "default",
     "portalId": "sandbox",
     "moduleId": "chat",
+    "config": {},
+    "active": true
+  },
+  {
+    "instanceId": "default",
+    "portalId": "sandbox",
+    "moduleId": "blueprint",
     "config": {},
     "active": true
   }

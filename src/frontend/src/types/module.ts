@@ -61,6 +61,18 @@ export interface ModuleManifest {
 }
 
 /**
+ * Props passed to custom configuration components
+ */
+export interface ConfigComponentProps {
+  instanceId: string;
+  portalId: string;
+  moduleId: string;
+  config: Record<string, any>;
+  onSave: (config: Record<string, any>) => Promise<void>;
+  onCancel: () => void;
+}
+
+/**
  * Module exports
  */
 export interface ModuleExports {
@@ -68,6 +80,7 @@ export interface ModuleExports {
   routes?: ModuleRoute[];
   components?: Record<string, React.ComponentType<any>>;
   widgets?: Record<string, React.ComponentType<any>>;
+  configComponent?: React.LazyExoticComponent<React.ComponentType<ConfigComponentProps>>;
 }
 
 /**

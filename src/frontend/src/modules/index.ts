@@ -56,12 +56,14 @@ export const ACTIVE_MODULES = [
   'setup',
   'auth',
   'chatify',
+  'blueprint',
 ] as const;
 
 // Module imports - keep in sync with ACTIVE_MODULES above
 import './setup';
 import './auth';
 import './chatify';
+import './blueprint';
 // import './helpdesk';
 
 // Inactive modules (not in ACTIVE_MODULES):

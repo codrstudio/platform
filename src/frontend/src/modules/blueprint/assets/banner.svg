@@ -1,0 +1,21 @@
+<svg width="800" height="200" viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:hsl(221, 83%, 53%);stop-opacity:0.1" />
+      <stop offset="100%" style="stop-color:hsl(221, 83%, 53%);stop-opacity:0.3" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="200" fill="url(#bgGradient)" rx="8"/>
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="hsl(221, 83%, 53%)" stroke-width="0.5" opacity="0.1"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="200" fill="url(#grid)"/>
+  <text x="400" y="90" font-family="system-ui, -apple-system, sans-serif" font-size="48" font-weight="bold" fill="hsl(221, 83%, 53%)" text-anchor="middle">Blueprint Module</text>
+  <text x="400" y="125" font-family="system-ui, -apple-system, sans-serif" font-size="18" fill="hsl(221, 30%, 40%)" text-anchor="middle">Módulo de Referência para Desenvolvimento</text>
+  <circle cx="80" cy="100" r="30" fill="none" stroke="hsl(221, 83%, 53%)" stroke-width="2" opacity="0.3"/>
+  <circle cx="720" cy="100" r="30" fill="none" stroke="hsl(221, 83%, 53%)" stroke-width="2" opacity="0.3"/>
+  <text x="120" y="110" font-family="monospace" font-size="36" font-weight="bold" fill="hsl(221, 83%, 53%)" opacity="0.4">{</text>
+  <text x="660" y="110" font-family="monospace" font-size="36" font-weight="bold" fill="hsl(221, 83%, 53%)" opacity="0.4">}</text>
+</svg>

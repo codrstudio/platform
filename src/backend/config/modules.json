@@ -47,6 +47,18 @@
     "metadata": {}
   },
   {
+    "moduleId": "blueprint",
+    "name": "Blueprint",
+    "description": "Módulo de referência demonstrando padrões corretos",
+    "type": "functionality",
+    "category": "system",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "singleInstance": true,
+    "metadata": {}
+  },
+  {
     "moduleId": "helpdesk",
     "name": "Helpdesk",
     "description": "Sistema de atendimento ao cliente (SAC) com gestão de tickets, categorias e clientes",
