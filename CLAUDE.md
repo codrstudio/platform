@@ -749,3 +749,4 @@ curl https://n8n.codrstudio.dev/webhook/health
 - **ALWAYS save files in UTF-8 encoding**
 - **ALWAYS save files in UTF-8 encoding**
 - **ALWAYS save files in UTF-8 encoding**
+- Arquivos PLAN*.md devem serguir o template @lessons-learned\PLAN.template.md

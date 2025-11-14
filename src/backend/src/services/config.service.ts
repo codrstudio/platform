@@ -230,55 +230,13 @@ class ConfigService {
 
   /**
    * Get all modules
-   * Automatically filters by modules that are actually imported in src/frontend/src/modules/index.ts
+   * Returns only modules with enabled: true
    */
   async getModules(): Promise<Module[]> {
     const config = await this.loadAll()
-
-    try {
-      // Get list of registered modules from index.ts
-      const registeredModules = await this.getRegisteredModules()
-
-      // Filter modules.json by those actually imported
-      const filteredModules = config.modules.filter(module =>
-        registeredModules.includes(module.moduleId)
-      )
-
-      return filteredModules
-    } catch (error) {
-      // Fallback: if can't read index.ts, return all enabled modules
-      console.error('Failed to filter modules by registered list, returning all enabled:', error)
-      return config.modules.filter(m => m.enabled !== false)
-    }
+    return config.modules.filter(module => module.enabled === true)
   }
 
-  /**
-   * Get list of module IDs that are registered in src/frontend/src/modules/index.ts
-   */
-  private async getRegisteredModules(): Promise<string[]> {
-    // Navigate up from src/backend to project root, then to frontend
-    const indexPath = path.resolve(process.cwd(), '../', 'frontend', 'src', 'modules', 'index.ts')
-    const content = await fs.readFile(indexPath, 'utf-8')
-
-    // Extract ACTIVE_MODULES array
-    // Match: export const ACTIVE_MODULES = [ 'module1', 'module2', ... ] as const;
-    const match = content.match(/export\s+const\s+ACTIVE_MODULES\s*=\s*\[([\s\S]*?)\]\s*as\s+const/)
-
-    if (!match) {
-      throw new Error('ACTIVE_MODULES array not found in index.ts')
-    }
-
-    // Parse module IDs from array
-    const arrayContent = match[1]
-    const moduleIds = arrayContent
-      .split(',')
-      .map(line => line.trim())
-      .filter(line => line.startsWith("'") || line.startsWith('"'))
-      .map(line => line.replace(/['"]/g, '').trim())
-      .filter(id => id.length > 0)
-
-    return moduleIds
-  }
   /**
    * Get module by ID
    */

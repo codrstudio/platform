@@ -8,52 +8,14 @@ import { configService } from '../services/config.service.js'
 import type { Portal, Module, Instance } from '../types/config.types.js'
 import { executeJQELQuery, applyWhere } from '../utils/jqelProcessor.js'
 import { emitConfigChanged } from '../utils/event-emitter.js'
-import { schemaDiscoveryService } from '../services/SchemaDiscoveryService.js'
+
+/*
+ * **É PROIBIDO CRIAR ROTAS NESSE ARQUIVO**
+ * **JQEL É UMA LINGUAGEM DE CONSULTA QUE PERTMITE CONSULTAR TODOS OS TIPOS DE RECURSO NO SISTEMA**
+ * **POR ESSE MOTIVO, NAO É NECESSARIO CRIAR ROTAS SEPARADAS. BASTA ENVIAR A CONSULTA JQEL ESPECIFICA PARA A ROTA JQEL**
+ */
 
 const router = Router()
-
-/**
- * GET /api/jqel/schemas
- *
- * Schema Discovery endpoint
- * Returns SDL (Schema Definition Language) document with available schemas, entities, and actions
- * SPEC-SDL-*: Schema Discovery Layer
- */
-router.get('/schemas', async (_req: Request, res: Response) => {
-  try {
-    const document = await schemaDiscoveryService.getSchemas()
-    return res.status(200).json(document)
-  } catch (error: any) {
-    return res.status(500).json({
-      code: 500,
-      message: 'Failed to load schemas',
-      data: null,
-    } as JResult)
-  }
-})
-
-/**
- * POST /api/jqel/schemas/refresh
- *
- * Refresh schemas cache
- * SPEC-SDL-*: Force reload of SDL document
- */
-router.post('/schemas/refresh', async (_req: Request, res: Response) => {
-  try {
-    const document = await schemaDiscoveryService.refreshSchemas()
-    return res.status(200).json({
-      code: 200,
-      message: 'Schemas refreshed successfully',
-      data: document,
-    } as JResult)
-  } catch (error: any) {
-    return res.status(500).json({
-      code: 500,
-      message: 'Failed to refresh schemas',
-      data: null,
-    } as JResult)
-  }
-})
 
 /**
  * POST /api/jqel
