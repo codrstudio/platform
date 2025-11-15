@@ -38,6 +38,10 @@ export const PortalSchema = z.object({
   availableModules: z.array(z.string()).default([]), // Módulos adicionados ao portal (podem estar inativos)
   activeModules: z.array(z.string()).default([]), // Módulos ativos no portal (subset de availableModules)
   removable: z.boolean().default(true),
+  homepage: z.object({                      // Homepage configuration (SPEC-R-HP-*)
+    type: z.enum(['none', 'subroute']),
+    value: z.string().optional(),           // Subroute path (e.g., "/ola")
+  }).optional(),
   metadata: z.record(z.string(), z.unknown()).optional(),
 }).refine(
   (data) => data.activeModules.every(m => data.availableModules.includes(m)),

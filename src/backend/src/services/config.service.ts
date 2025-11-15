@@ -6,6 +6,8 @@ import path from 'path'
 import { existsSync } from 'fs'
 import { RealmSchema, PortalSchema, ModuleSchema, InstanceSchema, LoginBrandingSchema } from '../types/config.types.js'
 import type { Realm, Portal, Module, Instance, LoginBranding, ConfigType, ConfigData } from '../types/config.types.js'
+import { validationService } from './validation.service.js'
+import type { ValidationContext } from './validation.service.js'
 
 /**
  * Configuration Service
@@ -223,9 +225,48 @@ class ConfigService {
 
   /**
    * Save portals
+   * Applies auto-fix before saving
    */
   async savePortals(portals: Portal[]): Promise<void> {
-    await this.saveFile('portals', portals)
+    // Get all configuration for validation context
+    const config = await this.loadAll()
+
+    // Create validation context
+    const context: ValidationContext = {
+      portals,
+      modules: config.modules,
+      instances: config.instances
+    }
+
+    // Apply auto-fix and validate
+    const { fixed, result, changes } = validationService.validateAndFix(context)
+
+    // Log auto-fix changes
+    if (changes.length > 0) {
+      console.log(`[ConfigService] Auto-fix applied ${changes.length} change(s) to portals:`)
+      changes.forEach(change => {
+        console.log(`  - [${change.action}] ${change.id}: ${change.description}`)
+      })
+    }
+
+    // Block save if critical errors remain after auto-fix
+    const criticalErrors = result.errors.filter(e => e.severity === 'critical')
+    if (criticalErrors.length > 0) {
+      console.error('[ConfigService] Cannot save portals: critical validation errors')
+      criticalErrors.forEach(error => {
+        console.error(`  - ${error.id} (${error.field}): ${error.message}`)
+      })
+      throw new Error(`Cannot save portals: ${criticalErrors.length} critical validation error(s)`)
+    }
+
+    // Save fixed portals
+    await this.saveFile('portals', fixed.portals)
+
+    // Also save fixed instances if they changed
+    if (changes.some(c => c.type === 'instance')) {
+      await this.saveFile('instances', fixed.instances)
+      console.log('[ConfigService] Auto-fix also updated instances.json')
+    }
   }
 
   /**
@@ -278,9 +319,48 @@ class ConfigService {
 
   /**
    * Save instances
+   * Applies auto-fix before saving
    */
   async saveInstances(instances: Instance[]): Promise<void> {
-    await this.saveFile('instances', instances)
+    // Get all configuration for validation context
+    const config = await this.loadAll()
+
+    // Create validation context
+    const context: ValidationContext = {
+      portals: config.portals,
+      modules: config.modules,
+      instances
+    }
+
+    // Apply auto-fix and validate
+    const { fixed, result, changes } = validationService.validateAndFix(context)
+
+    // Log auto-fix changes
+    if (changes.length > 0) {
+      console.log(`[ConfigService] Auto-fix applied ${changes.length} change(s) to instances:`)
+      changes.forEach(change => {
+        console.log(`  - [${change.action}] ${change.id}: ${change.description}`)
+      })
+    }
+
+    // Block save if critical errors remain after auto-fix
+    const criticalErrors = result.errors.filter(e => e.severity === 'critical')
+    if (criticalErrors.length > 0) {
+      console.error('[ConfigService] Cannot save instances: critical validation errors')
+      criticalErrors.forEach(error => {
+        console.error(`  - ${error.id} (${error.field}): ${error.message}`)
+      })
+      throw new Error(`Cannot save instances: ${criticalErrors.length} critical validation error(s)`)
+    }
+
+    // Save fixed instances
+    await this.saveFile('instances', fixed.instances)
+
+    // Also save fixed portals if they changed
+    if (changes.some(c => c.type === 'portal')) {
+      await this.saveFile('portals', fixed.portals)
+      console.log('[ConfigService] Auto-fix also updated portals.json')
+    }
   }
 
   /**

@@ -94,7 +94,9 @@ export class InstanceEntity extends EntityHandler {
     let updated = 0
     matchingInstances.forEach(match => {
       const index = instances.findIndex(i =>
-        i.instanceId === match.instanceId && i.portalId === match.portalId
+        i.instanceId === match.instanceId &&
+        i.portalId === match.portalId &&
+        i.moduleId === match.moduleId  // ← CRÍTICO: incluir moduleId para identificação única!
       )
       if (index !== -1) {
         instances[index] = { ...instances[index], ...query.values }
@@ -142,7 +144,9 @@ export class InstanceEntity extends EntityHandler {
 
     const remaining = instances.filter(i =>
       !matchingInstances.some(m =>
-        m.instanceId === i.instanceId && m.portalId === i.portalId
+        m.instanceId === i.instanceId &&
+        m.portalId === i.portalId &&
+        m.moduleId === i.moduleId  // ← CRÍTICO: incluir moduleId para identificação única!
       )
     )
     const deleted = instances.length - remaining.length
