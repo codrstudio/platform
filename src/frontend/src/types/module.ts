@@ -2,6 +2,7 @@
 // Based on SPEC-modules.md
 
 import type React from 'react';
+import type { SlotComponent, Composition } from '@/core/composition/types';
 
 /**
  * Module route definition
@@ -81,6 +82,8 @@ export interface ModuleExports {
   components?: Record<string, React.ComponentType<any>>;
   widgets?: Record<string, React.ComponentType<any>>;
   configComponent?: React.LazyExoticComponent<React.ComponentType<ConfigComponentProps>>;
+  slotComponents?: SlotComponent[];
+  compositions?: Composition[];
 }
 
 /**

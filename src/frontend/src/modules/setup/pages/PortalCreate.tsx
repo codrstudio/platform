@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Save } from 'lucide-react';
 import { useCreatePortal } from '@/hooks/jqel/usePortal';
 import { useRealms } from '@/hooks/jqel/useRealm';
-import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 import { RealmQuickCreate } from '../components/RealmQuickCreate';
 export function PortalCreate() {
   const navigate = useNavigate();
@@ -59,7 +58,6 @@ export function PortalCreate() {
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Breadcrumb */}
-      <PageBreadcrumb items={breadcrumbItems} />
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button

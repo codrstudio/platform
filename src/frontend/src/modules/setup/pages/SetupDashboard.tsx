@@ -4,8 +4,7 @@
 import { Link } from 'react-router-dom';
 import { Settings, Package, Layers, Activity, Globe, Info } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageBreadcrumb } from '@/components/navigation';
-import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb';
+import { Page } from '@/core/composition';
 import { useRealms } from '@/hooks/jqel/useRealm';
 import { usePortals } from '@/hooks/jqel/usePortal';
 import { useModules } from '@/hooks/jqel/useModule';
@@ -30,15 +29,12 @@ function useSetupStats() {
 }
 
 export function SetupDashboard() {
-  const breadcrumbItems = useSetupBreadcrumb();
   const stats = useSetupStats();
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
-      {/* Breadcrumb */}
-      <PageBreadcrumb items={breadcrumbItems} />
-
-      {/* Header */}
+    <Page width="lg">
+      <div className="p-6 space-y-8">
+        {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Setup Dashboard</h1>
         <p className="text-muted-foreground mt-2">
@@ -179,31 +175,6 @@ export function SetupDashboard() {
           </Link>
         </div>
       </div>
-
-      {/* Activity Recent (Optional) */}
-      <div className="space-y-4">
-        <h2 className="text-2xl font-semibold">Atividade Recente</h2>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="h-2 w-2 rounded-full bg-primary" />
-                <div className="flex-1">
-                  <p className="text-sm">Portal "setup" criado</p>
-                </div>
-                <span className="text-sm text-muted-foreground">há 1 dia</span>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="h-2 w-2 rounded-full bg-primary" />
-                <div className="flex-1">
-                  <p className="text-sm">Módulo "setup" ativado em "setup"</p>
-                </div>
-                <span className="text-sm text-muted-foreground">há 1 dia</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    </Page>
   );
 }

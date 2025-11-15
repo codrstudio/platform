@@ -16,8 +16,6 @@ import { useState } from 'react';
 import { Search, Filter, Loader2, Inbox, List, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { PageBreadcrumb } from '@/components/navigation';
-import { useBreadcrumb } from '@/hooks/useBreadcrumb';
 import { TaskItem } from '../components/TaskItem';
 import { useTasks } from '../hooks/useTasks';
 import type { TaskFilters, TaskModuleConfig, TaskStatus } from '../types';
@@ -43,7 +41,6 @@ export function TaskList({
   );
 
   // Breadcrumb
-  const breadcrumbItems = useBreadcrumb({
     portalId,
     moduleName: 'Tarefas'
   });
@@ -97,7 +94,6 @@ export function TaskList({
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Breadcrumb */}
-      <PageBreadcrumb items={breadcrumbItems} />
 
       {/* Header */}
       <div className="flex items-center justify-between">

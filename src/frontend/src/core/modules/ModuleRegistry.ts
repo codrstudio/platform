@@ -6,6 +6,9 @@
  */
 
 import type { ModuleExports } from '@/types/module';
+import { slotComponentRegistry } from '@/core/composition/SlotComponentRegistry';
+import { compositionRegistry } from '@/core/composition/CompositionRegistry';
+import type { SlotComponent, Composition } from '@/core/composition/types';
 
 class ModuleRegistry {
   private modules = new Map<string, ModuleExports>();
@@ -19,6 +22,34 @@ class ModuleRegistry {
     }
 
     this.modules.set(id, module);
+
+    // Register slot components if provided
+    if (module.slotComponents) {
+      module.slotComponents.forEach((sc: SlotComponent) => {
+        slotComponentRegistry.register({
+          ...sc,
+          providedBy: id,
+        });
+      });
+
+      if (import.meta.env.DEV) {
+        console.log(`[ModuleRegistry] Registered ${module.slotComponents.length} slot component(s) from module: ${id}`);
+      }
+    }
+
+    // Register compositions if provided
+    if (module.compositions) {
+      module.compositions.forEach((comp: Composition) => {
+        compositionRegistry.register({
+          ...comp,
+          providedBy: id,
+        });
+      });
+
+      if (import.meta.env.DEV) {
+        console.log(`[ModuleRegistry] Registered ${module.compositions.length} composition(s) from module: ${id}`);
+      }
+    }
 
     if (import.meta.env.DEV) {
       console.log(`[ModuleRegistry] Registered module: ${id}`);
@@ -38,7 +69,29 @@ class ModuleRegistry {
   }
 
   unregister(id: string): boolean {
+    // Clean up compositions and slot components before unregistering
+    this.unregisterModuleCompositions(id);
     return this.modules.delete(id);
+  }
+
+  /**
+   * Unregisters all compositions and slot components provided by a module
+   * @param moduleId - Module ID to clean up
+   */
+  unregisterModuleCompositions(moduleId: string) {
+    // Remove slot components
+    const components = slotComponentRegistry.getAll();
+    components
+      .filter(c => c.providedBy === moduleId)
+      .forEach(c => slotComponentRegistry.unregister(c.componentId));
+
+    // Remove compositions
+    const compositions = compositionRegistry.getByProvider(moduleId);
+    compositions.forEach(c => compositionRegistry.unregister(c.id));
+
+    if (import.meta.env.DEV) {
+      console.log(`[ModuleRegistry] Unregistered compositions and slot components from module: ${moduleId}`);
+    }
   }
 
   clear() {

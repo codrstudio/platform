@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Save } from 'lucide-react';
 import { useRealm, useCreateRealm, useUpdateRealm } from '@/hooks/jqel/useRealm';
-import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 import { toastError } from '@/lib/toast';
 export function RealmForm() {
   const { realmId } = useParams<{ realmId: string }>();
@@ -87,7 +86,6 @@ export function RealmForm() {
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Breadcrumb */}
-      <PageBreadcrumb items={breadcrumbItems} />
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button

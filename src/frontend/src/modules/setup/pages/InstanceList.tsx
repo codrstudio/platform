@@ -21,7 +21,6 @@ import { ArrowLeft, Plus, Settings, Trash2, Layers, Info } from 'lucide-react';
 import { usePortal } from '@/hooks/jqel/usePortal';
 import { useInstances, useUpdateInstance, useDeleteInstance } from '@/hooks/jqel/useInstance';
 import { useModule } from '@/hooks/jqel/useModule';
-import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 export function InstanceList() {
   const { portalId, moduleId } = useParams<{ portalId: string; moduleId: string }>();
   const navigate = useNavigate();
@@ -102,7 +101,6 @@ export function InstanceList() {
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Breadcrumb */}
-      <PageBreadcrumb items={breadcrumbItems} />
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button

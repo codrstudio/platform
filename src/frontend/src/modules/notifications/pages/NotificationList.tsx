@@ -15,8 +15,6 @@ import { useState } from 'react';
 import { Search, Filter, Loader2, Inbox, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { PageBreadcrumb } from '@/components/navigation';
-import { useBreadcrumb } from '@/hooks/useBreadcrumb';
 import { NotificationItem } from '../components/NotificationItem';
 import { useNotifications } from '../hooks/useNotifications';
 import type { NotificationFilters, NotificationModuleConfig } from '../types';
@@ -39,7 +37,6 @@ export function NotificationList({
   const [showFilters, setShowFilters] = useState(false);
 
   // Breadcrumb
-  const breadcrumbItems = useBreadcrumb({
     portalId,
     moduleName: 'Notificações'
   });
@@ -73,7 +70,6 @@ export function NotificationList({
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Breadcrumb */}
-      <PageBreadcrumb items={breadcrumbItems} />
 
       {/* Header */}
       <div className="flex items-center justify-between">

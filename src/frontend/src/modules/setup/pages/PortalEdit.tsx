@@ -11,7 +11,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { ArrowLeft, Save, Info } from 'lucide-react';
 import { usePortal, useUpdatePortal } from '@/hooks/jqel/usePortal';
 import { useRealms } from '@/hooks/jqel/useRealm';
-import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 import { RealmQuickCreate } from '../components/RealmQuickCreate';
 export function PortalEdit() {
   const { portalId } = useParams<{ portalId: string }>();
@@ -85,7 +84,6 @@ export function PortalEdit() {
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Breadcrumb */}
-      <PageBreadcrumb items={breadcrumbItems} />
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button

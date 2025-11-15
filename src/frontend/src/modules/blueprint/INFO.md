@@ -1,0 +1,6 @@
+- como lidar com assets
+- como lidar com rotas jqel usando useJQEL corretamente
+  - nao criar rotas no backend, sempre usar a rota JQEL por via de useJQEL ou hook especialidado em src\frontend\src\hooks\jqel
+- pattern de criacao de paginas de configuracao com componentes *ConfigForm
+- como registrar rotas dinamicamente
+- como garantir um modulo auto-contido e sem ferir regras da plataforma

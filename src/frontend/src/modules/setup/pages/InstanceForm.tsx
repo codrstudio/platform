@@ -12,7 +12,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ArrowLeft, Info, Lock } from 'lucide-react';
 import { useInstance, useCreateInstance, useUpdateInstance } from '@/hooks/jqel/useInstance';
 import { useModule } from '@/hooks/jqel/useModule';
-import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 import { toastError } from '@/lib/toast';
 import { moduleRegistry } from '@/core/modules';
 export function InstanceForm() {
@@ -122,7 +121,6 @@ export function InstanceForm() {
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Breadcrumb */}
-      <PageBreadcrumb items={breadcrumbItems} />
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button

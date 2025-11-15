@@ -8,8 +8,6 @@
  */
 
 import { Search } from 'lucide-react';
-import { PageBreadcrumb } from '@/components/navigation';
-import { useBreadcrumb } from '@/hooks/useBreadcrumb';
 import type { CommandPaletteConfig } from '../types';
 
 export interface CommandPalettePageProps {
@@ -24,7 +22,6 @@ export function CommandPalettePage({
   portalId
 }: CommandPalettePageProps) {
   // Breadcrumb
-  const breadcrumbItems = useBreadcrumb({
     portalId,
     moduleName: 'Busca'
   });
@@ -32,7 +29,6 @@ export function CommandPalettePage({
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Breadcrumb */}
-      <PageBreadcrumb items={breadcrumbItems} />
 
       {/* Header */}
       <div>

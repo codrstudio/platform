@@ -19,12 +19,9 @@ import { Plus, Settings, Trash2, Globe } from 'lucide-react';
 import { useRealms, useDeleteRealm } from '@/hooks/jqel/useRealm';
 import { usePortals } from '@/hooks/jqel/usePortal';
 import { useMemo, useState } from 'react';
-import { PageBreadcrumb } from '@/components/navigation';
-import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb';
 import { toastError } from '@/lib/toast';
 
 export function RealmList() {
-  const breadcrumbItems = useSetupBreadcrumb('Ambientes');
   const { data: realmsResult, isLoading: realmsLoading } = useRealms();
   const { data: portalsResult } = usePortals();
   const deleteRealmMutation = useDeleteRealm();
@@ -90,7 +87,6 @@ export function RealmList() {
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Breadcrumb */}
-      <PageBreadcrumb items={breadcrumbItems} />
 
       {/* Header */}
       <div className="flex items-center justify-between">

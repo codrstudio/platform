@@ -8,8 +8,6 @@ import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Server, Database, Activity, Info, Loader2, Palette } from 'lucide-react';
-import { PageBreadcrumb } from '@/components/navigation';
-import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb';
 import { usePortals } from '@/hooks/jqel/usePortal';
 import { LoginBrandingEditor } from '../components/LoginBrandingEditor';
 
@@ -24,7 +22,6 @@ function useSystemHealth() {
 }
 
 export function PlatformSettings() {
-  const breadcrumbItems = useSetupBreadcrumb('Configurações');
   const { backendStatus, isLoading: healthLoading } = useSystemHealth();
   const [showBrandingEditor, setShowBrandingEditor] = useState(false);
 
@@ -90,7 +87,6 @@ export function PlatformSettings() {
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Breadcrumb */}
-      <PageBreadcrumb items={breadcrumbItems} />
 
       {/* Header */}
       <div>

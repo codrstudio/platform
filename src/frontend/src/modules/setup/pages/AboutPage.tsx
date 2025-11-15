@@ -5,16 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Layers, Package, Zap, Globe, Shield, Palette } from 'lucide-react'
-import { PageBreadcrumb } from '@/components/navigation'
-import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb'
 
 export function AboutPage() {
-  const breadcrumbItems = useSetupBreadcrumb('Sobre')
 
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Breadcrumb */}
-      <PageBreadcrumb items={breadcrumbItems} />
 
       {/* Header com Logo */}
       <div className="flex flex-col items-center gap-6 text-center">

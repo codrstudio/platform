@@ -3,8 +3,6 @@ import { Hash, Settings, Palette, Shield, Lock, PackageOpen } from 'lucide-react
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PageBreadcrumb } from '@/components/navigation';
-import { useBreadcrumb } from '@/hooks/useBreadcrumb';
 
 export interface PortalDefaultViewProps {
   portalId: string;
@@ -26,12 +24,6 @@ export function PortalDefaultView({
 
   // Determina o nome exibido do portal
   const displayName = portalName || portalId.charAt(0).toUpperCase() + portalId.slice(1);
-
-  // Gera breadcrumb items
-  const breadcrumbItems = useBreadcrumb({
-    portalId,
-    portalName: displayName
-  });
 
   // Subtítulo baseado no contexto do portal
   const getSubtitle = () => {
@@ -58,7 +50,6 @@ export function PortalDefaultView({
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Breadcrumb de navegação */}
-      <PageBreadcrumb items={breadcrumbItems} />
 
       {/* Hero Section - Card Grande */}
       <Card className="overflow-hidden border-2 transition-shadow duration-200 hover:shadow-lg">

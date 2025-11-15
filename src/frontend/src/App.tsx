@@ -3,6 +3,7 @@ import { Suspense, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import { EventProvider } from './contexts/EventContext';
+import { CompositionProvider } from './core/composition/CompositionContext';
 import { ProtectedRoute } from './components/routing/ProtectedRoute';
 import { PortalRouter } from './components/routing/PortalRouter';
 import { LoginPage, NotFoundPage, UnauthorizedPage } from './pages';
@@ -15,6 +16,12 @@ import { cacheValidator } from './services/cacheValidator';
 // Import module loader to auto-register all modules
 // SPEC-R-LM-001: Static import of module metadata
 import './core/modules/loader';
+
+// Import composition system initialization
+import { initializePlatformCompositions } from './core/composition/platform';
+
+// Initialize platform compositions (components and layouts)
+initializePlatformCompositions();
 
 /**
  * TanStack Query Client Configuration
@@ -97,8 +104,9 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <EventProvider>
-            <CacheEpochSync />
-            <Suspense fallback={<LoadingFallback />}>
+            <CompositionProvider>
+              <CacheEpochSync />
+              <Suspense fallback={<LoadingFallback />}>
               {/* Global toast notifications - SPEC-ERR-UI-001 */}
               <Toaster
                 position="bottom-right"
@@ -134,6 +142,7 @@ function App() {
                 />
               </Routes>
             </Suspense>
+            </CompositionProvider>
           </EventProvider>
         </AuthProvider>
       </QueryClientProvider>

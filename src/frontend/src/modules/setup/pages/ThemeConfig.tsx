@@ -30,7 +30,6 @@ import {
   hexToHSL,
   hslToHex
 } from '@/lib/theme';
-import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 export function ThemeConfig() {
   const { portalId } = useParams<{ portalId: string }>();
   const navigate = useNavigate();
@@ -138,7 +137,6 @@ export function ThemeConfig() {
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Breadcrumb */}
-      <PageBreadcrumb items={breadcrumbItems} />
 
       {/* Header */}
       <div className="flex items-center gap-4">

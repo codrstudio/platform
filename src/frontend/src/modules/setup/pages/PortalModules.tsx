@@ -48,7 +48,6 @@ import { usePortal, useUpdatePortal } from '@/hooks/jqel/usePortal';
 import { useModules } from '@/hooks/jqel/useModule';
 import { useInstances } from '@/hooks/jqel/useInstance';
 import type { BackendModule as ModuleType } from '@/types/module';
-import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 import { ModuleBrowser } from '../components/ModuleBrowser';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { useQueryClient } from '@tanstack/react-query';
@@ -531,7 +530,6 @@ export function PortalModules() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Breadcrumb */}
-      <PageBreadcrumb items={breadcrumbItems} />
 
       {/* Header */}
       <div className="flex items-center gap-4">
