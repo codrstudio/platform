@@ -19,7 +19,7 @@ export function registerPlatformCompositions() {
       desktop: true,
     },
     components: {
-      breadcrumb: 'platform-breadcrumb',
+      breadcrumb: 'portal-breadcrumb',
     },
     layout: {
       width: 'md',
@@ -38,10 +38,10 @@ export function registerPlatformCompositions() {
       desktop: true,
     },
     components: {
-      breadcrumb: 'platform-breadcrumb',
+      breadcrumb: 'portal-breadcrumb',
     },
     layout: {
-      width: 'md',
+      width: 'full',
     },
   });
 }

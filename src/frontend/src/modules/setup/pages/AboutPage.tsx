@@ -5,12 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Layers, Package, Zap, Globe, Shield, Palette } from 'lucide-react'
+import { Page } from '@/core/composition'
 
 export function AboutPage() {
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
-      {/* Breadcrumb */}
+    <Page composition="settings">
+      <div className="p-6 space-y-8">
 
       {/* Header com Logo */}
       <div className="flex flex-col items-center gap-6 text-center">
@@ -320,6 +321,7 @@ export function AboutPage() {
         <p>Platform - Build once, reuse infinitely.</p>
         <p className="mt-1">© 2025 CODR Studio</p>
       </div>
-    </div>
+      </div>
+    </Page>
   )
 }

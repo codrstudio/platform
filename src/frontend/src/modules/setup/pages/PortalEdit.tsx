@@ -12,6 +12,7 @@ import { ArrowLeft, Save, Info } from 'lucide-react';
 import { usePortal, useUpdatePortal } from '@/hooks/jqel/usePortal';
 import { useRealms } from '@/hooks/jqel/useRealm';
 import { RealmQuickCreate } from '../components/RealmQuickCreate';
+import { Page } from '@/core/composition';
 export function PortalEdit() {
   const { portalId } = useParams<{ portalId: string }>();
   const navigate = useNavigate();
@@ -69,20 +70,25 @@ export function PortalEdit() {
   const isSaving = updatePortalMutation.isPending;
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
-        <p>Carregando portal...</p>
-      </div>
+      <Page composition="settings">
+        <div className="p-6">
+          <p>Carregando portal...</p>
+        </div>
+      </Page>
     );
   }
   if (!portal) {
     return (
-      <div className="container mx-auto p-6">
-        <p>Portal não encontrado</p>
-      </div>
+      <Page composition="settings">
+        <div className="p-6">
+          <p>Portal não encontrado</p>
+        </div>
+      </Page>
     );
   }
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <Page composition="settings">
+      <div className="p-6 space-y-8">
       {/* Breadcrumb */}
       {/* Header */}
       <div className="flex items-center gap-4">
@@ -243,6 +249,7 @@ export function PortalEdit() {
           </CardHeader>
         </Card>
       </div>
-    </div>
+      </div>
+    </Page>
   );
 }

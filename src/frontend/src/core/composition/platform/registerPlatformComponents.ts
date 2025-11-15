@@ -1,5 +1,5 @@
 import { slotComponentRegistry } from '../SlotComponentRegistry';
-import { PlatformBreadcrumb } from '../components/PlatformBreadcrumb';
+import { PortalBreadcrumb } from '../components/PortalBreadcrumb';
 
 /**
  * Registra componentes de slots fornecidos pela plataforma
@@ -10,9 +10,9 @@ import { PlatformBreadcrumb } from '../components/PlatformBreadcrumb';
 export function registerPlatformComponents() {
   slotComponentRegistry.register({
     slot: 'breadcrumb',
-    componentId: 'platform-breadcrumb',
-    component: PlatformBreadcrumb,
+    componentId: 'portal-breadcrumb',
+    component: PortalBreadcrumb,
     providedBy: 'platform',
-    name: 'Platform Breadcrumb',
+    name: 'Portal Breadcrumb',
   });
 }

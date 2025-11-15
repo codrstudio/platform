@@ -3,6 +3,7 @@ import { Hash, Settings, Palette, Shield, Lock, PackageOpen } from 'lucide-react
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Page } from '@/core/composition';
 
 export interface PortalDefaultViewProps {
   portalId: string;
@@ -48,11 +49,10 @@ export function PortalDefaultView({
   const themeDisplay = theme === 'system' ? 'Sistema' : theme === 'light' ? 'Claro' : 'Escuro';
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
-      {/* Breadcrumb de navegação */}
-
-      {/* Hero Section - Card Grande */}
-      <Card className="overflow-hidden border-2 transition-shadow duration-200 hover:shadow-lg">
+    <Page composition="default" width="lg">
+      <div className="p-6 space-y-8">
+        {/* Hero Section - Card Grande */}
+        <Card className="overflow-hidden border-2 transition-shadow duration-200 hover:shadow-lg">
         <CardHeader className="text-center space-y-4 pb-8 pt-12">
           {/* Ícone grande do portal */}
           <div className="flex justify-center">
@@ -182,6 +182,7 @@ export function PortalDefaultView({
           </Button>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </Page>
   );
 }

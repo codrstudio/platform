@@ -16,6 +16,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { toastSuccess } from '@/lib/toast';
 import { IconUploader } from '../components/IconUploader';
 import { ThemeColorPicker } from '../components/ThemeColorPicker';
+import { Page } from '@/core/composition';
 import {
   getStoredBrandColor,
   setStoredBrandColor,
@@ -70,22 +71,27 @@ export function RealmEdit() {
 
   if (realmLoading || portalsLoading) {
     return (
-      <div className="container mx-auto p-6">
-        <p>Carregando configurações do ambiente...</p>
-      </div>
+      <Page composition="settings">
+        <div className="p-6">
+          <p>Carregando configurações do ambiente...</p>
+        </div>
+      </Page>
     );
   }
 
   if (!realm) {
     return (
-      <div className="container mx-auto p-6">
-        <p>Ambiente não encontrado</p>
-      </div>
+      <Page composition="settings">
+        <div className="p-6">
+          <p>Ambiente não encontrado</p>
+        </div>
+      </Page>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <Page composition="settings">
+      <div className="p-6 space-y-8">
       {/* Breadcrumb */}
 
       {/* Header */}
@@ -361,6 +367,7 @@ export function RealmEdit() {
           )}
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </Page>
   );
 }

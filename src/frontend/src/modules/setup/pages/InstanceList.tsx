@@ -21,6 +21,7 @@ import { ArrowLeft, Plus, Settings, Trash2, Layers, Info } from 'lucide-react';
 import { usePortal } from '@/hooks/jqel/usePortal';
 import { useInstances, useUpdateInstance, useDeleteInstance } from '@/hooks/jqel/useInstance';
 import { useModule } from '@/hooks/jqel/useModule';
+import { Page } from '@/core/composition';
 export function InstanceList() {
   const { portalId, moduleId } = useParams<{ portalId: string; moduleId: string }>();
   const navigate = useNavigate();
@@ -86,20 +87,25 @@ export function InstanceList() {
   };
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
-        <p>Carregando instâncias...</p>
-      </div>
+      <Page composition="settings">
+        <div className="p-6">
+          <p>Carregando instâncias...</p>
+        </div>
+      </Page>
     );
   }
   if (!portal) {
     return (
-      <div className="container mx-auto p-6">
-        <p>Portal não encontrado</p>
-      </div>
+      <Page composition="settings">
+        <div className="p-6">
+          <p>Portal não encontrado</p>
+        </div>
+      </Page>
     );
   }
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <Page composition="settings">
+      <div className="p-6 space-y-8">
       {/* Breadcrumb */}
       {/* Header */}
       <div className="flex items-center gap-4">
@@ -263,6 +269,7 @@ export function InstanceList() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+      </div>
+    </Page>
   );
 }

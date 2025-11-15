@@ -8,13 +8,13 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 
-export interface PlatformBreadcrumbProps {
+export interface PortalBreadcrumbProps {
   /** Mapeamento opcional de ícones por segmento de URL */
   iconMap?: Record<string, React.ReactNode>;
 }
 
 /**
- * Componente de breadcrumb da plataforma
+ * Componente de breadcrumb do portal
  *
  * Renderiza navegação hierárquica baseada no caminho da URL atual.
  * Integra com React Router para navegação e suporta tema claro/escuro.
@@ -27,11 +27,11 @@ export interface PlatformBreadcrumbProps {
  *
  * @example
  * ```tsx
- * <PlatformBreadcrumb />
- * <PlatformBreadcrumb iconMap={{ setup: <Settings className="h-4 w-4" /> }} />
+ * <PortalBreadcrumb />
+ * <PortalBreadcrumb iconMap={{ setup: <Settings className="h-4 w-4" /> }} />
  * ```
  */
-export function PlatformBreadcrumb({ iconMap = {} }: PlatformBreadcrumbProps = {}) {
+export function PortalBreadcrumb({ iconMap = {} }: PortalBreadcrumbProps = {}) {
   const location = useLocation();
 
   // Gera os itens do breadcrumb a partir do pathname
@@ -39,9 +39,21 @@ export function PlatformBreadcrumb({ iconMap = {} }: PlatformBreadcrumbProps = {
     .split('/')
     .filter(segment => segment !== '');
 
-  // Se não há segmentos, não renderiza breadcrumb
+  // Se não há segmentos (rota raiz), renderiza apenas Home como link
+  // Permite que o usuário clique para "refresh" da página
   if (pathSegments.length === 0) {
-    return null;
+    return (
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink asChild>
+            <Link to="/" className="flex items-center gap-1.5">
+              <Home className="h-4 w-4" aria-hidden="true" />
+              <span>Home</span>
+            </Link>
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    );
   }
 
   // Função para formatar o nome do segmento

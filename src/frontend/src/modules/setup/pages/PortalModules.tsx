@@ -51,6 +51,7 @@ import type { BackendModule as ModuleType } from '@/types/module';
 import { ModuleBrowser } from '../components/ModuleBrowser';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { useQueryClient } from '@tanstack/react-query';
+import { Page } from '@/core/composition';
 
 interface ModuleWithStatus extends ModuleType {
   instanceCount: number;
@@ -504,23 +505,27 @@ export function PortalModules() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center gap-2">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p>Carregando módulos...</p>
+      <Page composition="settings">
+        <div className="p-6">
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <p>Carregando módulos...</p>
+          </div>
         </div>
-      </div>
+      </Page>
     );
   }
 
   if (!portal) {
     return (
-      <div className="container mx-auto p-6">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>Portal não encontrado</AlertDescription>
-        </Alert>
-      </div>
+      <Page composition="settings">
+        <div className="p-6">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>Portal não encontrado</AlertDescription>
+          </Alert>
+        </div>
+      </Page>
     );
   }
 
@@ -528,7 +533,8 @@ export function PortalModules() {
   const inactiveCount = allEnrichedModules.filter(m => !m.isActive).length;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <Page composition="settings">
+      <div className="p-6 space-y-6">
       {/* Breadcrumb */}
 
       {/* Header */}
@@ -714,6 +720,7 @@ export function PortalModules() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+      </div>
+    </Page>
   );
 }

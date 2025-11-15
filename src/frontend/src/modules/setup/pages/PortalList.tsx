@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Plus, Settings, Trash2, Layers } from 'lucide-react';
 import { usePortals, useDeletePortal } from '@/hooks/jqel/usePortal';
+import { Page } from '@/core/composition';
 
 export function PortalList() {
   const { data: portalsResult, isLoading } = usePortals();
@@ -50,15 +51,17 @@ export function PortalList() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
-        <p>Carregando portais...</p>
-      </div>
+      <Page composition="settings">
+        <div className="p-6">
+          <p>Carregando portais...</p>
+        </div>
+      </Page>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
-      {/* Breadcrumb */}
+    <Page composition="settings">
+      <div className="p-6 space-y-8">
 
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -178,6 +181,7 @@ export function PortalList() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+      </div>
+    </Page>
   );
 }

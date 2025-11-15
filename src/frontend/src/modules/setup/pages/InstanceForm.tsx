@@ -14,6 +14,7 @@ import { useInstance, useCreateInstance, useUpdateInstance } from '@/hooks/jqel/
 import { useModule } from '@/hooks/jqel/useModule';
 import { toastError } from '@/lib/toast';
 import { moduleRegistry } from '@/core/modules';
+import { Page } from '@/core/composition';
 export function InstanceForm() {
   const { portalId, moduleId, instanceId } = useParams<{ portalId: string; moduleId: string; instanceId?: string }>();
   const navigate = useNavigate();
@@ -113,13 +114,16 @@ export function InstanceForm() {
   };
   if (!module) {
     return (
-      <div className="container mx-auto p-6">
-        <p>Carregando módulo...</p>
-      </div>
+      <Page composition="settings">
+        <div className="p-6">
+          <p>Carregando módulo...</p>
+        </div>
+      </Page>
     );
   }
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <Page composition="settings">
+      <div className="p-6 space-y-8">
       {/* Breadcrumb */}
       {/* Header */}
       <div className="flex items-center gap-4">
@@ -297,6 +301,7 @@ export function InstanceForm() {
           </Button>
         </div>
       )}
-    </div>
+      </div>
+    </Page>
   );
 }

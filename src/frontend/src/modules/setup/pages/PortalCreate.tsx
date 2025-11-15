@@ -12,6 +12,7 @@ import { ArrowLeft, Save } from 'lucide-react';
 import { useCreatePortal } from '@/hooks/jqel/usePortal';
 import { useRealms } from '@/hooks/jqel/useRealm';
 import { RealmQuickCreate } from '../components/RealmQuickCreate';
+import { Page } from '@/core/composition';
 export function PortalCreate() {
   const navigate = useNavigate();
   const { data: realmsResult, isLoading: realmsLoading } = useRealms();
@@ -56,7 +57,8 @@ export function PortalCreate() {
   };
   const isSaving = createPortalMutation.isPending;
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <Page composition="settings">
+      <div className="p-6 space-y-8">
       {/* Breadcrumb */}
       {/* Header */}
       <div className="flex items-center gap-4">
@@ -178,6 +180,7 @@ export function PortalCreate() {
           </Button>
         </div>
       </form>
-    </div>
+      </div>
+    </Page>
   );
 }

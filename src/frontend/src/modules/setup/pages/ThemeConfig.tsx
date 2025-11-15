@@ -22,6 +22,7 @@ import { useRealm } from '@/hooks/jqel/useRealm';
 import { toastSuccess, toastInfo } from '@/lib/toast';
 import { IconUploader } from '../components/IconUploader';
 import { ThemeColorPicker } from '../components/ThemeColorPicker';
+import { Page } from '@/core/composition';
 import {
   getStoredBrandColor,
   setPortalBrandColor,
@@ -122,20 +123,25 @@ export function ThemeConfig() {
   };
   if (portalLoading || realmLoading) {
     return (
-      <div className="container mx-auto p-6">
-        <p>Carregando configurações de tema...</p>
-      </div>
+      <Page composition="settings">
+        <div className="p-6">
+          <p>Carregando configurações de tema...</p>
+        </div>
+      </Page>
     );
   }
   if (!portal || !realm) {
     return (
-      <div className="container mx-auto p-6">
-        <p>Portal ou Ambiente não encontrado</p>
-      </div>
+      <Page composition="settings">
+        <div className="p-6">
+          <p>Portal ou Ambiente não encontrado</p>
+        </div>
+      </Page>
     );
   }
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <Page composition="settings">
+      <div className="p-6 space-y-8">
       {/* Breadcrumb */}
 
       {/* Header */}
@@ -390,6 +396,7 @@ export function ThemeConfig() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+      </div>
+    </Page>
   );
 }

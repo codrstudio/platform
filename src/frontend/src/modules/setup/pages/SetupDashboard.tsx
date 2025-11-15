@@ -32,7 +32,7 @@ export function SetupDashboard() {
   const stats = useSetupStats();
 
   return (
-    <Page width="lg">
+    <Page composition="settings">
       <div className="p-6 space-y-8">
         {/* Header */}
       <div>
@@ -174,6 +174,7 @@ export function SetupDashboard() {
             </Card>
           </Link>
         </div>
+      </div>
       </div>
     </Page>
   );

@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Save } from 'lucide-react';
 import { useRealm, useCreateRealm, useUpdateRealm } from '@/hooks/jqel/useRealm';
 import { toastError } from '@/lib/toast';
+import { Page } from '@/core/composition';
 export function RealmForm() {
   const { realmId } = useParams<{ realmId: string }>();
   const navigate = useNavigate();
@@ -78,14 +79,16 @@ export function RealmForm() {
   const isSaving = createRealmMutation.isPending || updateRealmMutation.isPending;
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
-        <p>Carregando ambiente...</p>
-      </div>
+      <Page composition="settings">
+        <div className="p-6">
+          <p>Carregando ambiente...</p>
+        </div>
+      </Page>
     );
   }
   return (
-    <div className="container mx-auto p-6 space-y-8">
-      {/* Breadcrumb */}
+    <Page composition="settings">
+      <div className="p-6 space-y-8">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
@@ -182,6 +185,7 @@ export function RealmForm() {
           </Button>
         </div>
       </form>
-    </div>
+      </div>
+    </Page>
   );
 }

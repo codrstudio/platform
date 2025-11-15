@@ -16,6 +16,7 @@ import { MarkdownRenderer, CodeBlock } from '@/modules/media-components';
 import { Button } from '@/components/ui/button';
 import { FileDown } from 'lucide-react';
 import { exportToPDF, exportToCSV } from '@/modules/export-components';
+import { Page } from '@/core/composition';
 
 const sampleCode = `import { DataTable, SimpleChart } from 'app-components';
 import { MarkdownRenderer, CodeBlock } from 'media-components';
@@ -103,7 +104,8 @@ export function ComponentsDemo() {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <Page composition="settings">
+      <div className="p-6 space-y-6">
       {/* Header */}
       <div className="space-y-2">
         <h1 className="text-4xl font-bold tracking-tight">
@@ -270,6 +272,7 @@ export function ComponentsDemo() {
           </ul>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </Page>
   );
 }

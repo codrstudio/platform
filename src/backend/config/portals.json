@@ -4,9 +4,14 @@
     "name": "Portal Principal",
     "description": "Portal principal da plataforma",
     "realmId": "default",
-    "availableModules": [],
+    "availableModules": [
+      "blueprint"
+    ],
     "activeModules": [],
     "removable": false,
+    "homepage": {
+      "type": "none"
+    },
     "metadata": {}
   },
   {

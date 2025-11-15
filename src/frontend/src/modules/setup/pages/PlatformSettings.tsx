@@ -10,6 +10,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Server, Database, Activity, Info, Loader2, Palette } from 'lucide-react';
 import { usePortals } from '@/hooks/jqel/usePortal';
 import { LoginBrandingEditor } from '../components/LoginBrandingEditor';
+import { Page } from '@/core/composition';
 
 function useSystemHealth() {
   // Test backend connectivity by querying portals
@@ -85,7 +86,8 @@ export function PlatformSettings() {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <Page composition="settings">
+      <div className="p-6 space-y-8">
       {/* Breadcrumb */}
 
       {/* Header */}
@@ -244,6 +246,7 @@ export function PlatformSettings() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </Page>
   );
 }

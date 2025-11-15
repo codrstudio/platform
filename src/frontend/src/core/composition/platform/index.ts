@@ -8,7 +8,7 @@ import { registerPlatformCompositions } from './registerPlatformCompositions';
  * antes de renderizar qualquer rota ou componente que use composições.
  *
  * Registra:
- * - Componentes de slots da plataforma (platform-breadcrumb)
+ * - Componentes de slots da plataforma (portal-breadcrumb)
  * - Composições base (default, settings)
  */
 export function initializePlatformCompositions() {

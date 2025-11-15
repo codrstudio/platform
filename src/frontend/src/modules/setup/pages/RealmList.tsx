@@ -20,6 +20,7 @@ import { useRealms, useDeleteRealm } from '@/hooks/jqel/useRealm';
 import { usePortals } from '@/hooks/jqel/usePortal';
 import { useMemo, useState } from 'react';
 import { toastError } from '@/lib/toast';
+import { Page } from '@/core/composition';
 
 export function RealmList() {
   const { data: realmsResult, isLoading: realmsLoading } = useRealms();
@@ -78,15 +79,17 @@ export function RealmList() {
 
   if (realmsLoading) {
     return (
-      <div className="container mx-auto p-6">
-        <p>Carregando ambientes...</p>
-      </div>
+      <Page composition="settings">
+        <div className="p-6">
+          <p>Carregando ambientes...</p>
+        </div>
+      </Page>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
-      {/* Breadcrumb */}
+    <Page composition="settings">
+      <div className="p-6 space-y-8">
 
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -224,6 +227,7 @@ export function RealmList() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+      </div>
+    </Page>
   );
 }
