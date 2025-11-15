@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { useModules } from '@/hooks/useJQEL';
+import { useModules } from '@/hooks/jqel/useModule';
 import { toastWarning } from '@/lib/toast';
 
 interface ModuleBrowserProps {

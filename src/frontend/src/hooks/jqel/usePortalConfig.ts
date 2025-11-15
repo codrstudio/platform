@@ -1,26 +1,10 @@
-// Configuration Hook
-// Provides access to portal configuration (modules, instances)
+// Portal Configuration Hook
+// Context-aware hook that provides access to current portal configuration
 
-import { useLocation } from 'react-router-dom';
-import { useJQELQuery } from './useJQEL';
-
-// BREAKING CHANGE: settingsKey replaced with realmId (Realm System)
-interface Portal {
-  portalId: string;
-  name: string;
-  activeModules: string[];
-  realmId: string;
-  removable: boolean;
-}
-
-interface Instance {
-  instanceId: string;
-  portalId: string;
-  moduleId: string;
-  config: Record<string, unknown>;
-  active: boolean;
-  metadata?: Record<string, unknown>;
-}
+import { useLocation } from 'react-router-dom'
+import { useJQELQuery } from '../useJQEL'
+import type { Portal } from '@/types/portal'
+import type { Instance } from '@/types/instance'
 
 /**
  * Get current portal ID from URL
@@ -28,22 +12,23 @@ interface Instance {
 function getCurrentPortalId(pathname: string): string {
   // Main portal uses "/"
   if (pathname === '/' || pathname.startsWith('/?')) {
-    return 'main';
+    return 'main'
   }
 
   // Other portals use "/:portalId/*"
-  const match = pathname.match(/^\/([^/?]+)/);
-  return match ? match[1] : 'main';
+  const match = pathname.match(/^\/([^/?]+)/)
+  return match ? match[1] : 'main'
 }
 
 /**
- * useConfig Hook
+ * usePortalConfig Hook
  *
- * Provides access to current portal configuration
+ * Context-aware hook that provides access to current portal configuration.
+ * Automatically detects the current portal from the URL.
  */
-export function useConfig() {
-  const location = useLocation();
-  const portalId = getCurrentPortalId(location.pathname);
+export function usePortalConfig() {
+  const location = useLocation()
+  const portalId = getCurrentPortalId(location.pathname)
 
   // Fetch portal configuration using useJQELQuery
   const { data: portalResult, isLoading: portalLoading, error: portalError } = useJQELQuery<Portal[]>(
@@ -58,7 +43,7 @@ export function useConfig() {
       staleTime: 0, // Always fetch fresh data for now
       gcTime: 1000 * 60 * 5, // Keep in cache for 5 minutes
     }
-  );
+  )
 
   // Fetch instances using useJQELQuery
   const { data: instancesResult, isLoading: instancesLoading } = useJQELQuery<Instance[]>(
@@ -73,19 +58,20 @@ export function useConfig() {
       staleTime: 0, // Always fetch fresh data for now
       gcTime: 1000 * 60 * 5, // Keep in cache for 5 minutes
     }
-  );
+  )
 
   // Extract portal from result (first item or default)
   const portal = portalResult?.data?.[0] || {
     portalId,
     name: portalId,
     activeModules: [],
+    availableModules: [],
     realmId: 'default',
     removable: true,
-  };
+  }
 
   // Extract instances from result
-  const instances = instancesResult?.data || [];
+  const instances = instancesResult?.data || []
 
   return {
     portal,
@@ -94,19 +80,25 @@ export function useConfig() {
     isLoading: portalLoading || instancesLoading,
     error: portalError,
     hasModule: (moduleId: string) => {
-      return portal?.activeModules.includes(moduleId) ?? false;
+      return portal?.activeModules.includes(moduleId) ?? false
     },
     hasActiveInstance: (moduleId: string) => {
-      if (!instances) return false;
+      if (!instances) return false
       return instances.some(
         (instance) => instance.moduleId === moduleId && instance.active === true
-      );
+      )
     },
     getActiveAuthInstance: () => {
-      if (!instances) return null;
+      if (!instances) return null
       return instances.find(
         (instance) => instance.moduleId === 'auth' && instance.active === true
-      ) || null;
+      ) || null
     },
-  };
+  }
 }
+
+/**
+ * Backward compatibility alias
+ * @deprecated Use usePortalConfig instead
+ */
+export { usePortalConfig as useConfig }

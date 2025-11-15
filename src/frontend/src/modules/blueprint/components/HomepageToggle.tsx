@@ -2,7 +2,7 @@
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { toastSuccess, toastError } from '@/lib/toast';
-import { usePortal, useUpdatePortal } from '@/hooks/useJQEL';
+import { usePortal, useUpdatePortal } from '@/hooks/jqel/usePortal';
 import { useParams } from 'react-router-dom';
 
 export function HomepageToggle() {
@@ -16,10 +16,12 @@ export function HomepageToggle() {
   const handleToggle = async (checked: boolean) => {
     try {
       await updatePortal.mutateAsync({
-        portalId,
-        homepage: checked
-          ? { type: 'subroute', value: '/ola' }
-          : { type: 'none' }
+        values: {
+          homepage: checked
+            ? { type: 'subroute', value: '/ola' }
+            : { type: 'none' }
+        },
+        where: { portalId: { $eq: portalId } }
       });
 
       toastSuccess(

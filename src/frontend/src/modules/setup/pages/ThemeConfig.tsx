@@ -17,7 +17,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { ArrowLeft, Save, Palette, Lock, RotateCcw, Image, AlertTriangle } from 'lucide-react';
-import { usePortal, useRealm } from '@/hooks/useJQEL';
+import { usePortal } from '@/hooks/jqel/usePortal';
+import { useRealm } from '@/hooks/jqel/useRealm';
 import { toastSuccess, toastInfo } from '@/lib/toast';
 import { IconUploader } from '../components/IconUploader';
 import { ThemeColorPicker } from '../components/ThemeColorPicker';

@@ -10,7 +10,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Server, Database, Activity, Info, Loader2, Palette } from 'lucide-react';
 import { PageBreadcrumb } from '@/components/navigation';
 import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb';
-import { usePortals } from '@/hooks/useJQEL';
+import { usePortals } from '@/hooks/jqel/usePortal';
 import { LoginBrandingEditor } from '../components/LoginBrandingEditor';
 
 function useSystemHealth() {

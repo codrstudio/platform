@@ -105,3 +105,25 @@ export interface ModuleActivation {
   active: boolean;
   instances: ModuleInstance[];
 }
+
+/**
+ * Backend Module entity (stored in backend/config/modules.json)
+ * Different from ModuleManifest which is defined in module code
+ */
+export interface BackendModule {
+  moduleId: string
+  name: string
+  description?: string
+  type: 'component' | 'functionality'
+  category?: 'system' | 'business' | 'productivity' | 'communication'
+  dependencies: string[]
+  version: string
+  enabled: boolean
+  singleInstance?: boolean
+  metadata?: Record<string, unknown>
+}
+
+/**
+ * Re-export Instance type for convenience
+ */
+export type Instance = ModuleInstance

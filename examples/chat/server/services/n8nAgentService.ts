@@ -84,7 +84,7 @@ export async function fetchN8NAgents(): Promise<N8NAgent[]> {
   }
 
   // Buscar do N8N
-  const n8nBaseUrl = process.env.N8N_BASE_URL || 'https://n8n.codrstudio.dev/webhook/nic/v1'
+  const n8nBaseUrl = process.env.N8N_BASE_URL || '/api/v1'
   const agentsEndpoint = `${n8nBaseUrl}/agents`
 
   try {

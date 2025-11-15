@@ -7,7 +7,7 @@ import { StreamEvent } from '@/types/streaming'
 
 // Endpoint n8n padrão (fallback se nenhum agente for configurado)
 // @ts-expect-error - Vite provides import.meta.env
-const DEFAULT_N8N_CHAT_URL = import.meta.env.VITE_N8N_CHAT_URL || 'https://n8n.codrstudio.dev/webhook/ciacuidadores.com.br/v1/chat/completions'
+const DEFAULT_N8N_CHAT_URL = import.meta.env.VITE_N8N_CHAT_URL || '/api/v1/chat/completions'
 
 /**
  * Stream de mensagens do chat usando fetch + ReadableStream

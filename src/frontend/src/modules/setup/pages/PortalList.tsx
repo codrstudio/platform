@@ -19,7 +19,7 @@ import {
 import { Plus, Settings, Trash2, Layers } from 'lucide-react';
 import { PageBreadcrumb } from '@/components/navigation';
 import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb';
-import { usePortals, useDeletePortal } from '@/hooks/useJQEL';
+import { usePortals, useDeletePortal } from '@/hooks/jqel/usePortal';
 
 export function PortalList() {
   const { data: portalsResult, isLoading } = usePortals();

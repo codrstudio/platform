@@ -44,7 +44,10 @@ import {
   Search,
   Link2,
 } from 'lucide-react';
-import { usePortal, useModules, useInstances, useUpdatePortal, type Module as ModuleType } from '@/hooks/useJQEL';
+import { usePortal, useUpdatePortal } from '@/hooks/jqel/usePortal';
+import { useModules } from '@/hooks/jqel/useModule';
+import { useInstances } from '@/hooks/jqel/useInstance';
+import type { BackendModule as ModuleType } from '@/types/module';
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 import { ModuleBrowser } from '../components/ModuleBrowser';
 import { toastSuccess, toastError } from '@/lib/toast';

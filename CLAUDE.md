@@ -735,6 +735,14 @@ curl https://n8n.codrstudio.dev/webhook/health
 
 ---
 
+## Regras de Desenho
+
+- **Não use `services/jqelClient.ts`. Prefira usar `hooks/useJQEL.ts` para garantir conformidade com TanStack.**
+
+---
+
+## Notas
+
 **PROIBIDO EXECUTAR COMANDOS git checkout, git restore OU QUALQUER OUTRO COMANDO GIT QUE POSSA REVERTER ARQUIVOS**
 **EXISTEM MULTIPLOS USUARIOS USANDO ESTE PROJETO, NAO REVERTA AUTOMATICAMENTE ALTERACOES SEM AUTORIZACAO EXPLICITA**
 
@@ -749,4 +757,6 @@ curl https://n8n.codrstudio.dev/webhook/health
 - **ALWAYS save files in UTF-8 encoding**
 - **ALWAYS save files in UTF-8 encoding**
 - **ALWAYS save files in UTF-8 encoding**
+
 - Arquivos PLAN*.md devem serguir o template @lessons-learned\PLAN.template.md
+

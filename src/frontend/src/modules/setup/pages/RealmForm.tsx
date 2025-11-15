@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Save } from 'lucide-react';
-import { useRealm, useCreateRealm, useUpdateRealm } from '@/hooks/useJQEL';
+import { useRealm, useCreateRealm, useUpdateRealm } from '@/hooks/jqel/useRealm';
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 import { toastError } from '@/lib/toast';
 export function RealmForm() {

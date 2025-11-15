@@ -3,7 +3,7 @@
 
 import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { Suspense } from 'react';
-import { usePortal } from '@/hooks/useJQEL';
+import { usePortal } from '@/hooks/jqel/usePortal';
 import { Loader2 } from 'lucide-react';
 import { PortalDefaultView } from '@/components/portal/PortalDefaultView';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';

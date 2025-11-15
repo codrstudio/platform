@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Plus } from 'lucide-react';
-import { useCreateRealm } from '@/hooks/useJQEL';
+import { useCreateRealm } from '@/hooks/jqel/useRealm';
 
 interface RealmQuickCreateProps {
   onRealmCreated?: (realmId: string) => void;
@@ -37,9 +37,12 @@ export function RealmQuickCreate({ onRealmCreated }: RealmQuickCreateProps) {
 
     try {
       await createRealmMutation.mutateAsync({
-        realmId: formData.realmId,
-        name: formData.name,
-        description: formData.description,
+        values: {
+          realmId: formData.realmId,
+          name: formData.name,
+          description: formData.description,
+          removable: true,
+        }
       });
 
       // Notify parent component

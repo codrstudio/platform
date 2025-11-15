@@ -3,7 +3,7 @@
 
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useConfig } from '@/hooks/useConfig';
+import { usePortalConfig } from '@/hooks/jqel/usePortalConfig';
 import { Loader2 } from 'lucide-react';
 import { saveReturnUrl, shouldSkipRedirectSave } from '@/lib/auth-redirect';
 
@@ -27,7 +27,7 @@ export function ProtectedRoute({
   requiredPermission,
 }: ProtectedRouteProps) {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-  const { hasActiveInstance, getActiveAuthInstance, isLoading: configLoading } = useConfig();
+  const { hasActiveInstance, getActiveAuthInstance, isLoading: configLoading } = usePortalConfig();
   const location = useLocation();
 
   // Check if auth module has at least one active instance in current portal

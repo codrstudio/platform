@@ -73,5 +73,12 @@
     "moduleId": "blueprint",
     "config": {},
     "active": true
+  },
+  {
+    "instanceId": "default",
+    "portalId": "main",
+    "moduleId": "blueprint",
+    "config": {},
+    "active": true
   }
 ]

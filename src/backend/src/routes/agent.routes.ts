@@ -21,7 +21,7 @@ const router = Router();
  */
 const AGENT_WEBHOOKS: Record<string, string> = {
   // Default n8n chat webhook
-  'nic-assistant': process.env.N8N_CHAT_WEBHOOK_URL || 'https://n8n.codrstudio.dev/webhook/ciacuidadores.com.br/v1/chat/completions',
+  'nic-assistant': process.env.N8N_CHAT_WEBHOOK_URL || '/api/v1/chat/completions',
 
   // Add more agents here as needed
   // 'agent-name': 'https://n8n.codrstudio.dev/webhook/...'

@@ -16,7 +16,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Plus, Settings, Trash2, Globe } from 'lucide-react';
-import { useRealms, useDeleteRealm, usePortals } from '@/hooks/useJQEL';
+import { useRealms, useDeleteRealm } from '@/hooks/jqel/useRealm';
+import { usePortals } from '@/hooks/jqel/usePortal';
 import { useMemo, useState } from 'react';
 import { PageBreadcrumb } from '@/components/navigation';
 import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb';

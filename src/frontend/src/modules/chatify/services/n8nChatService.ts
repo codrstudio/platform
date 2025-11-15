@@ -6,7 +6,7 @@
 import type { StreamEvent } from '../types'
 
 // Endpoint n8n padrão (fallback se nenhum agente for configurado)
-const DEFAULT_N8N_CHAT_URL = import.meta.env.VITE_N8N_CHAT_URL || 'https://n8n.codrstudio.dev/webhook/ciacuidadores.com.br/v1/chat/completions'
+const DEFAULT_N8N_CHAT_URL = import.meta.env.VITE_N8N_CHAT_URL || '/api/v1/chat/completions'
 
 /**
  * Stream de mensagens do chat usando fetch + ReadableStream

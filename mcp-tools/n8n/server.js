@@ -23,7 +23,7 @@ const __dirname = dirname(__filename);
 
 dotenv.config({ path: join(__dirname, '.env') });
 
-const N8N_BASE_URL = process.env.N8N_BASE_URL || 'https://n8n.codrstudio.dev';
+const N8N_BASE_URL = process.env.N8N_BASE_URL || '';
 const N8N_API_KEY = process.env.N8N_API_KEY;
 const AUTH_METHOD = process.env.AUTH_METHOD || 'header'; // 'header' or 'cookie'
 

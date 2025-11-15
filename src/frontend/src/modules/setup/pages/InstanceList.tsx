@@ -18,7 +18,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { ArrowLeft, Plus, Settings, Trash2, Layers, Info } from 'lucide-react';
-import { usePortal, useInstances, useUpdateInstance, useDeleteInstance, useModule } from '@/hooks/useJQEL';
+import { usePortal } from '@/hooks/jqel/usePortal';
+import { useInstances, useUpdateInstance, useDeleteInstance } from '@/hooks/jqel/useInstance';
+import { useModule } from '@/hooks/jqel/useModule';
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 export function InstanceList() {
   const { portalId, moduleId } = useParams<{ portalId: string; moduleId: string }>();

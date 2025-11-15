@@ -9,7 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Save } from 'lucide-react';
-import { useCreatePortal, useRealms } from '@/hooks/useJQEL';
+import { useCreatePortal } from '@/hooks/jqel/usePortal';
+import { useRealms } from '@/hooks/jqel/useRealm';
 import { PageBreadcrumb, type BreadcrumbItemData } from '@/components/navigation';
 import { RealmQuickCreate } from '../components/RealmQuickCreate';
 export function PortalCreate() {

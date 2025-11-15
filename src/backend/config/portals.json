@@ -4,14 +4,8 @@
     "name": "Portal Principal",
     "description": "Portal principal da plataforma",
     "realmId": "default",
-    "availableModules": [
-      "dashboard",
-      "auth",
-      "helpdesk"
-    ],
-    "activeModules": [
-      "helpdesk"
-    ],
+    "availableModules": [],
+    "activeModules": [],
     "removable": false,
     "metadata": {}
   },
@@ -20,40 +14,21 @@
     "name": "Setup",
     "realmId": "default",
     "availableModules": [
-      "setup",
-      "blueprint"
+      "setup"
     ],
     "activeModules": [
-      "setup",
-      "blueprint"
+      "setup"
     ],
-    "removable": false,
+    "removable": true,
     "metadata": {}
   },
   {
     "portalId": "sandbox",
     "name": "Sandbox",
-    "description": "Portal de Estudos",
-    "realmId": "sandbox",
-    "availableModules": [
-      "setup",
-      "auth",
-      "chatify",
-      "blueprint"
-    ],
-    "activeModules": [
-      "auth",
-      "blueprint"
-    ],
-    "removable": true
-  },
-  {
-    "portalId": "coletivos-helpdesk",
-    "name": "Coletivos Helpdesk",
-    "description": "",
     "realmId": "default",
     "availableModules": [],
     "activeModules": [],
-    "removable": true
+    "removable": true,
+    "metadata": {}
   }
 ]

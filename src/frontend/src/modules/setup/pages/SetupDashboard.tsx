@@ -6,7 +6,9 @@ import { Settings, Package, Layers, Activity, Globe, Info } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageBreadcrumb } from '@/components/navigation';
 import { useSetupBreadcrumb } from '@/hooks/useBreadcrumb';
-import { useRealms, usePortals, useModules } from '@/hooks/useJQEL';
+import { useRealms } from '@/hooks/jqel/useRealm';
+import { usePortals } from '@/hooks/jqel/usePortal';
+import { useModules } from '@/hooks/jqel/useModule';
 
 function useSetupStats() {
   const { data: realmsResult } = useRealms();
