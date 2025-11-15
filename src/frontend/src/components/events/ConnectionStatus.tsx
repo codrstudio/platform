@@ -77,10 +77,12 @@ export function ConnectionStatus() {
 
   return (
     <div
-      className={`fixed top-4 right-4 z-50 flex items-center gap-2 ${sizeClass} rounded-lg ${borderClass} shadow-sm bg-white dark:bg-gray-800 ${getStatusColor()}`}
+      className={`group fixed top-4 right-4 z-50 flex items-center gap-0 group-hover:gap-2 ${sizeClass} rounded-lg ${borderClass} shadow-sm bg-white dark:bg-gray-800 ${getStatusColor()} transition-all duration-300 hover:gap-2`}
     >
       {getStatusIcon()}
-      <span className="text-sm font-medium">{getStatusText()}</span>
+      <span className="text-sm font-medium overflow-hidden whitespace-nowrap opacity-0 max-w-0 group-hover:opacity-100 group-hover:max-w-xs transition-all duration-300 ease-in-out">
+        {getStatusText()}
+      </span>
     </div>
   )
 }

@@ -27,11 +27,12 @@ export function ProtectedRoute({
   requiredPermission,
 }: ProtectedRouteProps) {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-  const { hasActiveInstance, getActiveAuthInstance, isLoading: configLoading } = usePortalConfig();
+  const { hasModule, hasActiveInstance, getActiveAuthInstance, isLoading: configLoading } = usePortalConfig();
   const location = useLocation();
 
-  // Check if auth module has at least one active instance in current portal
-  const authModuleActive = hasActiveInstance('auth');
+  // Check if auth module is active in current portal
+  // SPEC-C-I-001: Only check instances if module is active
+  const authModuleActive = hasModule('auth');
 
   // Show loading state while checking configuration and authentication
   if (authLoading || configLoading) {
