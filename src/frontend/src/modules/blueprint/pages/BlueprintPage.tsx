@@ -1,7 +1,6 @@
 // pages/BlueprintPage.tsx
 import bannerSvg from '../assets/banner.svg';
 import { BlueprintCard } from '../components/BlueprintCard';
-import { HomepageToggle } from '../components/HomepageToggle';
 import { useBlueprintConfig } from '../hooks/useBlueprintConfig';
 import { Code2, Database, FileCode } from 'lucide-react';
 
@@ -19,7 +18,7 @@ export function BlueprintPage() {
         <img
           src={bannerSvg}
           alt="Blueprint Module Banner"
-          className="w-full rounded-lg shadow-md"
+          className="w-full rounded-lg shadow-md text-primary"
         />
       </div>
 
@@ -32,9 +31,6 @@ export function BlueprintPage() {
           <p className="text-sm text-muted-foreground">
             Esta página demonstra as práticas corretas para criar módulos na plataforma.
           </p>
-
-          {/* Toggle Homepage */}
-          <HomepageToggle />
         </div>
       </BlueprintCard>
 
