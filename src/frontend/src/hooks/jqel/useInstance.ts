@@ -28,18 +28,21 @@ export function useInstances(portalId?: string, moduleId?: string) {
 }
 
 /**
- * Get single instance by ID and portalId
+ * Get single instance by ID, portalId, and moduleId
+ * IMPORTANT: moduleId is required to uniquely identify an instance
+ * because multiple modules can have instances with the same instanceId in the same portal
  */
-export function useInstance(instanceId: string, portalId: string) {
+export function useInstance(instanceId: string, portalId: string, moduleId: string) {
   return useJQELQuery<Instance[]>({
     schema: 'backend',
     select: 'instance',
     where: {
       instanceId: { $eq: instanceId },
       portalId: { $eq: portalId },
+      moduleId: { $eq: moduleId },  // ← CRÍTICO: identificação única!
     },
   }, {
-    enabled: !!instanceId && !!portalId,
+    enabled: !!instanceId && !!portalId && !!moduleId,
   })
 }
 

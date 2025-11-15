@@ -19,7 +19,7 @@ export function InstanceForm() {
   const { portalId, moduleId, instanceId } = useParams<{ portalId: string; moduleId: string; instanceId?: string }>();
   const navigate = useNavigate();
   const isEdit = !!instanceId;
-  const { data: instanceResult } = useInstance(instanceId || '', portalId!);
+  const { data: instanceResult } = useInstance(instanceId || '', portalId!, moduleId!);  // ← Passa moduleId
   const { data: moduleResult } = useModule(moduleId!);
   const createMutation = useCreateInstance();
   const updateMutation = useUpdateInstance();
@@ -60,17 +60,21 @@ export function InstanceForm() {
       { label: isEdit ? 'Editar Instância' : 'Nova Instância' }
     ];
   }, [module?.name, portalId, moduleId, isEdit]);
-  const handleSave = async () => {
+  const handleSave = async (configOverride?: Record<string, any>) => {
     try {
+      // Use configOverride if provided, otherwise use formData.config
+      const configToSave = configOverride ?? formData.config;
+
       if (isEdit) {
         await updateMutation.mutateAsync({
           values: {
-            config: formData.config,
+            config: configToSave,
             active: formData.active
           },
           where: {
             portalId: { $eq: portalId! },
             instanceId: { $eq: instanceId! },
+            moduleId: { $eq: moduleId! },  // ← CRÍTICO: incluir moduleId no where!
           },
         });
       } else {
@@ -79,7 +83,7 @@ export function InstanceForm() {
             instanceId: formData.instanceId,
             portalId: portalId!,
             moduleId: moduleId!,
-            config: formData.config,
+            config: configToSave,
             active: formData.active,
           },
         });
@@ -101,8 +105,8 @@ export function InstanceForm() {
 
   // Handlers for custom config component
   const handleCustomConfigSave = async (newConfig: Record<string, any>) => {
-    setFormData(prev => ({ ...prev, config: newConfig }));
-    await handleSave();
+    // Pass newConfig directly to handleSave to avoid race condition
+    await handleSave(newConfig);
   };
 
   const handleCustomConfigCancel = () => {
@@ -275,23 +279,26 @@ export function InstanceForm() {
           </CardContent>
         </Card>
       )}
-      {/* Actions */}
-      <div className="flex gap-2 justify-end">
-        <Button
-          variant="outline"
-          onClick={() => navigate(`/setup/portals/${portalId}/modules/${moduleId}/instances`)}
-        >
-          Cancelar
-        </Button>
-        <Button
-          onClick={handleSave}
-          disabled={!formData.instanceId || createMutation.isPending || updateMutation.isPending}
-        >
-          {createMutation.isPending || updateMutation.isPending
-            ? 'Salvando...'
-            : isEdit ? 'Salvar' : 'Criar'} Instância
-        </Button>
-      </div>
+
+      {/* Actions - Only show when there's NO custom config component */}
+      {!CustomConfigComponent && (
+        <div className="flex gap-2 justify-end">
+          <Button
+            variant="outline"
+            onClick={() => navigate(`/setup/portals/${portalId}/modules/${moduleId}/instances`)}
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={!formData.instanceId || createMutation.isPending || updateMutation.isPending}
+          >
+            {createMutation.isPending || updateMutation.isPending
+              ? 'Salvando...'
+              : isEdit ? 'Salvar' : 'Criar'} Instância
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

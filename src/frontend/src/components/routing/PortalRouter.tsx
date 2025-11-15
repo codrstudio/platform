@@ -72,11 +72,17 @@ function PortalContentInner({ portal }: { portal: any }) {
     if (routes.length > 0) {
       // Homepage redirect: if homepage is configured, add redirect route at the beginning
       if (portal.homepage?.type === 'subroute' && portal.homepage.value) {
+        // Remove leading slash to make path relative to portal context
+        // This ensures /ola/mundo becomes ola/mundo, which navigates to /:portalId/ola/mundo
+        const relativePath = portal.homepage.value.startsWith('/')
+          ? portal.homepage.value.slice(1)
+          : portal.homepage.value;
+
         routes.unshift(
           <Route
             key="homepage-redirect"
             path="/"
-            element={<Navigate to={portal.homepage.value} replace />}
+            element={<Navigate to={relativePath} replace />}
           />
         );
       }

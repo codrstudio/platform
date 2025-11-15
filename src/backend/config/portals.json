@@ -26,9 +26,17 @@
     "portalId": "sandbox",
     "name": "Sandbox",
     "realmId": "default",
-    "availableModules": [],
-    "activeModules": [],
+    "availableModules": [
+      "blueprint"
+    ],
+    "activeModules": [
+      "blueprint"
+    ],
     "removable": true,
+    "homepage": {
+      "type": "subroute",
+      "value": "/ola"
+    },
     "metadata": {}
   }
 ]

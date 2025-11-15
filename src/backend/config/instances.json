@@ -22,13 +22,6 @@
     }
   },
   {
-    "instanceId": "default",
-    "portalId": "sandbox",
-    "moduleId": "auth",
-    "config": {},
-    "active": true
-  },
-  {
     "instanceId": "nic",
     "portalId": "main",
     "moduleId": "chat",
@@ -71,7 +64,11 @@
     "instanceId": "default",
     "portalId": "sandbox",
     "moduleId": "blueprint",
-    "config": {},
+    "config": {
+      "title": "Blueprint Module",
+      "description": "",
+      "mainRoute": "/hello2"
+    },
     "active": true
   },
   {

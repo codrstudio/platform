@@ -55,8 +55,10 @@ export function useJQELMutation<T = unknown, TVariables = Partial<JQELMutateQuer
       } as JQELMutateQuery),
     onSuccess: (...args) => {
       // Invalidate related queries (SPEC-DA-MU-003)
+      // TanStack Query v5: invalidateQueries accepts queryKey as prefix
       queryClient.invalidateQueries({
         queryKey: [baseQuery.schema, baseQuery.mutate],
+        exact: false, // Match all queries that start with this prefix
       });
 
       options?.onSuccess?.(...args);
