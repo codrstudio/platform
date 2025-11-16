@@ -10,10 +10,10 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Save, Globe, Image, Sun, Moon, Monitor, Lock, Palette } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useRealm } from '@/hooks/jqel/useRealm';
+import { useRealm, useUpdateRealm } from '@/hooks/jqel/useRealm';
 import { usePortals } from '@/hooks/jqel/usePortal';
 import { useTheme } from '@/contexts/ThemeContext';
-import { toastSuccess } from '@/lib/toast';
+import { toastSuccess, toastError } from '@/lib/toast';
 import { IconUploader } from '../components/IconUploader';
 import { ThemeColorPicker } from '../components/ThemeColorPicker';
 import { Page } from '@/core/composition';
@@ -22,7 +22,8 @@ import {
   setStoredBrandColor,
   hasPortalBrandColorOverride,
   hexToHSL,
-  hslToHex
+  hslToHex,
+  hslToString
 } from '@/lib/theme';
 
 export function RealmEdit() {
@@ -33,7 +34,8 @@ export function RealmEdit() {
   const { data: portalsResult, isLoading: portalsLoading } = usePortals();
   const allPortals = portalsResult?.data || [];
 
-  const { mode, setMode } = useTheme();
+  const { mode, setMode, setBrandColorFromHex, realmId: currentRealmId } = useTheme();
+  const updateRealmMutation = useUpdateRealm();
 
   // Breadcrumb dinâmico
   const breadcrumbItems = useMemo<BreadcrumbItemData[]>(() => {
@@ -60,13 +62,44 @@ export function RealmEdit() {
     }
   }, [realm]);
 
-  const handleSaveRealmColor = () => {
+  const handleSaveRealmColor = async () => {
     if (!realm) return;
+
     const hslColor = hexToHSL(realmBrandColor);
+    const brandColorString = hslToString(hslColor);
+
+    // Atualização otimista: aplica no localStorage imediatamente
     setStoredBrandColor(realm.realmId, hslColor);
-    toastSuccess('Configurações salvas', {
-      description: 'As alterações foram aplicadas a todos os portais do ambiente'
-    });
+
+    // Se estamos editando o realm do portal atual, aplica a cor em tempo real
+    if (realm.realmId === currentRealmId) {
+      setBrandColorFromHex(realmBrandColor);
+    }
+
+    try {
+      // Persiste no backend via JQEL
+      await updateRealmMutation.mutateAsync({
+        values: {
+          config: {
+            theme: {
+              brandColor: brandColorString
+            }
+          }
+        },
+        where: {
+          realmId: { $eq: realm.realmId }
+        }
+      });
+
+      toastSuccess('Configurações salvas', {
+        description: 'As alterações foram aplicadas a todos os portais do ambiente'
+      });
+    } catch (error) {
+      console.error('[RealmEdit] Failed to save realm color:', error);
+      toastError('Erro ao salvar', {
+        description: 'Não foi possível salvar as configurações no servidor'
+      });
+    }
   };
 
   if (realmLoading || portalsLoading) {

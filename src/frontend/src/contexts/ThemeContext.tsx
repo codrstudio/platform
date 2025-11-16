@@ -12,7 +12,10 @@ import {
   applyTheme,
   applyBrandColor,
   hexToHSL,
+  hslToString,
 } from '@/lib/theme'
+import { useUpdateRealm, useRealm } from '@/hooks/jqel/useRealm'
+import { useUpdatePortal, usePortal } from '@/hooks/jqel/usePortal'
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
 
@@ -30,6 +33,10 @@ interface ThemeProviderProps {
  * BREAKING CHANGE: settingsKey replaced with realmId + portalId (Realm System)
  */
 export function ThemeProvider({ children, realmId = 'default', portalId = '' }: ThemeProviderProps) {
+  // Mutations for persisting brand colors to backend
+  const updateRealmMutation = useUpdateRealm()
+  const updatePortalMutation = useUpdatePortal()
+
   // CHANGED: Get theme from localStorage (global preference)
   const [mode, setModeState] = useState<ThemeMode>(() => getStoredTheme())
 
@@ -64,14 +71,55 @@ export function ThemeProvider({ children, realmId = 'default', portalId = '' }: 
   }
 
   /**
-   * Set brand color (realm level)
+   * Set brand color (realm or portal level)
    * SPEC-TH-BC-020: Instant update
    * SPEC-TH-HC-021: Applies to all portals in realm
+   *
+   * FIXED: Now persists to backend, not just localStorage
    */
-  const setBrandColor = (color: BrandColor) => {
+  const setBrandColor = async (color: BrandColor) => {
+    // Apply immediately for instant feedback
     setBrandColorState(color)
-    setStoredBrandColor(realmId, color) // SPEC-TH-BC-009
+    setStoredBrandColor(realmId, color)
     applyBrandColor(color)
+
+    // Persist to backend
+    const brandColorString = hslToString(color)
+
+    try {
+      if (portalId) {
+        // Portal-level override
+        await updatePortalMutation.mutateAsync({
+          values: {
+            config: {
+              theme: {
+                brandColor: brandColorString
+              }
+            }
+          },
+          where: {
+            portalId: { $eq: portalId }
+          }
+        })
+      } else {
+        // Realm-level configuration
+        await updateRealmMutation.mutateAsync({
+          values: {
+            config: {
+              theme: {
+                brandColor: brandColorString
+              }
+            }
+          },
+          where: {
+            realmId: { $eq: realmId }
+          }
+        })
+      }
+    } catch (error) {
+      console.error('[ThemeContext] Failed to persist brand color to backend:', error)
+      // Color is already applied in UI, so we don't roll back
+    }
   }
 
   /**

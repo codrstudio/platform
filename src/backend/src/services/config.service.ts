@@ -450,15 +450,42 @@ class ConfigService {
       throw new Error('Cannot rename realm "default"')
     }
 
-    // Merge updates
+    // Deep merge updates (especially for nested config objects)
+    const current = realms[index]
     realms[index] = {
-      ...realms[index],
+      ...current,
       ...updates,
       realmId, // Ensure realmId stays the same
-      removable: realms[index].removable, // Ensure removable stays the same
+      removable: current.removable, // Ensure removable stays the same
+      // Deep merge config if both exist
+      config: updates.config ? this.deepMerge(current.config || {}, updates.config) : current.config,
     }
 
     await this.saveRealms(realms)
+  }
+
+  /**
+   * Deep merge two objects
+   * Used for merging nested config structures
+   */
+  private deepMerge<T extends Record<string, any>>(target: T, source: Partial<T>): T {
+    const result = { ...target }
+
+    for (const key in source) {
+      const sourceValue = source[key]
+      const targetValue = result[key]
+
+      if (sourceValue && typeof sourceValue === 'object' && !Array.isArray(sourceValue) &&
+          targetValue && typeof targetValue === 'object' && !Array.isArray(targetValue)) {
+        // Both are objects - recurse
+        result[key] = this.deepMerge(targetValue, sourceValue)
+      } else {
+        // Primitive or array - replace
+        result[key] = sourceValue as any
+      }
+    }
+
+    return result
   }
 
   /**
@@ -623,6 +650,63 @@ class ConfigService {
     const brandings = await this.getLoginBranding()
     const filtered = brandings.filter((b) => b.realmId !== realmId)
     await this.saveLoginBranding(filtered)
+  }
+
+  // ============================================================
+  // COMPOSITION METHODS
+  // ============================================================
+
+  /**
+   * Get all compositions
+   */
+  async getCompositions(): Promise<any[]> {
+    const filePath = this.getFilePath('compositions' as ConfigType)
+
+    try {
+      if (!existsSync(filePath)) {
+        return []
+      }
+
+      const content = await fs.readFile(filePath, 'utf-8')
+      const data = JSON.parse(content)
+      return Array.isArray(data) ? data : []
+    } catch (error) {
+      console.error('Error loading compositions config:', error)
+      return []
+    }
+  }
+
+  /**
+   * Get composition by ID
+   */
+  async getCompositionById(id: string): Promise<any | null> {
+    const compositions = await this.getCompositions()
+    return compositions.find((c: any) => c.id === id) || null
+  }
+
+  /**
+   * Get compositions by portal ID
+   */
+  async getCompositionsByPortal(portalId: string): Promise<any[]> {
+    const compositions = await this.getCompositions()
+    return compositions.filter((c: any) => c.portalId === portalId)
+  }
+
+  /**
+   * Save compositions
+   */
+  async saveCompositions(compositions: any[]): Promise<void> {
+    await this.ensureConfigDir()
+    const filePath = this.getFilePath('compositions' as ConfigType)
+
+    try {
+      const content = JSON.stringify(compositions, null, 2)
+      await fs.writeFile(filePath, content, 'utf-8')
+      // Note: compositions are not in main cache, so no need to clear
+    } catch (error) {
+      console.error('Error saving compositions config:', error)
+      throw error
+    }
   }
 }
 

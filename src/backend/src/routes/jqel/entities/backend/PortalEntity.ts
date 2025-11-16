@@ -112,7 +112,13 @@ export class PortalEntity extends EntityHandler {
     matchingPortals.forEach(match => {
       const index = portals.findIndex(p => p.portalId === match.portalId)
       if (index !== -1) {
-        portals[index] = { ...portals[index], ...updates }
+        const current = portals[index]
+        // Deep merge config if both exist
+        portals[index] = {
+          ...current,
+          ...updates,
+          config: updates.config ? this.deepMerge(current.config || {}, updates.config) : current.config,
+        }
         updated++
 
         // Emit config-changed event for each updated portal
@@ -222,5 +228,29 @@ export class PortalEntity extends EntityHandler {
 
     // Salvar instâncias modificadas
     await configService.saveInstances(instances)
+  }
+
+  /**
+   * Deep merge two objects
+   * Used for merging nested config structures
+   */
+  private deepMerge<T extends Record<string, any>>(target: T, source: Partial<T>): T {
+    const result = { ...target }
+
+    for (const key in source) {
+      const sourceValue = source[key]
+      const targetValue = result[key]
+
+      if (sourceValue && typeof sourceValue === 'object' && !Array.isArray(sourceValue) &&
+          targetValue && typeof targetValue === 'object' && !Array.isArray(targetValue)) {
+        // Both are objects - recurse
+        result[key] = this.deepMerge(targetValue, sourceValue)
+      } else {
+        // Primitive or array - replace
+        result[key] = sourceValue as any
+      }
+    }
+
+    return result
   }
 }
