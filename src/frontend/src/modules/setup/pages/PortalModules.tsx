@@ -43,6 +43,7 @@ import {
   AlertCircle,
   Search,
   Link2,
+  Trash2,
 } from 'lucide-react';
 import { usePortal, useUpdatePortal } from '@/hooks/jqel/usePortal';
 import { useModules } from '@/hooks/jqel/useModule';
@@ -58,10 +59,11 @@ interface ModuleWithStatus extends ModuleType {
   isAvailable: boolean;
   isActive: boolean;
   dependents?: string[]; // Modules that depend on this one
+  canRemove?: boolean; // Can be removed from portal (inactive + no active dependents + not essential)
 }
 
 interface ConfirmationDialog {
-  type: 'activate' | 'deactivate' | 'blocked' | null;
+  type: 'activate' | 'deactivate' | 'blocked' | 'remove' | null;
   module: ModuleWithStatus | null;
   dependencies?: string[];
   dependents?: string[];
@@ -72,19 +74,29 @@ function getModuleName(modules: ModuleType[], moduleId: string): string {
   return modules.find(m => m.moduleId === moduleId)?.name || moduleId;
 }
 
+// Helper to check if module is essential and cannot be removed
+function isEssentialModule(moduleId: string, portalId: string): boolean {
+  // Example: setup module is essential for setup portal
+  if (portalId === 'setup' && moduleId === 'setup') return true;
+  // Add other essential module rules here
+  return false;
+}
+
 // Unified Module Card Component
 function UnifiedModuleCard({
   module,
   allModules,
   activeModuleIds,
   onToggleActive,
-  onManageInstances
+  onManageInstances,
+  onRemoveModule
 }: {
   module: ModuleWithStatus;
   allModules: ModuleType[];
   activeModuleIds: string[];
   onToggleActive: (module: ModuleWithStatus, newState: boolean) => void;
   onManageInstances: (moduleId: string) => void;
+  onRemoveModule?: (module: ModuleWithStatus) => void;
 }) {
   const isActive = module.isActive;
   const hasBlockingDependents = (module.dependents?.length || 0) > 0;
@@ -257,6 +269,20 @@ function UnifiedModuleCard({
           </Button>
         </CardFooter>
       )}
+
+      {!isActive && module.canRemove && onRemoveModule && (
+        <CardFooter>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground hover:text-destructive"
+            onClick={() => onRemoveModule(module)}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Remover do Portal
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 }
@@ -311,17 +337,23 @@ export function PortalModules() {
       const instanceCount = instances.filter(i => i.moduleId === m.moduleId).length;
       const dependents = dependentsMap.get(m.moduleId) || [];
 
+      // Module can be removed if: not active, no active dependents, and not essential
+      const canRemove = !isActive &&
+                        dependents.length === 0 &&
+                        !isEssentialModule(m.moduleId, portalId!);
+
       return {
         ...m,
         isAvailable: true,
         isActive,
         instanceCount,
         dependents,
+        canRemove,
       };
     });
 
     return enriched;
-  }, [allModules, portal, instances]);
+  }, [allModules, portal, instances, portalId]);
 
   // Filter modules based on search and filters
   const filteredModules = useMemo(() => {
@@ -503,6 +535,38 @@ export function PortalModules() {
     }
   };
 
+  // Show dialog for module removal
+  const handleRemoveClick = (module: ModuleWithStatus) => {
+    setConfirmDialog({
+      type: 'remove',
+      module,
+    });
+  };
+
+  // Actually remove module from portal (called after confirmation)
+  const handleRemoveModule = async (module: ModuleWithStatus) => {
+    if (!portal) return;
+
+    const newAvailableModules = portal.availableModules.filter(
+      id => id !== module.moduleId
+    );
+
+    try {
+      await updatePortalMutation.mutateAsync({
+        values: { availableModules: newAvailableModules },
+        where: { portalId: { $eq: portalId! } },
+      });
+
+      toastSuccess('Módulo removido', {
+        description: `${module.name} removido do portal`
+      });
+      setConfirmDialog({ type: null, module: null });
+    } catch (error) {
+      console.error('Error removing module:', error);
+      toastError('Erro', { description: 'Não foi possível remover o módulo' });
+    }
+  };
+
   if (isLoading) {
     return (
       <Page composition="settings">
@@ -625,6 +689,7 @@ export function PortalModules() {
               onManageInstances={(moduleId) =>
                 navigate(`/setup/portals/${portalId}/modules/${moduleId}/instances`)
               }
+              onRemoveModule={handleRemoveClick}
             />
           ))}
         </div>
@@ -717,6 +782,31 @@ export function PortalModules() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction>Entendi</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Remove Module Confirmation */}
+      <AlertDialog open={confirmDialog.type === 'remove'} onOpenChange={(open) => !open && setConfirmDialog({ type: null, module: null })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Trash2 className="h-5 w-5 text-destructive" />
+              Remover Módulo do Portal?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              O módulo "{confirmDialog.module?.name}" será removido deste portal.
+              Você poderá adicioná-lo novamente a qualquer momento através do botão "Adicionar Módulos".
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => confirmDialog.module && handleRemoveModule(confirmDialog.module)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Remover
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

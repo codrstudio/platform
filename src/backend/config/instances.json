@@ -10,12 +10,15 @@
   {
     "instanceId": "default",
     "portalId": "sandbox",
+    "moduleId": "auth",
+    "config": {},
+    "active": true
+  },
+  {
+    "instanceId": "default",
+    "portalId": "sandbox",
     "moduleId": "blueprint",
-    "config": {
-      "title": "Blueprint Module",
-      "description": "",
-      "mainRoute": "/hello2"
-    },
+    "config": {},
     "active": true
   }
 ]

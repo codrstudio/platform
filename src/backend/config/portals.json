@@ -4,9 +4,7 @@
     "name": "Portal Principal",
     "description": "Portal principal da plataforma",
     "realmId": "default",
-    "availableModules": [
-      "blueprint"
-    ],
+    "availableModules": [],
     "activeModules": [],
     "removable": false,
     "homepage": {
@@ -32,9 +30,11 @@
     "name": "Sandbox",
     "realmId": "default",
     "availableModules": [
-      "blueprint"
+      "blueprint",
+      "auth"
     ],
     "activeModules": [
+      "auth",
       "blueprint"
     ],
     "removable": true,
