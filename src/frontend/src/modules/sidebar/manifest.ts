@@ -32,8 +32,7 @@ export const sidebarManifest: ModuleManifest = {
         description: 'Tipo de layout do sidebar',
         options: [
           { value: 'sidebar-left', label: 'Sidebar Esquerda' },
-          { value: 'sidebar-right', label: 'Sidebar Direita' },
-          { value: 'navbar-top', label: 'Navbar Superior' }
+          { value: 'sidebar-right', label: 'Sidebar Direita' }
         ],
         required: true,
         default: 'sidebar-left'
@@ -46,6 +45,17 @@ export const sidebarManifest: ModuleManifest = {
         description: 'Lista de itens de navegação',
         required: true,
         default: []
+      },
+
+      // Brand configuration (Logo + Portal Name)
+      brand: {
+        type: 'json',
+        label: 'Configuração da Marca',
+        description: 'Logo e nome do portal exibidos no topo do sidebar',
+        default: {
+          portalName: 'Portal',
+          showLogo: true
+        }
       },
 
       // Dimensions (SPEC-SIDEBAR-T-002, T-007)

@@ -1,5 +1,5 @@
 /**
- * SidebarItem Component
+ * SidebarItem Component (Refactored with shadcn/ui)
  *
  * Individual menu item with support for nesting, badges, and active state.
  *
@@ -9,50 +9,58 @@
  * - SPEC-SIDEBAR-O-001 to O-004: Badges
  */
 
-import { useState } from 'react';
+import * as React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
+import {
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarMenuBadge,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
+} from '@/components/ui/sidebar';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { MenuItem } from '../types';
 
 export interface SidebarItemProps {
   item: MenuItem;
-  collapsed?: boolean;
-  level?: number;
   onNavigate?: () => void;
 }
 
 /**
  * SidebarItem component
  */
-export function SidebarItem({
-  item,
-  collapsed = false,
-  level = 0,
-  onNavigate
-}: SidebarItemProps) {
+export function SidebarItem({ item, onNavigate }: SidebarItemProps) {
   const location = useLocation();
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = React.useState(false);
 
   const hasChildren = item.children && item.children.length > 0;
   const isActive = item.route ? location.pathname === item.route : false;
 
-  // Get icon component
-  const IconComponent = item.icon
-    ? (LucideIcons as any)[
-        item.icon.split('-').map((s: string) =>
-          s.charAt(0).toUpperCase() + s.slice(1)
-        ).join('')
-      ]
-    : null;
+  // Get icon component from Lucide
+  // Converts "arrow-right" to "ArrowRight"
+  const IconComponent = React.useMemo(() => {
+    if (!item.icon) return null;
+
+    const iconName = item.icon
+      .split('-')
+      .map((s: string) => s.charAt(0).toUpperCase() + s.slice(1))
+      .join('');
+
+    return (LucideIcons as any)[iconName] || null;
+  }, [item.icon]);
 
   // Handle click
   const handleClick = (e: React.MouseEvent) => {
-    if (hasChildren) {
-      e.preventDefault();
-      setExpanded(!expanded);
-    } else if (item.onClick) {
+    if (item.onClick) {
       e.preventDefault();
       item.onClick();
     } else if (onNavigate) {
@@ -60,88 +68,154 @@ export function SidebarItem({
     }
   };
 
-  const baseClasses = cn(
-    'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
-    'hover:bg-accent cursor-pointer',
-    isActive && 'bg-accent text-accent-foreground font-medium',
-    item.disabled && 'opacity-50 cursor-not-allowed',
-    level > 0 && 'ml-4'
-  );
+  // Get badge variant color classes
+  const getBadgeVariantClasses = (variant: string) => {
+    switch (variant) {
+      case 'primary':
+        return 'bg-primary text-primary-foreground';
+      case 'success':
+        return 'bg-success text-success-foreground';
+      case 'warning':
+        return 'bg-warning text-warning-foreground';
+      case 'danger':
+        return 'bg-destructive text-destructive-foreground';
+      default:
+        return 'bg-sidebar-accent text-sidebar-accent-foreground';
+    }
+  };
 
-  const content = (
-    <>
-      {/* Icon */}
-      {IconComponent && (
-        <div className="flex-shrink-0">
-          <IconComponent className="h-5 w-5" />
-        </div>
-      )}
+  // Render nested items
+  if (hasChildren) {
+    return (
+      <Collapsible open={expanded} onOpenChange={setExpanded} asChild>
+        <SidebarMenuItem>
+          <CollapsibleTrigger asChild>
+            <SidebarMenuButton
+              tooltip={item.label}
+              isActive={isActive}
+              disabled={item.disabled}
+            >
+              {IconComponent && <IconComponent />}
+              <span>{item.label}</span>
+              <ChevronRight
+                className={cn(
+                  'ml-auto h-4 w-4 transition-transform',
+                  expanded && 'rotate-90'
+                )}
+              />
+            </SidebarMenuButton>
+          </CollapsibleTrigger>
 
-      {/* Label (hidden when collapsed) */}
-      {!collapsed && (
-        <>
-          <span className="flex-1 truncate">{item.label}</span>
-
-          {/* Badge */}
           {item.badge && (
-            <span className={cn(
-              'px-2 py-0.5 text-xs font-medium rounded-full',
-              item.badge.variant === 'primary' && 'bg-primary text-primary-foreground',
-              item.badge.variant === 'success' && 'bg-green-500 text-white',
-              item.badge.variant === 'warning' && 'bg-yellow-500 text-white',
-              item.badge.variant === 'danger' && 'bg-red-500 text-white',
-              item.badge.variant === 'default' && 'bg-muted text-muted-foreground'
-            )}>
-              {item.badge.text}
-            </span>
+            <SidebarMenuBadge>
+              <Badge
+                className={cn(
+                  'h-5 min-w-5 px-1 text-xs',
+                  getBadgeVariantClasses(item.badge.variant)
+                )}
+              >
+                {item.badge.text}
+              </Badge>
+            </SidebarMenuBadge>
           )}
 
-          {/* Chevron for nested items */}
-          {hasChildren && (
-            <div className="flex-shrink-0">
-              {expanded ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-            </div>
-          )}
-        </>
-      )}
-    </>
-  );
+          <CollapsibleContent>
+            <SidebarMenuSub>
+              {item.children!.map((child) => (
+                <SidebarMenuSubItem key={child.id}>
+                  {child.route ? (
+                    <SidebarMenuSubButton
+                      asChild
+                      isActive={location.pathname === child.route}
+                    >
+                      <Link to={child.route} onClick={handleClick}>
+                        {child.icon && (() => {
+                          const ChildIcon = (LucideIcons as any)[
+                            child.icon
+                              .split('-')
+                              .map(
+                                (s: string) =>
+                                  s.charAt(0).toUpperCase() + s.slice(1)
+                              )
+                              .join('')
+                          ];
+                          return ChildIcon ? <ChildIcon /> : null;
+                        })()}
+                        <span>{child.label}</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  ) : (
+                    <SidebarMenuSubButton
+                      onClick={(e) => {
+                        if (child.onClick) {
+                          e.preventDefault();
+                          child.onClick();
+                        }
+                      }}
+                    >
+                      {child.icon && (() => {
+                        const ChildIcon = (LucideIcons as any)[
+                          child.icon
+                            .split('-')
+                            .map(
+                              (s: string) =>
+                                s.charAt(0).toUpperCase() + s.slice(1)
+                            )
+                            .join('')
+                        ];
+                        return ChildIcon ? <ChildIcon /> : null;
+                      })()}
+                      <span>{child.label}</span>
+                    </SidebarMenuSubButton>
+                  )}
+                </SidebarMenuSubItem>
+              ))}
+            </SidebarMenuSub>
+          </CollapsibleContent>
+        </SidebarMenuItem>
+      </Collapsible>
+    );
+  }
 
+  // Render single item (no children)
   return (
-    <div>
-      {/* Main item */}
-      {item.route && !hasChildren ? (
-        <Link
-          to={item.route}
-          className={baseClasses}
+    <SidebarMenuItem>
+      {item.route ? (
+        <SidebarMenuButton
+          asChild
+          tooltip={item.label}
+          isActive={isActive}
+          disabled={item.disabled}
+        >
+          <Link to={item.route} onClick={handleClick}>
+            {IconComponent && <IconComponent />}
+            <span>{item.label}</span>
+          </Link>
+        </SidebarMenuButton>
+      ) : (
+        <SidebarMenuButton
+          tooltip={item.label}
+          isActive={isActive}
+          disabled={item.disabled}
           onClick={handleClick}
         >
-          {content}
-        </Link>
-      ) : (
-        <div className={baseClasses} onClick={handleClick}>
-          {content}
-        </div>
+          {IconComponent && <IconComponent />}
+          <span>{item.label}</span>
+        </SidebarMenuButton>
       )}
 
-      {/* Children (when expanded) */}
-      {hasChildren && expanded && !collapsed && (
-        <div className="mt-1 space-y-1">
-          {item.children!.map((child) => (
-            <SidebarItem
-              key={child.id}
-              item={child}
-              collapsed={collapsed}
-              level={level + 1}
-              onNavigate={onNavigate}
-            />
-          ))}
-        </div>
+      {item.badge && (
+        <SidebarMenuBadge>
+          <Badge
+            className={cn(
+              'h-5 min-w-5 px-1 text-xs',
+              getBadgeVariantClasses(item.badge.variant)
+            )}
+          >
+            {item.badge.text}
+          </Badge>
+        </SidebarMenuBadge>
       )}
-    </div>
+    </SidebarMenuItem>
   );
 }

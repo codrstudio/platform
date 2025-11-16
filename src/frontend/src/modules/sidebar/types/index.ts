@@ -2,6 +2,8 @@
  * Sidebar Module Types
  *
  * SPEC Compliance:
+ * - SPEC-MD-NAM-003: Types em index.ts
+ * - SPEC-MD-NAM-009: PascalCase para interfaces
  * - SPEC-SIDEBAR-M-001: MenuItem structure
  * - SPEC-SIDEBAR-T-*: Layout types
  * - SPEC-SIDEBAR-C-*: Configuration
@@ -73,6 +75,18 @@ export interface UserMenuConfig {
 }
 
 /**
+ * Brand configuration (Logo + Portal Name)
+ */
+export interface SidebarBrandConfig {
+  /** Portal name to display */
+  portalName?: string;
+  /** Logo component or image URL */
+  logo?: React.ReactNode | string;
+  /** Show/hide logo */
+  showLogo?: boolean;
+}
+
+/**
  * Sidebar configuration
  * SPEC-SIDEBAR-C-001, C-002
  */
@@ -101,6 +115,9 @@ export interface SidebarConfig {
   variant?: SidebarVariant;
   showIcons?: boolean;
   showBadges?: boolean;
+
+  // Brand (Logo + Portal Name)
+  brand?: SidebarBrandConfig;
 
   // User Menu (if enabled)
   userMenu?: UserMenuConfig;
