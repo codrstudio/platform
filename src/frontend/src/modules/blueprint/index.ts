@@ -5,6 +5,7 @@ import { blueprintManifest } from './manifest';
 import { blueprintRoutes } from './routes';
 import { slotComponents } from './components/slots';
 import { compositions } from './compositions';
+import { slotConfigForms } from './components/config-forms';
 import { moduleRegistry } from '@/core/modules';
 
 // Lazy-load configuration component
@@ -18,6 +19,7 @@ export const blueprintModule: ModuleExports = {
   configComponent: BlueprintConfigForm,
   slotComponents,
   compositions,
+  slotConfigForms,
 };
 
 moduleRegistry.register(blueprintModule);

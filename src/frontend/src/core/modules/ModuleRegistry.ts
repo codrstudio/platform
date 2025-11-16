@@ -8,7 +8,8 @@
 import type { ModuleExports } from '@/types/module';
 import { slotComponentRegistry } from '@/core/composition/SlotComponentRegistry';
 import { compositionRegistry } from '@/core/composition/CompositionRegistry';
-import type { SlotComponent, Composition } from '@/core/composition/types';
+import { slotConfigFormRegistry } from '@/core/composition/SlotConfigFormRegistry';
+import type { SlotComponent, Composition, SlotConfigFormRegistration } from '@/core/composition/types';
 
 class ModuleRegistry {
   private modules = new Map<string, ModuleExports>();
@@ -51,6 +52,17 @@ class ModuleRegistry {
       }
     }
 
+    // Register slot config forms if provided
+    if (module.slotConfigForms) {
+      module.slotConfigForms.forEach((form: SlotConfigFormRegistration) => {
+        slotConfigFormRegistry.register(form);
+      });
+
+      if (import.meta.env.DEV) {
+        console.log(`[ModuleRegistry] Registered ${module.slotConfigForms.length} slot config form(s) from module: ${id}`);
+      }
+    }
+
     if (import.meta.env.DEV) {
       console.log(`[ModuleRegistry] Registered module: ${id}`);
     }
@@ -75,7 +87,7 @@ class ModuleRegistry {
   }
 
   /**
-   * Unregisters all compositions and slot components provided by a module
+   * Unregisters all compositions, slot components, and config forms provided by a module
    * @param moduleId - Module ID to clean up
    */
   unregisterModuleCompositions(moduleId: string) {
@@ -89,8 +101,16 @@ class ModuleRegistry {
     const compositions = compositionRegistry.getByProvider(moduleId);
     compositions.forEach(c => compositionRegistry.unregister(c.id));
 
+    // Remove slot config forms
+    const module = this.getModule(moduleId);
+    if (module?.slotConfigForms) {
+      module.slotConfigForms.forEach(form => {
+        slotConfigFormRegistry.unregister(form.componentId);
+      });
+    }
+
     if (import.meta.env.DEV) {
-      console.log(`[ModuleRegistry] Unregistered compositions and slot components from module: ${moduleId}`);
+      console.log(`[ModuleRegistry] Unregistered compositions, slot components, and config forms from module: ${moduleId}`);
     }
   }
 

@@ -20,6 +20,8 @@ const ThemeConfig = lazy(() => import('./pages/ThemeConfig').then(m => ({ defaul
 const InstanceList = lazy(() => import('./pages/InstanceList').then(m => ({ default: m.InstanceList })));
 const InstanceForm = lazy(() => import('./pages/InstanceForm').then(m => ({ default: m.InstanceForm })));
 const ComponentsDemo = lazy(() => import('./pages/ComponentsDemo').then(m => ({ default: m.ComponentsDemo })));
+const CompositionList = lazy(() => import('./pages/CompositionList').then(m => ({ default: m.CompositionList })));
+const CompositionEditor = lazy(() => import('./pages/CompositionEditor').then(m => ({ default: m.CompositionEditor })));
 
 export const setupRoutes: ModuleRoute[] = [
   {
@@ -82,6 +84,18 @@ export const setupRoutes: ModuleRoute[] = [
   {
     path: '/portals/:portalId/modules/:moduleId/instances/:instanceId',
     component: InstanceForm
+  },
+  {
+    path: '/portals/:portalId/compositions',
+    component: CompositionList
+  },
+  {
+    path: '/portals/:portalId/compositions/new',
+    component: CompositionEditor
+  },
+  {
+    path: '/portals/:portalId/compositions/:compositionId',
+    component: CompositionEditor
   },
   {
     path: '/components-demo',
