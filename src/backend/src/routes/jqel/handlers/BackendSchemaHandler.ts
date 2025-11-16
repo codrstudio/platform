@@ -11,13 +11,14 @@ import { InstanceEntity } from '../entities/backend/InstanceEntity.js'
 import { RealmEntity } from '../entities/backend/RealmEntity.js'
 import { LoginBrandingEntity } from '../entities/backend/LoginBrandingEntity.js'
 import { SdlEntity } from '../entities/backend/SdlEntity.js'
+import { CompositionEntity } from '../entities/backend/CompositionEntity.js'
 
 /**
  * BackendSchemaHandler
  *
  * SPEC-JQEL-SCH-004: backend schema processed by Backend
  * Manages file-based configuration entities:
- * - portal, module, instance, realm, login-branding, sdl
+ * - portal, module, instance, realm, login-branding, sdl, composition
  */
 export class BackendSchemaHandler implements SchemaHandler {
   private entities: Map<string, EntityHandler>
@@ -35,6 +36,8 @@ export class BackendSchemaHandler implements SchemaHandler {
       ['realms', new RealmEntity()],
       ['login-branding', new LoginBrandingEntity()],
       ['sdl', new SdlEntity()],
+      ['composition', new CompositionEntity()],
+      ['compositions', new CompositionEntity()],
     ])
   }
 
@@ -47,7 +50,7 @@ export class BackendSchemaHandler implements SchemaHandler {
       if (!this.entities.has(entity!)) {
         res.status(400).json({
           code: 400,
-          message: `Invalid entity: ${entity}. Must be 'portal', 'module', 'instance', 'realm', 'login-branding', or 'sdl'`,
+          message: `Invalid entity: ${entity}. Must be 'portal', 'module', 'instance', 'realm', 'login-branding', 'sdl', or 'composition'`,
           data: null,
         })
         return

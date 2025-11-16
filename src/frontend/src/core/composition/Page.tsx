@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import { useComposition } from './CompositionContext';
 import { CompositionRenderer } from './CompositionRenderer';
+import { useResolvedComposition } from './hooks/useResolvedComposition';
 import type { LayoutWidth } from './types';
 
 /**
@@ -26,6 +26,9 @@ interface PageProps {
  * A composição define quais slots estarão disponíveis (navbar, sidebar, etc)
  * e quais componentes serão renderizados em cada slot.
  *
+ * IMPORTANT: This component now loads saved composition configurations from backend.
+ * Component selections saved in the composition editor will be automatically applied.
+ *
  * @example
  * ```tsx
  * // Usa composição padrão com largura padrão (md - 768px)
@@ -50,10 +53,8 @@ interface PageProps {
  * ```
  */
 export function Page({ composition = 'default', width, children }: PageProps) {
-  const { resolveComposition } = useComposition();
-
-  // Resolve a composição, obtendo os componentes React para cada slot
-  const resolved = resolveComposition(composition);
+  // Resolve composition with saved configuration from backend
+  const resolved = useResolvedComposition(composition);
 
   return (
     <CompositionRenderer composition={resolved} widthOverride={width}>

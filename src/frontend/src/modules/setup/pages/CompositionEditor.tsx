@@ -2,236 +2,216 @@
  * CompositionEditor Component
  * DESIGN Reference: DES-COMP-001, DES-ARCH-001
  *
- * Main composition editor page with state management and layout orchestration.
- * Based on the LoginBrandingEditor pattern with ResizablePanel layout.
+ * Editor for configuring composition slot components.
+ * Compositions structures come from modules (registry).
+ * This editor only allows customizing slotConfigs per portal.
  */
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Info, Save, X, RotateCcw } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Info, Save, X, RotateCcw, CheckCircle2, XCircle } from 'lucide-react';
 
-import type { CompositionWithConfigs, CompositionEditorState } from '@/core/composition/types-extended';
-import { createDefaultComposition, validateComposition } from '@/core/composition/schemas/compositionSchema';
+import type { CompositionConfig } from '@/core/composition/hooks/useCompositionMutations';
 import {
-  useComposition,
-  useCreateComposition,
-  useUpdateComposition,
+  useSaveCompositionConfig,
+  useCompositionConfig,
 } from '@/core/composition/hooks/useCompositionMutations';
+import { Page, useComposition } from '@/core/composition';
+import type { Composition, LayoutWidth } from '@/core/composition/types';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-// Import composition components
-import {
-  CompositionEditorLayout,
-  CompositionPreview,
-  CompositionThemeProvider,
-  PreviewPanel,
-  ControlsPanel,
-} from '../components/composition';
-
-// Import editor components (to be created)
-import { LayoutSelector } from '../components/composition/LayoutSelector';
-import { SlotToggleList } from '../components/composition/SlotToggleList';
+// Import editor components
 import { SlotCardList } from '../components/composition/SlotCardList';
+import { LayoutWidthSelector } from '../components/composition/LayoutWidthSelector';
+
+// Type for composition with configs
+interface CompositionWithConfigs extends Composition {
+  slotConfigs?: Record<string, Record<string, any>>;
+}
 
 /**
- * Main composition editor with centralized state management
- * DESIGN Reference: DES-ARCH-001 - Estado Centralizado
+ * Composition configuration editor
+ * Configures slotConfigs for a base composition
  */
 export function CompositionEditor() {
   const { portalId, compositionId } = useParams<{ portalId: string; compositionId?: string }>();
   const navigate = useNavigate();
-  const isEditing = !!compositionId;
 
-  if (!portalId) {
-    return <div>Portal ID is required</div>;
+  if (!portalId || !compositionId) {
+    return <div>Portal ID and Composition ID are required</div>;
   }
 
-  // Load existing composition if editing
-  const { data: loadedComposition, isLoading } = useComposition(compositionId || '');
-  const createMutation = useCreateComposition();
-  const updateMutation = useUpdateComposition();
+  // Get composition from registry
+  const { compositionRegistry } = useComposition();
+  const baseComposition = compositionRegistry.get(compositionId);
 
-  // Centralized state (DES-ARCH-001)
-  const [state, setState] = useState<CompositionEditorState>(() => {
-    // Initialize with default or loaded composition
-    const defaultComp = createDefaultComposition(portalId);
-    return {
-      compositionId: compositionId || defaultComp.id,
-      name: defaultComp.name,
-      description: '',
-      slots: defaultComp.slots,
-      components: defaultComp.components,
-      slotConfigs: defaultComp.slotConfigs || {},
-      layout: defaultComp.layout,
-      providedBy: defaultComp.providedBy,
-      hasChanges: false,
-      isSaving: false,
-    };
-  });
+  // Generate config ID for this portal + composition
+  const configId = `${portalId}-${compositionId}`;
 
-  // Store original state for comparison
-  const [originalState, setOriginalState] = useState<CompositionEditorState>(state);
+  // Load existing config if it exists
+  const { data: savedConfig, isLoading: configLoading } = useCompositionConfig(configId);
+  const saveMutation = useSaveCompositionConfig();
 
-  // Update state when loaded composition arrives
+  // State for component selections and their configs
+  const [components, setComponents] = useState<Record<string, string | undefined>>({});
+  const [slotConfigs, setSlotConfigs] = useState<Record<string, Record<string, any>>>({});
+  const [layoutWidth, setLayoutWidth] = useState<LayoutWidth>(baseComposition.layout.width);
+  const [originalComponents, setOriginalComponents] = useState<Record<string, string | undefined>>({});
+  const [originalConfigs, setOriginalConfigs] = useState<Record<string, Record<string, any>>>({});
+  const [originalWidth, setOriginalWidth] = useState<LayoutWidth>(baseComposition.layout.width);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  // Load saved configs when available
   useEffect(() => {
-    if (loadedComposition && isEditing) {
-      const loadedState: CompositionEditorState = {
-        compositionId: loadedComposition.id,
-        name: loadedComposition.name,
-        description: '',
-        slots: loadedComposition.slots,
-        components: loadedComposition.components,
-        slotConfigs: loadedComposition.slotConfigs || {},
-        layout: loadedComposition.layout,
-        providedBy: loadedComposition.providedBy,
-        hasChanges: false,
-        isSaving: false,
-      };
-      setState(loadedState);
-      setOriginalState(loadedState);
+    if (savedConfig) {
+      const savedComponents = (savedConfig as any).components || baseComposition.components || {};
+      const configs = savedConfig.slotConfigs || {};
+      const savedWidth = (savedConfig as any).layout?.width || baseComposition.layout.width;
+      setComponents(savedComponents);
+      setOriginalComponents(savedComponents);
+      setSlotConfigs(configs);
+      setOriginalConfigs(configs);
+      setLayoutWidth(savedWidth);
+      setOriginalWidth(savedWidth);
+    } else {
+      // If no saved config, use base composition defaults
+      setComponents(baseComposition.components || {});
+      setOriginalComponents(baseComposition.components || {});
+      setLayoutWidth(baseComposition.layout.width);
+      setOriginalWidth(baseComposition.layout.width);
     }
-  }, [loadedComposition, isEditing]);
+  }, [savedConfig, baseComposition]);
 
-  // Change detection (DES-FLOW-001)
-  useEffect(() => {
-    const hasChanges = JSON.stringify(state) !== JSON.stringify(originalState);
-    setState(prev => ({ ...prev, hasChanges }));
-  }, [state, originalState]);
+  // Check if composition exists in registry
+  if (!baseComposition) {
+    return (
+      <Page composition="settings">
+        <div className="p-6">
+          <div className="flex items-center justify-center" style={{ minHeight: '50vh' }}>
+            <div className="text-center">
+              <p className="text-lg text-red-600 mb-4">Composição "{compositionId}" não encontrada</p>
+              <Button onClick={() => navigate(`/setup/portals/${portalId}/compositions`)}>
+                Voltar para Lista
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Page>
+    );
+  }
 
-  // Convert state to CompositionWithConfigs
-  const composition = useMemo<CompositionWithConfigs>(() => ({
-    id: state.compositionId,
-    name: state.name,
-    providedBy: state.providedBy,
-    slots: state.slots,
-    components: state.components,
-    slotConfigs: state.slotConfigs,
-    layout: state.layout,
-  }), [state]);
+  // Change detection
+  const hasChanges = useMemo(() => {
+    const componentsChanged = JSON.stringify(components) !== JSON.stringify(originalComponents);
+    const configsChanged = JSON.stringify(slotConfigs) !== JSON.stringify(originalConfigs);
+    const widthChanged = layoutWidth !== originalWidth;
+    return componentsChanged || configsChanged || widthChanged;
+  }, [components, originalComponents, slotConfigs, originalConfigs, layoutWidth, originalWidth]);
 
-  // Handlers for composition updates
-  const handleCompositionChange = useCallback((updatedComposition: CompositionWithConfigs) => {
-    setState(prev => ({
-      ...prev,
-      name: updatedComposition.name,
-      slots: updatedComposition.slots,
-      components: updatedComposition.components,
-      slotConfigs: updatedComposition.slotConfigs || {},
-      layout: updatedComposition.layout,
-    }));
-  }, []);
-
-  const handleLayoutChange = useCallback((width: 'full' | 'lg' | 'md' | 'sm') => {
-    setState(prev => ({
-      ...prev,
-      layout: { width },
-    }));
-  }, []);
-
-  const handleSlotsChange = useCallback((slots: typeof state.slots) => {
-    setState(prev => ({
-      ...prev,
-      slots,
-      // Clear components for deactivated slots
-      components: {
-        ...prev.components,
-        ...(slots.navbar === false && { navbar: undefined }),
-        ...(slots.sidebar === false && { sidebar: undefined }),
-        ...(slots.companion === false && { companion: undefined }),
-        ...(slots.breadcrumb === false && { breadcrumb: undefined }),
-        ...(slots.footer === false && { footer: undefined }),
-      },
-    }));
-  }, []);
-
+  // Handlers
   const handleComponentChange = useCallback((slotType: string, componentId: string | undefined) => {
-    setState(prev => ({
+    setComponents(prev => ({
       ...prev,
-      components: {
-        ...prev.components,
-        [slotType]: componentId,
-      },
+      [slotType]: componentId,
     }));
   }, []);
 
   const handleConfigChange = useCallback((componentId: string, config: Record<string, any>) => {
-    setState(prev => ({
+    setSlotConfigs(prev => ({
       ...prev,
-      slotConfigs: {
-        ...prev.slotConfigs,
-        [componentId]: config,
-      },
+      [componentId]: config,
     }));
   }, []);
 
   const handleSave = useCallback(async () => {
-    // Validate composition
-    const validation = validateComposition(composition);
-    if (!validation.valid) {
-      console.error('Validation errors:', validation.errors);
-      return;
-    }
-
-    setState(prev => ({ ...prev, isSaving: true }));
+    setIsSaving(true);
+    setSaveSuccess(false);
+    setSaveError(null);
 
     try {
-      if (isEditing) {
-        // Update existing composition
-        await updateMutation.mutateAsync(composition);
-      } else {
-        // Create new composition
-        await createMutation.mutateAsync(composition);
-      }
+      const compositionConfig: any = {
+        id: configId,
+        portalId,
+        baseCompositionId: compositionId,
+        name: baseComposition.name,
+        components, // Save component selections
+        slotConfigs,
+        layout: {
+          width: layoutWidth, // Save layout width
+        },
+      };
+
+      await saveMutation.mutateAsync(compositionConfig);
 
       // Update original state after successful save
-      setOriginalState(state);
+      setOriginalComponents(components);
+      setOriginalConfigs(slotConfigs);
+      setOriginalWidth(layoutWidth);
 
-      // Navigate back to list
-      navigate(`/setup/portals/${portalId}/compositions`);
+      // Show success message
+      setSaveSuccess(true);
+
+      // Auto-hide success message and navigate after 2 seconds
+      setTimeout(() => {
+        setSaveSuccess(false);
+        navigate(`/setup/portals/${portalId}/compositions`);
+      }, 2000);
+
     } catch (error) {
-      console.error('Failed to save composition:', error);
+      console.error('Failed to save composition config:', error);
+      setSaveError(error instanceof Error ? error.message : 'Erro ao salvar configuração');
     } finally {
-      setState(prev => ({ ...prev, isSaving: false }));
+      setIsSaving(false);
     }
-  }, [composition, state, portalId, navigate, isEditing, createMutation, updateMutation]);
+  }, [configId, portalId, compositionId, baseComposition, components, slotConfigs, layoutWidth, saveMutation, navigate]);
 
   const handleCancel = useCallback(() => {
     navigate(`/setup/portals/${portalId}/compositions`);
   }, [portalId, navigate]);
 
   const handleReset = useCallback(() => {
-    setState(originalState);
-  }, [originalState]);
+    setComponents(originalComponents);
+    setSlotConfigs(originalConfigs);
+    setLayoutWidth(originalWidth);
+  }, [originalComponents, originalConfigs, originalWidth]);
 
-  // Show loading state while fetching composition
-  if (isLoading && isEditing) {
+  // Show loading state
+  if (configLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <p className="text-lg">Loading composition...</p>
+          <p className="text-lg">Carregando configuração...</p>
         </div>
       </div>
     );
   }
 
+  // Merge base composition with saved configs
+  const compositionWithConfigs: CompositionWithConfigs = {
+    ...baseComposition,
+    slotConfigs,
+  };
+
   // Header content
   const headerContent = (
     <div className="flex items-center justify-between">
       <div>
-        <h2 className="text-2xl font-semibold">
-          {isEditing ? 'Edit Composition' : 'Create Composition'}
-        </h2>
+        <h2 className="text-2xl font-semibold">Configurar Composição</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          {state.name || 'New Composition'}
+          {baseComposition.name}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Fornecido por: {baseComposition.providedBy}
         </p>
       </div>
-      {state.hasChanges && (
+      {hasChanges && (
         <Alert className="w-auto">
           <Info className="h-4 w-4" />
-          <AlertDescription>You have unsaved changes</AlertDescription>
+          <AlertDescription>Alterações não salvas</AlertDescription>
         </Alert>
       )}
     </div>
@@ -242,83 +222,90 @@ export function CompositionEditor() {
     <div className="flex items-center justify-between">
       <Button variant="outline" onClick={handleCancel}>
         <X className="h-4 w-4 mr-2" />
-        Cancel
+        Cancelar
       </Button>
       <div className="flex gap-2">
-        {state.hasChanges && (
+        {hasChanges && (
           <Button variant="outline" onClick={handleReset}>
             <RotateCcw className="h-4 w-4 mr-2" />
-            Reset
+            Resetar
           </Button>
         )}
         <Button
           onClick={handleSave}
-          disabled={!state.hasChanges || state.isSaving}
+          disabled={!hasChanges || isSaving}
         >
           <Save className="h-4 w-4 mr-2" />
-          {state.isSaving ? 'Saving...' : 'Save Composition'}
+          {isSaving ? 'Salvando...' : 'Salvar Configuração'}
         </Button>
       </div>
     </div>
   );
 
-  // Preview content
-  const previewContent = (
-    <PreviewPanel>
-      <CompositionThemeProvider composition={composition} portalId={portalId}>
-        <CompositionPreview
-          composition={composition}
-          onChange={handleCompositionChange}
-          readonly={false}
-        />
-      </CompositionThemeProvider>
-    </PreviewPanel>
-  );
-
-  // Controls content with tabs
-  const controlsContent = (
-    <ControlsPanel>
-      <Tabs defaultValue="layout" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="layout">Layout</TabsTrigger>
-          <TabsTrigger value="slots">Slots</TabsTrigger>
-          <TabsTrigger value="components">Components</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="layout" className="space-y-6">
-          <LayoutSelector
-            value={state.layout.width}
-            onChange={handleLayoutChange}
-          />
-        </TabsContent>
-
-        <TabsContent value="slots" className="space-y-6">
-          <SlotToggleList
-            slots={state.slots}
-            onChange={handleSlotsChange}
-          />
-        </TabsContent>
-
-        <TabsContent value="components" className="space-y-6">
-          <SlotCardList
-            slots={state.slots}
-            components={state.components}
-            slotConfigs={state.slotConfigs}
-            onComponentChange={handleComponentChange}
-            onConfigChange={handleConfigChange}
-          />
-        </TabsContent>
-      </Tabs>
-    </ControlsPanel>
-  );
-
   return (
-    <CompositionEditorLayout
-      headerContent={headerContent}
-      footerContent={footerContent}
-      previewContent={previewContent}
-      controlsContent={controlsContent}
-      className="h-screen"
-    />
+    <Page composition="settings">
+      <div className="p-6 space-y-8">
+        {/* Header */}
+        {headerContent}
+
+        {/* Success Alert */}
+        {saveSuccess && (
+          <Alert className="border-green-500 bg-green-50 dark:bg-green-950">
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-800 dark:text-green-200">
+              Configuração salva com sucesso! Redirecionando...
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Error Alert */}
+        {saveError && (
+          <Alert variant="destructive">
+            <XCircle className="h-4 w-4" />
+            <AlertDescription>
+              {saveError}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Layout Configuration */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Configuração de Layout</CardTitle>
+            <CardDescription>
+              Configure a largura padrão para páginas usando esta composição. Páginas individuais podem sobrescrever esta configuração se necessário.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <LayoutWidthSelector
+              value={layoutWidth}
+              onChange={setLayoutWidth}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Main Content */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Configurações dos Componentes</CardTitle>
+            <CardDescription>
+              Configure os componentes dos slots. A estrutura (layout e slots) é definida pelo módulo e não pode ser alterada.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SlotCardList
+              slots={baseComposition.slots}
+              components={components}
+              slotConfigs={slotConfigs}
+              onComponentChange={handleComponentChange}
+              onConfigChange={handleConfigChange}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Footer */}
+        {footerContent}
+      </div>
+    </Page>
   );
 }

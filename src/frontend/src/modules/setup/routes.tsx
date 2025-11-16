@@ -90,11 +90,7 @@ export const setupRoutes: ModuleRoute[] = [
     component: CompositionList
   },
   {
-    path: '/portals/:portalId/compositions/new',
-    component: CompositionEditor
-  },
-  {
-    path: '/portals/:portalId/compositions/:compositionId',
+    path: '/portals/:portalId/compositions/:compositionId/configure',
     component: CompositionEditor
   },
   {

@@ -91,142 +91,142 @@ export function RealmList() {
     <Page composition="settings">
       <div className="p-6 space-y-8">
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gerenciar Ambientes</h1>
-          <p className="text-muted-foreground mt-2">
-            Configure ambientes para agrupar portais e compartilhar configurações
-          </p>
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Gerenciar Ambientes</h1>
+            <p className="text-muted-foreground mt-2">
+              Configure ambientes para agrupar portais e compartilhar configurações
+            </p>
+          </div>
+          <Link to="/setup/realms/new">
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Ambiente
+            </Button>
+          </Link>
         </div>
-        <Link to="/setup/realms/new">
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Ambiente
-          </Button>
-        </Link>
-      </div>
 
-      {/* Realm Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {realms.map((realm) => {
-          const portalCount = realmPortalCounts[realm.realmId] || 0;
+        {/* Realm Cards */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {realms.map((realm) => {
+            const portalCount = realmPortalCounts[realm.realmId] || 0;
 
-          return (
-            <Card key={realm.realmId} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="flex items-center gap-2">
-                      {realm.name}
-                      {!realm.removable && (
-                        <Badge variant="secondary" className="text-xs">
-                          Sistema
-                        </Badge>
-                      )}
-                    </CardTitle>
-                    <CardDescription className="mt-1">
-                      {realm.description || 'Sem descrição'}
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Info */}
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Realm ID:</span>
-                    <code className="text-xs bg-muted px-2 py-1 rounded">
-                      {realm.realmId}
-                    </code>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Portais:</span>
-                    <Badge variant="outline">
-                      <Globe className="h-3 w-3 mr-1" />
-                      {portalCount}
-                    </Badge>
-                  </div>
-                  {realm.config?.theme?.brandColor && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Cor do tema:</span>
-                      <div
-                        className="h-5 w-5 rounded-full border-2 border-border"
-                        style={{
-                          backgroundColor: `hsl(${realm.config.theme.brandColor})`,
-                        }}
-                        title={realm.config.theme.brandColor}
-                      />
+            return (
+              <Card key={realm.realmId} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <CardTitle className="flex items-center gap-2">
+                        {realm.name}
+                        {!realm.removable && (
+                          <Badge variant="secondary" className="text-xs">
+                            Sistema
+                          </Badge>
+                        )}
+                      </CardTitle>
+                      <CardDescription className="mt-1">
+                        {realm.description || 'Sem descrição'}
+                      </CardDescription>
                     </div>
-                  )}
-                </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Info */}
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Realm ID:</span>
+                      <code className="text-xs bg-muted px-2 py-1 rounded">
+                        {realm.realmId}
+                      </code>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Portais:</span>
+                      <Badge variant="outline">
+                        <Globe className="h-3 w-3 mr-1" />
+                        {portalCount}
+                      </Badge>
+                    </div>
+                    {realm.config?.theme?.brandColor && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Cor do tema:</span>
+                        <div
+                          className="h-5 w-5 rounded-full border-2 border-border"
+                          style={{
+                            backgroundColor: `hsl(${realm.config.theme.brandColor})`,
+                          }}
+                          title={realm.config.theme.brandColor}
+                        />
+                      </div>
+                    )}
+                  </div>
 
-                {/* Actions */}
-                <div className="flex gap-2 pt-2">
-                  <Link to={`/setup/realms/${realm.realmId}`} className="flex-1">
-                    <Button variant="outline" size="sm" className="w-full">
-                      <Settings className="h-4 w-4 mr-2" />
-                      Configurar
-                    </Button>
-                  </Link>
-                  {realm.removable && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-destructive"
-                      onClick={() => handleDeleteRealm(realm.realmId, realm.name)}
-                      disabled={deleteRealmMutation.isPending}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+                  {/* Actions */}
+                  <div className="flex gap-2 pt-2">
+                    <Link to={`/setup/realms/${realm.realmId}`} className="flex-1">
+                      <Button variant="outline" size="sm" className="w-full">
+                        <Settings className="h-4 w-4 mr-2" />
+                        Configurar
+                      </Button>
+                    </Link>
+                    {realm.removable && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-destructive"
+                        onClick={() => handleDeleteRealm(realm.realmId, realm.name)}
+                        disabled={deleteRealmMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
 
-      {realms.length === 0 && (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <p className="text-muted-foreground mb-4">Nenhum ambiente encontrado</p>
-            <Link to="/setup/realms/new">
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Criar Primeiro Ambiente
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-      )}
+        {realms.length === 0 && (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <p className="text-muted-foreground mb-4">Nenhum ambiente encontrado</p>
+              <Link to="/setup/realms/new">
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Criar Primeiro Ambiente
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        )}
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, open })}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Excluir ambiente "{deleteDialog.realmName}"?</AlertDialogTitle>
-            <AlertDialogDescription>
-              {deleteDialog.portalCount > 0 ? (
-                <>
-                  Tem certeza que deseja excluir este ambiente?
-                  <br />
-                  <br />
-                  <strong>{deleteDialog.portalCount} portal(is)</strong> será(ão) movido(s) para o ambiente "default".
-                </>
-              ) : (
-                'Tem certeza que deseja excluir este ambiente?'
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDeleteRealm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, open })}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Excluir ambiente "{deleteDialog.realmName}"?</AlertDialogTitle>
+              <AlertDialogDescription>
+                {deleteDialog.portalCount > 0 ? (
+                  <>
+                    Tem certeza que deseja excluir este ambiente?
+                    <br />
+                    <br />
+                    <strong>{deleteDialog.portalCount} portal(is)</strong> será(ão) movido(s) para o ambiente "default".
+                  </>
+                ) : (
+                  'Tem certeza que deseja excluir este ambiente?'
+                )}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDeleteRealm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Excluir
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </Page>
   );

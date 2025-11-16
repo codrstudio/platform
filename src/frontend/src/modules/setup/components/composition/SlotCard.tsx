@@ -93,83 +93,65 @@ export function SlotCard({
       )}
     >
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-base flex items-center gap-2">
-              {slotLabels[slotType]}
-              {componentId && (
-                <Badge variant="secondary" className="ml-2">
-                  {componentDetails?.name || componentId}
-                </Badge>
-              )}
-            </CardTitle>
-            <CardDescription className="mt-1">
-              {slotDescriptions[slotType]}
-            </CardDescription>
-            {componentDetails?.providedBy && (
-              <p className="text-xs text-muted-foreground mt-1">
-                Provided by: {componentDetails.providedBy}
-              </p>
+        <div className="space-y-3">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <CardTitle className="text-base">
+                {slotLabels[slotType]}
+              </CardTitle>
+              <CardDescription className="mt-1">
+                {slotDescriptions[slotType]}
+              </CardDescription>
+            </div>
+
+            {/* Show expand button only if component has configuration */}
+            {componentId && FormComponent && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsExpanded(!isExpanded)}
+                disabled={disabled}
+              >
+                {isExpanded ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+              </Button>
             )}
           </div>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsExpanded(!isExpanded)}
+          {/* Component Selector - Always visible */}
+          <ComponentSelector
+            slotType={slotType}
+            value={componentId}
+            onChange={handleComponentChange}
             disabled={disabled}
-          >
-            {isExpanded ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
+          />
 
-        {validationError && (
-          <p className="text-sm text-destructive mt-2">{validationError}</p>
-        )}
+          {validationError && (
+            <p className="text-sm text-destructive">{validationError}</p>
+          )}
+        </div>
       </CardHeader>
 
-      {isExpanded && (
+      {/* Configuration Form (only when expanded) */}
+      {isExpanded && componentId && FormComponent && (
         <CardContent className="space-y-4 pt-0">
-          {/* Component Selector */}
-          <div className="space-y-2">
-            <ComponentSelector
-              slotType={slotType}
-              value={componentId}
-              onChange={handleComponentChange}
-              disabled={disabled}
-            />
+          <div className="pt-4 border-t space-y-4">
+            <div className="flex items-center gap-2">
+              <Settings className="h-4 w-4 text-muted-foreground" />
+              <p className="text-sm font-medium">Component Configuration</p>
+            </div>
+            <div className="pl-6">
+              <FormComponent
+                slotType={slotType}
+                componentId={componentId}
+                config={config}
+                onChange={onConfigChange}
+              />
+            </div>
           </div>
-
-          {/* Configuration Form (if available) */}
-          {componentId && FormComponent && (
-            <div className="mt-4 pt-4 border-t space-y-4">
-              <div className="flex items-center gap-2">
-                <Settings className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm font-medium">Component Configuration</p>
-              </div>
-              <div className="pl-6">
-                <FormComponent
-                  slotType={slotType}
-                  componentId={componentId}
-                  config={config}
-                  onChange={onConfigChange}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* No configuration message */}
-          {componentId && !FormComponent && (
-            <div className="mt-4 pt-4 border-t">
-              <p className="text-sm text-muted-foreground text-center py-4">
-                This component doesn't have configuration options
-              </p>
-            </div>
-          )}
         </CardContent>
       )}
     </Card>

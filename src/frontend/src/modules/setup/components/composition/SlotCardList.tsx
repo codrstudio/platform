@@ -33,13 +33,13 @@ export function SlotCardList({
   onConfigChange,
   disabled,
 }: SlotCardListProps) {
-  // Get list of active slots
-  const activeSlots = useMemo(() => {
+  // Get list of available slots (both true and false, but not undefined)
+  const availableSlots = useMemo(() => {
     return slotOrder.filter(slotType => {
       // Desktop is always true, don't show it as a configurable slot
       if (slotType === 'desktop' as any) return false;
-      // Check if slot is active
-      return slots[slotType] === true;
+      // Check if slot is defined in the composition (true or false, not undefined)
+      return slots[slotType] !== undefined;
     });
   }, [slots]);
 
@@ -52,12 +52,12 @@ export function SlotCardList({
     };
   };
 
-  if (activeSlots.length === 0) {
+  if (availableSlots.length === 0) {
     return (
       <Alert>
         <Info className="h-4 w-4" />
         <AlertDescription>
-          No slots are currently active. Enable slots in the "Slots" tab to configure components.
+          Nenhum slot está disponível nesta composição.
         </AlertDescription>
       </Alert>
     );
@@ -69,12 +69,12 @@ export function SlotCardList({
       <Alert>
         <Info className="h-4 w-4" />
         <AlertDescription>
-          Configure components for each active slot. Components can be customized with their own settings.
+          Configure componentes para cada slot disponível. Componentes podem ser customizados com suas próprias configurações.
         </AlertDescription>
       </Alert>
 
       {/* Slot cards */}
-      {activeSlots.map(slotType => {
+      {availableSlots.map(slotType => {
         const componentId = components[slotType];
         const config = componentId ? slotConfigs[componentId] : undefined;
 
@@ -95,8 +95,8 @@ export function SlotCardList({
       <Alert variant="default" className="bg-primary/5">
         <Info className="h-4 w-4" />
         <AlertDescription>
-          <strong>Desktop Slot:</strong> The main content area is always active and displays your primary content.
-          It doesn't need component configuration as it's managed by the application's routing system.
+          <strong>Slot Desktop:</strong> A área de conteúdo principal está sempre ativa e exibe seu conteúdo primário.
+          Ela não precisa de configuração de componente, pois é gerenciada pelo sistema de roteamento da aplicação.
         </AlertDescription>
       </Alert>
     </div>

@@ -1,6 +1,7 @@
 import { useLocation, Link } from 'react-router-dom';
 import { Home } from 'lucide-react';
 import {
+  Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
@@ -43,16 +44,18 @@ export function PortalBreadcrumb({ iconMap = {} }: PortalBreadcrumbProps = {}) {
   // Permite que o usuário clique para "refresh" da página
   if (pathSegments.length === 0) {
     return (
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink asChild>
-            <Link to="/" className="flex items-center gap-1.5">
-              <Home className="h-4 w-4" aria-hidden="true" />
-              <span>Home</span>
-            </Link>
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      </BreadcrumbList>
+      <Breadcrumb className="p-4">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/" className="flex items-center gap-1.5">
+                <Home className="h-4 w-4" aria-hidden="true" />
+                <span>Home</span>
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
     );
   }
 
@@ -80,42 +83,44 @@ export function PortalBreadcrumb({ iconMap = {} }: PortalBreadcrumbProps = {}) {
   });
 
   return (
-    <BreadcrumbList>
-      {/* Item Home sempre presente com ícone */}
-      <BreadcrumbItem>
-        <BreadcrumbLink asChild>
-          <Link to="/" className="flex items-center gap-1.5">
-            <Home className="h-4 w-4" aria-hidden="true" />
-            <span>Home</span>
-          </Link>
-        </BreadcrumbLink>
-      </BreadcrumbItem>
+    <Breadcrumb className="p-4">
+      <BreadcrumbList>
+        {/* Item Home sempre presente com ícone */}
+        <BreadcrumbItem>
+          <BreadcrumbLink asChild>
+            <Link to="/" className="flex items-center gap-1.5">
+              <Home className="h-4 w-4" aria-hidden="true" />
+              <span>Home</span>
+            </Link>
+          </BreadcrumbLink>
+        </BreadcrumbItem>
 
-      {/* Renderiza os demais itens */}
-      {breadcrumbItems.map((item) => (
-        <div key={item.path} className="contents">
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            {item.isLast ? (
-              <BreadcrumbPage className="flex items-center gap-1.5">
-                {item.icon && (
-                  <span aria-hidden="true">{item.icon}</span>
-                )}
-                <span>{item.name}</span>
-              </BreadcrumbPage>
-            ) : (
-              <BreadcrumbLink asChild>
-                <Link to={item.path} className="flex items-center gap-1.5">
+        {/* Renderiza os demais itens */}
+        {breadcrumbItems.map((item) => (
+          <div key={item.path} className="contents">
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              {item.isLast ? (
+                <BreadcrumbPage className="flex items-center gap-1.5">
                   {item.icon && (
                     <span aria-hidden="true">{item.icon}</span>
                   )}
                   <span>{item.name}</span>
-                </Link>
-              </BreadcrumbLink>
-            )}
-          </BreadcrumbItem>
-        </div>
-      ))}
-    </BreadcrumbList>
+                </BreadcrumbPage>
+              ) : (
+                <BreadcrumbLink asChild>
+                  <Link to={item.path} className="flex items-center gap-1.5">
+                    {item.icon && (
+                      <span aria-hidden="true">{item.icon}</span>
+                    )}
+                    <span>{item.name}</span>
+                  </Link>
+                </BreadcrumbLink>
+              )}
+            </BreadcrumbItem>
+          </div>
+        ))}
+      </BreadcrumbList>
+    </Breadcrumb>
   );
 }

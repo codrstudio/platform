@@ -1,143 +1,140 @@
 /**
- * Composition Mutations Hooks
+ * Composition Config Mutations Hooks
  *
- * JQEL-based hooks for creating, updating, and deleting compositions
+ * JQEL-based hooks for saving composition configurations (slotConfigs).
+ * Composition structures come from modules via CompositionRegistry.
+ * This only persists portal-specific customizations.
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { jqelClient } from '@/services/jqelClient';
 import type { CompositionWithConfigs } from '../types-extended';
-import { validateComposition } from '../schemas/compositionSchema';
 
 /**
- * Create a new composition
+ * CompositionConfig stored in backend
  */
-export function useCreateComposition() {
+export interface CompositionConfig {
+  id: string;                      // Unique ID for this configuration
+  portalId: string;                // Portal this configuration belongs to
+  baseCompositionId: string;       // ID of the base composition from module
+  name: string;                    // Custom name for this configuration
+  components?: {                   // Component selections for each slot
+    [slotType: string]: string | undefined;
+  };
+  slotConfigs?: {                  // Slot component configurations
+    [componentId: string]: Record<string, any>;
+  };
+  layout?: {                       // Layout configuration overrides
+    width?: 'full' | 'lg' | 'md' | 'sm';
+  };
+}
+
+/**
+ * Save composition configuration for a portal
+ * Creates or updates a CompositionConfig in backend
+ */
+export function useSaveCompositionConfig() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (composition: CompositionWithConfigs) => {
-      // Validate before saving
-      const validation = validateComposition(composition);
-      if (!validation.valid) {
-        throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
-      }
-
-      // Save via JQEL to backend schema
-      const response = await jqelClient.mutate({
+    mutationFn: async (config: CompositionConfig) => {
+      // Check if config already exists
+      const existing = await jqelClient.query({
         schema: 'backend',
-        mutate: 'composition',
-        action: 'insert',
-        values: composition,
+        select: 'composition',
+        where: { id: { $eq: config.id } },
       });
+
+      const hasExisting = existing.data && existing.data.length > 0;
+
+      // Insert or update
+      const response = await jqelClient.mutate(
+        'backend',
+        'composition',
+        hasExisting ? 'update' : 'insert',
+        {
+          values: config,
+          ...(hasExisting && { where: { id: { $eq: config.id } } }),
+        }
+      );
 
       return response.data;
     },
-    onSuccess: () => {
-      // Invalidate compositions queries
-      queryClient.invalidateQueries({ queryKey: ['compositions'] });
+    onSuccess: (data, variables) => {
+      // Invalidate all composition config queries
+      queryClient.invalidateQueries({ queryKey: ['composition-configs'] });
+      // Invalidate specific config query
+      queryClient.invalidateQueries({ queryKey: ['composition-config', variables.id] });
+      // Also invalidate by portalId
+      queryClient.invalidateQueries({ queryKey: ['composition-configs', variables.portalId] });
     },
   });
 }
 
 /**
- * Update an existing composition
+ * Delete a composition configuration
  */
-export function useUpdateComposition() {
+export function useDeleteCompositionConfig() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (composition: CompositionWithConfigs) => {
-      // Validate before saving
-      const validation = validateComposition(composition);
-      if (!validation.valid) {
-        throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
-      }
-
-      // Update via JQEL
-      const response = await jqelClient.mutate({
-        schema: 'backend',
-        mutate: 'composition',
-        action: 'update',
-        values: composition,
-        where: {
-          id: { $eq: composition.id },
-        },
-      });
-
-      return response.data;
-    },
-    onSuccess: (_, composition) => {
-      // Invalidate queries
-      queryClient.invalidateQueries({ queryKey: ['compositions'] });
-      queryClient.invalidateQueries({ queryKey: ['composition', composition.id] });
-    },
-  });
-}
-
-/**
- * Delete a composition
- */
-export function useDeleteComposition() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (compositionId: string) => {
+    mutationFn: async (configId: string) => {
       const response = await jqelClient.mutate({
         schema: 'backend',
         mutate: 'composition',
         action: 'delete',
         where: {
-          id: { $eq: compositionId },
+          id: { $eq: configId },
         },
       });
 
       return response.data;
     },
     onSuccess: () => {
-      // Invalidate queries
-      queryClient.invalidateQueries({ queryKey: ['compositions'] });
+      queryClient.invalidateQueries({ queryKey: ['composition-configs'] });
     },
   });
 }
 
 /**
- * Get a single composition by ID
+ * Get composition configuration by ID
  */
-export function useComposition(compositionId: string) {
+export function useCompositionConfig(configId: string) {
   return useQuery({
-    queryKey: ['composition', compositionId],
+    queryKey: ['composition-config', configId],
     queryFn: async () => {
       const response = await jqelClient.query({
         schema: 'backend',
         select: 'composition',
         where: {
-          id: { $eq: compositionId },
+          id: { $eq: configId },
         },
       });
 
-      return response.data?.[0] as CompositionWithConfigs | undefined;
+      // Return null instead of undefined if not found (TanStack Query requirement)
+      return (response.data?.[0] as CompositionConfig) || null;
     },
-    enabled: !!compositionId,
+    enabled: !!configId,
   });
 }
 
 /**
- * Get all compositions for a portal
+ * Get all composition configurations for a portal
  */
-export function useCompositions(portalId?: string) {
+export function useCompositionConfigs(portalId?: string) {
   return useQuery({
-    queryKey: ['compositions', portalId],
+    queryKey: ['composition-configs', portalId],
     queryFn: async () => {
       const response = await jqelClient.query({
         schema: 'backend',
         select: 'composition',
         where: portalId
-          ? { providedBy: { $eq: portalId } }
+          ? { portalId: { $eq: portalId } }
           : undefined,
       });
 
-      return response.data as CompositionWithConfigs[];
+      return response.data as CompositionConfig[];
     },
+    enabled: !!portalId,
   });
 }

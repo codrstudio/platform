@@ -119,8 +119,8 @@ export function ComponentSelector({
 
             {components.map(component => (
               <SelectItem
-                key={component.id}
-                value={component.id}
+                key={component.componentId}
+                value={component.componentId}
                 className="pl-6"
               >
                 <div className="flex flex-col">

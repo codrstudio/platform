@@ -14,5 +14,6 @@ export function registerPlatformComponents() {
     component: PortalBreadcrumb,
     providedBy: 'platform',
     name: 'Portal Breadcrumb',
+    replace: true, // Componente controla próprio wrapper e padding
   });
 }

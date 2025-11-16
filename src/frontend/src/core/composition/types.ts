@@ -25,6 +25,12 @@ export interface SlotComponent {
   /** Nome amigável do componente */
   name: string;
 
+  /**
+   * Se true, o componente substitui completamente o wrapper semântico
+   * Se false/undefined, o componente é renderizado dentro do wrapper (padrão)
+   */
+  replace?: boolean;
+
   /** Metadados adicionais opcionais */
   metadata?: Record<string, any>;
 }
@@ -83,5 +89,14 @@ export interface ResolvedComposition extends Composition {
     companion?: ComponentType;
     breadcrumb?: ComponentType;
     footer?: ComponentType;
+  };
+
+  /** Mapa de slots que devem substituir o wrapper semântico (replace=true) */
+  replaceWrappers?: {
+    navbar?: boolean;
+    sidebar?: boolean;
+    companion?: boolean;
+    breadcrumb?: boolean;
+    footer?: boolean;
   };
 }

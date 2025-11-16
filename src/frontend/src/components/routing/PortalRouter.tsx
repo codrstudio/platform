@@ -4,6 +4,7 @@
 import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { Suspense } from 'react';
 import { usePortal } from '@/hooks/jqel/usePortal';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { Loader2 } from 'lucide-react';
 import { PortalDefaultView } from '@/components/portal/PortalDefaultView';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
@@ -123,6 +124,9 @@ function PortalContent({ portalId }: { portalId: string }) {
   const { data: portalResult, isLoading, error } = usePortal(portalId);
 
   const portal = portalResult?.data?.[0] || null;
+
+  // Update document title with portal name
+  useDocumentTitle(portal?.name);
 
   if (isLoading) {
     return (

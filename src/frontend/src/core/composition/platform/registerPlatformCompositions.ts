@@ -9,17 +9,23 @@ import { compositionRegistry } from '../CompositionRegistry';
  */
 export function registerPlatformCompositions() {
   // Composição 'default'
-  // Layout mais simples, apenas breadcrumb e conteúdo
+  // Layout com TODOS os slots disponíveis para configuração
+  // Por padrão, apenas breadcrumb tem componente pré-selecionado
   compositionRegistry.register({
     id: 'default',
     name: 'Default Layout',
     providedBy: 'platform',
     slots: {
-      breadcrumb: true,
-      desktop: true,
+      navbar: true,      // Disponível para configuração
+      sidebar: true,     // Disponível para configuração
+      breadcrumb: true,  // Disponível (com componente pré-selecionado)
+      desktop: true,     // Sempre obrigatório
+      companion: true,   // Disponível para configuração
+      footer: true,      // Disponível para configuração
     },
     components: {
-      breadcrumb: 'portal-breadcrumb',
+      breadcrumb: 'portal-breadcrumb',  // Único com componente padrão
+      // Outros slots sem componente (usuário configura via editor)
     },
     layout: {
       width: 'md',
@@ -27,18 +33,23 @@ export function registerPlatformCompositions() {
   });
 
   // Composição 'settings'
-  // Layout para configurações com navbar adicional
+  // Layout com TODOS os slots disponíveis para configuração
+  // Por padrão, apenas breadcrumb tem componente pré-selecionado
   compositionRegistry.register({
     id: 'settings',
     name: 'Settings Layout',
     providedBy: 'platform',
     slots: {
-      navbar: true,
-      breadcrumb: true,
-      desktop: true,
+      navbar: true,      // Disponível para configuração
+      sidebar: true,     // Disponível para configuração
+      breadcrumb: true,  // Disponível (com componente pré-selecionado)
+      desktop: true,     // Sempre obrigatório
+      companion: true,   // Disponível para configuração
+      footer: true,      // Disponível para configuração
     },
     components: {
-      breadcrumb: 'portal-breadcrumb',
+      breadcrumb: 'portal-breadcrumb',  // Único com componente padrão
+      // Outros slots sem componente (usuário configura via editor)
     },
     layout: {
       width: 'full',

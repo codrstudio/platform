@@ -22,6 +22,14 @@ export { slotComponentRegistry } from './SlotComponentRegistry';
 // Context e Hooks
 export { CompositionProvider, useComposition } from './CompositionContext';
 export { useCompositionArea } from './hooks/useCompositionArea';
+export { useResolvedComposition } from './hooks/useResolvedComposition';
+export {
+  useSaveCompositionConfig,
+  useDeleteCompositionConfig,
+  useCompositionConfig,
+  useCompositionConfigs,
+  type CompositionConfig,
+} from './hooks/useCompositionMutations';
 
 // Componentes
 export { Page } from './Page';

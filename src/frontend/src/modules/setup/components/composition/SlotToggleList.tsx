@@ -13,9 +13,10 @@ import {
   Navigation,
   PanelLeft,
   PanelRight,
-  Breadcrumb,
-  FootprintIcon,
-  Info
+  ChevronRight,
+  Footprints,
+  Info,
+  Monitor
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -49,7 +50,7 @@ const slotDefinitions = [
     key: 'breadcrumb' as const,
     label: 'Breadcrumb',
     description: 'Hierarchical navigation path',
-    icon: Breadcrumb,
+    icon: ChevronRight,
   },
   {
     key: 'companion' as const,
@@ -61,7 +62,7 @@ const slotDefinitions = [
     key: 'footer' as const,
     label: 'Footer',
     description: 'Content at the bottom',
-    icon: FootprintIcon,
+    icon: Footprints,
   },
 ];
 
@@ -151,6 +152,3 @@ export function SlotToggleList({ slots, onChange, disabled }: SlotToggleListProp
     </Card>
   );
 }
-
-// Fix for missing Monitor icon
-import { Monitor } from 'lucide-react';

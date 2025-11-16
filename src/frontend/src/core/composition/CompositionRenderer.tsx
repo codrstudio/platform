@@ -16,76 +16,112 @@ interface CompositionRendererProps {
 }
 
 /**
- * Renderiza uma composição de layout com HTML semântico
+ * Renderiza uma composição de layout com estrutura hierárquica fixa
  *
- * Renderiza slots condicionalmente baseado na configuração da composição:
- * - navbar (nav)
- * - sidebar (aside)
- * - breadcrumb (nav)
- * - main-content (article) - sempre presente
- * - companion (aside)
- * - footer (footer)
+ * Hierarquia (áreas sem componente não são renderizadas):
+ * - site (root)
+ *   - sidebar (opcional)
+ *   - main-area
+ *     - header (opcional)
+ *     - common-area
+ *       - content-area
+ *         - breadcrumb (opcional)
+ *         - desktop (children - sempre presente)
+ *         - bottom-bar (footer, opcional)
+ *       - companion (opcional)
  *
- * Cada slot tem um ID padronizado para acesso programático via DOM.
- * Aplica layout width conforme configuração ou override.
+ * Componentes podem usar replace=true para substituir completamente o wrapper semântico.
  */
 export function CompositionRenderer({ composition, children, widthOverride }: CompositionRendererProps) {
-  const { slots, resolvedComponents, layout } = composition;
+  const { slots, resolvedComponents, layout, replaceWrappers = {} } = composition;
 
-  // Determina largura final (override > composição > padrão 'md')
+  // Determina largura final
   const finalWidth = widthOverride ?? layout.width ?? 'md';
-
-  // Mapeia largura para classes CSS completas (necessário para Tailwind JIT)
   const widthClassMap: Record<LayoutWidth, string> = {
     full: 'w-full',
     lg: 'max-w-screen-lg mx-auto',
     md: 'max-w-screen-md mx-auto',
     sm: 'max-w-screen-sm mx-auto',
   };
-
   const widthClass = widthClassMap[finalWidth];
 
+  // Verificar quais áreas têm componentes
+  const hasSidebar = slots.sidebar && resolvedComponents.sidebar;
+  const hasHeader = slots.navbar && resolvedComponents.navbar;
+  const hasBreadcrumb = slots.breadcrumb && resolvedComponents.breadcrumb;
+  const hasCompanion = slots.companion && resolvedComponents.companion;
+  const hasFooter = slots.footer && resolvedComponents.footer;
+
   return (
-    <div id="portal-root" className={widthClass}>
-      {/* Navbar - Barra de navegação superior */}
-      {slots.navbar && resolvedComponents.navbar && (
-        <nav id="navbar">
-          <resolvedComponents.navbar />
-        </nav>
-      )}
-
+    <div className={`${widthClass} ${hasSidebar ? 'flex min-h-screen' : ''}`}>
       {/* Sidebar - Barra lateral esquerda */}
-      {slots.sidebar && resolvedComponents.sidebar && (
-        <aside id="sidebar">
+      {hasSidebar && (
+        replaceWrappers.sidebar ? (
           <resolvedComponents.sidebar />
-        </aside>
+        ) : (
+          <aside className="flex-shrink-0">
+            <resolvedComponents.sidebar />
+          </aside>
+        )
       )}
 
-      {/* Breadcrumb - Navegação hierárquica */}
-      {slots.breadcrumb && resolvedComponents.breadcrumb && (
-        <nav id="breadcrumb" aria-label="breadcrumb" className="p-4">
-          <resolvedComponents.breadcrumb />
-        </nav>
-      )}
+      {/* Main Area - Área principal */}
+      <div className={hasSidebar ? 'flex-1 flex flex-col min-w-0' : 'flex flex-col min-h-screen'}>
+        {/* Header - Navegação superior */}
+        {hasHeader && (
+          replaceWrappers.navbar ? (
+            <resolvedComponents.navbar />
+          ) : (
+            <nav className="flex-shrink-0">
+              <resolvedComponents.navbar />
+            </nav>
+          )
+        )}
 
-      {/* Main Content - Conteúdo principal (sempre presente) */}
-      <article id="main-content">
-        {children}
-      </article>
+        {/* Common Area - Área comum (content + companion) */}
+        <div className={`flex-1 flex ${hasCompanion ? 'gap-4' : ''}`}>
+          {/* Content Area - Área de conteúdo */}
+          <div className="flex-1 flex flex-col min-w-0">
+            {/* Breadcrumb - Navegação hierárquica */}
+            {hasBreadcrumb && (
+              replaceWrappers.breadcrumb ? (
+                <resolvedComponents.breadcrumb />
+              ) : (
+                <nav className="flex-shrink-0" aria-label="breadcrumb">
+                  <resolvedComponents.breadcrumb />
+                </nav>
+              )
+            )}
 
-      {/* Companion - Barra lateral direita / área complementar */}
-      {slots.companion && resolvedComponents.companion && (
-        <aside id="companion">
-          <resolvedComponents.companion />
-        </aside>
-      )}
+            {/* Desktop - Conteúdo principal (sempre presente) */}
+            <main className="flex-1">
+              {children}
+            </main>
 
-      {/* Footer - Rodapé */}
-      {slots.footer && resolvedComponents.footer && (
-        <footer id="footer">
-          <resolvedComponents.footer />
-        </footer>
-      )}
+            {/* Bottom Bar - Barra inferior (footer) */}
+            {hasFooter && (
+              replaceWrappers.footer ? (
+                <resolvedComponents.footer />
+              ) : (
+                <footer className="flex-shrink-0">
+                  <resolvedComponents.footer />
+                </footer>
+              )
+            )}
+          </div>
+
+          {/* Companion - Área complementar direita */}
+          {hasCompanion && (
+            replaceWrappers.companion ? (
+              <resolvedComponents.companion />
+            ) : (
+              <aside className="flex-shrink-0">
+                <resolvedComponents.companion />
+              </aside>
+            )
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -109,145 +109,158 @@ export function PortalEdit() {
         </div>
       </div>
       {/* Form */}
-      <form onSubmit={handleSubmit}>
-        <Card>
-          <CardHeader>
-            <CardTitle>Informações Básicas</CardTitle>
-            <CardDescription>
-              Configure as informações principais do portal
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <TooltipProvider>
-              {/* Portal ID - Read only */}
-              <div className="grid grid-cols-[140px_1fr] items-center gap-4">
-                <Label htmlFor="portalId" className="text-right">
-                  Portal ID
-                </Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="portalId"
-                    value={portalId}
-                    disabled
-                    className="flex-1"
-                  />
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>O ID do portal não pode ser alterado</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-              </div>
-
-              {/* Name */}
-              <div className="grid grid-cols-[140px_1fr] items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Nome
-                </Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => handleChange('name', e.target.value)}
-                  placeholder="ex: Meu Portal"
-                  required
-                />
-              </div>
-
-              {/* Description */}
-              <div className="grid grid-cols-[140px_1fr] items-center gap-4">
-                <Label htmlFor="description" className="text-right">
-                  Descrição
-                </Label>
-                <Input
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => handleChange('description', e.target.value)}
-                  placeholder="Descrição do portal"
-                />
-              </div>
-
-              {/* Realm ID */}
-              <div className="grid grid-cols-[140px_1fr] items-center gap-4">
-                <div className="flex items-center justify-end gap-2">
-                  <Label htmlFor="realmId" className="text-right">
-                    Ambiente
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Left Column: Basic Information Form */}
+        <form onSubmit={handleSubmit}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Informações Básicas</CardTitle>
+              <CardDescription>
+                Configure as informações principais do portal
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <TooltipProvider>
+                {/* Portal ID - Read only */}
+                <div className="grid grid-cols-[140px_1fr] items-center gap-4">
+                  <Label htmlFor="portalId" className="text-right">
+                    Portal ID
                   </Label>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Ambiente ao qual este portal pertence</p>
-                      <p className="text-xs">(compartilha configurações como tema)</p>
-                    </TooltipContent>
-                  </Tooltip>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="portalId"
+                      value={portalId}
+                      disabled
+                      className="flex-1"
+                    />
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>O ID do portal não pode ser alterado</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Select
-                    value={formData.realmId}
-                    onValueChange={(value) => handleChange('realmId', value)}
-                    disabled={realmsLoading}
-                  >
-                    <SelectTrigger id="realmId" className="flex-1">
-                      <SelectValue placeholder="Selecione um ambiente" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {realms.map((realm) => (
-                        <SelectItem key={realm.realmId} value={realm.realmId}>
-                          {realm.name}
-                          {realm.description && (
-                            <span className="text-xs text-muted-foreground ml-2">
-                              ({realm.description})
-                            </span>
-                          )}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <RealmQuickCreate onRealmCreated={handleRealmCreated} />
+
+                {/* Name */}
+                <div className="grid grid-cols-[140px_1fr] items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    Nome
+                  </Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => handleChange('name', e.target.value)}
+                    placeholder="ex: Meu Portal"
+                    required
+                  />
                 </div>
-              </div>
-            </TooltipProvider>
-          </CardContent>
-        </Card>
-        {/* Actions */}
-        <div className="flex justify-end gap-4 mt-6">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate('/setup/portals')}
-          >
-            Cancelar
-          </Button>
-          <Button type="submit" disabled={isSaving}>
-            <Save className="h-4 w-4 mr-2" />
-            {isSaving ? 'Salvando...' : 'Salvar Alterações'}
-          </Button>
+
+                {/* Description */}
+                <div className="grid grid-cols-[140px_1fr] items-center gap-4">
+                  <Label htmlFor="description" className="text-right">
+                    Descrição
+                  </Label>
+                  <Input
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => handleChange('description', e.target.value)}
+                    placeholder="Descrição do portal"
+                  />
+                </div>
+
+                {/* Realm ID */}
+                <div className="grid grid-cols-[140px_1fr] items-center gap-4">
+                  <div className="flex items-center justify-end gap-2">
+                    <Label htmlFor="realmId" className="text-right">
+                      Ambiente
+                    </Label>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Ambiente ao qual este portal pertence</p>
+                        <p className="text-xs">(compartilha configurações como tema)</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Select
+                      value={formData.realmId}
+                      onValueChange={(value) => handleChange('realmId', value)}
+                      disabled={realmsLoading}
+                    >
+                      <SelectTrigger id="realmId" className="flex-1">
+                        <SelectValue placeholder="Selecione um ambiente" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {realms.map((realm) => (
+                          <SelectItem key={realm.realmId} value={realm.realmId}>
+                            {realm.name}
+                            {realm.description && (
+                              <span className="text-xs text-muted-foreground ml-2">
+                                ({realm.description})
+                              </span>
+                            )}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <RealmQuickCreate onRealmCreated={handleRealmCreated} />
+                  </div>
+                </div>
+              </TooltipProvider>
+            </CardContent>
+          </Card>
+          {/* Actions */}
+          <div className="flex justify-end gap-4 mt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate('/setup/portals')}
+            >
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={isSaving}>
+              <Save className="h-4 w-4 mr-2" />
+              {isSaving ? 'Salvando...' : 'Salvar Alterações'}
+            </Button>
+          </div>
+        </form>
+
+        {/* Right Column: Quick Access Cards */}
+        <div className="space-y-4">
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => navigate(`/setup/portals/${portalId}/theme`)}>
+            <CardHeader>
+              <CardTitle>Tema do Portal</CardTitle>
+              <CardDescription>
+                Configure cores e aparência personalizada
+              </CardDescription>
+            </CardHeader>
+          </Card>
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => navigate(`/setup/portals/${portalId}/modules`)}>
+            <CardHeader>
+              <CardTitle>Módulos Ativos</CardTitle>
+              <CardDescription>
+                Gerencie módulos e instâncias do portal
+              </CardDescription>
+            </CardHeader>
+          </Card>
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => navigate(`/setup/portals/${portalId}/compositions`)}>
+            <CardHeader>
+              <CardTitle>Composições</CardTitle>
+              <CardDescription>
+                Gerencie layouts e estruturas visuais
+              </CardDescription>
+            </CardHeader>
+          </Card>
         </div>
-      </form>
-      {/* Additional Actions */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="cursor-pointer hover:shadow-lg transition-shadow"
-          onClick={() => navigate(`/setup/portals/${portalId}/theme`)}>
-          <CardHeader>
-            <CardTitle>Tema do Portal</CardTitle>
-            <CardDescription>
-              Configure cores e aparência personalizada
-            </CardDescription>
-          </CardHeader>
-        </Card>
-        <Card className="cursor-pointer hover:shadow-lg transition-shadow"
-          onClick={() => navigate(`/setup/portals/${portalId}/modules`)}>
-          <CardHeader>
-            <CardTitle>Módulos Ativos</CardTitle>
-            <CardDescription>
-              Gerencie módulos e instâncias do portal
-            </CardDescription>
-          </CardHeader>
-        </Card>
       </div>
       </div>
     </Page>
