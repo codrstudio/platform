@@ -58,6 +58,7 @@ export const ACTIVE_MODULES = [
   'chatify',
   'blueprint',
   'sidebar',
+  'homepage',
 ] as const;
 
 // Module imports - keep in sync with ACTIVE_MODULES above
@@ -66,6 +67,7 @@ import './auth';
 import './chatify';
 import './blueprint';
 import './sidebar';
+import './homepage';
 // import './helpdesk';
 
 // Inactive modules (not in ACTIVE_MODULES):
@@ -75,7 +77,6 @@ import './sidebar';
 // import './dashboard';
 // import './export-components';
 // import './forms';
-// import './homepage';
 // import './journey';
 // import './kanban';
 // import './loading';

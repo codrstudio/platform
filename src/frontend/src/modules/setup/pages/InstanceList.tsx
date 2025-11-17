@@ -118,7 +118,7 @@ export function InstanceList() {
         </Button>
         <div className="flex-1">
           <h1 className="text-3xl font-bold tracking-tight">
-            Instâncias do Módulo
+            Instâncias do Módulo: {module?.name || moduleId}
           </h1>
           <p className="text-muted-foreground mt-2">
             {portal.name} - {moduleId}

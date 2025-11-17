@@ -15,6 +15,7 @@ import { useModule } from '@/hooks/jqel/useModule';
 import { toastError } from '@/lib/toast';
 import { moduleRegistry } from '@/core/modules';
 import { Page } from '@/core/composition';
+import { sanitizeConfig, isSerializable } from '@/lib/configSanitizer';
 export function InstanceForm() {
   const { portalId, moduleId, instanceId } = useParams<{ portalId: string; moduleId: string; instanceId?: string }>();
   const navigate = useNavigate();
@@ -63,7 +64,21 @@ export function InstanceForm() {
   const handleSave = async (configOverride?: Record<string, any>) => {
     try {
       // Use configOverride if provided, otherwise use formData.config
-      const configToSave = configOverride ?? formData.config;
+      const rawConfig = configOverride ?? formData.config;
+
+      // CRITICAL: Sanitize config to remove non-serializable data
+      // This prevents "Converting circular structure to JSON" errors
+      // that can occur when configs accidentally capture event handlers or DOM refs
+      const configToSave = sanitizeConfig(rawConfig);
+
+      // Validate that config is now serializable
+      if (!isSerializable(configToSave)) {
+        console.error('Config contains non-serializable data after sanitization:', configToSave);
+        toastError('Configuração inválida', {
+          description: 'A configuração contém dados que não podem ser salvos. Verifique o console para detalhes.'
+        });
+        return;
+      }
 
       if (isEdit) {
         await updateMutation.mutateAsync({
@@ -91,9 +106,18 @@ export function InstanceForm() {
       navigate(`/setup/portals/${portalId}/modules/${moduleId}/instances`);
     } catch (error) {
       console.error('Error saving instance:', error);
-      toastError('Erro ao salvar instância', {
-        description: 'Verifique o console para mais detalhes'
-      });
+
+      // Check if error is serialization-related
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes('circular') || errorMessage.includes('Converting')) {
+        toastError('Erro de serialização', {
+          description: 'A configuração contém referências circulares ou elementos DOM. Os dados foram sanitizados mas o erro persiste.'
+        });
+      } else {
+        toastError('Erro ao salvar instância', {
+          description: 'Verifique o console para mais detalhes'
+        });
+      }
     }
   };
   const handleConfigChange = (key: string, value: unknown) => {
@@ -292,7 +316,7 @@ export function InstanceForm() {
             Cancelar
           </Button>
           <Button
-            onClick={handleSave}
+            onClick={() => handleSave()}
             disabled={!formData.instanceId || createMutation.isPending || updateMutation.isPending}
           >
             {createMutation.isPending || updateMutation.isPending

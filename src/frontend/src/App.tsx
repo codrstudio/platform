@@ -26,15 +26,21 @@ initializePlatformCompositions();
 /**
  * TanStack Query Client Configuration
  * SPEC-DA-TQ-006 to SPEC-DA-TQ-007: Query client configuration
+ *
+ * Strategy: Network-First with offline fallback
+ * - Always tries network first when online
+ * - Falls back to cache when offline
+ * - Ensures fresh data in collaborative/multi-user environments
  */
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5,      // 5 minutes
-      gcTime: 1000 * 60 * 30,         // 30 minutes (formerly cacheTime)
+      staleTime: 1000 * 2,            // 2 seconds cache (balance freshness vs performance)
+      gcTime: 1000 * 60 * 30,         // 30 minutes garbage collection
       retry: 1,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: true,
+      refetchOnWindowFocus: true,     // Revalidate when window gains focus
+      refetchOnReconnect: true,       // Revalidate on reconnect
+      networkMode: 'online',          // Use cache only when offline
     },
     mutations: {
       retry: 0,

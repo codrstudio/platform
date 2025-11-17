@@ -8,6 +8,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { Loader2 } from 'lucide-react';
 import { PortalDefaultView } from '@/components/portal/PortalDefaultView';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
+import { PortalProvider } from '@/contexts/PortalContext';
 import { moduleRegistry } from '@/core/modules';
 
 interface PortalRouterProps {
@@ -26,16 +27,10 @@ function renderActiveModuleRoutes(activeModules: string[]) {
     const module = moduleRegistry.getModule(moduleId);
 
     if (!module) {
-      if (import.meta.env.DEV) {
-        console.warn(`[PortalRouter] Module "${moduleId}" not found in registry`);
-      }
       return;
     }
 
     if (!module.routes || module.routes.length === 0) {
-      if (import.meta.env.DEV) {
-        console.log(`[PortalRouter] Module "${moduleId}" has no routes`);
-      }
       return;
     }
 
@@ -157,7 +152,9 @@ function PortalContent({ portalId }: { portalId: string }) {
   // SPEC-TH-HC-014: Each portal gets its own ThemeProvider with its realmId
   return (
     <ThemeProvider realmId={portal.realmId || 'default'} portalId={portalId}>
-      <PortalContentInner portal={portal} />
+      <PortalProvider portalId={portalId}>
+        <PortalContentInner portal={portal} />
+      </PortalProvider>
     </ThemeProvider>
   );
 }
