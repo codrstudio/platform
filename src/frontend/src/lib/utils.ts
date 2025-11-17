@@ -4,3 +4,16 @@ import { twMerge } from "tailwind-merge"
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
+
+/**
+ * Converte string kebab-case para PascalCase
+ * @example kebabToPascal('home') => 'Home'
+ * @example kebabToPascal('help-circle') => 'HelpCircle'
+ * @example kebabToPascal('file-text') => 'FileText'
+ */
+export function kebabToPascal(str: string): string {
+  return str
+    .split('-')
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('');
+}

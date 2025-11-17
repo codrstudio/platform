@@ -59,10 +59,17 @@ function getIcon(iconName?: string): React.ComponentType<any> | null {
     return LucideIcons.Package;
   }
 
-  // Get icon from Lucide
-  const Icon = (LucideIcons as any)[iconName];
+  // Convert kebab-case to PascalCase
+  // e.g., "align-horizontal-distribute-start" -> "AlignHorizontalDistributeStart"
+  const pascalCaseName = iconName
+    .split('-')
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('');
+
+  // Get icon from Lucide (try PascalCase first, then original)
+  const Icon = (LucideIcons as any)[pascalCaseName] || (LucideIcons as any)[iconName];
   if (!Icon) {
-    console.warn(`Icon "${iconName}" not found in Lucide icons`);
+    console.warn(`Icon "${iconName}" (converted to "${pascalCaseName}") not found in Lucide icons`);
     return LucideIcons.HelpCircle;
   }
 

@@ -9,7 +9,7 @@
         {
           "id": "item-1763265199009",
           "label": "Home",
-          "icon": "home",
+          "icon": "Home",
           "route": "/",
           "children": []
         }
@@ -44,7 +44,7 @@
         {
           "id": "item-1763303772026",
           "label": "Google",
-          "icon": "globe",
+          "icon": "Globe",
           "route": "https://google.com/",
           "children": []
         }

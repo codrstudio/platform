@@ -18,34 +18,10 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { Search, X } from 'lucide-react'
+import { iconNames } from 'lucide-react/dynamic'
 import * as LucideIcons from 'lucide-react'
 
-/**
- * Lista de ícones disponíveis (nomes em kebab-case)
- * Extraída dinamicamente de lucide-react
- */
-const AVAILABLE_ICONS = (() => {
-  // Filtrar ícones (mesmo approach do IconSelector que funciona)
-  const icons = Object.keys(LucideIcons)
-    .filter(key => {
-      // Excluir apenas exports utilitários específicos
-      return (
-        key !== 'createLucideIcon' &&
-        key !== 'default' &&
-        typeof (LucideIcons as any)[key] === 'function'
-      )
-    })
-    .map(key => {
-      // Converter PascalCase para kebab-case
-      return key.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
-    })
-    .sort()
-
-  // Debug: Log total de ícones carregados
-  console.log(`[IconEmojiPicker] Loaded ${icons.length} icons from Lucide React`)
-
-  return icons
-})()
+// availableIcons movido para dentro do componente
 
 /**
  * Categorias de emojis
@@ -196,6 +172,16 @@ export function IconEmojiPicker({
   const triggerRef = useRef<HTMLButtonElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
 
+  // Carregar todos os ícones do Lucide usando lucide-react/dynamic (forma oficial)
+  const availableIcons = useMemo(() => {
+    const icons = iconNames.map(name => {
+      // iconNames já vem em PascalCase, converter para kebab-case
+      return name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
+    });
+    console.log(`[IconEmojiPicker] Loaded ${icons.length} icons from lucide-react/dynamic`);
+    return icons.sort();
+  }, [])
+
   // Debounce na busca (300ms)
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -240,9 +226,9 @@ export function IconEmojiPicker({
   // Filtrar ícones
   const filteredIcons = useMemo(() => {
     if (!debouncedSearch) {
-      return AVAILABLE_ICONS.slice(0, loadedCount)
+      return availableIcons.slice(0, loadedCount)
     }
-    const filtered = AVAILABLE_ICONS.filter(icon =>
+    const filtered = availableIcons.filter(icon =>
       icon.toLowerCase().includes(debouncedSearch.toLowerCase())
     )
     return filtered.slice(0, Math.min(200, loadedCount))
@@ -274,7 +260,7 @@ export function IconEmojiPicker({
 
   const currentItems = activeTab === 'icons' ? filteredIcons : filteredEmojis
   const totalAvailable = activeTab === 'icons'
-    ? (debouncedSearch ? AVAILABLE_ICONS.filter(i => i.toLowerCase().includes(debouncedSearch.toLowerCase())).length : AVAILABLE_ICONS.length)
+    ? (debouncedSearch ? availableIcons.filter(i => i.toLowerCase().includes(debouncedSearch.toLowerCase())).length : availableIcons.length)
     : (debouncedSearch ? EMOJI_CATEGORIES.filter(c => c.label.toLowerCase().includes(debouncedSearch.toLowerCase())).reduce((acc, c) => acc + c.emojis.length, 0) : getAllEmojis().length)
   const hasMore = currentItems.length < totalAvailable && currentItems.length < 200
 
@@ -363,7 +349,7 @@ export function IconEmojiPicker({
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  Ícones ({AVAILABLE_ICONS.length})
+                  Ícones ({availableIcons.length})
                 </button>
                 <button
                   type="button"

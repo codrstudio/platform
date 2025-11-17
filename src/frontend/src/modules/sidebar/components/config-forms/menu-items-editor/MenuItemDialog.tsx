@@ -21,7 +21,8 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { IconSelector } from './IconSelector';
+import { kebabToPascal } from '@/lib/utils';
+import { IconEmojiPicker } from '@/components/platform/IconEmojiPicker';
 import { SubmenuEditor } from './SubmenuEditor';
 import type { MenuItemDialogProps, MenuItem } from './types';
 
@@ -66,7 +67,8 @@ export function MenuItemDialog({
     onSave(formData);
   };
 
-  const PreviewIcon = formData.icon ? (LucideIcons as any)[formData.icon] : null;
+  // Preview icon (supports both PascalCase and kebab-case)
+  const PreviewIcon = formData.icon ? (LucideIcons as any)[kebabToPascal(formData.icon)] : null;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -133,12 +135,13 @@ export function MenuItemDialog({
               {/* Icon */}
               <div className="grid gap-2">
                 <Label>Ícone</Label>
-                <IconSelector
-                  value={formData.icon}
+                <IconEmojiPicker
+                  value={formData.icon || ''}
                   onChange={(icon) => setFormData({ ...formData, icon })}
+                  mode="icon"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Escolha um ícone do Lucide React
+                  Escolha um ícone
                 </p>
               </div>
 

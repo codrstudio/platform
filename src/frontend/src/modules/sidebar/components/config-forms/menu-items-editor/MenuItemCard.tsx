@@ -20,6 +20,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { Separator } from '@/components/ui/separator';
+import { kebabToPascal } from '@/lib/utils';
 import type { MenuItemCardProps } from './types';
 
 export function MenuItemCard({
@@ -47,9 +48,9 @@ export function MenuItemCard({
     opacity: isDragging ? 0.5 : 1,
   };
 
-  // Get Lucide icon component
+  // Get Lucide icon component (supports both PascalCase and kebab-case)
   const IconComponent = item.icon
-    ? (LucideIcons as any)[item.icon]
+    ? (LucideIcons as any)[kebabToPascal(item.icon)]
     : null;
 
   return (

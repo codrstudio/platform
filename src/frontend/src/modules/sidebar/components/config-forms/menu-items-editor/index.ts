@@ -8,7 +8,6 @@ export { MenuItemsEditor } from './MenuItemsEditor';
 export { MenuItemCard } from './MenuItemCard';
 export { MenuItemDialog } from './MenuItemDialog';
 export { SubmenuEditor } from './SubmenuEditor';
-export { IconSelector } from './IconSelector';
 
 export type {
   MenuItem,

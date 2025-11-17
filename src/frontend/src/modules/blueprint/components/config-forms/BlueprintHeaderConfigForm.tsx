@@ -39,8 +39,7 @@ import {
   defaultBlueprintHeaderConfig,
 } from '../../schemas/slotConfigSchemas';
 
-// Import icon selector component (to be created)
-import { IconSelector } from './IconSelector';
+import { IconEmojiPicker } from '@/components/platform/IconEmojiPicker';
 
 export function BlueprintHeaderConfigForm({
   slotType,
@@ -392,9 +391,10 @@ function MenuItemEditor({
 
             <div className="grid gap-2">
               <Label htmlFor={`icon-${index}`}>Icon</Label>
-              <IconSelector
-                value={item.icon}
+              <IconEmojiPicker
+                value={item.icon || ''}
                 onChange={(icon) => onUpdate({ icon })}
+                mode="icon"
               />
             </div>
 

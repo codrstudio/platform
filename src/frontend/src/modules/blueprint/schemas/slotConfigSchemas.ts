@@ -54,10 +54,10 @@ export type BlueprintSidebarConfig = z.infer<typeof blueprintSidebarConfigSchema
  */
 export const defaultBlueprintHeaderConfig: BlueprintHeaderConfig = {
   menuItems: [
-    { id: 'home', label: 'Início', icon: 'Home', href: '#' },
-    { id: 'docs', label: 'Documentação', icon: 'FileText', href: '#' },
-    { id: 'settings', label: 'Configurações', icon: 'Settings', href: '#' },
-    { id: 'about', label: 'Sobre', icon: 'Info', href: '#' },
+    { id: 'home', label: 'Início', icon: 'home', href: '#' },
+    { id: 'docs', label: 'Documentação', icon: 'file-text', href: '#' },
+    { id: 'settings', label: 'Configurações', icon: 'settings', href: '#' },
+    { id: 'about', label: 'Sobre', icon: 'info', href: '#' },
   ],
   showBrandLogo: true,
   showThemeToggle: true,
@@ -66,10 +66,10 @@ export const defaultBlueprintHeaderConfig: BlueprintHeaderConfig = {
 
 export const defaultBlueprintSidebarConfig: BlueprintSidebarConfig = {
   menuItems: [
-    { id: 'home', label: 'Início', icon: 'Home', href: '#' },
-    { id: 'docs', label: 'Documentação', icon: 'FileText', href: '#' },
-    { id: 'settings', label: 'Configurações', icon: 'Settings', href: '#' },
-    { id: 'about', label: 'Sobre', icon: 'Info', href: '#' },
+    { id: 'home', label: 'Início', icon: 'home', href: '#' },
+    { id: 'docs', label: 'Documentação', icon: 'file-text', href: '#' },
+    { id: 'settings', label: 'Configurações', icon: 'settings', href: '#' },
+    { id: 'about', label: 'Sobre', icon: 'info', href: '#' },
   ],
   width: 'md',
   collapsible: true,

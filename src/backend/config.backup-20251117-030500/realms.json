@@ -1,0 +1,28 @@
+{
+  "realms": {
+    "default": {
+      "realmId": "default",
+      "name": "Padrão",
+      "description": "Ambiente padrão da plataforma",
+      "removable": false,
+      "config": {
+        "theme": {
+          "mode": "system",
+          "brandColor": "24 99% 58%"
+        }
+      }
+    },
+    "sandbox": {
+      "realmId": "sandbox",
+      "name": "Sandbox",
+      "description": "Ambiente de Estudos",
+      "removable": true,
+      "config": {
+        "theme": {
+          "mode": "system",
+          "brandColor": "160 84% 39%"
+        }
+      }
+    }
+  }
+}

@@ -37,7 +37,7 @@ import {
   defaultBlueprintSidebarConfig,
 } from '../../schemas/slotConfigSchemas';
 
-import { IconSelector } from './IconSelector';
+import { IconEmojiPicker } from '@/components/platform/IconEmojiPicker';
 
 const widthOptions = [
   { value: 'sm', label: 'Small', description: '200px', preview: 'w-1/5' },
@@ -414,9 +414,10 @@ function MenuItemEditor({
 
             <div className="grid gap-2">
               <Label htmlFor={`icon-${index}`}>Icon</Label>
-              <IconSelector
-                value={item.icon}
+              <IconEmojiPicker
+                value={item.icon || ''}
                 onChange={(icon) => onUpdate({ icon })}
+                mode="icon"
               />
             </div>
 

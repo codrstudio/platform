@@ -2,26 +2,44 @@
   "route": "/",
   "sections": [
     {
-      "id": "section-1763352609574",
-      "enabled": true,
-      "type": "hero",
-      "title": "Bem-vindo",
-      "subtitle": "Subtítulo da seção hero",
-      "cta": []
-    },
-    {
       "id": "section-1763352612020",
       "enabled": true,
       "type": "cards",
       "title": "Cards",
-      "items": []
+      "items": [
+        {
+          "title": "Home",
+          "description": "Página inicial",
+          "icon": "home"
+        },
+        {
+          "title": "Novo Card",
+          "description": "Descrição do card",
+          "icon": "star"
+        },
+        {
+          "title": "Novo Card",
+          "description": "Descrição do card",
+          "icon": "amphora"
+        }
+      ]
     },
     {
-      "id": "section-1763352614413",
+      "id": "section-1763359604048",
       "enabled": true,
-      "type": "faq",
-      "title": "FAQ",
-      "items": []
+      "type": "quickLinks",
+      "title": "Links Rápidos",
+      "items": [
+        {
+          "label": "Home",
+          "link": {
+            "type": "relative",
+            "route": "/"
+          },
+          "description": "Descrição do link",
+          "icon": "Link"
+        }
+      ]
     }
   ],
   "animations": {

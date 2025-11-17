@@ -28,17 +28,17 @@
       "columns": 3,
       "items": [
         {
-          "icon": "zap",
+          "icon": "Zap",
           "title": "Rápido",
           "description": "Performance otimizada"
         },
         {
-          "icon": "shield",
+          "icon": "Shield",
           "title": "Seguro",
           "description": "Proteção de dados"
         },
         {
-          "icon": "heart",
+          "icon": "Heart",
           "title": "Fácil de usar",
           "description": "Interface intuitiva"
         }
@@ -53,17 +53,17 @@
         {
           "label": "Documentação",
           "url": "/docs",
-          "icon": "book"
+          "icon": "Book"
         },
         {
           "label": "Suporte",
           "url": "/support",
-          "icon": "help-circle"
+          "icon": "HelpCircle"
         },
         {
           "label": "API",
           "url": "/api",
-          "icon": "code"
+          "icon": "Code"
         }
       ]
     },

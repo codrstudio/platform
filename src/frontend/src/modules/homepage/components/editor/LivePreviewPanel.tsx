@@ -1,21 +1,21 @@
 /**
  * Live Preview Panel Component
  *
- * Displays live preview of homepage while editing.
- * Renders HomePage component with current editing config.
+ * Displays live preview of homepage sections while editing.
+ * Renders sections directly from config (não usa HomePage).
  *
  * Features:
  * - Real-time preview of changes
- * - Highlight selected section
+ * - Click on sections to select them
  * - Responsive preview modes (desktop/tablet/mobile)
- * - Isolated rendering context
+ * - Isolated rendering per section
  *
  * @module homepage/components/editor
  */
 
 import { useState, useEffect, useRef } from 'react'
 import type { HomepageConfig } from '../../types'
-import { HomePage } from '../../pages/HomePage'
+import { PreviewSection } from './PreviewSection'
 import { Button } from '@/components/ui/button'
 import { Monitor, Tablet, Smartphone } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -27,8 +27,11 @@ export interface LivePreviewPanelProps {
   /** Portal ID for context */
   portalId: string
 
-  /** Index of section to highlight */
-  highlightedSectionIndex: number | null
+  /** Index of selected section */
+  selectedSectionIndex: number | null
+
+  /** Callback when section is selected */
+  onSelectSection: (index: number | null) => void
 }
 
 /**
@@ -44,19 +47,20 @@ type PreviewMode = 'desktop' | 'tablet' | 'mobile'
 export function LivePreviewPanel({
   config,
   portalId,
-  highlightedSectionIndex,
+  selectedSectionIndex,
+  onSelectSection,
 }: LivePreviewPanelProps) {
   const [previewMode, setPreviewMode] = useState<PreviewMode>('desktop')
   const previewContainerRef = useRef<HTMLDivElement>(null)
 
   /**
-   * Scroll to highlighted section when selection changes
+   * Scroll to selected section when selection changes
    */
   useEffect(() => {
-    if (highlightedSectionIndex !== null && previewContainerRef.current) {
+    if (selectedSectionIndex !== null && previewContainerRef.current) {
       // Encontrar o elemento da seção no preview
       const sectionElement = previewContainerRef.current.querySelector(
-        `[data-section-index="${highlightedSectionIndex}"]`
+        `[data-section-index="${selectedSectionIndex}"]`
       )
 
       if (sectionElement) {
@@ -67,7 +71,7 @@ export function LivePreviewPanel({
         })
       }
     }
-  }, [highlightedSectionIndex])
+  }, [selectedSectionIndex])
 
   /**
    * Get container width based on preview mode
@@ -80,6 +84,18 @@ export function LivePreviewPanel({
         return 'max-w-[768px] mx-auto'
       case 'mobile':
         return 'max-w-[375px] mx-auto'
+    }
+  }
+
+  /**
+   * Handle section click
+   */
+  const handleSectionClick = (index: number) => {
+    // Toggle selection: if already selected, deselect
+    if (selectedSectionIndex === index) {
+      onSelectSection(null)
+    } else {
+      onSelectSection(index)
     }
   }
 
@@ -128,13 +144,29 @@ export function LivePreviewPanel({
         <div className={cn('transition-all duration-300', getPreviewWidth())}>
           {/* Preview Container with device frame simulation */}
           <div className="bg-background rounded-lg shadow-lg overflow-hidden">
-            {/* Render HomePage with editing config */}
-            <HomePage
-              config={config}
-              portalId={portalId}
-              previewMode={true}
-              highlightedSectionIndex={highlightedSectionIndex}
-            />
+            {/* Render sections directly from config */}
+            {config.sections && config.sections.length > 0 ? (
+              config.sections.map((section, index) => (
+                <PreviewSection
+                  key={`preview-section-${index}-${section.id || section.type}`}
+                  section={section}
+                  index={index}
+                  isSelected={selectedSectionIndex === index}
+                  onSelect={() => handleSectionClick(index)}
+                  portalId={portalId}
+                  instanceId="default"
+                />
+              ))
+            ) : (
+              <div className="p-12 text-center">
+                <p className="text-muted-foreground">
+                  Nenhuma seção adicionada ainda.
+                </p>
+                <p className="text-sm text-muted-foreground/70 mt-2">
+                  Clique no botão "+" para adicionar sua primeira seção.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Preview Info */}

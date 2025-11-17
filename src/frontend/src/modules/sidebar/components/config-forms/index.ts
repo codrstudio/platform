@@ -12,4 +12,3 @@ export { MenuItemsEditor } from './menu-items-editor';
 export { MenuItemDialog } from './menu-items-editor/MenuItemDialog';
 export { MenuItemCard } from './menu-items-editor/MenuItemCard';
 export { SubmenuEditor } from './menu-items-editor/SubmenuEditor';
-export { IconSelector } from './menu-items-editor/IconSelector';

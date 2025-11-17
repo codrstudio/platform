@@ -1,0 +1,50 @@
+[
+  {
+    "portalId": "main",
+    "name": "Portal Principal",
+    "description": "Portal principal da plataforma",
+    "realmId": "default",
+    "availableModules": [],
+    "activeModules": [],
+    "removable": false,
+    "homepage": {
+      "type": "none"
+    },
+    "metadata": {}
+  },
+  {
+    "portalId": "setup",
+    "name": "Setup",
+    "realmId": "default",
+    "availableModules": [
+      "setup"
+    ],
+    "activeModules": [
+      "setup"
+    ],
+    "removable": true,
+    "metadata": {}
+  },
+  {
+    "portalId": "sandbox",
+    "name": "Sandbox",
+    "description": "",
+    "realmId": "sandbox",
+    "availableModules": [
+      "blueprint",
+      "auth",
+      "sidebar",
+      "homepage"
+    ],
+    "activeModules": [
+      "blueprint",
+      "sidebar",
+      "homepage"
+    ],
+    "removable": true,
+    "homepage": {
+      "type": "none"
+    },
+    "metadata": {}
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "route": "/",
+  "sections": [
+    {
+      "id": "section-1763352612020",
+      "enabled": true,
+      "type": "cards",
+      "title": "Cards",
+      "items": [
+        {
+          "title": "Card de Teste 1",
+          "description": "Descrição do card de teste",
+          "icon": "user"
+        },
+        {
+          "title": "Novo Card",
+          "description": "Descrição do card",
+          "icon": "star"
+        }
+      ]
+    }
+  ],
+  "animations": {
+    "intensity": "normal",
+    "enableAnimations": true
+  },
+  "integrations": {
+    "auth": {
+      "showLoginButton": false
+    }
+  }
+}

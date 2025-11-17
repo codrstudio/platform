@@ -1,0 +1,48 @@
+[
+  {
+    "id": "sandbox-default",
+    "portalId": "sandbox",
+    "baseCompositionId": "default",
+    "name": "Default Layout",
+    "components": {
+      "sidebar": "blueprint-sidebar"
+    },
+    "slotConfigs": {
+      "portal-breadcrumb": {},
+      "blueprint-header": {},
+      "sidebar-main": {}
+    },
+    "layout": {
+      "width": "sm"
+    }
+  },
+  {
+    "id": "sandbox-settings",
+    "portalId": "sandbox",
+    "baseCompositionId": "settings",
+    "name": "Settings Layout",
+    "components": {
+      "breadcrumb": "portal-breadcrumb",
+      "navbar": "blueprint-header",
+      "sidebar": "sidebar-main"
+    },
+    "slotConfigs": {
+      "blueprint-sidebar": {}
+    },
+    "layout": {
+      "width": "lg"
+    }
+  },
+  {
+    "id": "sandbox-blueprint-with-sidebar",
+    "portalId": "sandbox",
+    "baseCompositionId": "blueprint-with-sidebar",
+    "name": "Blueprint com Sidebar",
+    "components": {
+      "breadcrumb": "portal-breadcrumb"
+    },
+    "slotConfigs": {
+      "blueprint-sidebar": {}
+    }
+  }
+]

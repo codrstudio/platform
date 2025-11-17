@@ -341,7 +341,8 @@ function HomepageVisualEditorInner({
                 <LivePreviewPanel
                   config={editingConfig}
                   portalId={portalId}
-                  highlightedSectionIndex={selectedSectionIndex}
+                  selectedSectionIndex={selectedSectionIndex}
+                  onSelectSection={setSelectedSectionIndex}
                 />
               </div>
             </ResizablePanel>

@@ -1,0 +1,247 @@
+[
+  {
+    "moduleId": "setup",
+    "name": "Setup",
+    "description": "Módulo de configuração inicial da plataforma",
+    "type": "functionality",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "singleInstance": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "auth",
+    "name": "Autenticação",
+    "description": "Módulo de autenticação com login/logout",
+    "type": "functionality",
+    "dependencies": [],
+    "version": "2.0.0",
+    "enabled": true,
+    "singleInstance": true,
+    "metadata": {
+      "configSchema": {
+        "allowedRoles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "label": "Papéis Permitidos",
+          "description": "Liste os papéis que podem acessar este portal. Deixe vazio para permitir qualquer usuário autenticado.",
+          "ui": "tag-input",
+          "default": []
+        }
+      }
+    }
+  },
+  {
+    "moduleId": "chatify",
+    "name": "Chatify",
+    "description": "Sistema de mensagens em tempo real (versão atualizada)",
+    "type": "functionality",
+    "dependencies": [
+      "auth"
+    ],
+    "version": "2.0.0",
+    "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "blueprint",
+    "name": "Blueprint",
+    "description": "Módulo de referência demonstrando padrões corretos",
+    "type": "functionality",
+    "category": "system",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "singleInstance": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "helpdesk",
+    "name": "Helpdesk",
+    "description": "Sistema de atendimento ao cliente (SAC) com gestão de tickets, categorias e clientes",
+    "type": "functionality",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "chat",
+    "name": "Chat",
+    "description": "Sistema de mensagens em tempo real (versão legada)",
+    "type": "functionality",
+    "dependencies": [
+      "auth"
+    ],
+    "version": "1.0.0",
+    "enabled": false,
+    "metadata": {}
+  },
+  {
+    "moduleId": "dashboard",
+    "name": "Dashboard",
+    "description": "Painel de visualização de dados e métricas",
+    "type": "functionality",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": false,
+    "metadata": {}
+  },
+  {
+    "moduleId": "tasks",
+    "name": "Tarefas",
+    "description": "Gestão de tarefas e projetos",
+    "type": "functionality",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": false,
+    "metadata": {}
+  },
+  {
+    "moduleId": "kanban",
+    "name": "Kanban",
+    "description": "Quadro Kanban para gestão visual de tarefas",
+    "type": "functionality",
+    "dependencies": [
+      "tasks"
+    ],
+    "version": "1.0.0",
+    "enabled": false,
+    "metadata": {}
+  },
+  {
+    "moduleId": "journey",
+    "name": "Jornada",
+    "description": "Módulo de jornada do usuário",
+    "type": "functionality",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": false,
+    "metadata": {}
+  },
+  {
+    "moduleId": "notifications",
+    "name": "Notificações",
+    "description": "Sistema de notificações e alertas",
+    "type": "functionality",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": false,
+    "metadata": {}
+  },
+  {
+    "moduleId": "homepage",
+    "name": "Home Page",
+    "description": "Beautiful, customizable landing pages with visual editor. Create homepages with Hero sections, Cards, Stats, FAQ, Newsletter, and more. Features JQEL datasource support, flexible navigation, and hybrid config storage.",
+    "type": "functionality",
+    "category": "core",
+    "dependencies": [],
+    "version": "2.0.0",
+    "enabled": true,
+    "metadata": {
+      "configSchema": {
+        "route": {
+          "type": "string",
+          "label": "Rota da Página",
+          "description": "Caminho da URL para acessar esta página (ex: \"/\", \"/home\")",
+          "required": true
+        },
+        "title": {
+          "type": "string",
+          "label": "Título da Página",
+          "description": "Título exibido na aba do navegador e para SEO",
+          "required": false
+        },
+        "enabled": {
+          "type": "boolean",
+          "label": "Página Ativa",
+          "description": "Ativar ou desativar esta página",
+          "required": true
+        }
+      }
+    }
+  },
+  {
+    "moduleId": "sidebar",
+    "name": "Sidebar",
+    "description": "Componente de barra lateral de navegação",
+    "type": "component",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": true,
+    "metadata": {}
+  },
+  {
+    "moduleId": "loading",
+    "name": "Loading",
+    "description": "Componentes de carregamento e feedback visual",
+    "type": "component",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": false,
+    "metadata": {}
+  },
+  {
+    "moduleId": "forms",
+    "name": "Forms",
+    "description": "Componentes de formulários reutilizáveis",
+    "type": "component",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": false,
+    "metadata": {}
+  },
+  {
+    "moduleId": "command-palette",
+    "name": "Command Palette",
+    "description": "Paleta de comandos para navegação rápida",
+    "type": "component",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": false,
+    "metadata": {}
+  },
+  {
+    "moduleId": "markbrowser",
+    "name": "Mark Browser",
+    "description": "Navegador de marcações e anotações",
+    "type": "functionality",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": false,
+    "metadata": {}
+  },
+  {
+    "moduleId": "media-components",
+    "name": "Media Components",
+    "description": "Componentes de mídia (imagens, vídeos, áudio)",
+    "type": "component",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": false,
+    "metadata": {}
+  },
+  {
+    "moduleId": "export-components",
+    "name": "Export Components",
+    "description": "Componentes para exportação de dados",
+    "type": "component",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": false,
+    "metadata": {}
+  },
+  {
+    "moduleId": "app-components",
+    "name": "App Components",
+    "description": "Componentes base da aplicação",
+    "type": "component",
+    "dependencies": [],
+    "version": "1.0.0",
+    "enabled": false,
+    "metadata": {}
+  }
+]
