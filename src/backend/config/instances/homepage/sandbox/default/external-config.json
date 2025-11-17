@@ -1,0 +1,175 @@
+{
+  "route": "/",
+  "sections": [
+    {
+      "id": "section-hero",
+      "type": "hero",
+      "enabled": true,
+      "title": "Bem-vindo ao Test Site",
+      "subtitle": "Testando todos os tipos de seção",
+      "description": "Esta página contém um exemplo de cada tipo de seção disponível",
+      "layout": "centered",
+      "backgroundEffect": "grid",
+      "ctaButtons": [
+        {
+          "label": "Começar",
+          "action": "link",
+          "target": "/start",
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "section-cards",
+      "type": "cards",
+      "enabled": true,
+      "title": "Recursos",
+      "subtitle": "Veja o que podemos oferecer",
+      "columns": 3,
+      "items": [
+        {
+          "icon": "Zap",
+          "title": "Rápido",
+          "description": "Performance otimizada"
+        },
+        {
+          "icon": "Shield",
+          "title": "Seguro",
+          "description": "Proteção de dados"
+        },
+        {
+          "icon": "Heart",
+          "title": "Fácil de usar",
+          "description": "Interface intuitiva"
+        }
+      ]
+    },
+    {
+      "id": "section-quicklinks",
+      "type": "quickLinks",
+      "enabled": true,
+      "title": "Links Rápidos",
+      "items": [
+        {
+          "label": "Documentação",
+          "url": "/docs",
+          "icon": "Book"
+        },
+        {
+          "label": "Suporte",
+          "url": "/support",
+          "icon": "HelpCircle"
+        },
+        {
+          "label": "API",
+          "url": "/api",
+          "icon": "Code"
+        }
+      ]
+    },
+    {
+      "id": "section-stats",
+      "type": "stats",
+      "enabled": true,
+      "title": "Números que Impressionam",
+      "items": [
+        {
+          "value": "10k+",
+          "label": "Usuários"
+        },
+        {
+          "value": "99.9%",
+          "label": "Uptime"
+        },
+        {
+          "value": "24/7",
+          "label": "Suporte"
+        }
+      ]
+    },
+    {
+      "id": "section-faq",
+      "type": "faq",
+      "enabled": true,
+      "title": "Perguntas Frequentes",
+      "items": [
+        {
+          "question": "Como começar?",
+          "answer": "É muito simples! Basta criar uma conta e seguir o tutorial."
+        },
+        {
+          "question": "Qual o preço?",
+          "answer": "Oferecemos planos a partir de R$ 29/mês."
+        },
+        {
+          "question": "Tem suporte?",
+          "answer": "Sim, oferecemos suporte 24/7 por email e chat."
+        }
+      ]
+    },
+    {
+      "id": "section-newsletter",
+      "type": "newsletter",
+      "enabled": true,
+      "title": "Fique por Dentro",
+      "subtitle": "Receba as últimas novidades no seu email"
+    },
+    {
+      "id": "section-footer",
+      "type": "footer",
+      "enabled": true,
+      "columns": [
+        {
+          "title": "Produto",
+          "links": [
+            {
+              "label": "Recursos",
+              "url": "/features"
+            },
+            {
+              "label": "Preços",
+              "url": "/pricing"
+            },
+            {
+              "label": "FAQ",
+              "url": "/faq"
+            }
+          ]
+        },
+        {
+          "title": "Empresa",
+          "links": [
+            {
+              "label": "Sobre",
+              "url": "/about"
+            },
+            {
+              "label": "Blog",
+              "url": "/blog"
+            },
+            {
+              "label": "Contato",
+              "url": "/contact"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section-cta",
+      "type": "cta",
+      "enabled": true,
+      "title": "Pronto para Começar?",
+      "description": "Junte-se a milhares de usuários satisfeitos"
+    }
+  ],
+  "animations": {
+    "intensity": "normal",
+    "enableAnimations": true
+  },
+  "integrations": {
+    "auth": {
+      "showLoginButton": false
+    }
+  }
+}

@@ -76,7 +76,8 @@
     "config": {
       "route": "/home",
       "title": "",
-      "enabled": true
+      "enabled": true,
+      "compositionId": "sandbox-default"
     },
     "active": true
   }

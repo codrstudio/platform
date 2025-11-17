@@ -37,15 +37,13 @@
       "homepage"
     ],
     "activeModules": [
-      "auth",
       "blueprint",
       "sidebar",
       "homepage"
     ],
     "removable": true,
     "homepage": {
-      "type": "subroute",
-      "value": "/ola"
+      "type": "none"
     },
     "metadata": {}
   }

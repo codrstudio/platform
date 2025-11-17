@@ -1,0 +1,36 @@
+{
+  "route": "/",
+  "sections": [
+    {
+      "id": "section-1763352609574",
+      "enabled": true,
+      "type": "hero",
+      "title": "Bem-vindo",
+      "subtitle": "Subtítulo da seção hero",
+      "cta": []
+    },
+    {
+      "id": "section-1763352612020",
+      "enabled": true,
+      "type": "cards",
+      "title": "Cards",
+      "items": []
+    },
+    {
+      "id": "section-1763352614413",
+      "enabled": true,
+      "type": "faq",
+      "title": "FAQ",
+      "items": []
+    }
+  ],
+  "animations": {
+    "intensity": "normal",
+    "enableAnimations": true
+  },
+  "integrations": {
+    "auth": {
+      "showLoginButton": false
+    }
+  }
+}
