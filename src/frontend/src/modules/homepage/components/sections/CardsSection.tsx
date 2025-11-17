@@ -113,7 +113,8 @@ export const CardsSection: React.FC<CardsSectionProps> = ({
             {config.title && (
               <motion.h2
                 initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5 }}
                 className="text-3xl md:text-4xl font-bold mb-4"
               >
@@ -123,7 +124,8 @@ export const CardsSection: React.FC<CardsSectionProps> = ({
             {config.subtitle && (
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className="text-lg text-muted-foreground max-w-2xl mx-auto"
               >
@@ -144,7 +146,7 @@ export const CardsSection: React.FC<CardsSectionProps> = ({
           initial={shouldAnimate ? 'hidden' : undefined}
           animate={shouldAnimate ? 'visible' : undefined}
         >
-          {config.items.map((item, index) => {
+          {config.items?.map((item, index) => {
             const CardWrapper = shouldAnimate ? motion.div : 'div';
             const wrapperProps = shouldAnimate ? { variants: itemVariants } : {};
 

@@ -302,7 +302,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
         {/* Stats Container */}
         <div className={getLayoutClass()}>
           {/* Static Stats */}
-          {config.items.map((stat, index) => (
+          {config.items?.map((stat, index) => (
             <StatItem
               key={`stat-${index}`}
               stat={stat}

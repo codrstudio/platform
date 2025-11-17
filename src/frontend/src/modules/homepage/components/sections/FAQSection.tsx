@@ -39,8 +39,9 @@ const FAQItem: React.FC<{
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
       className="border rounded-lg overflow-hidden"
     >
       <button
@@ -76,7 +77,8 @@ const FAQItem: React.FC<{
             initial={{ height: 0 }}
             animate={{ height: 'auto' }}
             exit={{ height: 0 }}
-            transition={{ duration: 0.3 }}
+            viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
             <div className="px-6 py-4 border-t">
@@ -238,8 +240,9 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
           {config.title && (
             <motion.h2
               initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.5 }}
               className="text-3xl md:text-4xl font-bold mb-4"
             >
               {config.title}
@@ -248,8 +251,9 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
           {config.subtitle && (
             <motion.p
               initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
               className="text-lg text-muted-foreground max-w-2xl mx-auto"
             >
               {config.subtitle}
@@ -349,8 +353,9 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
         {config.contactCTA && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
             className="mt-12 text-center p-6 bg-muted/30 rounded-lg"
           >
             <h3 className="text-lg font-semibold mb-2">

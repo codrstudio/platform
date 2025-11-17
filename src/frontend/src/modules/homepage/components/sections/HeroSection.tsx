@@ -211,7 +211,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {config.badge && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5 }}
               >
                 <span className={cn(
@@ -227,7 +228,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {config.title && (
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className={cn(
                   'font-bold tracking-tight',
@@ -246,7 +248,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {config.subtitle && (
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className={cn(
                   'text-muted-foreground max-w-3xl',
@@ -266,7 +269,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {config.description && (
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className={cn(
                   'text-muted-foreground max-w-2xl',
@@ -281,7 +285,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {config.actions && config.actions.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
                 className={cn(
                   'flex flex-wrap gap-4 mt-4',
@@ -306,7 +311,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {config.stats && config.stats.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
                 className={cn(
                   'grid gap-8 mt-8',
@@ -316,7 +322,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   config.stats.length > 4 && 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
                 )}
               >
-                {config.stats.map((stat, index) => (
+                {config.stats?.map((stat, index) => (
                   <div
                     key={`hero-stat-${index}`}
                     className={cn(

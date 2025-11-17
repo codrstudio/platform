@@ -160,7 +160,7 @@ export function FeaturesSection({ config }: FeaturesSectionProps) {
 
   // Renderizar items
   const renderItems = () => {
-    return config.items.map((item, index) => (
+    return config.items?.map((item, index) => (
       <FeatureCard key={`feature-${index}`} item={item} effect={config.cardEffect} />
     ));
   };

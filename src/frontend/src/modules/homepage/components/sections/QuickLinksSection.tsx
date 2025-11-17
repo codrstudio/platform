@@ -139,8 +139,9 @@ const QuickLinkItem: React.FC<{
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
     >
       <LinkHandler link={item.link} className="block">
         {content}
@@ -175,7 +176,8 @@ export const QuickLinksSection: React.FC<QuickLinksSectionProps> = ({
             {config.title && (
               <motion.h2
                 initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5 }}
                 className="text-3xl md:text-4xl font-bold mb-4"
               >
@@ -185,7 +187,8 @@ export const QuickLinksSection: React.FC<QuickLinksSectionProps> = ({
             {config.subtitle && (
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className="text-lg text-muted-foreground max-w-2xl mx-auto"
               >
@@ -197,7 +200,7 @@ export const QuickLinksSection: React.FC<QuickLinksSectionProps> = ({
 
         {/* Links Container */}
         <div className={getLayoutClass(layout, config.columns)}>
-          {config.items.map((item, index) => (
+          {config.items?.map((item, index) => (
             <QuickLinkItem
               key={`quick-link-${index}`}
               item={item}

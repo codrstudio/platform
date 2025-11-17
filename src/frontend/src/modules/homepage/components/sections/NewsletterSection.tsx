@@ -159,7 +159,8 @@ export const NewsletterSection: React.FC<NewsletterSectionProps> = ({
             {showIcon && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5 }}
                 className={cn(
                   'inline-flex items-center justify-center',
@@ -175,7 +176,8 @@ export const NewsletterSection: React.FC<NewsletterSectionProps> = ({
             {config.title && (
               <motion.h2
                 initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className={cn(
                   'text-3xl md:text-4xl font-bold mb-4',
@@ -190,7 +192,8 @@ export const NewsletterSection: React.FC<NewsletterSectionProps> = ({
             {config.subtitle && (
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className={cn(
                   'text-lg text-muted-foreground',
@@ -206,7 +209,8 @@ export const NewsletterSection: React.FC<NewsletterSectionProps> = ({
             {config.benefits && config.benefits.length > 0 && (
               <motion.ul
                 initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className={cn(
                   'mt-4 space-y-2',
@@ -226,8 +230,9 @@ export const NewsletterSection: React.FC<NewsletterSectionProps> = ({
           {/* Form */}
           <motion.div
             initial={{ opacity: 0, x: layout === 'split' ? 20 : 0 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
             className={cn(
               'mt-8',
               layout === 'split' && 'md:mt-0 md:flex-1',
