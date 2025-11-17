@@ -72,30 +72,6 @@ export const CardsSection: React.FC<CardsSectionProps> = ({
   const cardEffect = config.cardEffect || 'none';
   const cardVariant = config.cardVariant || 'default';
 
-  // Animation variants for container
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  // Animation variants for items
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: 'spring',
-        stiffness: 100,
-      },
-    },
-  };
-
   const shouldAnimate = config.animation !== 'none';
 
   return (
@@ -136,22 +112,43 @@ export const CardsSection: React.FC<CardsSectionProps> = ({
         )}
 
         {/* Cards Grid */}
-        <motion.div
+        <div
           className={cn(
             'grid',
             getGridColumns(columns),
             getGapClass(gap)
           )}
-          variants={shouldAnimate ? containerVariants : undefined}
-          initial={shouldAnimate ? 'hidden' : undefined}
-          animate={shouldAnimate ? 'visible' : undefined}
         >
           {config.items?.map((item, index) => {
-            const CardWrapper = shouldAnimate ? motion.div : 'div';
-            const wrapperProps = shouldAnimate ? { variants: itemVariants } : {};
+            // Generate unique key based on item content to prevent animation issues
+            const itemKey = `card-${index}-${item.title || ''}-${item.icon || ''}`;
+
+            if (shouldAnimate) {
+              return (
+                <motion.div
+                  key={itemKey}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 100,
+                    delay: index * 0.1,
+                  }}
+                  layout
+                >
+                  <DynamicFeatureCard
+                    item={item}
+                    columns={columns}
+                    variant={cardVariant}
+                    effect={cardEffect}
+                    index={index}
+                  />
+                </motion.div>
+              );
+            }
 
             return (
-              <CardWrapper key={`card-${index}`} {...wrapperProps}>
+              <div key={itemKey}>
                 <DynamicFeatureCard
                   item={item}
                   columns={columns}
@@ -159,13 +156,13 @@ export const CardsSection: React.FC<CardsSectionProps> = ({
                   effect={cardEffect}
                   index={index}
                 />
-              </CardWrapper>
+              </div>
             );
           })}
-        </motion.div>
+        </div>
 
         {/* Empty State */}
-        {config.items.length === 0 && (
+        {(config.items?.length ?? 0) === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground">No cards configured</p>
           </div>
