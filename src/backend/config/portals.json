@@ -28,23 +28,25 @@
   {
     "portalId": "sandbox",
     "name": "Sandbox",
+    "description": "",
     "realmId": "sandbox",
     "availableModules": [
       "blueprint",
       "auth",
-      "sidebar"
+      "sidebar",
+      "homepage"
     ],
     "activeModules": [
       "auth",
       "blueprint",
-      "sidebar"
+      "sidebar",
+      "homepage"
     ],
     "removable": true,
     "homepage": {
       "type": "subroute",
       "value": "/ola"
     },
-    "metadata": {},
-    "description": ""
+    "metadata": {}
   }
 ]

@@ -708,6 +708,115 @@ class ConfigService {
       throw error
     }
   }
+
+  // ============================================================
+  // EXTERNAL CONFIG FILE METHODS (Hybrid Storage)
+  // For large module instance configs stored separately
+  // Path: config/modules/:moduleId/:instanceId.json
+  // ============================================================
+
+  /**
+   * Ensure module directory exists
+   * Creates config/modules/:moduleId/ directory
+   */
+  private async ensureModuleDir(moduleId: string): Promise<void> {
+    const modulesDir = path.join(this.configDir, 'modules')
+    const moduleDir = path.join(modulesDir, moduleId)
+
+    if (!existsSync(modulesDir)) {
+      await fs.mkdir(modulesDir, { recursive: true })
+    }
+
+    if (!existsSync(moduleDir)) {
+      await fs.mkdir(moduleDir, { recursive: true })
+    }
+  }
+
+  /**
+   * Get external config file path
+   * Returns: config/modules/:moduleId/:instanceId.json
+   */
+  private getConfigFilePath(moduleId: string, instanceId: string): string {
+    return path.join(this.configDir, 'modules', moduleId, `${instanceId}.json`)
+  }
+
+  /**
+   * Load external config file
+   * Used for large instance configs stored separately
+   *
+   * @param moduleId - Module identifier
+   * @param instanceId - Instance identifier
+   * @returns Parsed config object, or null if file doesn't exist
+   */
+  async loadConfigFile(moduleId: string, instanceId: string): Promise<Record<string, any> | null> {
+    const filePath = this.getConfigFilePath(moduleId, instanceId)
+
+    try {
+      if (!existsSync(filePath)) {
+        return null
+      }
+
+      const content = await fs.readFile(filePath, 'utf-8')
+      return JSON.parse(content)
+    } catch (error) {
+      console.error(`Error loading config file for ${moduleId}/${instanceId}:`, error)
+      return null
+    }
+  }
+
+  /**
+   * Save external config file
+   * Creates module directory if needed
+   *
+   * @param moduleId - Module identifier
+   * @param instanceId - Instance identifier
+   * @param config - Configuration object to save
+   */
+  async saveConfigFile(moduleId: string, instanceId: string, config: Record<string, any>): Promise<void> {
+    await this.ensureModuleDir(moduleId)
+
+    const filePath = this.getConfigFilePath(moduleId, instanceId)
+
+    try {
+      const content = JSON.stringify(config, null, 2)
+      await fs.writeFile(filePath, content, 'utf-8')
+    } catch (error) {
+      console.error(`Error saving config file for ${moduleId}/${instanceId}:`, error)
+      throw error
+    }
+  }
+
+  /**
+   * Delete external config file
+   * Used when instance is deleted
+   *
+   * @param moduleId - Module identifier
+   * @param instanceId - Instance identifier
+   */
+  async deleteConfigFile(moduleId: string, instanceId: string): Promise<void> {
+    const filePath = this.getConfigFilePath(moduleId, instanceId)
+
+    try {
+      if (existsSync(filePath)) {
+        await fs.unlink(filePath)
+      }
+    } catch (error) {
+      console.error(`Error deleting config file for ${moduleId}/${instanceId}:`, error)
+      // Don't throw - deletion is best-effort
+    }
+  }
+
+  /**
+   * Check if external config file exists
+   *
+   * @param moduleId - Module identifier
+   * @param instanceId - Instance identifier
+   * @returns true if file exists
+   */
+  async configFileExists(moduleId: string, instanceId: string): Promise<boolean> {
+    const filePath = this.getConfigFilePath(moduleId, instanceId)
+    return existsSync(filePath)
+  }
 }
 
 // Singleton instance

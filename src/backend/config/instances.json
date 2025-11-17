@@ -68,5 +68,16 @@
       "checkPermissions": false
     },
     "active": true
+  },
+  {
+    "instanceId": "default",
+    "portalId": "sandbox",
+    "moduleId": "homepage",
+    "config": {
+      "route": "/home",
+      "title": "",
+      "enabled": true
+    },
+    "active": true
   }
 ]

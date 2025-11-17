@@ -19,7 +19,37 @@ export class InstanceEntity extends EntityHandler {
 
   async handleSelect(query: JQELSelectQuery): Promise<JResult> {
     const instances = await configService.getInstances()
-    const result = executeJQELQuery(instances, query)
+
+    // Resolve external config files (Hybrid Storage)
+    // If instance.config has { $ref: "modules/:moduleId/:instanceId.json" },
+    // load the external file and merge with instance
+    const resolvedInstances = await Promise.all(
+      instances.map(async (instance) => {
+        if (instance.config && typeof instance.config === 'object') {
+          const ref = (instance.config as any).$ref
+
+          if (typeof ref === 'string' && ref.startsWith('modules/')) {
+            // Load external config file
+            const externalConfig = await configService.loadConfigFile(
+              instance.moduleId,
+              instance.instanceId
+            )
+
+            if (externalConfig) {
+              // Merge external config with instance
+              return {
+                ...instance,
+                config: externalConfig,
+              }
+            }
+          }
+        }
+
+        return instance
+      })
+    )
+
+    const result = executeJQELQuery(resolvedInstances, query)
 
     return {
       code: 200,
@@ -152,6 +182,14 @@ export class InstanceEntity extends EntityHandler {
     const deleted = instances.length - remaining.length
 
     await configService.saveInstances(remaining)
+
+    // Auto-cleanup: Delete external config files for deleted instances
+    // This prevents orphaned files when instances are removed
+    await Promise.all(
+      matchingInstances.map(async (instance) => {
+        await configService.deleteConfigFile(instance.moduleId, instance.instanceId)
+      })
+    )
 
     return {
       code: 200,

@@ -13,6 +13,7 @@ import assetsRoutes from './routes/assets.routes.js'
 import manifestRoutes from './routes/manifest.routes.js'
 import agentRoutes from './routes/agent.routes.js'
 import modulesRoutes from './routes/modules.routes.js'
+import storageRoutes from './routes/storage.routes.js'
 import { cacheEpochMiddleware } from './middleware/cache-epoch.middleware.js'
 import { clearSiteDataMiddleware } from './middleware/clear-site-data.middleware.js'
 
@@ -94,6 +95,9 @@ app.use('/', manifestRoutes)
 
 // Modules routes - registered modules discovery
 app.use('/api/modules', modulesRoutes)
+
+// Storage routes - external config file management
+app.use('/api/storage', storageRoutes)
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

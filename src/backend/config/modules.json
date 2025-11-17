@@ -134,13 +134,35 @@
   },
   {
     "moduleId": "homepage",
-    "name": "Homepage",
-    "description": "Página inicial do portal",
+    "name": "Home Page",
+    "description": "Beautiful, customizable landing pages with visual editor. Create homepages with Hero sections, Cards, Stats, FAQ, Newsletter, and more. Features JQEL datasource support, flexible navigation, and hybrid config storage.",
     "type": "functionality",
+    "category": "core",
     "dependencies": [],
-    "version": "1.0.0",
-    "enabled": false,
-    "metadata": {}
+    "version": "2.0.0",
+    "enabled": true,
+    "metadata": {
+      "configSchema": {
+        "route": {
+          "type": "string",
+          "label": "Rota da Página",
+          "description": "Caminho da URL para acessar esta página (ex: \"/\", \"/home\")",
+          "required": true
+        },
+        "title": {
+          "type": "string",
+          "label": "Título da Página",
+          "description": "Título exibido na aba do navegador e para SEO",
+          "required": false
+        },
+        "enabled": {
+          "type": "boolean",
+          "label": "Página Ativa",
+          "description": "Ativar ou desativar esta página",
+          "required": true
+        }
+      }
+    }
   },
   {
     "moduleId": "sidebar",
