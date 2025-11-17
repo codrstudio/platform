@@ -81,8 +81,8 @@ export function FooterSectionForm({ section, onUpdate }: FooterSectionFormProps)
       ],
     }
 
-    const updatedGroups = [...(formData.linkGroups || []), newGroup]
-    updateField('linkGroups', updatedGroups)
+    const updatedGroups = [...(formData.groups || []), newGroup]
+    updateField('groups', updatedGroups)
   }
 
   /**
@@ -90,33 +90,33 @@ export function FooterSectionForm({ section, onUpdate }: FooterSectionFormProps)
    */
   const handleUpdateLinkGroup = (
     groupIndex: number,
-    updates: Partial<typeof formData.linkGroups[0]>
+    updates: Partial<typeof formData.groups[0]>
   ) => {
-    const updatedGroups = [...(formData.linkGroups || [])]
+    const updatedGroups = [...(formData.groups || [])]
     updatedGroups[groupIndex] = { ...updatedGroups[groupIndex], ...updates }
-    updateField('linkGroups', updatedGroups)
+    updateField('groups', updatedGroups)
   }
 
   /**
    * Delete link group
    */
   const handleDeleteLinkGroup = (groupIndex: number) => {
-    const updatedGroups = formData.linkGroups?.filter((_, i) => i !== groupIndex) || []
-    updateField('linkGroups', updatedGroups)
+    const updatedGroups = formData.groups?.filter((_, i) => i !== groupIndex) || []
+    updateField('groups', updatedGroups)
   }
 
   /**
    * Add link to group
    */
   const handleAddLink = (groupIndex: number) => {
-    const updatedGroups = [...(formData.linkGroups || [])]
+    const updatedGroups = [...(formData.groups || [])]
     const newLink = {
       label: 'Novo Link',
       link: { type: 'relative' as const, route: '/' },
     }
 
     updatedGroups[groupIndex].links = [...updatedGroups[groupIndex].links, newLink]
-    updateField('linkGroups', updatedGroups)
+    updateField('groups', updatedGroups)
   }
 
   /**
@@ -125,25 +125,25 @@ export function FooterSectionForm({ section, onUpdate }: FooterSectionFormProps)
   const handleUpdateLink = (
     groupIndex: number,
     linkIndex: number,
-    updates: Partial<typeof formData.linkGroups[0]['links'][0]>
+    updates: Partial<typeof formData.groups[0]['links'][0]>
   ) => {
-    const updatedGroups = [...(formData.linkGroups || [])]
+    const updatedGroups = [...(formData.groups || [])]
     updatedGroups[groupIndex].links[linkIndex] = {
       ...updatedGroups[groupIndex].links[linkIndex],
       ...updates,
     }
-    updateField('linkGroups', updatedGroups)
+    updateField('groups', updatedGroups)
   }
 
   /**
    * Delete link from group
    */
   const handleDeleteLink = (groupIndex: number, linkIndex: number) => {
-    const updatedGroups = [...(formData.linkGroups || [])]
+    const updatedGroups = [...(formData.groups || [])]
     updatedGroups[groupIndex].links = updatedGroups[groupIndex].links.filter(
       (_, i) => i !== linkIndex
     )
-    updateField('linkGroups', updatedGroups)
+    updateField('groups', updatedGroups)
   }
 
   /**
@@ -155,8 +155,8 @@ export function FooterSectionForm({ section, onUpdate }: FooterSectionFormProps)
       url: 'https://twitter.com/',
     }
 
-    const updatedSocials = [...(formData.socialLinks || []), newSocial]
-    updateField('socialLinks', updatedSocials)
+    const updatedSocials = [...(formData.social || []), newSocial]
+    updateField('social', updatedSocials)
   }
 
   /**
@@ -164,19 +164,19 @@ export function FooterSectionForm({ section, onUpdate }: FooterSectionFormProps)
    */
   const handleUpdateSocialLink = (
     index: number,
-    updates: Partial<typeof formData.socialLinks[0]>
+    updates: Partial<typeof formData.social[0]>
   ) => {
-    const updatedSocials = [...(formData.socialLinks || [])]
+    const updatedSocials = [...(formData.social || [])]
     updatedSocials[index] = { ...updatedSocials[index], ...updates }
-    updateField('socialLinks', updatedSocials)
+    updateField('social', updatedSocials)
   }
 
   /**
    * Delete social link
    */
   const handleDeleteSocialLink = (index: number) => {
-    const updatedSocials = formData.socialLinks?.filter((_, i) => i !== index) || []
-    updateField('socialLinks', updatedSocials)
+    const updatedSocials = formData.social?.filter((_, i) => i !== index) || []
+    updateField('social', updatedSocials)
   }
 
   return (
@@ -249,29 +249,13 @@ export function FooterSectionForm({ section, onUpdate }: FooterSectionFormProps)
             <Input
               id="logoSrc"
               type="url"
-              value={formData.logo?.src || ''}
-              onChange={(e) =>
-                updateField('logo', {
-                  ...formData.logo,
-                  src: e.target.value,
-                  alt: formData.logo?.alt || 'Logo',
-                })
-              }
+              value={formData.logo || ''}
+              onChange={(e) => updateField('logo', e.target.value)}
               placeholder="https://exemplo.com/logo.png"
             />
-          </div>
-
-          {/* Logo Alt */}
-          <div className="space-y-2">
-            <Label htmlFor="logoAlt">Texto Alternativo</Label>
-            <Input
-              id="logoAlt"
-              value={formData.logo?.alt || ''}
-              onChange={(e) =>
-                updateField('logo', { ...formData.logo, src: formData.logo?.src || '', alt: e.target.value })
-              }
-              placeholder="Logo da Empresa"
-            />
+            <p className="text-xs text-muted-foreground">
+              URL completa da imagem da logo
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -282,9 +266,9 @@ export function FooterSectionForm({ section, onUpdate }: FooterSectionFormProps)
           <CardTitle>Colunas de Links</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {formData.linkGroups && formData.linkGroups.length > 0 ? (
+          {formData.groups && formData.groups.length > 0 ? (
             <div className="space-y-4">
-              {formData.linkGroups.map((group, groupIndex) => (
+              {formData.groups.map((group, groupIndex) => (
                 <div key={groupIndex} className="border rounded-lg p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium">Coluna {groupIndex + 1}</Label>
@@ -381,9 +365,9 @@ export function FooterSectionForm({ section, onUpdate }: FooterSectionFormProps)
           <CardTitle>Redes Sociais</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {formData.socialLinks && formData.socialLinks.length > 0 ? (
+          {formData.social && formData.social.length > 0 ? (
             <div className="space-y-3">
-              {formData.socialLinks.map((social, index) => (
+              {formData.social.map((social, index) => (
                 <div key={index} className="border rounded-lg p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium">Rede Social {index + 1}</Label>

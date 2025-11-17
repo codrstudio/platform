@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Plus, Trash2 } from 'lucide-react'
+import { IconEmojiPicker } from '@/components/platform/IconEmojiPicker'
 
 export interface StatsSectionFormProps {
   /** Stats section being edited */
@@ -238,15 +239,13 @@ export function StatsSectionForm({ section, onUpdate }: StatsSectionFormProps) {
                   </div>
 
                   {/* Stat Icon */}
-                  <div className="space-y-2">
-                    <Label htmlFor={`stat-icon-${index}`}>Ícone (Lucide)</Label>
-                    <Input
-                      id={`stat-icon-${index}`}
-                      value={item.icon || ''}
-                      onChange={(e) => handleUpdateStat(index, { icon: e.target.value })}
-                      placeholder="Ex: TrendingUp, Users, Star"
-                    />
-                  </div>
+                  <IconEmojiPicker
+                    id={`stat-icon-${index}`}
+                    label="Ícone"
+                    value={item.icon || ''}
+                    onChange={(icon) => handleUpdateStat(index, { icon })}
+                    placeholder="trending-up"
+                  />
 
                   {/* Prefix & Suffix */}
                   <div className="grid grid-cols-2 gap-2">

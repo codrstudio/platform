@@ -31,6 +31,7 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Plus, Trash2 } from 'lucide-react'
+import { IconEmojiPicker } from '@/components/platform/IconEmojiPicker'
 
 export interface CardsSectionFormProps {
   /** Cards section being edited */
@@ -61,8 +62,10 @@ export function CardsSectionForm({ section, onUpdate }: CardsSectionFormProps) {
     field: K,
     value: CardsSectionConfig[K]
   ) => {
+    console.log(`[CardsSectionForm] updateField called: ${String(field)}`, value)
     const updated = { ...formData, [field]: value }
     setFormData(updated)
+    console.log('[CardsSectionForm] Calling onUpdate with:', updated)
     onUpdate(updated)
   }
 
@@ -70,13 +73,18 @@ export function CardsSectionForm({ section, onUpdate }: CardsSectionFormProps) {
    * Add card item
    */
   const handleAddCard = () => {
+    console.log('[CardsSectionForm] handleAddCard called')
+    console.log('[CardsSectionForm] Current items:', formData.items)
+
     const newCard = {
       title: 'Novo Card',
       description: 'Descrição do card',
-      icon: 'Star',
+      icon: 'star',
     }
 
     const updatedItems = [...(formData.items || []), newCard]
+    console.log('[CardsSectionForm] Updated items:', updatedItems)
+
     updateField('items', updatedItems)
   }
 
@@ -252,18 +260,13 @@ export function CardsSectionForm({ section, onUpdate }: CardsSectionFormProps) {
                   </div>
 
                   {/* Card Icon */}
-                  <div className="space-y-2">
-                    <Label htmlFor={`card-icon-${index}`}>Ícone (Lucide)</Label>
-                    <Input
-                      id={`card-icon-${index}`}
-                      value={item.icon || ''}
-                      onChange={(e) => handleUpdateCard(index, { icon: e.target.value })}
-                      placeholder="Ex: Star, Zap, Heart"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Nome do ícone do Lucide React
-                    </p>
-                  </div>
+                  <IconEmojiPicker
+                    id={`card-icon-${index}`}
+                    label="Ícone"
+                    value={item.icon || ''}
+                    onChange={(icon) => handleUpdateCard(index, { icon })}
+                    placeholder="star"
+                  />
 
                   {/* Back Content (for flip cards) */}
                   {formData.cardEffect === 'flip-hover' && (

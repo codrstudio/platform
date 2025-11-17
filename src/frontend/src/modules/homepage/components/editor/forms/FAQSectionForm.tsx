@@ -146,48 +146,49 @@ export function FAQSectionForm({ section, onUpdate }: FAQSectionFormProps) {
           <div className="space-y-2">
             <Label htmlFor="layout">Layout</Label>
             <Select
-              value={formData.layout || 'accordion'}
+              value={formData.layout || 'single'}
               onValueChange={(value) => updateField('layout', value as any)}
             >
               <SelectTrigger id="layout">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="accordion">Accordion</SelectItem>
-                <SelectItem value="cards">Cards</SelectItem>
+                <SelectItem value="single">Coluna Única</SelectItem>
+                <SelectItem value="two-column">Duas Colunas</SelectItem>
               </SelectContent>
             </Select>
+            <p className="text-xs text-muted-foreground">
+              Layout de exibição das perguntas
+            </p>
           </div>
 
-          {/* Allow Multiple (for accordion) */}
-          {formData.layout === 'accordion' && (
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="allowMultiple">Múltiplos Itens Abertos</Label>
-                <p className="text-xs text-muted-foreground">
-                  Permite abrir múltiplas perguntas ao mesmo tempo
-                </p>
-              </div>
-              <Switch
-                id="allowMultiple"
-                checked={formData.allowMultiple ?? false}
-                onCheckedChange={(checked) => updateField('allowMultiple', checked)}
-              />
-            </div>
-          )}
-
-          {/* Searchable */}
+          {/* Accordion Mode */}
           <div className="flex items-center justify-between">
             <div>
-              <Label htmlFor="searchable">Pesquisável</Label>
+              <Label htmlFor="accordion">Modo Accordion</Label>
+              <p className="text-xs text-muted-foreground">
+                Fecha automaticamente outras perguntas ao abrir uma nova
+              </p>
+            </div>
+            <Switch
+              id="accordion"
+              checked={formData.accordion ?? true}
+              onCheckedChange={(checked) => updateField('accordion', checked)}
+            />
+          </div>
+
+          {/* Show Search */}
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="showSearch">Barra de Pesquisa</Label>
               <p className="text-xs text-muted-foreground">
                 Adiciona barra de pesquisa para filtrar perguntas
               </p>
             </div>
             <Switch
-              id="searchable"
-              checked={formData.searchable ?? false}
-              onCheckedChange={(checked) => updateField('searchable', checked)}
+              id="showSearch"
+              checked={formData.showSearch ?? false}
+              onCheckedChange={(checked) => updateField('showSearch', checked)}
             />
           </div>
 

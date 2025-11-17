@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Plus, Trash2 } from 'lucide-react'
+import { IconEmojiPicker } from '@/components/platform/IconEmojiPicker'
 
 export interface QuickLinksSectionFormProps {
   /** Quick Links section being edited */
@@ -257,15 +258,13 @@ export function QuickLinksSectionForm({ section, onUpdate }: QuickLinksSectionFo
 
                   {/* Link Icon */}
                   {formData.showIcons && (
-                    <div className="space-y-2">
-                      <Label htmlFor={`link-icon-${index}`}>Ícone (Lucide)</Label>
-                      <Input
-                        id={`link-icon-${index}`}
-                        value={item.icon || ''}
-                        onChange={(e) => handleUpdateLink(index, { icon: e.target.value })}
-                        placeholder="Ex: FileText, Settings, User"
-                      />
-                    </div>
+                    <IconEmojiPicker
+                      id={`link-icon-${index}`}
+                      label="Ícone"
+                      value={item.icon || ''}
+                      onChange={(icon) => handleUpdateLink(index, { icon })}
+                      placeholder="link"
+                    />
                   )}
 
                   {/* Link Type */}

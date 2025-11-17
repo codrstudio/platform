@@ -72,29 +72,29 @@ export function HeroSectionForm({ section, onUpdate }: HeroSectionFormProps) {
   const handleAddCTA = () => {
     const newCTA = {
       label: 'Novo Botão',
-      action: 'link' as const,
+      link: { type: 'relative' as const, route: '/' },
       variant: 'default' as const,
     }
 
-    const updatedCTAs = [...(formData.ctaButtons || []), newCTA]
-    updateField('ctaButtons', updatedCTAs)
+    const updatedCTAs = [...(formData.actions || []), newCTA]
+    updateField('actions', updatedCTAs)
   }
 
   /**
    * Update CTA button
    */
-  const handleUpdateCTA = (index: number, updates: Partial<typeof formData.ctaButtons[0]>) => {
-    const updatedCTAs = [...(formData.ctaButtons || [])]
+  const handleUpdateCTA = (index: number, updates: Partial<typeof formData.actions[0]>) => {
+    const updatedCTAs = [...(formData.actions || [])]
     updatedCTAs[index] = { ...updatedCTAs[index], ...updates }
-    updateField('ctaButtons', updatedCTAs)
+    updateField('actions', updatedCTAs)
   }
 
   /**
    * Delete CTA button
    */
   const handleDeleteCTA = (index: number) => {
-    const updatedCTAs = formData.ctaButtons?.filter((_, i) => i !== index) || []
-    updateField('ctaButtons', updatedCTAs)
+    const updatedCTAs = formData.actions?.filter((_, i) => i !== index) || []
+    updateField('actions', updatedCTAs)
   }
 
   return (
@@ -230,9 +230,9 @@ export function HeroSectionForm({ section, onUpdate }: HeroSectionFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {/* CTA List */}
-          {formData.ctaButtons && formData.ctaButtons.length > 0 ? (
+          {formData.actions && formData.actions.length > 0 ? (
             <div className="space-y-3">
-              {formData.ctaButtons.map((cta, index) => (
+              {formData.actions.map((cta, index) => (
                 <div key={index} className="border rounded-lg p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium">Botão {index + 1}</Label>
