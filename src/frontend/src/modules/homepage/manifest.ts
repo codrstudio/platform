@@ -3,11 +3,41 @@ import type { ModuleManifest } from '@/types/module';
 export const manifest: ModuleManifest = {
   id: 'homepage',
   name: 'Home Page',
-  version: '1.0.0',
+  version: '2.0.0',
   type: 'functionality',
-  description: 'Beautiful, animated landing page with customizable sections (Hero, Features, Portals, CTA) and professional animations',
+  description: 'Beautiful, customizable landing pages with visual editor. Create homepages with Hero sections, Cards, Stats, FAQ, Newsletter, and more. Features JQEL datasource support, flexible navigation, and hybrid config storage.',
   author: 'Platform Team',
-  dependencies: ['auth'],
+  dependencies: [],
   category: 'core',
   permissions: [],
+  capabilities: {
+    providesRoutes: true,
+    providesComponents: true,
+  },
+  config: {
+    schema: {
+      route: {
+        type: 'string',
+        label: 'Rota da Página',
+        description: 'Caminho da URL para acessar esta página (ex: "/", "/home")',
+        required: true,
+      },
+      title: {
+        type: 'string',
+        label: 'Título da Página',
+        description: 'Título exibido na aba do navegador e para SEO',
+        required: false,
+      },
+      enabled: {
+        type: 'boolean',
+        label: 'Página Ativa',
+        description: 'Ativar ou desativar esta página',
+        required: true,
+      },
+    },
+    defaults: {
+      route: '/',
+      enabled: true,
+    },
+  },
 };

@@ -6,6 +6,71 @@
  * @module homepage/types
  */
 
+import { z } from 'zod';
+import type {
+  LinkConfigSchema,
+  DatasourceConfigSchema,
+  HomepageConfigSchema,
+  SectionConfigSchema,
+} from './validation';
+
+// ========================================
+// INFERRED TYPES FROM ZOD SCHEMAS
+// ========================================
+
+/**
+ * Link configuration types (inferred from Zod)
+ */
+export type LinkConfig = z.infer<typeof LinkConfigSchema>;
+
+export type RelativeLinkConfig = Extract<LinkConfig, { type: 'relative' }>;
+export type PortalLinkConfig = Extract<LinkConfig, { type: 'portal' }>;
+export type ExternalLinkConfig = Extract<LinkConfig, { type: 'external' }>;
+
+/**
+ * Datasource configuration (inferred from Zod)
+ */
+export type DatasourceConfig = z.infer<typeof DatasourceConfigSchema>;
+
+/**
+ * Section configuration (inferred from Zod)
+ */
+export type SectionConfig = z.infer<typeof SectionConfigSchema>;
+
+export type HeroSectionConfig = Extract<SectionConfig, { type: 'hero' }>;
+export type CardsSectionConfig = Extract<SectionConfig, { type: 'cards' | 'features' }>;
+export type QuickLinksSectionConfig = Extract<SectionConfig, { type: 'quickLinks' }>;
+export type StatsSectionConfig = Extract<SectionConfig, { type: 'stats' }>;
+export type FAQSectionConfig = Extract<SectionConfig, { type: 'faq' }>;
+export type NewsletterSectionConfig = Extract<SectionConfig, { type: 'newsletter' }>;
+export type FooterSectionConfig = Extract<SectionConfig, { type: 'footer' }>;
+export type CTASectionConfig = Extract<SectionConfig, { type: 'cta' }>;
+
+/**
+ * Full homepage configuration (inferred from Zod)
+ */
+export type HomepageConfig = z.infer<typeof HomepageConfigSchema>;
+
+// ========================================
+// BASIC CONFIG (for simple form)
+// ========================================
+
+/**
+ * Basic configuration for homepage instance
+ * Used in simple ConfigForm (route, title, enabled)
+ * Full visual config stored in external file
+ */
+export interface HomepageBasicConfig {
+  /** Page route (e.g., "/", "/home") */
+  route: string;
+
+  /** Page title (for browser tab and SEO) */
+  title?: string;
+
+  /** Enable/disable the page */
+  enabled: boolean;
+}
+
 // ========================================
 // UTILITY TYPES
 // ========================================
@@ -474,3 +539,9 @@ export type ExtractSectionType<T extends SectionConfig['type']> = Extract<
 // Exemplos de uso:
 // type Hero = ExtractSectionType<'hero'>; // HeroSectionConfig
 // type Features = ExtractSectionType<'features'>; // FeaturesSectionConfig
+
+// ========================================
+// VALIDATION FUNCTIONS
+// ========================================
+
+export { validateAllowedSchema, validateHomepageConfig, validateDatasourceConfig } from './validation';

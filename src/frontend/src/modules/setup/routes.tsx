@@ -23,6 +23,9 @@ const ComponentsDemo = lazy(() => import('./pages/ComponentsDemo').then(m => ({ 
 const CompositionList = lazy(() => import('./pages/CompositionList').then(m => ({ default: m.CompositionList })));
 const CompositionEditor = lazy(() => import('./pages/CompositionEditor').then(m => ({ default: m.CompositionEditor })));
 
+// Module-specific editors (imported from other modules)
+const HomepageEditor = lazy(() => import('../homepage/pages/EditorPage').then(m => ({ default: m.EditorPage })));
+
 export const setupRoutes: ModuleRoute[] = [
   {
     path: '/',
@@ -84,6 +87,10 @@ export const setupRoutes: ModuleRoute[] = [
   {
     path: '/portals/:portalId/modules/:moduleId/instances/:instanceId',
     component: InstanceForm
+  },
+  {
+    path: '/portals/:portalId/modules/:moduleId/instances/:instanceId/editor',
+    component: HomepageEditor
   },
   {
     path: '/portals/:portalId/compositions',
