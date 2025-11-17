@@ -28,6 +28,10 @@ import { LivePreviewPanel } from './LivePreviewPanel'
 import { EditorPanelRouter } from './EditorPanelRouter'
 import { EditorToolbar } from './EditorToolbar'
 import { SectionTypePicker } from './SectionTypePicker'
+import { EditorErrorBoundary } from './EditorErrorBoundary'
+import { EditorNotificationProvider, useEditorNotifications } from './EditorNotificationProvider'
+import { validateSection, sanitizeSection } from './sectionValidator'
+import { useConfirmDialog } from './useConfirmDialog'
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -66,19 +70,38 @@ const DEFAULT_CONFIG: HomepageConfig = {
 }
 
 /**
- * HomepageVisualEditor Component
+ * HomepageVisualEditor Component (Wrapper)
+ *
+ * Wraps the editor with error boundaries and notification provider.
+ */
+export function HomepageVisualEditor(props: HomepageVisualEditorProps) {
+  return (
+    <EditorNotificationProvider>
+      <EditorErrorBoundary onClose={props.onClose} level="critical">
+        <HomepageVisualEditorInner {...props} />
+      </EditorErrorBoundary>
+    </EditorNotificationProvider>
+  )
+}
+
+/**
+ * HomepageVisualEditorInner Component
  *
  * Full-screen visual editor with three-panel layout:
  * - Section list (left)
  * - Editor panel (center)
  * - Live preview (right, toggleable)
  */
-export function HomepageVisualEditor({
+function HomepageVisualEditorInner({
   moduleId,
   instanceId,
   portalId,
   onClose,
 }: HomepageVisualEditorProps) {
+  // Access notifications
+  const { notify } = useEditorNotifications()
+  const { confirm, ConfirmDialog } = useConfirmDialog()
+
   // Load external config
   const { config: savedConfig, isLoading, save } = useExternalConfigManager<HomepageConfig>(
     moduleId,
@@ -106,8 +129,10 @@ export function HomepageVisualEditor({
 
   // Track unsaved changes
   useEffect(() => {
-    if (!isLoading && savedConfig) {
-      const hasChanges = JSON.stringify(editingConfig) !== JSON.stringify(savedConfig)
+    if (!isLoading) {
+      // Compare with savedConfig if exists, otherwise compare with DEFAULT_CONFIG
+      const referenceConfig = savedConfig || DEFAULT_CONFIG
+      const hasChanges = JSON.stringify(editingConfig) !== JSON.stringify(referenceConfig)
       setHasUnsavedChanges(hasChanges)
     }
   }, [editingConfig, savedConfig, isLoading])
@@ -116,6 +141,34 @@ export function HomepageVisualEditor({
    * Update a specific section
    */
   const handleUpdateSection = (index: number, updatedSection: SectionConfig) => {
+    // Validar a seção antes de atualizar
+    const validation = validateSection(updatedSection)
+
+    if (!validation.isValid) {
+      notify(
+        'error',
+        'Erro ao atualizar seção',
+        `A seção contém erros: ${validation.errors.join(', ')}`
+      )
+
+      // Tentar sanitizar
+      const sanitized = sanitizeSection(updatedSection)
+      setEditingConfig((prev) => ({
+        ...prev,
+        sections: prev.sections.map((section, i) => (i === index ? sanitized : section)),
+      }))
+      return
+    }
+
+    // Mostrar avisos se houver
+    if (validation.warnings.length > 0) {
+      notify(
+        'warning',
+        'Avisos na seção',
+        validation.warnings.join(', ')
+      )
+    }
+
     setEditingConfig((prev) => ({
       ...prev,
       sections: prev.sections.map((section, i) => (i === index ? updatedSection : section)),
@@ -145,6 +198,17 @@ export function HomepageVisualEditor({
    */
   const handleAddSection = (sectionType: SectionConfig['type']) => {
     const newSection: SectionConfig = createDefaultSection(sectionType)
+
+    // Validar nova seção
+    const validation = validateSection(newSection)
+    if (!validation.isValid) {
+      notify(
+        'error',
+        'Erro ao criar seção',
+        `Não foi possível criar a seção: ${validation.errors.join(', ')}`
+      )
+      return
+    }
 
     setEditingConfig((prev) => ({
       ...prev,
@@ -179,20 +243,25 @@ export function HomepageVisualEditor({
     try {
       await save.mutateAsync(editingConfig)
       setHasUnsavedChanges(false)
+      notify('success', 'Configuração salva', 'A configuração foi salva com sucesso.')
     } catch (error) {
       console.error('Failed to save homepage config:', error)
-      alert('Falha ao salvar configuração. Veja o console para detalhes.')
+      notify('error', 'Erro ao salvar', 'Falha ao salvar configuração. Veja o console para detalhes.')
     }
   }
 
   /**
    * Close editor with unsaved changes warning
    */
-  const handleClose = () => {
+  const handleClose = async () => {
     if (hasUnsavedChanges) {
-      const confirmed = window.confirm(
-        'Você tem alterações não salvas. Deseja realmente sair?'
-      )
+      const confirmed = await confirm({
+        title: 'Alterações não salvas',
+        description: 'Você tem alterações não salvas. Deseja realmente sair?',
+        confirmText: 'Sair sem salvar',
+        cancelText: 'Continuar editando',
+        variant: 'destructive',
+      })
       if (!confirmed) return
     }
 
@@ -314,6 +383,9 @@ export function HomepageVisualEditor({
         onOpenChange={setShowTypePicker}
         onSelect={handleAddSection}
       />
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog />
     </div>
   )
 }
@@ -342,7 +414,7 @@ function createDefaultSection(type: SectionConfig['type']): SectionConfig {
         ...base,
         type: 'cards',
         title: 'Cards',
-        cards: [],
+        items: [],
       } as SectionConfig
 
     case 'quickLinks':
@@ -350,14 +422,14 @@ function createDefaultSection(type: SectionConfig['type']): SectionConfig {
         ...base,
         type: 'quickLinks',
         title: 'Links Rápidos',
-        links: [],
+        items: [],
       } as SectionConfig
 
     case 'stats':
       return {
         ...base,
         type: 'stats',
-        stats: [],
+        items: [],
       } as SectionConfig
 
     case 'faq':

@@ -13,7 +13,7 @@
  * @module homepage/components/editor
  */
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { HomepageConfig } from '../../types'
 import { HomePage } from '../../pages/HomePage'
 import { Button } from '@/components/ui/button'
@@ -47,6 +47,27 @@ export function LivePreviewPanel({
   highlightedSectionIndex,
 }: LivePreviewPanelProps) {
   const [previewMode, setPreviewMode] = useState<PreviewMode>('desktop')
+  const previewContainerRef = useRef<HTMLDivElement>(null)
+
+  /**
+   * Scroll to highlighted section when selection changes
+   */
+  useEffect(() => {
+    if (highlightedSectionIndex !== null && previewContainerRef.current) {
+      // Encontrar o elemento da seção no preview
+      const sectionElement = previewContainerRef.current.querySelector(
+        `[data-section-index="${highlightedSectionIndex}"]`
+      )
+
+      if (sectionElement) {
+        // Scroll suave para a seção
+        sectionElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }
+    }
+  }, [highlightedSectionIndex])
 
   /**
    * Get container width based on preview mode
@@ -103,7 +124,7 @@ export function LivePreviewPanel({
       </div>
 
       {/* Preview Content */}
-      <div className="flex-1 overflow-y-auto bg-muted/10 p-4">
+      <div className="flex-1 overflow-y-auto bg-muted/10 p-4" ref={previewContainerRef}>
         <div className={cn('transition-all duration-300', getPreviewWidth())}>
           {/* Preview Container with device frame simulation */}
           <div className="bg-background rounded-lg shadow-lg overflow-hidden">

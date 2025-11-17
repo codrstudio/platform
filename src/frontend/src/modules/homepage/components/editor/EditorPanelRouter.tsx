@@ -192,7 +192,7 @@ function createDefaultSectionForType(
         ...base,
         type: 'cards',
         title: 'Cards',
-        cards: [],
+        items: [],
       } as SectionConfig
 
     case 'quickLinks':
@@ -200,14 +200,14 @@ function createDefaultSectionForType(
         ...base,
         type: 'quickLinks',
         title: 'Links Rápidos',
-        links: [],
+        items: [],
       } as SectionConfig
 
     case 'stats':
       return {
         ...base,
         type: 'stats',
-        stats: [],
+        items: [],
       } as SectionConfig
 
     case 'faq':

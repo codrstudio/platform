@@ -14,6 +14,7 @@
  * @module homepage/components/editor
  */
 
+import { useState } from 'react'
 import type { SectionConfig } from '../../types'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -30,6 +31,7 @@ import {
   Zap,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useConfirmDialog } from './useConfirmDialog'
 
 export interface SectionListProps {
   /** Array of sections */
@@ -130,20 +132,96 @@ export function SectionList({
   onReorder,
   onDelete,
 }: SectionListProps) {
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
+  const { confirm, ConfirmDialog } = useConfirmDialog()
+
   /**
    * Handle delete with confirmation
    */
-  const handleDelete = (index: number, event: React.MouseEvent) => {
+  const handleDelete = async (index: number, event: React.MouseEvent) => {
     event.stopPropagation() // Prevent selection
 
     const section = sections[index]
-    const confirmed = window.confirm(
-      `Tem certeza que deseja excluir a seção "${getSectionTitle(section)}"?`
-    )
+    const confirmed = await confirm({
+      title: 'Excluir seção',
+      description: `Tem certeza que deseja excluir a seção "${getSectionTitle(section)}"? Esta ação não pode ser desfeita.`,
+      confirmText: 'Excluir',
+      cancelText: 'Cancelar',
+      variant: 'destructive',
+    })
 
     if (confirmed) {
       onDelete(index)
     }
+  }
+
+  /**
+   * Handle drag start
+   */
+  const handleDragStart = (index: number) => (e: React.DragEvent) => {
+    setDraggedIndex(index)
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/html', String(index))
+
+    // Add ghost image effect
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = '0.5'
+    }
+  }
+
+  /**
+   * Handle drag over
+   */
+  const handleDragOver = (index: number) => (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+
+    if (draggedIndex !== null && draggedIndex !== index) {
+      setDragOverIndex(index)
+    }
+  }
+
+  /**
+   * Handle drag leave
+   */
+  const handleDragLeave = () => {
+    setDragOverIndex(null)
+  }
+
+  /**
+   * Handle drop
+   */
+  const handleDrop = (targetIndex: number) => (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (draggedIndex === null || draggedIndex === targetIndex) {
+      setDraggedIndex(null)
+      setDragOverIndex(null)
+      return
+    }
+
+    // Reorder sections
+    const newSections = [...sections]
+    const [movedSection] = newSections.splice(draggedIndex, 1)
+    newSections.splice(targetIndex, 0, movedSection)
+
+    onReorder(newSections)
+
+    setDraggedIndex(null)
+    setDragOverIndex(null)
+  }
+
+  /**
+   * Handle drag end
+   */
+  const handleDragEnd = (e: React.DragEvent) => {
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = '1'
+    }
+    setDraggedIndex(null)
+    setDragOverIndex(null)
   }
 
   // Empty state
@@ -157,55 +235,70 @@ export function SectionList({
   }
 
   return (
-    <div className="space-y-2">
-      {sections.map((section, index) => {
-        const isSelected = selectedIndex === index
-        const isDisabled = section.enabled === false
+    <>
+      <div className="space-y-2">
+        {sections.map((section, index) => {
+          const isSelected = selectedIndex === index
+          const isDisabled = section.enabled === false
+          const isDragging = draggedIndex === index
+          const isDragOver = dragOverIndex === index
 
-        return (
-          <Card
-            key={section.id || index}
-            className={cn(
-              'p-3 cursor-pointer transition-all hover:border-primary/50',
-              isSelected && 'border-primary bg-primary/5',
-              isDisabled && 'opacity-50'
-            )}
-            onClick={() => onSelectSection(index)}
-          >
-            <div className="flex items-start gap-2">
-              {/* Drag Handle (Phase 5) */}
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
-              </div>
-
-              {/* Section Icon */}
-              <div className="mt-0.5 text-muted-foreground">
-                {getSectionIcon(section.type)}
-              </div>
-
-              {/* Section Info */}
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate">
-                  {getSectionTitle(section)}
+          return (
+            <Card
+              key={section.id || index}
+              draggable
+              onDragStart={handleDragStart(index)}
+              onDragOver={handleDragOver(index)}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop(index)}
+              onDragEnd={handleDragEnd}
+              className={cn(
+                'group p-3 cursor-pointer transition-all hover:border-primary/50',
+                isSelected && 'border-primary bg-primary/5',
+                isDisabled && 'opacity-50',
+                isDragging && 'opacity-50 scale-95',
+                isDragOver && 'border-primary border-2 scale-105'
+              )}
+              onClick={() => onSelectSection(index)}
+            >
+              <div className="flex items-start gap-2">
+                {/* Drag Handle (Phase 5) */}
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                  <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  {getSectionLabel(section.type)}
-                </div>
-              </div>
 
-              {/* Delete Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100"
-                onClick={(e) => handleDelete(index, e)}
-              >
-                <Trash2 className="w-3 h-3 text-destructive" />
-              </Button>
-            </div>
-          </Card>
-        )
-      })}
-    </div>
+                {/* Section Icon */}
+                <div className="mt-0.5 text-muted-foreground">
+                  {getSectionIcon(section.type)}
+                </div>
+
+                {/* Section Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium truncate">
+                    {getSectionTitle(section)}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {getSectionLabel(section.type)}
+                  </div>
+                </div>
+
+                {/* Delete Button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100"
+                  onClick={(e) => handleDelete(index, e)}
+                >
+                  <Trash2 className="w-3 h-3 text-destructive" />
+                </Button>
+              </div>
+            </Card>
+          )
+        })}
+      </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog />
+    </>
   )
 }
