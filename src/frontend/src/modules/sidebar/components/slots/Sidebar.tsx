@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/sidebar';
 import { ThemeToggleCompact } from '@/components/theme/ThemeToggle';
 import { cn } from '@/lib/utils';
+// Import components from parent directory
 import { SidebarBrand } from '../SidebarBrand';
 import { SidebarUserMenu } from '../SidebarUserMenu';
 import { SidebarSearch } from '../SidebarSearch';

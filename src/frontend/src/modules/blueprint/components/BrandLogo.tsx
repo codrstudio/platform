@@ -16,7 +16,7 @@ export function BrandLogo({ variant = 'full', className }: BrandLogoProps) {
       )}
     >
       <Home className="h-6 w-6" />
-      {variant === 'full' && <span className="text-lg">Blueprint</span>}
+      {variant === 'full' && <span className="text-lg text-foreground">Blueprint</span>}
     </div>
   );
 }
