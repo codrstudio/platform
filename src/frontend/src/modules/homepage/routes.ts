@@ -9,7 +9,7 @@ const EditorPage = lazy(() => import('./pages/EditorPage').then(m => ({ default:
 
 export const routes: ModuleRoute[] = [
   {
-    path: '/', // Default path - can be overridden by instance config
+    path: '/home',
     component: HomePage,
     isPublic: true,
     meta: {
@@ -18,7 +18,7 @@ export const routes: ModuleRoute[] = [
     },
   },
   {
-    path: '/editor',
+    path: '/home/editor',
     component: EditorPage,
     isPublic: false, // Requires authentication (setup portal access)
     meta: {

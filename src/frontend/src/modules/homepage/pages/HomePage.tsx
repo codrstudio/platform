@@ -8,7 +8,10 @@
 import React, { useMemo } from 'react';
 import { usePortal } from '@/contexts/PortalContext';
 import { useJQELQuery } from '@/hooks/useJQEL';
+import { useExternalConfig } from '@/hooks/useExternalConfig';
 import { evaluateTemplate } from '@/lib/templateEngine';
+import { Page } from '@/core/composition/Page';
+import { SectionErrorBoundary } from '../components/editor/SectionErrorBoundary';
 
 // Import all section components
 import { HeroSection } from '../components/sections/HeroSection';
@@ -29,6 +32,9 @@ import type { HomepageConfig, SectionConfig } from '../types';
 interface HomePageProps {
   config?: HomepageConfig;
   instanceId?: string;
+  portalId?: string; // Optional: for preview mode (uses context if not provided)
+  previewMode?: boolean; // Optional: indicates this is being rendered in editor preview
+  highlightedSectionIndex?: number | null; // Optional: section index to highlight in preview
 }
 
 /**
@@ -39,7 +45,8 @@ const SectionRenderer: React.FC<{
   portalId: string;
   instanceId?: string;
   index: number;
-}> = ({ section, portalId, instanceId, index }) => {
+  highlightedSectionIndex?: number | null;
+}> = ({ section, portalId, instanceId, index, highlightedSectionIndex }) => {
   // Skip disabled sections
   if (!section.enabled) return null;
 
@@ -72,40 +79,63 @@ const SectionRenderer: React.FC<{
   }, [section, portalId, instanceId]);
 
   // Render section based on type
-  switch (section.type) {
-    case 'hero':
-      return <HeroSection config={processedSection} portalId={portalId} instanceId={instanceId} />;
+  const renderSection = () => {
+    switch (section.type) {
+      case 'hero':
+        return <HeroSection config={processedSection} portalId={portalId} instanceId={instanceId} />;
 
-    case 'cards':
-    case 'features': // Backward compatibility
-      return <CardsSection config={processedSection} portalId={portalId} instanceId={instanceId} />;
+      case 'cards':
+      case 'features': // Backward compatibility
+        return <CardsSection config={processedSection} portalId={portalId} instanceId={instanceId} />;
 
-    case 'quickLinks':
-      return <QuickLinksSection config={processedSection} portalId={portalId} instanceId={instanceId} />;
+      case 'quickLinks':
+        return <QuickLinksSection config={processedSection} portalId={portalId} instanceId={instanceId} />;
 
-    case 'stats':
-      return <StatsSection config={processedSection} portalId={portalId} instanceId={instanceId} />;
+      case 'stats':
+        return <StatsSection config={processedSection} portalId={portalId} instanceId={instanceId} />;
 
-    case 'faq':
-      return <FAQSection config={processedSection} portalId={portalId} instanceId={instanceId} />;
+      case 'faq':
+        return <FAQSection config={processedSection} portalId={portalId} instanceId={instanceId} />;
 
-    case 'newsletter':
-      return <NewsletterSection config={processedSection} portalId={portalId} instanceId={instanceId} />;
+      case 'newsletter':
+        return <NewsletterSection config={processedSection} portalId={portalId} instanceId={instanceId} />;
 
-    case 'footer':
-      return <FooterSection config={processedSection} portalId={portalId} instanceId={instanceId} />;
+      case 'footer':
+        return <FooterSection config={processedSection} portalId={portalId} instanceId={instanceId} />;
 
-    // Legacy sections
-    case 'cta':
-      return <CTASection config={processedSection} />;
+      // Legacy sections
+      case 'cta':
+        return <CTASection config={processedSection} />;
 
-    case 'portals':
-      return <PortalsSection config={processedSection} />;
+      case 'portals':
+        return <PortalsSection config={processedSection} />;
 
-    default:
-      console.warn(`Unknown section type: ${section.type}`);
-      return null;
-  }
+      default:
+        console.warn(`Unknown section type: ${section.type}`);
+        return null;
+    }
+  };
+
+  // Determine if this section should be highlighted
+  const isHighlighted = highlightedSectionIndex === index;
+
+  // Wrap section in error boundary with data attribute for preview scrolling
+  return (
+    <div
+      data-section-index={index}
+      className={isHighlighted ? 'ring-2 ring-primary ring-offset-2' : ''}
+    >
+      <SectionErrorBoundary
+        sectionType={section.type}
+        sectionTitle={(section as any).title}
+        onError={(error, errorInfo) => {
+          console.error(`Error rendering section ${section.type}:`, error, errorInfo);
+        }}
+      >
+        {renderSection()}
+      </SectionErrorBoundary>
+    </div>
+  );
 };
 
 /**
@@ -172,9 +202,43 @@ const defaultConfig: HomepageConfig = {
 
 export const HomePage: React.FC<HomePageProps> = ({
   config = defaultConfig,
-  instanceId
+  instanceId = 'default',
+  portalId: portalIdProp,
+  previewMode = false,
+  highlightedSectionIndex
 }) => {
-  const { portalId } = usePortal();
+  const portalContext = usePortal();
+  const portalId = portalIdProp || portalContext.portalId;
+
+  // Load instance config to get compositionId
+  const { data: instanceData } = useJQELQuery({
+    schema: 'backend',
+    select: 'instance',
+    where: {
+      portalId: { $eq: portalId },
+      moduleId: { $eq: 'homepage' },
+      instanceId: { $eq: instanceId }
+    }
+  });
+
+  const instanceConfig = instanceData?.data?.[0]?.config;
+  const compositionId = instanceConfig?.compositionId;
+
+  // Extract base composition ID (remove portal prefix if present)
+  // e.g., "sandbox-default" -> "default"
+  const baseCompositionId = compositionId?.includes('-')
+    ? compositionId.split('-').slice(1).join('-')
+    : compositionId;
+
+  // Load external configuration (sections, theme, etc.)
+  // Skip loading if in preview mode (config comes from props)
+  const { data: externalConfig, isLoading } = useExternalConfig<HomepageConfig>(
+    'homepage',
+    instanceId,
+    {
+      enabled: !previewMode, // Don't fetch if in preview mode
+    }
+  );
 
   // Load configuration from JQEL if needed (future enhancement)
   const { data: dynamicConfig } = useJQELQuery(
@@ -189,8 +253,8 @@ export const HomePage: React.FC<HomePageProps> = ({
     }
   );
 
-  // Use dynamic config if available, otherwise use provided config
-  const finalConfig = dynamicConfig?.data || config;
+  // Priority: externalConfig > dynamicConfig > provided config > default config
+  const finalConfig = externalConfig || dynamicConfig?.data || config;
 
   // Sort sections by order if specified
   const sortedSections = useMemo(() => {
@@ -203,7 +267,20 @@ export const HomePage: React.FC<HomePageProps> = ({
     });
   }, [finalConfig.sections]);
 
-  return (
+  // Show loading state while fetching external config
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading homepage...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Render content (sections)
+  const content = (
     <div className="homepage min-h-screen">
       {/* Page Title */}
       {finalConfig.title && (
@@ -218,6 +295,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           portalId={portalId}
           instanceId={instanceId}
           index={index}
+          highlightedSectionIndex={highlightedSectionIndex}
         />
       ))}
 
@@ -233,6 +311,18 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       )}
     </div>
+  );
+
+  // If in preview mode or no composition, render content directly
+  if (previewMode || !baseCompositionId) {
+    return content;
+  }
+
+  // Wrap content with Page composition
+  return (
+    <Page composition={baseCompositionId}>
+      {content}
+    </Page>
   );
 };
 

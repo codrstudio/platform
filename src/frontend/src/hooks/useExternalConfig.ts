@@ -20,7 +20,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
 import type { JResult } from '@/types/jqel'
 
-const API_BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'
+const API_BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3003'
 
 /**
  * Fetch external config from backend

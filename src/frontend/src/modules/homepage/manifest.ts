@@ -34,10 +34,17 @@ export const manifest: ModuleManifest = {
         description: 'Ativar ou desativar esta página',
         required: true,
       },
+      compositionId: {
+        type: 'string',
+        label: 'Composição',
+        description: 'Layout/composição para envolver a página (deixe vazio para página sem layout)',
+        required: false,
+      },
     },
     defaults: {
       route: '/',
       enabled: true,
+      compositionId: null,
     },
   },
 };

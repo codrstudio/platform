@@ -69,6 +69,9 @@ export interface HomepageBasicConfig {
 
   /** Enable/disable the page */
   enabled: boolean;
+
+  /** Composition ID to wrap the page (null = no composition) */
+  compositionId?: string | null;
 }
 
 // ========================================
