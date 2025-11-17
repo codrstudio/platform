@@ -9,53 +9,25 @@
  * - Renderização avançada (Markdown + Mermaid diagrams + Imagens)
  *
  * SPEC Compliance:
- * - SPEC-M-CHATIFY-001: Sistema de múltiplos provedores de IA
- * - SPEC-M-CHATIFY-002: Sistema de agentes configurável
- * - SPEC-M-CHATIFY-003: Gamificação/Jornada de descoberta
- * - SPEC-M-CHATIFY-004: Streaming SSE unificado
- * - SPEC-M-CHATIFY-005: Renderização avançada de conteúdo
+ * - SPEC-MP-IDX-001: Entry point com auto-registro
+ * - SPEC-MP-IDX-002: Auto-registro no moduleRegistry
+ * - SPEC-MP-IDX-003: Apenas exportação e registro, sem lógica de negócio
  */
 
+import type { ModuleExports } from '@/types/module'
 import { chatifyManifest } from './manifest'
 import { chatifyRoutes } from './routes'
-import type { ModuleExports } from '../../types/module'
+import { moduleRegistry } from '@/core/modules'
 
-// Components
-export * from './components'
-
-// Pages
-export { Home } from './pages/Home'
-export { ChatInterface } from './pages/ChatInterface'
-export { Admin } from './pages/Admin'
-export { Guide } from './pages/Guide'
-
-// Hooks
-export { useChatify } from './hooks/useChatify'
-export { useAgents } from './hooks/useAgents'
-export { useModels } from './hooks/useModels'
-export { useJourneyProgress } from './hooks/useJourneyProgress'
-export { useTheme } from './hooks/useTheme'
-export { useSidebar } from './hooks/useSidebar'
-export { useNextStepWidget } from './hooks/useNextStepWidget'
-export { useChatWidget } from './hooks/useChatWidget'
-export { useMermaid } from './hooks/useMermaid'
-export { useAutoScroll } from './hooks/useAutoScroll'
-
-// Types
-export type {
-  Message,
-  Agent,
-  AIProvider,
-  AIModel,
-} from './types'
-
-// Module Exports
+/**
+ * Module exports - Segue SPEC-MP-IDX-001
+ */
 export const chatifyModule: ModuleExports = {
   manifest: chatifyManifest,
-  routes: chatifyRoutes
+  routes: chatifyRoutes,
 }
 
-// Auto-register module on import
-import { moduleRegistry } from '../../core/modules'
-
+/**
+ * Auto-registro - SPEC-MP-IDX-002 (OBRIGATÓRIO)
+ */
 moduleRegistry.register(chatifyModule)

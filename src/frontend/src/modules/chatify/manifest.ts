@@ -25,7 +25,6 @@ import type { ModuleManifest } from '@/types/module'
 
 export const chatifyManifest: ModuleManifest = {
   id: 'chatify',
-  moduleId: 'chatify',
   name: 'Chatify',
   version: '1.0.0',
   description:
@@ -33,6 +32,21 @@ export const chatifyManifest: ModuleManifest = {
 
   type: 'functionality',
   category: 'communication',
+
+  capabilities: {
+    providesRoutes: true,
+    providesComponents: false,
+    providesWidgets: false,
+    providesSlots: false,
+    providesCompositions: false,
+  },
+
+  routes: [
+    { path: '/', index: false },
+    { path: '/chat', index: false },
+    { path: '/admin', index: false },
+    { path: '/guide/:stepId', index: false },
+  ],
 
   dependencies: [],
   permissions: [
